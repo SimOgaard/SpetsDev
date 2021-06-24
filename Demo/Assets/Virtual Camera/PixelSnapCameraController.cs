@@ -83,4 +83,39 @@ public class PixelSnapCameraController : MonoBehaviour
     {
         PixelSnap();
     }
+
+    
+    public FilterMode filterMode = FilterMode.Point;
+
+    private RenderTexture rt;
+
+    
+    void OnPreRender()
+    {
+        // before rendering, setup our RenderTexture
+        int width = 384;
+        int height = 216;
+        rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        GetComponent<Camera>().targetTexture = rt;
+    }
+    
+
+    void OnPostRender()
+    {
+        // after rendering we need to clear the targetTexture so that post effect will be able to render 
+        // to the screen
+        GetComponent<Camera>().targetTexture = null;
+        RenderTexture.active = null;
+    }
+
+    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    {
+        // set our filtering mode and blit to the screen
+        src.filterMode = filterMode;
+
+        Graphics.Blit(src, dest);
+
+        RenderTexture.ReleaseTemporary(rt);
+    }
+
 }
