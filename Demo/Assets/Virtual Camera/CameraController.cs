@@ -4,38 +4,43 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-
-    private Transform camera_transform;
     private Transform pivot_transform;
 
     private Vector3 local_rotation;
 
     [SerializeField]
-    private float camera_distance = 100f;
+    private float mouse_sensitivity = 8f;
     [SerializeField]
-    private float mouse_sensitivity = 0.75f;
-    [SerializeField]
-    private float orbit_dampening = 10f;
-
-    [SerializeField]
-    private float deg_test = 30f;
+    private float move_sensitivity = 4f;
 
     private void Start()
     {
-        local_rotation.y = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sqrt(2f));
-        local_rotation.y = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad));
-        //local_rotation.y = 30f;
-        camera_transform = transform;
         pivot_transform = transform.parent;
+
+        local_rotation.y = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad));
+        UpdateCameraRotation();
+    }
+
+    private void UpdateCameraRotation()
+    {
+        local_rotation.x += Input.GetAxis("Mouse X") * mouse_sensitivity * Time.deltaTime;
+
+        pivot_transform.rotation = Quaternion.Euler(local_rotation.y, local_rotation.x, 0);
+    }
+
+    private void MoveCamera()
+    {
+        Vector3 movement = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f);
+
+        pivot_transform.position += movement * move_sensitivity * Time.deltaTime;
     }
 
     private void LateUpdate()
     {
-        local_rotation.y = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(deg_test * Mathf.Deg2Rad));
-
-        //local_rotation.x += Input.GetAxis("Mouse X") * mouse_sensitivity;
-
-        Quaternion QT = Quaternion.Euler(local_rotation.y, local_rotation.x, 0);
-        pivot_transform.rotation = Quaternion.Lerp(pivot_transform.rotation, QT, Time.deltaTime * orbit_dampening);
+        if (Input.GetButton("Fire1"))
+        {
+            UpdateCameraRotation();
+        }
+        MoveCamera();
     }
 }
