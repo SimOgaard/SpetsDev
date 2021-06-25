@@ -2,29 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// pixel perfect glides over pixels
+/// <summary>
+/// This script renders our scene at 384x216 resolution and upscales the result to the screen.
+/// At render the camera is snapped to nearest pixel in pixelgrid and the snap offset is corrected for when we blits the render texture to game view.
+/// </summary>
 [RequireComponent(typeof(Camera))]
-public class PixelPerfectCameraController : MonoBehaviour
+public class PixelPerfectCamera : MonoBehaviour
 {
     [SerializeField]
-    private float move_sensitivity = 1f;
-
-    [SerializeField]
-    private float camera_distance_origo_z = -200f;
-
+    private float camera_distance_origo_z = -100f;
     private float units_per_pixel = 40f / 216f;
     private Vector3 offset;
 
-    private RenderTexture rt;
+    public Transform camera_focus_point;
     private Camera m_camera;
-    private Transform camera_focus_point;
-    private Rigidbody camera_focus_rigid_body;
+    private RenderTexture rt;
 
+    /// <summary>
+    /// Rounds given Vector3 position to pixel grid.
+    /// </summary>
     private Vector3 RoundToPixel(Vector3 position)
     {
-        if (units_per_pixel == 0.0f)
-            return position;
-
         Vector3 result;
         result.x = Mathf.Round(position.x / units_per_pixel) * units_per_pixel;
         result.y = Mathf.Round(position.y / units_per_pixel) * units_per_pixel;
@@ -33,6 +31,9 @@ public class PixelPerfectCameraController : MonoBehaviour
         return result;
     }
 
+    /// <summary>
+    /// Snap camera position to pixel grid using Camera.worldToCameraMatrix. 
+    /// </summary>
     private void PixelSnap()
     {
         Vector3 camera_position = m_camera.transform.rotation * m_camera.transform.position;
@@ -44,40 +45,33 @@ public class PixelPerfectCameraController : MonoBehaviour
         m_camera.worldToCameraMatrix = offset_matrix * m_camera.transform.worldToLocalMatrix;
     }
 
+    /// <summary>
+    /// Sets camera rotation to isometric view.
+    /// 30 degrees does not achieve the 2 pixel across 1 pixel down look so we set rotation to approximately 26.565 degrees.
+    /// </summary>
     private void SetCameraRotation()
     {
         m_camera.transform.rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
     }
 
+    /// <summary>
+    /// Moves camera to given focus point
+    /// Keeps camera the same distance from (0,0,0) in Z dimension so that the camera only snaps to X and Y dimensions. (reduces flickering)
+    /// </summary>
     private void MoveCamera()
     {
         Vector3 camera_pos = new Vector3(camera_focus_point.position.x, (camera_focus_point.position.z - camera_distance_origo_z) * Mathf.Sin(30f * Mathf.Deg2Rad) + camera_focus_point.position.y, camera_distance_origo_z);
         m_camera.transform.position = camera_pos;
     }
 
-    private void MoveFocusPoint()
-    {
-        Vector3 movement_normal = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
-        Vector3 movement = movement_normal * move_sensitivity * Time.deltaTime;
-
-        camera_focus_rigid_body.MovePosition(camera_focus_point.position + movement);
-    }
-
     private void Awake()
     {
-        camera_focus_point = transform.parent.GetChild(1);
-        camera_focus_rigid_body = camera_focus_point.GetComponent<Rigidbody>();
         m_camera = GetComponent<Camera>();
-    }
-
-    private void Start()
-    {
         SetCameraRotation();
     }
 
     private void LateUpdate()
     {
-        MoveFocusPoint();
         MoveCamera();
     }
 
@@ -86,27 +80,28 @@ public class PixelPerfectCameraController : MonoBehaviour
         PixelSnap();
     }
 
+    /// <summary>
+    /// Before render set camera render texture to temporary low res render texture.
+    /// </summary>
     void OnPreRender()
     {
         int width = 384;
         int height = 216;
         rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
-        GetComponent<Camera>().targetTexture = rt;
+        m_camera.targetTexture = rt;
     }
 
-    void OnPostRender()
-    {
-        GetComponent<Camera>().targetTexture = null;
-        RenderTexture.active = null;
-    }
-
+    /// <summary>
+    /// When we render account for none integer offsets using blits to get smooth camera movement.
+    /// </summary>
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         src.filterMode = FilterMode.Point;
 
+        // Translate offset.xy to render texture uv cordinates.
         float to_positive = units_per_pixel * 0.5f;
         float x_divider = 9f / 640f; //(1f * 216f) / (384f * 40f);
-        float y_divider = 1f / 40f; //(1f * 384f) / (384f * 40f);
+        float y_divider = 1f / 40f;  //(1f * 384f) / (384f * 40f);
 
         Vector2 camera_offset = new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
         Vector2 camera_scale = new Vector2(1f, 1f);
@@ -114,5 +109,14 @@ public class PixelPerfectCameraController : MonoBehaviour
         Graphics.Blit(src, dest, camera_scale, camera_offset);
 
         RenderTexture.ReleaseTemporary(rt);
+    }
+
+    /// <summary>
+    /// After render clear camera render texture.
+    /// </summary>
+    void OnPostRender()
+    {
+        m_camera.targetTexture = null;
+        RenderTexture.active = null;
     }
 }
