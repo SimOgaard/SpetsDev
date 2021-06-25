@@ -16,11 +16,15 @@ public class Ground : MonoBehaviour
     //[SerializeField]
     //private int octaves = 3;
     [SerializeField]
-    private float frequency = 0.25f;
+    private float frequency_1 = 0.02f;
+    [SerializeField]
+    private float frequency_2 = 0.1f;
     //[SerializeField]
     //private float offset = 2f;
     [SerializeField]
-    private float amplitude = 0.9f;
+    private float amplitude_1 = 10f;
+    [SerializeField]
+    private float amplitude_2 = 10f;
     //[SerializeField]
     //private float amplitude_change = 0.5f;
 
@@ -124,7 +128,8 @@ public class Ground : MonoBehaviour
             for (int x = 0; x < (int)ground_resolution.x; x++)
             {
                 vertex.x = triangle_size.x * x;
-                vertex.y = Mathf.PerlinNoise(x * frequency, z * frequency) * amplitude;
+                vertex.y = Mathf.PerlinNoise(x * frequency_1, z * frequency_1) * amplitude_1;
+                vertex.y += Mathf.PerlinNoise(x * frequency_2, z * frequency_2) * amplitude_2;
                 //vertex.y = Fbm(new Vector2(x, z));
 
                 vertices_index = z * (int)ground_resolution.y + x;
@@ -144,7 +149,7 @@ public class Ground : MonoBehaviour
                 }
 
                 // TESTING
-                float col = vertex.y / amplitude;
+                float col = vertex.y / amplitude_1;
                 Color color = new Color(col, col, col);
                 TEST_IMAGE_NOISE.SetPixel(x, z, color);
             }
@@ -157,6 +162,8 @@ public class Ground : MonoBehaviour
 
         gameObject.GetComponent<MeshFilter>().mesh = ground_mesh;
         gameObject.GetComponent<MeshCollider>().sharedMesh = ground_mesh;
+
+        transform.GetChild(0).GetComponent<MeshFilter>().mesh = ground_mesh;
     }
 
     private void Start()
