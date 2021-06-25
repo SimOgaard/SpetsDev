@@ -14,6 +14,7 @@ public class PixelSnapCameraController : MonoBehaviour
 
     private float units_per_pixel = 40f / 216f;
 
+    private RenderTexture rt;
     private Camera m_camera;
     private Transform camera_focus_point;
     private Rigidbody camera_focus_rigid_body;
@@ -42,7 +43,7 @@ public class PixelSnapCameraController : MonoBehaviour
         m_camera.worldToCameraMatrix = offset_matrix * m_camera.transform.worldToLocalMatrix;
     }
 
-    private void UpdateCameraRotation()
+    private void SetCameraRotation()
     {
         m_camera.transform.rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
     }
@@ -70,7 +71,7 @@ public class PixelSnapCameraController : MonoBehaviour
 
     private void Start()
     {
-        UpdateCameraRotation();
+        SetCameraRotation();
     }
 
     private void LateUpdate()
@@ -83,39 +84,27 @@ public class PixelSnapCameraController : MonoBehaviour
     {
         PixelSnap();
     }
-
-    
-    public FilterMode filterMode = FilterMode.Point;
-
-    private RenderTexture rt;
-
     
     void OnPreRender()
     {
-        // before rendering, setup our RenderTexture
         int width = 384;
         int height = 216;
         rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
         GetComponent<Camera>().targetTexture = rt;
     }
-    
 
     void OnPostRender()
     {
-        // after rendering we need to clear the targetTexture so that post effect will be able to render 
-        // to the screen
         GetComponent<Camera>().targetTexture = null;
         RenderTexture.active = null;
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        // set our filtering mode and blit to the screen
-        src.filterMode = filterMode;
+        src.filterMode = FilterMode.Point;
 
         Graphics.Blit(src, dest);
 
         RenderTexture.ReleaseTemporary(rt);
     }
-
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// this SpriteInitializer places it to worldspace and snaps to nearest pixel, should not be used for character
 public class SpriteInitializer : MonoBehaviour
 {
     [SerializeField]
@@ -27,6 +28,7 @@ public class SpriteInitializer : MonoBehaviour
 
         float y_scale = 0.5f / Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
+        game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f);
     }
 
     private void Start()

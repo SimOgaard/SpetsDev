@@ -2,32 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// testa även:
-// material på render texturen som tar in x och y movement och samplar ofsett "tex2D(_MainTex, pos);" || FÖR ATT FÅ BORT JITTER
-// https://www.youtube.com/watch?v=2JbhkZe22bE&ab_channel=HeartBeast || FÖR ATT FÅ BORT JITTER
-
-// pixel snaps and glides
+// pixel perfect glides over pixels
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCameraController : MonoBehaviour
 {
-    //[SerializeField]
-    //private float mouse_sensitivity = 2f;
     [SerializeField]
     private float move_sensitivity = 1f;
 
-    private float units_per_pixel = 40f / 216f;
-    private Vector3 local_rotation;
+    [SerializeField]
+    private float camera_distance_origo_z = -200f;
 
+    private float units_per_pixel = 40f / 216f;
     private Vector3 offset;
 
+    private RenderTexture rt;
     private Camera m_camera;
-    private Transform camera_pivot_transform;
-    private Transform virtual_screen_transform;
-
-    [SerializeField]
-    private RenderTexture render_texture;
-    [SerializeField]
-    private Material virtual_screen_glide;
+    private Transform camera_focus_point;
+    private Rigidbody camera_focus_rigid_body;
 
     private Vector3 RoundToPixel(Vector3 position)
     {
@@ -53,77 +44,75 @@ public class PixelPerfectCameraController : MonoBehaviour
         m_camera.worldToCameraMatrix = offset_matrix * m_camera.transform.worldToLocalMatrix;
     }
 
-    private void UpdateCameraRotation(bool right_click, bool left_click)
+    private void SetCameraRotation()
     {
-        local_rotation.x += System.Convert.ToInt32(right_click) * 45f - System.Convert.ToInt32(left_click) * 45f;
-        camera_pivot_transform.rotation = Quaternion.Euler(local_rotation.y, local_rotation.x, 0);
+        m_camera.transform.rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
     }
 
     private void MoveCamera()
     {
-        Vector3 movement_normal = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f);
-        Vector3 movement_translated_normal = Quaternion.AngleAxis(local_rotation.x, Vector3.up) * movement_normal;
-        Vector3 movement = movement_translated_normal * move_sensitivity * Time.deltaTime;
-
-        camera_pivot_transform.position += movement;
+        Vector3 camera_pos = new Vector3(camera_focus_point.position.x, (camera_focus_point.position.z - camera_distance_origo_z) * Mathf.Sin(30f * Mathf.Deg2Rad) + camera_focus_point.position.y, camera_distance_origo_z);
+        m_camera.transform.position = camera_pos;
     }
 
-    private void MoveVirtualCamera()
+    private void MoveFocusPoint()
     {
-        Vector3 offset_new = new Vector3(offset.x, offset.y, 0f);
+        Vector3 movement_normal = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
+        Vector3 movement = movement_normal * move_sensitivity * Time.deltaTime;
 
-        Debug.Log(offset.x);
-        virtual_screen_transform.position = offset_new * 108f/20f;
+        camera_focus_rigid_body.MovePosition(camera_focus_point.position + movement);
     }
 
     private void Awake()
     {
-        camera_pivot_transform = transform.parent;
-        virtual_screen_transform = camera_pivot_transform.parent.GetChild(1).GetChild(0);
+        camera_focus_point = transform.parent.GetChild(1);
+        camera_focus_rigid_body = camera_focus_point.GetComponent<Rigidbody>();
         m_camera = GetComponent<Camera>();
     }
 
     private void Start()
     {
-        local_rotation.y = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad));
-        UpdateCameraRotation(false, false);
-    }
-    
-    private void Update()
-    {
-        // change variables in render_texture_glide_material, 
-
-        //Graphics.Blit(render_texture, null, virtual_screen_glide, -1);
-    }
-
-    RenderTexture mainSceneRT;
-    RenderTexture rayMarchRT;
-    void OnPreRender()
-    {
-        //m_camera.targetTexture = mainSceneRT;
-        // this ensures that w/e the camera sees is rendered to the above RT
-    }
-
-    void OnPostrender()
-    {
-        // render to secondary render target
-        //Graphics.Blit(rayMarchRT, mainSceneRT, virtual_screen_glide);
-        // You have to set target texture to null for the Blit below to work
-        //m_camera.targetTexture = null;
-
-        //Graphics.Blit(mainSceneRT, null as RenderTexture);
-        //Graphics.Blit(render_texture, null, virtual_screen_glide, -1);
+        SetCameraRotation();
     }
 
     private void LateUpdate()
     {
-        //UpdateCameraRotation(Input.GetButtonDown("Fire1"), Input.GetButtonDown("Fire2"));
+        MoveFocusPoint();
         MoveCamera();
-        MoveVirtualCamera();
     }
 
     private void OnPreCull()
     {
         PixelSnap();
+    }
+
+    void OnPreRender()
+    {
+        int width = 384;
+        int height = 216;
+        rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        GetComponent<Camera>().targetTexture = rt;
+    }
+
+    void OnPostRender()
+    {
+        GetComponent<Camera>().targetTexture = null;
+        RenderTexture.active = null;
+    }
+
+    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    {
+        src.filterMode = FilterMode.Point;
+
+        float to_positive = units_per_pixel * 0.5f;
+        float x_divider = 9f / 640f; //(1f * 216f) / (384f * 40f);
+        float y_divider = 1f / 40f; //(1f * 384f) / (384f * 40f);
+
+        Vector2 camera_offset = new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
+        Vector2 camera_scale = new Vector2(1f, 1f);
+
+        Graphics.Blit(src, dest, camera_scale, camera_offset);
+
+        RenderTexture.ReleaseTemporary(rt);
     }
 }
