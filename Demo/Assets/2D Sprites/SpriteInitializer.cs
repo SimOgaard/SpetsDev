@@ -6,6 +6,7 @@ using UnityEngine;
 /// This script translates imported pixelart to worlds space.
 /// The Sprite Initializer component initializes gameobject with sprite renderer at an angle calculated to offset cameras isometric view.
 /// Alternatively this component stretches sprite in Y scale to offset cameras isometric view.
+/// Also works for Animations.
 /// Sprites must be set to:
 ///                         texture_type.Sprite
 ///                         pixels_per_unit = 5.4
@@ -17,6 +18,8 @@ public class SpriteInitializer : MonoBehaviour
     // Sprite that gets rendered
     [SerializeField]
     private Sprite sprite_to_render;
+    [SerializeField]
+    private RuntimeAnimatorController animation_to_render;
 
     /// <summary>
     /// Initializes gameobject at an angle calculated to offset cameras isometric view
@@ -32,6 +35,18 @@ public class SpriteInitializer : MonoBehaviour
         // Applies rotation to gameobject so it is facing the camera
         Quaternion rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
         game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f); // TODO Y position according to rotation
+        game_object.transform.rotation = rotation;
+    }
+    private void InitializeRotated(RuntimeAnimatorController animation)
+    {
+        GameObject game_object = new GameObject();
+        game_object.AddComponent<SpriteRenderer>();
+        game_object.AddComponent<Animator>();
+        game_object.GetComponent<Animator>().runtimeAnimatorController = animation;
+        game_object.transform.parent = transform;
+
+        Quaternion rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
+        game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f);
         game_object.transform.rotation = rotation;
     }
 
@@ -51,9 +66,28 @@ public class SpriteInitializer : MonoBehaviour
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
         game_object.transform.localPosition = new Vector3(0f, 2.333f, 0f); // TODO bottom of sprite flush with ground
     }
+    private void InitializeUpright(RuntimeAnimatorController animation)
+    {
+        GameObject game_object = new GameObject();
+        game_object.AddComponent<SpriteRenderer>();
+        game_object.AddComponent<Animator>();
+        game_object.GetComponent<Animator>().runtimeAnimatorController = animation;
+        game_object.transform.parent = transform;
+
+        float y_scale = 0.5f / Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
+        game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
+        game_object.transform.localPosition = new Vector3(0f, 2.333f, 0f);
+    }
 
     private void Start()
     {
-        InitializeUpright(sprite_to_render);
+        if (sprite_to_render != null)
+        {
+            InitializeUpright(sprite_to_render);
+        }
+        else if (animation_to_render != null)
+        {
+            InitializeUpright(animation_to_render);
+        }
     }
 }
