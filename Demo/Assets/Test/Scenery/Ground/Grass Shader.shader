@@ -47,9 +47,10 @@
 		SHADOW_COORDS(1)
 		fixed3 diff : COLOR0;
 		fixed3 ambient : COLOR1;
+		float rand : TEXCOORD2;
 	};
 
-	geometryOutput VertexOutput(float3 pos, float2 uv, float3 norm)
+	geometryOutput VertexOutput(float3 pos, float2 uv, float3 norm, float rand)
 	{
 		geometryOutput o;
 		o.pos = UnityObjectToClipPos(pos);
@@ -58,6 +59,7 @@
         half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
         o.diff = nl * _LightColor0.rgb;
         o.ambient = ShadeSH9(half4(worldNormal,1));
+		o.rand = rand;
         // compute shadows data
         TRANSFER_SHADOW(o)
 		return o;
@@ -102,16 +104,18 @@
 			vTangent.z, vBinormal.z, vNormal.z
 		);
 
-		float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos) * UNITY_TWO_PI, float3(0, 0, 1));
+		float randPosValue = rand(pos);
+
+		float3x3 facingRotationMatrix = AngleAxis3x3(randPosValue * UNITY_TWO_PI, float3(0, 0, 1));
 		float3x3 bendRotationMatrix = AngleAxis3x3(rand(pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
 		float3x3 transformationMatrix = mul(mul(tangentToLocal, facingRotationMatrix), bendRotationMatrix);
 
 		float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
 		float width = (rand(pos.xzy) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
 
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal));
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, 0)), float2(1, 0), vNormal));
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(0, 0, height)), float2(0.5, 1), vNormal));
+		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal, randPosValue));
+		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, 0)), float2(1, 0), vNormal, randPosValue));
+		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(0, 0, height)), float2(0.5, 1), vNormal, randPosValue));
 	}
 
 	ENDCG
