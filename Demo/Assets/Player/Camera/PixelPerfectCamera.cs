@@ -10,18 +10,13 @@ using UnityEngine;
 public class PixelPerfectCamera : MonoBehaviour
 {
     [SerializeField]
-    private float camera_distance_origo_z = -100f;
-    [SerializeField]
     private float camera_distance = 100f;
 
     private float camera_distance_to_y = Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
     private float camera_distance_to_z = Mathf.Cos(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
-    private float camera_focus_point_y_to_z = 1f / Mathf.Sin(30f * Mathf.Deg2Rad);
 
     private float units_per_pixel = 40f / 216f;
-    private float camera_rotation = Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad));
     private Quaternion camera_quaternion_rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
-    private float camera_rotation_inverse = Mathf.Atan(Mathf.Sin(330f * Mathf.Deg2Rad));
     private Quaternion camera_quaternion_rotation_inverse = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(330f * Mathf.Deg2Rad)), 0f, 0f);
 
     private Vector3 offset;
@@ -45,16 +40,15 @@ public class PixelPerfectCamera : MonoBehaviour
 
     /// <summary>
     /// Snap camera position to pixel grid using Camera.worldToCameraMatrix. 
-    /// For camera fixed in Y space multiply (m_camera.transform.position) with:
-    ///     Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(330f * Mathf.Deg2Rad)), 0f, 0f);
-    /// For camera fixed in Z space multiply (m_camera.transform.position) with:
-    ///     Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
     /// </summary>
     private void PixelSnap()
     {
-        Vector3 camera_position = camera_quaternion_rotation_inverse * m_camera.transform.position;
-        Vector3 rounded_camera_position = RoundToPixel(camera_position);
-        offset = rounded_camera_position - camera_position;
+        Vector3 camera_position_inverse = camera_quaternion_rotation_inverse * m_camera.transform.position;
+        Vector3 camera_position = camera_quaternion_rotation * m_camera.transform.position;
+        camera_position_inverse.z = camera_position.z;
+
+        Vector3 rounded_camera_position = RoundToPixel(camera_position_inverse);
+        offset = rounded_camera_position - camera_position_inverse;
         offset.z = -offset.z;
         Matrix4x4 offset_matrix = Matrix4x4.TRS(-offset, Quaternion.identity, new Vector3(1.0f, 1.0f, -1.0f));
 
@@ -86,20 +80,13 @@ public class PixelPerfectCamera : MonoBehaviour
 
     /// <summary>
     /// Moves camera to given focus point to reduce flickering
-    /// For camera fixed in Y space:
-    ///     Keeps the camera Y position so that the camera only snaps to X and Z dimensions.
-    ///     Set camera_pos to (new Vector3(camera_focus_point.position.x, camera_distance * Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad))), camera_focus_point.position.z - (camera_distance * Mathf.Cos(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)))) + camera_focus_point.position.y / Mathf.Sin(30f * Mathf.Deg2Rad)))
-    /// 
-    /// For camera fixed in Z space:
-    ///     Keeps camera the same distance from (0,0,0) in Z dimension so that the camera only snaps to X and Y dimensions.
-    ///     Set camera_pos to (new Vector3(camera_focus_point.position.x, (camera_focus_point.position.z - camera_distance_origo_z) * Mathf.Sin(30f * Mathf.Deg2Rad) + camera_focus_point.position.y, camera_distance_origo_z))
     /// </summary>
     private void MoveCamera()
     {
         Vector3 camera_pos = new Vector3(
             camera_focus_point.position.x,
-            camera_distance * camera_distance_to_y,
-            camera_focus_point.position.z - camera_distance * camera_distance_to_z + camera_focus_point.position.y * camera_focus_point_y_to_z
+            camera_focus_point.position.y + camera_distance * camera_distance_to_y,
+            camera_focus_point.position.z - camera_distance * camera_distance_to_z
         );
         m_camera.transform.position = camera_pos;
     }
