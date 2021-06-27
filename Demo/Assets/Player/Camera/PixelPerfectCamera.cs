@@ -16,7 +16,7 @@ public class PixelPerfectCamera : MonoBehaviour
 
     private float camera_distance_to_y = Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
     private float camera_distance_to_z = Mathf.Cos(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
-    private float camera_focus_point_y_to_z = 1f/Mathf.Sin(30f * Mathf.Deg2Rad);
+    private float camera_focus_point_y_to_z = 1f / Mathf.Sin(30f * Mathf.Deg2Rad);
 
     private float units_per_pixel = 40f / 216f;
     private float camera_rotation = Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad));
@@ -71,6 +71,20 @@ public class PixelPerfectCamera : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets camera near clipping plane to be tangent to world 2D plane.
+    /// Objects rendered close to camera will be cut vertically.
+    /// 
+    /// OBS! When player moves in Y, camera moves in Z. Camera projection matrix should not be changed from character moving in Y.
+    /// 
+    /// </summary>
+    private void SetCameraNearClippingPlane()
+    {
+        Vector4 clipPlaneWorldSpace = new Vector4(0f, 0f, 1f, 0f);
+        Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(m_camera.cameraToWorldMatrix) * clipPlaneWorldSpace;
+        m_camera.projectionMatrix = m_camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
+    }
+
+    /// <summary>
     /// Moves camera to given focus point to reduce flickering
     /// For camera fixed in Y space:
     ///     Keeps the camera Y position so that the camera only snaps to X and Z dimensions.
@@ -94,6 +108,7 @@ public class PixelPerfectCamera : MonoBehaviour
     {
         m_camera = GetComponent<Camera>();
         SetCameraRotation();
+        SetCameraNearClippingPlane();
     }
 
     private void LateUpdate()
