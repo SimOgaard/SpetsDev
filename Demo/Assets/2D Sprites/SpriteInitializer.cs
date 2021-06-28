@@ -33,8 +33,8 @@ public class SpriteInitializer : MonoBehaviour
         game_object.transform.parent = transform;
 
         // Applies rotation to gameobject so it is facing the camera
-        Quaternion rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
-        game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f); // TODO Y position according to rotation
+        Quaternion rotation = Quaternion.Euler(30f, 0f, 0f);
+        game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f);
         game_object.transform.rotation = rotation;
     }
     private void InitializeRotated(RuntimeAnimatorController animation)
@@ -45,7 +45,7 @@ public class SpriteInitializer : MonoBehaviour
         game_object.GetComponent<Animator>().runtimeAnimatorController = animation;
         game_object.transform.parent = transform;
 
-        Quaternion rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
+        Quaternion rotation = Quaternion.Euler(30f, 0f, 0f);
         game_object.transform.localPosition = new Vector3(0f, 2.5f, 0f);
         game_object.transform.rotation = rotation;
     }
@@ -62,9 +62,9 @@ public class SpriteInitializer : MonoBehaviour
         game_object.transform.parent = transform;
 
         // Applies scale to gameobject to correct camera rotation
-        float y_scale = 0.5f / Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
+        float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        game_object.transform.localPosition = new Vector3(0f, 2.333f, 0f); // TODO bottom of sprite flush with ground
+        game_object.transform.localPosition = new Vector3(0f, y_scale * 3f, 0f);
     }
     private void InitializeUpright(RuntimeAnimatorController animation)
     {
@@ -74,9 +74,9 @@ public class SpriteInitializer : MonoBehaviour
         game_object.GetComponent<Animator>().runtimeAnimatorController = animation;
         game_object.transform.parent = transform;
 
-        float y_scale = 0.5f / Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
+        float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        game_object.transform.localPosition = new Vector3(0f, 2.333f, 0f);
+        game_object.transform.localPosition = new Vector3(0f, y_scale * 3f, 0f);
     }
 
     private void Start()

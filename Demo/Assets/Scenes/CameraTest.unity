@@ -354,7 +354,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 802d085f90264b64385cd55021ce9477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera_distance_origo_z: -100
   camera_distance: 150
   camera_focus_point: {fileID: 1015915628}
 --- !u!20 &298685495
@@ -716,7 +715,7 @@ CapsuleCollider:
   m_Radius: 3
   m_Height: 7
   m_Direction: 1
-  m_Center: {x: 0, y: 2, z: 3}
+  m_Center: {x: 0, y: 3.5, z: 3}
 --- !u!54 &1015915630
 Rigidbody:
   m_ObjectHideFlags: 0

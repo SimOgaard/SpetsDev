@@ -12,12 +12,12 @@ public class PixelPerfectCamera : MonoBehaviour
     [SerializeField]
     private float camera_distance = 100f;
 
-    private float camera_distance_to_y = Mathf.Sin(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
-    private float camera_distance_to_z = Mathf.Cos(Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)));
+    private float camera_distance_to_y = Mathf.Sin(Mathf.Deg2Rad * 30f);
+    private float camera_distance_to_z = Mathf.Cos(Mathf.Deg2Rad * 30f);
 
     private float units_per_pixel = 40f / 216f;
-    private Quaternion camera_quaternion_rotation = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(30f * Mathf.Deg2Rad)), 0f, 0f);
-    private Quaternion camera_quaternion_rotation_inverse = Quaternion.Euler(Mathf.Rad2Deg * Mathf.Atan(Mathf.Sin(330f * Mathf.Deg2Rad)), 0f, 0f);
+    private Quaternion camera_quaternion_rotation = Quaternion.Euler(30f, 0f, 0f);
+    private Quaternion camera_quaternion_rotation_inverse = Quaternion.Euler(330f, 0f, 0f);
 
     private Vector3 offset;
 
@@ -57,7 +57,6 @@ public class PixelPerfectCamera : MonoBehaviour
 
     /// <summary>
     /// Sets camera rotation to isometric view.
-    /// 30 degrees does not achieve the 2 pixel across 1 pixel down look so we set rotation to approximately 26.565 degrees.
     /// </summary>
     private void SetCameraRotation()
     {
