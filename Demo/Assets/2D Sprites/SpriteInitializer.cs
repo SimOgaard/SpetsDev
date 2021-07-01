@@ -19,33 +19,67 @@ public class SpriteInitializer : MonoBehaviour
     [SerializeField]
     private RuntimeAnimatorController animation_to_render;
 
+    private SpriteRenderer sprite_renderer;
+    private Animator animator;
+
     /// <summary>
     /// Initializes gameobject stretched in Y scale to offset cameras isometric view
     /// <summary>
-    private void InitializeUpright(Sprite sprite)
+    public void InitializeUpright(Sprite sprite)
     {
         // Initializes gameobject as child with sprite renderer component and given sprite
         GameObject game_object = new GameObject();
-        game_object.AddComponent<SpriteRenderer>();
-        game_object.GetComponent<SpriteRenderer>().sprite = sprite;
+
+        sprite_renderer = game_object.AddComponent<SpriteRenderer>();
+        sprite_renderer.sprite = sprite;
+        animator = null;
+        
         game_object.transform.parent = transform;
 
         // Applies scale to gameobject to correct camera rotation
         float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
+        game_object.transform.rotation = Quaternion.identity;                   // only works for y rotation
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
         game_object.transform.localPosition = new Vector3(0f, y_scale * 3f, 0f);
     }
-    private void InitializeUpright(RuntimeAnimatorController animation)
+    public void InitializeUpright(RuntimeAnimatorController animation)
     {
         GameObject game_object = new GameObject();
-        game_object.AddComponent<SpriteRenderer>();
-        game_object.AddComponent<Animator>();
-        game_object.GetComponent<Animator>().runtimeAnimatorController = animation;
+
+        sprite_renderer = game_object.AddComponent<SpriteRenderer>();
+        animator = game_object.AddComponent<Animator>();
+        animator.runtimeAnimatorController = animation;
+
         game_object.transform.parent = transform;
 
         float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
+        game_object.transform.rotation = Quaternion.identity;
         game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
         game_object.transform.localPosition = new Vector3(0f, y_scale * 3f, 0f);
+    }
+
+    /// <summary>
+    /// Changes sprite/animation to render
+    /// <summary>
+    public void ChangeRender(Sprite sprite)
+    {
+        sprite_renderer.sprite = sprite;
+    }
+    public void ChangeRender(RuntimeAnimatorController animation)
+    {
+        animator.runtimeAnimatorController = animation;
+    }
+
+    /// <summary>
+    /// Disable and enable render, keeps SpriteInitializer state
+    /// <summary>
+    public void ChangeRenderState(bool render_state)
+    {
+        sprite_renderer.enabled = render_state;
+        if (animator != null)
+        {
+            animator.enabled = render_state;
+        }
     }
 
     private void Start()

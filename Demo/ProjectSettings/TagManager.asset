@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - GameWorld
+  - Equipment
   layers:
   - Default
   - TransparentFX
@@ -15,9 +17,9 @@ TagManager:
   - 
   - Virtual Screen
   - PostProcessing
-  - 
-  - 
-  - 
+  - Player
+  - Equipment
+  - GameWorld
   - 
   - 
   - 

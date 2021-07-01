@@ -66,9 +66,6 @@ public class PixelPerfectCamera : MonoBehaviour
     /// <summary>
     /// Sets camera near clipping plane to be tangent to world 2D plane.
     /// Objects rendered close to camera will be cut vertically.
-    /// 
-    /// OBS! When player moves in Y, camera moves in Z. Camera projection matrix should not be changed from character moving in Y.
-    /// 
     /// </summary>
     private void SetCameraNearClippingPlane()
     {
