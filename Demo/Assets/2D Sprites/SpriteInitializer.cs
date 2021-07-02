@@ -22,13 +22,15 @@ public class SpriteInitializer : MonoBehaviour
     private SpriteRenderer sprite_renderer;
     private Animator animator;
 
+    private GameObject game_object;
+
     /// <summary>
     /// Initializes gameobject stretched in Y scale to offset cameras isometric view
     /// <summary>
     public void InitializeUpright(Sprite sprite)
     {
         // Initializes gameobject as child with sprite renderer component and given sprite
-        GameObject game_object = new GameObject();
+        game_object = new GameObject();
 
         sprite_renderer = game_object.AddComponent<SpriteRenderer>();
         sprite_renderer.sprite = sprite;
@@ -44,7 +46,7 @@ public class SpriteInitializer : MonoBehaviour
     }
     public void InitializeUpright(RuntimeAnimatorController animation)
     {
-        GameObject game_object = new GameObject();
+        game_object = new GameObject();
 
         sprite_renderer = game_object.AddComponent<SpriteRenderer>();
         animator = game_object.AddComponent<Animator>();
@@ -82,6 +84,18 @@ public class SpriteInitializer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Destroys all initializations stemming from this component.
+    /// <summary>
+    public void Destroy()
+    {
+        Destroy(game_object);
+        Destroy(this);
+    }
+
+    /// <summary>
+    /// Renders possible Scene assigned sprites.
+    /// <summary>
     private void Start()
     {
         if (sprite_to_render != null)
