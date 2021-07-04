@@ -22,6 +22,11 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
         void UsePrimary();
     }
 
+    public Equipment.EEquipment GetEquipmentType()
+    {
+        return Equipment.EEquipment.Ultimate;
+    }
+
     /// <summary>
     /// Further transmits Destroy function from Master to child and then destroys itself.
     /// </summary>

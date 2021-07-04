@@ -10,7 +10,6 @@ public class Equipment : MonoBehaviour
 {
     // Stores all Equipment types globally. Is used to specify what to initialize.
     public enum EEquipment { Weapon, Ability, Ultimate }
-    public enum EEquipmentUpgrade { Weapon, Ability, Ultimate }
 
     // Current Equipment this component controlls.
     public IEquipment current_equipment;
@@ -29,7 +28,7 @@ public class Equipment : MonoBehaviour
     /// <summary>
     /// Initializes this Equipment component to one random Equipment based on current equipments in inventory.
     /// </summary>
-    public void InitEquipment(IEquipment[] current_player_equipments)
+    public void InitEquipment(IEquipment current_player_weapon, IEquipment current_player_ability, IEquipment current_player_ultimate)
     {
         
     }
@@ -62,13 +61,39 @@ public class Equipment : MonoBehaviour
     }
 
     /// <summary>
+    /// Makes all childobjects including this object static/not static.
+    /// </summary>
+    private void MakeStatic(GameObject game_object, bool static_state)
+    {
+        game_object.isStatic = static_state;
+
+        foreach (Transform child in game_object.transform)
+        {
+            MakeStatic(child.gameObject, static_state);
+        }
+    }
+
+    /// <summary>
     /// Class global values used while transfering Equipment from chest/inventory to game world.
     /// </summary>
     private bool grounded;
     private float initialization_time;
     private static float static_time_threshold = 0.1f;
+
     private SpriteInitializer sprite_initializer;
-    private GameObject dropped_equipment_game_object;
+    private Sprite not_interacting_with_sprite;
+    private TrailRenderer trail_renderer;
+    private MeshRenderer orb_mesh_renderer;
+    private MeshFilter mesh_filter;
+
+    private Rigidbody equipment_rigidbody;
+    private SphereCollider equipment_collider;
+
+    private Transform equipments_in_inventory;
+    private Transform equipments_in_air;
+    private Transform equipments_on_ground;
+
+    private PlayerInventory player_inventory_controller;
 
     /// <summary>
     /// Global struct used for populating data to shaders.
@@ -85,16 +110,79 @@ public class Equipment : MonoBehaviour
     }
 
     /// <summary>
+    /// Global struct of all vertices for icosahedron.
+    /// </summary>
+    private static Vector3[] GetVectors()
+    {
+        float s = 0.3f;
+        float t = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;
+
+        return new Vector3[]
+        {
+            new Vector3(-1,  t,  0) * s,
+            new Vector3( 1,  t,  0) * s,
+            new Vector3(-1, -t,  0) * s,
+            new Vector3( 1, -t,  0) * s,
+            new Vector3( 0, -1,  t) * s,
+            new Vector3( 0,  1,  t) * s,
+            new Vector3( 0, -1, -t) * s,
+            new Vector3( 0,  1, -t) * s,
+            new Vector3( t,  0, -1) * s,
+            new Vector3( t,  0,  1) * s,
+            new Vector3(-t,  0, -1) * s,
+            new Vector3(-t,  0,  1) * s
+        };
+    }
+
+    /// <summary>
+    /// Global struct of all triangles for icosahedron.
+    /// </summary>
+    private static int[] GetTriangles()
+    {
+        return new int[]
+        {
+             0, 11,  5,
+             0,  5,  1,
+             0,  1,  7,
+             0,  7, 10,
+             0, 10, 11,
+             1,  5,  9,
+             5, 11,  4,
+            11, 10,  2,
+            10,  7,  6,
+             7,  1,  8,
+             3,  9,  4,
+             3,  4,  2,
+             3,  2,  6,
+             3,  6,  8,
+             3,  8,  9,
+             4,  9,  5,
+             2,  4, 11,
+             6,  2, 10,
+             8,  6,  7,
+             9,  8,  1
+        };
+    }
+
+    /// <summary>
     /// Shades Equipment based on fetched Equipment parent shader data.
     /// </summary>
-    public void ShadeDroppedItem(GameObject dropped_equipment_game_object)
+    public void ShadeDroppedItem()
     {
-        TrailRenderer trail_renderer = gameObject.AddComponent<TrailRenderer>();
-        MeshRenderer orb = dropped_equipment_game_object.GetComponent<MeshRenderer>();
+        trail_renderer = gameObject.AddComponent<TrailRenderer>();
+        orb_mesh_renderer = gameObject.AddComponent<MeshRenderer>();
+        mesh_filter = gameObject.AddComponent<MeshFilter>();
+
+        Vector3[] vectors = GetVectors();
+        int[] triangles = GetTriangles();
+        Mesh mesh = new Mesh();
+        mesh.vertices = vectors;
+        mesh.triangles = triangles;
+        mesh_filter.mesh = mesh;
 
         DroppedItemShaderStruct shader_struct = current_equipment.GetDroppedItemShaderStruct();
 
-        orb.material = shader_struct.material;
+        orb_mesh_renderer.material = shader_struct.material;
 
         trail_renderer.time = shader_struct.time;
         trail_renderer.startWidth = shader_struct.start_width;
@@ -131,23 +219,19 @@ public class Equipment : MonoBehaviour
     public void DropEquipment(Vector3 position, float selected_rotation, float force = 11500f)
     {
         grounded = false;
+        initialization_time = Time.timeSinceLevelLoad;
 
-        transform.parent = GameObject.Find("EquipmentsInAir").transform;
+        ShadeDroppedItem();
 
-        dropped_equipment_game_object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        Destroy(dropped_equipment_game_object.GetComponent<SphereCollider>());
-        dropped_equipment_game_object.transform.parent = transform;
-        Rigidbody equipment_rigidbody = gameObject.AddComponent<Rigidbody>();
-        SphereCollider equipment_collider = gameObject.AddComponent<SphereCollider>();
-
-        equipment_rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        Physics.IgnoreCollision(GameObject.Find("Player").GetComponent<CapsuleCollider>(), equipment_collider);
-
-        ShadeDroppedItem(dropped_equipment_game_object);
-
-        Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f, selected_rotation * 0.5f + 180f), 0) * Vector3.forward * force;
+        transform.parent = equipments_in_air;
         transform.position = position;
-        gameObject.GetComponent<Rigidbody>().AddForce(thrust);
+
+        equipment_rigidbody = gameObject.AddComponent<Rigidbody>();
+        equipment_rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f, selected_rotation * 0.5f + 180f), 0) * Vector3.forward * force;
+        equipment_rigidbody.AddForce(thrust);
+        equipment_collider = gameObject.AddComponent<SphereCollider>();
+        equipment_collider.isTrigger = true;
     }
 
     /// <summary>
@@ -156,19 +240,17 @@ public class Equipment : MonoBehaviour
     private void EquipmentOnGround()
     {
         grounded = true;
-        Destroy(gameObject.GetComponent<SphereCollider>());
-        Destroy(gameObject.GetComponent<Rigidbody>());
-
-        current_equipment.OnGround();
+        Destroy(equipment_collider);
+        Destroy(equipment_rigidbody);
 
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
-        Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
         sprite_initializer.InitializeUpright(not_interacting_with_sprite);
 
-        transform.parent = GameObject.Find("EquipmentsOnGround").transform;
-        gameObject.isStatic = true;
+        current_equipment.OnGround();
+        transform.parent = equipments_on_ground;
+        MakeStatic(gameObject, true);
 
-        StartCoroutine(TrailFade(GetComponent<TrailRenderer>().time));
+        Destroy(trail_renderer);
     }
 
     /// <summary>
@@ -176,26 +258,46 @@ public class Equipment : MonoBehaviour
     /// </summary>
     public void Pickup()
     {
-        transform.parent = GameObject.Find("EquipmentsInInventory").transform;
-        sprite_initializer.Destroy();
-        Destroy(dropped_equipment_game_object);
-        gameObject.isStatic = false;
-        transform.localPosition = Vector3.zero;
-    }
+        // Dropps current equipment and sets variable in PlayerInventoryController
+        Vector3 spawn_point = equipments_in_inventory.position;
+        switch (current_equipment.GetType().Name)
+        {
+            case nameof(Weapon):
+                if (player_inventory_controller.current_weapon != null)
+                {
+                    player_inventory_controller.current_weapon.DropEquipment(spawn_point, 360f);
+                }
+                player_inventory_controller.current_weapon = this;
+                break;
+            case nameof(Ability):
+                if (player_inventory_controller.current_ability != null)
+                {
+                    player_inventory_controller.current_ability.DropEquipment(spawn_point, 360f);
+                }
+                player_inventory_controller.current_ability = this;
+                break;
+            case nameof(Ultimate):
+                if (player_inventory_controller.current_ultimate != null)
+                {
+                    player_inventory_controller.current_ultimate.DropEquipment(spawn_point, 360f);
+                }
+                player_inventory_controller.current_ultimate = this;
+                break;
+        }
 
-    /// <summary>
-    /// Removes TrailRenderer component when trail is no longer visible.
-    /// </summary>
-    private IEnumerator TrailFade(float delay_time)
-    {
-        yield return new WaitForSeconds(delay_time);
-        Destroy(gameObject.GetComponent<TrailRenderer>());
+        // Picksup current equipment;
+        transform.parent = equipments_in_inventory;
+        sprite_initializer.Destroy();
+        Destroy(orb_mesh_renderer);
+        Destroy(mesh_filter);
+        MakeStatic(gameObject, false);
+        transform.localPosition = Vector3.zero;
     }
 
     /// <summary>
     /// Detects if gameObject is grounded.
     /// </summary>
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.tag == "GameWorld" && Time.timeSinceLevelLoad - initialization_time > static_time_threshold && !grounded)
         {
@@ -205,6 +307,11 @@ public class Equipment : MonoBehaviour
 
     private void Start()
     {
-        initialization_time = Time.timeSinceLevelLoad;
+        equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
+        equipments_in_air = GameObject.Find("EquipmentsInAir").transform;
+        equipments_on_ground = GameObject.Find("EquipmentsOnGround").transform;
+
+        player_inventory_controller = equipments_in_inventory.GetComponent<PlayerInventory>();
+        not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
     }
 }

@@ -21,7 +21,7 @@ public class Sword : MonoBehaviour, Weapon.IWeapon
     /// </summary>
     public void OnGround()
     {
-        transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+        transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ public class Dash : MonoBehaviour, Ability.IAbility
     /// </summary>
     public void OnGround()
     {
-        transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.magenta);
+        transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.magenta);
     }
 
     /// <summary>
