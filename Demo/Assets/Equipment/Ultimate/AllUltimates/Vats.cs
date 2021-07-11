@@ -21,7 +21,7 @@ public class Vats : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void OnGround()
     {
-        transform.GetChild(0).GetComponent<MeshRenderer>().material.SetColor("_Color", Color.cyan);
+        transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.cyan);
     }
 
     /// <summary>

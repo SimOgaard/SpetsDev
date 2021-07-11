@@ -39,6 +39,9 @@ public class ChestInteractable : MonoBehaviour
         equipment.InitEquipment(chest_type);
         equipment.DropEquipment(transform.position, 90);
         ChestOpeningAnimation();
+
+        // debugging purposes, allows infinite chest openings
+        Start();
     }
 
     /// <summary>
@@ -54,6 +57,8 @@ public class ChestInteractable : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        is_open = false;
+        transform.parent = GameObject.Find("Interactables").transform;
         equipment_game_object = new GameObject("equipment_game_object");
         equipment_game_object.transform.parent = GameObject.Find("EquipmentsInChests").transform;
         equipment = equipment_game_object.AddComponent<Equipment>();
