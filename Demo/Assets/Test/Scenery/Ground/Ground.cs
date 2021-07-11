@@ -123,7 +123,8 @@ public class Ground : MonoBehaviour
         int vertices_index = 0;
         int triangles_index = 0;
 
-        transform.position = new Vector3(-(ground_resolution.x - 1f) * triangle_size.x * 0.5f, transform.position.y, -(ground_resolution.y - 1f) * triangle_size.y * 0.5f);
+        transform.position = Quaternion.Euler(0f, 45f, 0f) * new Vector3(-(ground_resolution.x - 1f) * triangle_size.x * 0.5f, transform.position.y, -(ground_resolution.y - 1f) * triangle_size.y * 0.5f);
+        transform.rotation = Quaternion.Euler(0f, 45f, 0f);
 
         for (int z = 0; z < (int)ground_resolution.y; z++)
         {

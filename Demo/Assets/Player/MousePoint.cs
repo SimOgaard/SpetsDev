@@ -8,22 +8,22 @@ public class MousePoint : MonoBehaviour
     private float rot;
     private Vector3 currentEulerAngles;
     private Quaternion finalRot;
-    public GameObject camObj;
     private Camera cam;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        cam = camObj.GetComponent<Camera>();
+        cam = GameObject.Find("Camera").GetComponent<Camera>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        rotToTarget();
+        RotToTarget();
     }
 
-    public Vector3 getScreenPosFromCentre() //get position of mouse in 2D space from centre
+    /// <summary>
+    /// Gets position of mouse in camera plain 2D space from camera centre.
+    /// </summary>
+    public Vector3 GetScreenPosFromCentre()
     {
         Vector3 mousePos = Input.mousePosition; 
         mousePos.x -= Screen.width / 2;
@@ -31,9 +31,13 @@ public class MousePoint : MonoBehaviour
         return mousePos;
     }
 
-    public void rotToMouse2D() //rotates GameObject towards mouse using characters, does not work vey well for aiming projectiles in an isometric view, leaving it in because it may be useful
+    /// <summary>
+    /// Rotates GameObject towards mouse using characters.
+    /// (Does not work vey well for aiming projectiles in an isometric view, leaving it in because it may be useful)
+    /// </summary>
+    public void RotToMouse2D()
     {
-        Vector3 relativeMousePos = getScreenPosFromPlayer();
+        Vector3 relativeMousePos = GetScreenPosFromPlayer();
         rot = Mathf.Atan(relativeMousePos.y / relativeMousePos.x) * 180 / Mathf.PI;
         if (relativeMousePos.x <= 0)
         {
@@ -47,19 +51,23 @@ public class MousePoint : MonoBehaviour
         transform.rotation = finalRot;
     }
 
-    public Vector3 getScreenPosFromPlayer() //get position of mouse in 2D space relative to player attaching reference point
+    /// <summary>
+    /// Get position of mouse in 2D space relative to player attaching reference point.
+    /// </summary>
+    public Vector3 GetScreenPosFromPlayer()
     {
         return Input.mousePosition -  cam.WorldToScreenPoint(transform.position);
     }
 
-    public Vector3 getTargetMousePos() //gets the target position of the mouse calculated to be on the same plane as the player character
+    /// <summary>
+    /// Gets the target position of the mouse calculated to be on the same plane as the player character.
+    /// </summary>
 
-        //<summary>
-        //Calculates the difference between the y distance between the camera and player as well as the camera and target mouse position
-        //that difference is then divided by the distance between target and camera to get a factor that will multiply with the vector
-        //that describes the distance between the camera and the target to extend that vector to end at the players y position. This endpoint
-        //is then used as the target.
-        //<summary>
+    //Calculates the difference between the y distance between the camera and player as well as the camera and target mouse position
+    //that difference is then divided by the distance between target and camera to get a factor that will multiply with the vector
+    //that describes the distance between the camera and the target to extend that vector to end at the players y position. This endpoint
+    //is then used as the target.
+    public Vector3 GetTargetMousePos()
     {
         float RayYDiff;
         float PlayerYDiff;
@@ -79,13 +87,19 @@ public class MousePoint : MonoBehaviour
         return targetPos;
     }
 
-    public Vector3 getTargetHitPoint () //get world position of object mouse is pointing at
+    /// <summary>
+    /// Get world position of object mouse is pointing at.
+    /// </summary>
+    public Vector3 GetTargetHitPoint ()
     {
         return cam.ScreenToWorldPoint(Input.mousePosition);
     }
 
-    public void rotToTarget() //rotate towards target point
+    /// <summary>
+    /// Rotate towards target point.
+    /// </summary>
+    public void RotToTarget()
     {
-        transform.LookAt(getTargetMousePos());
+        transform.LookAt(GetTargetMousePos());
     }
 }

@@ -32,4 +32,18 @@ public class Dash : MonoBehaviour, Ability.IAbility
     {
         Debug.Log("dude you dashed holy shit bro");
     }
+
+    /// <summary>
+    /// Returns dash icon for ui element.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return icon_sprite;
+    }
+
+    private Sprite icon_sprite;
+    private void Start()
+    {
+        icon_sprite = Resources.Load<Sprite>("Sprites/debugger");
+    }
 }

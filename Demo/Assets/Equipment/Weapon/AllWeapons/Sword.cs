@@ -32,4 +32,18 @@ public class Sword : MonoBehaviour, Weapon.IWeapon
     {
         Debug.Log("attacked using a sword");
     }
+
+    /// <summary>
+    /// Returns sword icon for ui element.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return icon_sprite;
+    }
+
+    private Sprite icon_sprite;
+    private void Start()
+    {
+        icon_sprite = Resources.Load<Sprite>("Sprites/debugger");
+    }
 }

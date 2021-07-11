@@ -23,6 +23,7 @@ public class Equipment : MonoBehaviour
         DroppedItemShaderStruct GetDroppedItemShaderStruct();
         void OnGround();
         void UsePrimary();
+        Sprite GetIconSprite();
     }
 
     /// <summary>
@@ -94,6 +95,7 @@ public class Equipment : MonoBehaviour
     private Transform equipments_on_ground;
 
     private PlayerInventory player_inventory_controller;
+    private UIInventory ui_inventory;
 
     /// <summary>
     /// Global struct used for populating data to shaders.
@@ -244,7 +246,7 @@ public class Equipment : MonoBehaviour
         Destroy(equipment_rigidbody);
 
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
-        sprite_initializer.InitializeUpright(not_interacting_with_sprite);
+        sprite_initializer.Initialize(not_interacting_with_sprite, Vector3.zero);
 
         current_equipment.OnGround();
         transform.parent = equipments_on_ground;
@@ -263,6 +265,7 @@ public class Equipment : MonoBehaviour
         switch (current_equipment.GetType().Name)
         {
             case nameof(Weapon):
+                ui_inventory.ChangeWeapon(current_equipment);
                 if (player_inventory_controller.current_weapon != null)
                 {
                     player_inventory_controller.current_weapon.DropEquipment(spawn_point, 360f);
@@ -270,6 +273,7 @@ public class Equipment : MonoBehaviour
                 player_inventory_controller.current_weapon = this;
                 break;
             case nameof(Ability):
+                ui_inventory.ChangeAbility(current_equipment);
                 if (player_inventory_controller.current_ability != null)
                 {
                     player_inventory_controller.current_ability.DropEquipment(spawn_point, 360f);
@@ -277,6 +281,7 @@ public class Equipment : MonoBehaviour
                 player_inventory_controller.current_ability = this;
                 break;
             case nameof(Ultimate):
+                ui_inventory.ChangeUltimate(current_equipment);
                 if (player_inventory_controller.current_ultimate != null)
                 {
                     player_inventory_controller.current_ultimate.DropEquipment(spawn_point, 360f);
@@ -313,5 +318,7 @@ public class Equipment : MonoBehaviour
 
         player_inventory_controller = equipments_in_inventory.GetComponent<PlayerInventory>();
         not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
+
+        ui_inventory = GameObject.Find("UIInventory").GetComponent<UIInventory>();
     }
 }

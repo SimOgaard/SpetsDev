@@ -32,4 +32,18 @@ public class Vats : MonoBehaviour, Ultimate.IUltimate
     {
         Debug.Log("stopped time using vats");
     }
+
+    /// <summary>
+    /// Returns vats icon for ui element.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return icon_sprite;
+    }
+
+    private Sprite icon_sprite;
+    private void Start()
+    {
+        icon_sprite = Resources.Load<Sprite>("Sprites/debugger");
+    }
 }

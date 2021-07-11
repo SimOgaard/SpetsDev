@@ -20,6 +20,7 @@ public class Ability : MonoBehaviour, Equipment.IEquipment
         void Destroy();
         void OnGround();
         void UsePrimary();
+        Sprite GetIconSprite();
     }
 
     /// <summary>
@@ -70,5 +71,13 @@ public class Ability : MonoBehaviour, Equipment.IEquipment
     public void UsePrimary()
     {
         current_ability.UsePrimary();
+    }
+
+    /// <summary>
+    /// Gets icon for ui element of ability.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return current_ability.GetIconSprite();
     }
 }

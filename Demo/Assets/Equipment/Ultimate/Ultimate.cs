@@ -20,6 +20,7 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
         void Destroy();
         void OnGround();
         void UsePrimary();
+        Sprite GetIconSprite();
     }
 
     public Equipment.EEquipment GetEquipmentType()
@@ -75,5 +76,13 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
     public void UsePrimary()
     {
         current_ultimate.UsePrimary();
+    }
+
+    /// <summary>
+    /// Gets icon for ui element of ultimate.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return current_ultimate.GetIconSprite();
     }
 }

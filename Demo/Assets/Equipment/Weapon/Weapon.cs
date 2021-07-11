@@ -21,6 +21,7 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
         void Destroy();
         void OnGround();
         void UsePrimary();
+        Sprite GetIconSprite();
     }
 
     /// <summary>
@@ -71,5 +72,13 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
     public void UsePrimary()
     {
         current_weapon.UsePrimary();
+    }
+
+    /// <summary>
+    /// Gets icon for ui element of weapon.
+    /// </summary>
+    public Sprite GetIconSprite()
+    {
+        return current_weapon.GetIconSprite();
     }
 }

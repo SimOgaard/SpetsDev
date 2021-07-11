@@ -64,6 +64,6 @@ public class ChestInteractable : MonoBehaviour
         equipment = equipment_game_object.AddComponent<Equipment>();
         Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
-        sprite_initializer.InitializeUpright(not_interacting_with_sprite);
+        sprite_initializer.Initialize(not_interacting_with_sprite, Vector3.zero);
     }
 }
