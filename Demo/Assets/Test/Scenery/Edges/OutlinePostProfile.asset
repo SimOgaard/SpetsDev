@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f8b93e1da1ade408efd7c32458183d, type: 3}
   m_Name: PostProcessOutline
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   enabled:
     overrideState: 1
     value: 1
@@ -67,10 +67,10 @@ MonoBehaviour:
     value: 1
   depthThreshold:
     overrideState: 1
-    value: 200
+    value: 10
   normalThreshold:
     overrideState: 1
-    value: 0
+    value: 0.048
   depthNormalThreshold:
     overrideState: 1
     value: 1

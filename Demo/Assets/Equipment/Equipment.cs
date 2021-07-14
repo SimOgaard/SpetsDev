@@ -266,27 +266,34 @@ public class Equipment : MonoBehaviour
         {
             case nameof(Weapon):
                 ui_inventory.ChangeWeapon(current_equipment);
-                if (player_inventory_controller.current_weapon != null)
+                if (player_inventory_controller.weapon_equipment != null)
                 {
-                    player_inventory_controller.current_weapon.DropEquipment(spawn_point, 360f);
+                    player_inventory_controller.weapon_equipment.DropEquipment(spawn_point, 360f);
                 }
-                player_inventory_controller.current_weapon = this;
+                player_inventory_controller.weapon_equipment = this;
+                player_inventory_controller.weapon_parrent = current_equipment as Weapon;
+                player_inventory_controller.weapon = player_inventory_controller.weapon_parrent.current_weapon;
                 break;
             case nameof(Ability):
                 ui_inventory.ChangeAbility(current_equipment);
-                if (player_inventory_controller.current_ability != null)
+                if (player_inventory_controller.ability_equipment != null)
                 {
-                    player_inventory_controller.current_ability.DropEquipment(spawn_point, 360f);
+                    player_inventory_controller.ability_equipment.DropEquipment(spawn_point, 360f);
                 }
-                player_inventory_controller.current_ability = this;
+                player_inventory_controller.ability_equipment = this;
+                player_inventory_controller.ability_parrent = current_equipment as Ability;
+                player_inventory_controller.ability = player_inventory_controller.ability_parrent.current_ability;
                 break;
             case nameof(Ultimate):
                 ui_inventory.ChangeUltimate(current_equipment);
-                if (player_inventory_controller.current_ultimate != null)
+                if (player_inventory_controller.ultimate_equipment != null)
                 {
-                    player_inventory_controller.current_ultimate.DropEquipment(spawn_point, 360f);
+                    player_inventory_controller.ultimate_equipment.DropEquipment(spawn_point, 360f);
                 }
-                player_inventory_controller.current_ultimate = this;
+                player_inventory_controller.ultimate_equipment = this;
+                player_inventory_controller.ultimate_parrent = current_equipment as Ultimate;
+                player_inventory_controller.ultimate = player_inventory_controller.ultimate_parrent.current_ultimate;
+
                 break;
         }
 

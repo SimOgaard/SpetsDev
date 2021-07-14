@@ -16,6 +16,8 @@ public class UIHealth : MonoBehaviour
     private float distance_x_offset_recursive;
     [SerializeField]
     private float distance_y_offset;
+    [SerializeField]
+    private float distance_y_offset_recursive;
 
     private Image[] images;
 
@@ -38,9 +40,10 @@ public class UIHealth : MonoBehaviour
             health_game_object.transform.SetParent(transform, false);
 
             RectTransform rect_transform = health_game_object.GetComponent<RectTransform>();
-            rect_transform.sizeDelta = new Vector2(64f, 64f);
+            rect_transform.sizeDelta = new Vector2(32f, 32f);
             rect_transform.localPosition = new Vector3(x, y, 0f);
             x += distance_x_offset_recursive;
+            y += distance_y_offset_recursive;
 
             images[i] = health_game_object.GetComponent<Image>();
             images[i].sprite = health;
