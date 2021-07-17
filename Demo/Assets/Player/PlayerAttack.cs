@@ -7,13 +7,11 @@ public class PlayerAttack : MonoBehaviour
     public float cooldown;
     public float spellcooldown;
     public float ultimateCooldown; //Cooldowns are tracked in this script
-    private string weapon = "Bow";
-    private string spell = "Fireball";
-    private string ultimate = "Pause";
+    private PlayerInventory playerInventory;
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerInventory = GameObject.Find("EquipmentsInInventory").GetComponent<PlayerInventory>();
     }
 
     // Update is called once per frame
@@ -23,21 +21,19 @@ public class PlayerAttack : MonoBehaviour
         {
             cooldown -= Time.deltaTime; 
         }
-        //<summary>
         //Depending on keypress, this object will send different messages that will call any funcions with matching names in components attached to the game object.
-        //<summary>
         else {
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (Input.GetKey(KeyCode.Mouse0) && playerInventory.weapon != null)
             {
-                gameObject.SendMessage("WeaponAttack", weapon);
+                playerInventory.weapon.UsePrimary();
             }
-            else if (Input.GetKey(KeyCode.Q))
+            else if (Input.GetKey(KeyCode.Mouse1) && playerInventory.ability != null)
             {
-                gameObject.SendMessage("SpellAttack", spell);
+                playerInventory.ability.UsePrimary();
             }
-            else if (Input.GetKeyDown(KeyCode.R))
+            else if (Input.GetKeyDown(KeyCode.Q) && playerInventory.ultimate != null)
             {
-                gameObject.SendMessage("UltimateAttack", ultimate);
+                playerInventory.ultimate.UsePrimary();
             }
         }
     }

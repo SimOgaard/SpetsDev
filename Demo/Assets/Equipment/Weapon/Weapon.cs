@@ -38,7 +38,7 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
     /// </summary>
     public void Awake()
     {
-        current_weapon = gameObject.AddComponent<Sword>();
+        current_weapon = gameObject.AddComponent<WeaponBow>();
     }
 
     /// <summary>
