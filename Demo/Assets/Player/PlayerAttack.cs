@@ -4,38 +4,52 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public float cooldown;
-    public float spellcooldown;
-    public float ultimateCooldown; //Cooldowns are tracked in this script
-    private PlayerInventory playerInventory;
-    // Start is called before the first frame update
-    void Start()
+    private PlayerInventory player_inventory;
+    private PlayerInput player_input;
+
+    private void Start()
     {
-        playerInventory = GameObject.Find("EquipmentsInInventory").GetComponent<PlayerInventory>();
+        player_inventory = GameObject.Find("EquipmentsInInventory").GetComponent<PlayerInventory>();
+        player_input = GetComponent<PlayerInput>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (cooldown >= 0)
-        {
-            cooldown -= Time.deltaTime; 
-        }
         //Depending on keypress, this object will send different messages that will call any funcions with matching names in components attached to the game object.
-        else {
-            if (Input.GetKey(KeyCode.Mouse0) && playerInventory.weapon != null)
+        if (player_inventory.weapon != null)
+        {
+            if (Input.GetKeyDown(player_input.use_weapon))
             {
-                playerInventory.weapon.UsePrimary();
+                player_inventory.weapon.UsePrimary();
             }
-            else if (Input.GetKey(KeyCode.Mouse1) && playerInventory.ability != null)
+            else if (Input.GetKeyUp(player_input.use_weapon))
             {
-                playerInventory.ability.UsePrimary();
+                player_inventory.weapon.StopPrimary();
             }
-            else if (Input.GetKeyDown(KeyCode.Q) && playerInventory.ultimate != null)
+        }
+
+        if (player_inventory.ability != null)
+        {
+            if (Input.GetKeyDown(player_input.use_ability))
             {
-                playerInventory.ultimate.UsePrimary();
+                player_inventory.ability.UsePrimary();
+            }
+            else if (Input.GetKeyUp(player_input.use_ability))
+            {
+                player_inventory.ability.StopPrimary();
+            }
+        }
+
+        if (player_inventory.ultimate != null)
+        {
+            if (Input.GetKeyDown(player_input.use_ultimate))
+            {
+                player_inventory.ultimate.UsePrimary();
+            }
+            else if (Input.GetKeyUp(player_input.use_ultimate))
+            {
+                player_inventory.ultimate.StopPrimary();
             }
         }
     }
-
 }

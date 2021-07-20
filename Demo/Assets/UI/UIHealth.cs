@@ -36,15 +36,20 @@ public class UIHealth : MonoBehaviour
 
         for (int i = 0; i < max_health; i++)
         {
+            GameObject health_border_game_object = new GameObject("HealthImageBorderUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            health_border_game_object.transform.SetParent(transform, false);
             GameObject health_game_object = new GameObject("HealthImageUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            health_game_object.transform.SetParent(transform, false);
+            health_game_object.transform.SetParent(health_border_game_object.transform.transform, false);
 
-            RectTransform rect_transform = health_game_object.GetComponent<RectTransform>();
-            rect_transform.sizeDelta = new Vector2(32f, 32f);
-            rect_transform.localPosition = new Vector3(x, y, 0f);
+            RectTransform health_border_rect_transform = health_border_game_object.GetComponent<RectTransform>();
+            RectTransform health_rect_transform = health_game_object.GetComponent<RectTransform>();
+            health_border_rect_transform.sizeDelta = new Vector2(13f, 12f);
+            health_border_rect_transform.localPosition = new Vector3(x, y, 0f);
+            health_rect_transform.sizeDelta = new Vector2(13f, 12f);
             x += distance_x_offset_recursive;
             y += distance_y_offset_recursive;
 
+            health_border_game_object.GetComponent<Image>().sprite = health_missing;
             images[i] = health_game_object.GetComponent<Image>();
             images[i].sprite = health;
         }
@@ -56,13 +61,13 @@ public class UIHealth : MonoBehaviour
     {
         for (int i = 0; i < max_health; i++)
         {
-            images[i].sprite = current_health <= i ? health_missing : health;
+            images[i].color = current_health <= i ? new Color(0f, 0f, 0f, 0f) : Color.white;
         }
     }
 
     private void Start()
     {
-        UpdateMaxHealth(3);
-        UpdateCurrentHealth(2);
+        UpdateMaxHealth(4);
+        UpdateCurrentHealth(3);
     }
 }

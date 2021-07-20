@@ -41,7 +41,7 @@ public class ChestInteractable : MonoBehaviour
         ChestOpeningAnimation();
 
         // debugging purposes, allows infinite chest openings
-        Start();
+        // Start();
     }
 
     /// <summary>

@@ -102,4 +102,17 @@ public class MousePoint : MonoBehaviour
     {
         transform.LookAt(GetTargetMousePos());
     }
+
+    private Ray ray;
+    private RaycastHit hit_data;
+    public LayerMask layer_mask;
+    public Vector3 GetWorldPoint()
+    {
+        ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask))
+        {
+            return hit_data.point;
+        }
+        return Vector3.zero;
+    }
 }

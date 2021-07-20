@@ -27,6 +27,10 @@ public class IsGolemAvailableNode : Node
         float dist_pow = 0f;
         for (int i = 0; i < available_golems.Length; i++)
         {
+            if(available_golems[i] == null)
+            {
+                continue;
+            }
             dist_pow = (available_golems[i].position - ai.transform.position).sqrMagnitude;
             if (dist_pow < min_dist_pow)
             {

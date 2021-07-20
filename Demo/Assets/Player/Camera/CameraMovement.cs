@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: player_rigidbody.velocity is always zero because you move rigidbody with MovePosition.
 public class CameraMovement : MonoBehaviour
 {
     private MousePoint mouse_point;
@@ -30,7 +29,7 @@ public class CameraMovement : MonoBehaviour
     private Vector3 GetLookPoint()
     {
         Vector3 player_position_diff = (transform.position - player_transform.position) * player_position_diff_amplitude;
-        Vector3 player_heading = new Vector3(player_movement.movement_normal.x * player_heading_xz_amplitude, player_movement.movement_normal.y * player_heading_y_amplitude, player_movement.movement_normal.z * player_heading_xz_amplitude);
+        Vector3 player_heading = new Vector3(player_movement.controller.velocity.x * player_heading_xz_amplitude, player_movement.controller.velocity.y * player_heading_y_amplitude, player_movement.controller.velocity.z * player_heading_xz_amplitude);
         Vector3 player_looking_plane = (mouse_point.GetTargetHitPoint() - player_transform.position) * player_looking_plane_amplitude;
         Vector3 player_looking_3d = (mouse_point.GetTargetMousePos() - player_transform.position) * player_looking_3d_amplitude;
 

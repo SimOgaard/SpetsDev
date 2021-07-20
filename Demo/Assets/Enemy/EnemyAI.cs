@@ -136,6 +136,11 @@ public class EnemyAI : MonoBehaviour
         return closest_golem;
     }
 
+    public void DestroyGolemInHands()
+    {
+        Destroy(closest_golem.gameObject);
+    }
+
     public void SetColor(Color color)
     {
         material.color = color;

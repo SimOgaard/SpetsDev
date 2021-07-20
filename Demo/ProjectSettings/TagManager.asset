@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GameWorld
   - Equipment
+  - Flammable
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - Equipment
   - GameWorld
   - MiniMap
-  - 
+  - Projectile
   - 
   - 
   - 
