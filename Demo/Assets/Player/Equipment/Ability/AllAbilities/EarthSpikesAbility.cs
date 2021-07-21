@@ -66,7 +66,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
         if (current_cooldown < 0f)
         {
             current_cooldown = ability_cooldown;
-            StartCoroutine(RecursivePillarSpawn(mouse_point.transform.forward, transform.position));
+            StartCoroutine(RecursivePillarSpawnTEST(mouse_point.transform.forward, transform.position));
         }
     }
 

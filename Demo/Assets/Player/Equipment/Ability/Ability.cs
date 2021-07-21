@@ -38,7 +38,7 @@ public class Ability : MonoBehaviour, Equipment.IEquipment
     /// </summary>
     public void Awake()
     {
-        current_ability = gameObject.AddComponent<EarthSpikesAbility>();
+        current_ability = gameObject.AddComponent<EarthquakeAbility>();
     }
 
     /// <summary>

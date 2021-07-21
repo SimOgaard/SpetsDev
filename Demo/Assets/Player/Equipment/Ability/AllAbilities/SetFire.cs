@@ -31,8 +31,12 @@ public class SetFire : MonoBehaviour
     private List<Vector3> vertices_non_flammable_ash = new List<Vector3>();
     private List<int> triangles_non_flammable_ash = new List<int>();
 
+    private DamageByFire damage_by_fire;
+
     public void UpdateFlammableFire(Vector3 point, float time)
     {
+        damage_by_fire.all_fire_spots.Add(point);
+
         Vector3 bottom_left_point = point + new Vector3(-0.5f, 0f, -0.5f);
         Vector3 top_point = point + new Vector3(0f, 0f, 0.5f);
         Vector3 bottom_right_point = point + new Vector3(0.5f, 0f, -0.5f);
@@ -56,7 +60,7 @@ public class SetFire : MonoBehaviour
             triangles_flammable.Add(count + 2);
         }
 
-        StartCoroutine(UpdateFlammableAsh(bottom_left_point, top_point, bottom_right_point, time));
+        StartCoroutine(UpdateFlammableAsh(point, bottom_left_point, top_point, bottom_right_point, time));
 
         UpdateFlammableMesh();
     }
@@ -71,9 +75,11 @@ public class SetFire : MonoBehaviour
         mesh_filter_flammable.mesh = mesh_flammable;
     }
 
-    private IEnumerator UpdateFlammableAsh(Vector3 bottom_left_point, Vector3 top_point, Vector3 bottom_right_point, float time)
+    private IEnumerator UpdateFlammableAsh(Vector3 point, Vector3 bottom_left_point, Vector3 top_point, Vector3 bottom_right_point, float time)
     {
         yield return new WaitForSeconds(time);
+
+        damage_by_fire.all_fire_spots.Remove(point);
 
         // remove triangle from flammable
         int vertices_flammable_index = vertices_flammable.FindIndex(ind => ind.Equals(bottom_left_point));
@@ -189,10 +195,6 @@ public class SetFire : MonoBehaviour
         mesh_filter_non_flammable = game_object_non_flammable.GetComponent<MeshFilter>();
         mesh_filter_flammable_ash = game_object_flammable_ash.GetComponent<MeshFilter>();
         mesh_filter_non_flammable_ash = game_object_non_flammable_ash.GetComponent<MeshFilter>();
-    }
-
-    void Update()
-    {
-        
+        damage_by_fire = game_object_flammable.GetComponent<DamageByFire>();
     }
 }

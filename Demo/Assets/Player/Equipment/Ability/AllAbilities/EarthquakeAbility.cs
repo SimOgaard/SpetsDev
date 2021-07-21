@@ -13,21 +13,23 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private MousePoint mouse_point;
 
-    // Calculate area of circle
-    // Calculate amount of points to spawn (circle_area*point_amount_per_unit)
-    // Itterate over that amount.
-    // Pick random point in circle around point or player.
-    // Dependent on distance from circle_mid_point get probability of spawning pillar theere.
-    // If probability is meet: spawn pillar after an amount of time dependent on radius.
+    // För att damagea enemies, ta mitt punkten och kolla om distancen från mitt punkten till enemy är större än men mindre än damage radius
+    // ignorera y på alla calculationer
+    // öka båda "radierna" med tid
 
     // All variables could be changed by different uppgrades.
 
+    // FOR UNSTRUCTURED:
     public float point_amount_per_unit = 0.1f; // amount of points per unit inside circle
-    public float density_loss_magnitude = 0.25f; // goes from 1-0 over radius. thinning out probability of spawn over radius increese
+    // FOR STRUCTURED:
+    public float radius_increment = 3f;
+    public float angle_const_recursive = 1250f;
+
+    public float density_loss_magnitude = 0f; // goes from 1-0 over radius. thinning out probability of spawn over radius increese
 
     public float circumference_angle = 90f; // earthquake circumfrence
     public float max_radius = 20f; // max radius of earthquake
-    public float player_safe_zone_radius = 5f; // safezone for player
+    public float player_safe_zone_radius = 8f; // safezone for player
     public float player_lock_on_radius = 12.5f; // set to valid radius for ability to stop locking on player
 
     public int wave_recursion = 2; // amount of times the earth goes up and down;
@@ -37,9 +39,9 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     public float pillar_speed = 5f; // speed of pillar translation
     public float pillar_alive_time = 0f; // time for pillar to be static at highest point 
 
-    public float pillar_height = 1f; // height of pillar (private const)
+    public float pillar_height = 1.5f; // height of pillar (private const)
     public float max_pillar_height_offset = 0f; // height goes down over radius increese
-    public float pillar_width = 0.5f; // width of pillar (private const)
+    public float pillar_width = 1.5f; // width of pillar (private const)
     public float max_pillar_width_offset = 0f; // width goes down over radius increese (private const)
 
     public float ability_cooldown = 1f; // cooldown for ability
@@ -78,7 +80,8 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
         {
             Debug.Log("vibin");
             current_cooldown = ability_cooldown;
-            StartEarthquake(mouse_point.GetWorldPoint(), transform.position, mouse_point.transform.rotation.eulerAngles);
+            StartStructuredEarthquake(mouse_point.GetWorldPoint(), transform.position, mouse_point.transform.rotation.eulerAngles);
+            //StartEarthquake(mouse_point.GetWorldPoint(), transform.position, mouse_point.transform.rotation.eulerAngles);
         }
     }
 
@@ -125,6 +128,52 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                     if (Random.Range(0f, 1f) < (1 - (distance_remap01 * density_loss_magnitude)) && (pillar_point_magnitude > player_safe_zone_radius || !is_around_player))
                     {
                         Vector3 pillar_point = new Vector3(circle_point.x, 0f, circle_point.y) + start_point;
+                        StartCoroutine(
+                            SpawnPillar(
+                                pillar_point,
+                                pillar_height + max_pillar_height_offset * distance_remap01,
+                                pillar_width + max_pillar_width_offset * distance_remap01,
+                                pillar_alive_time,
+                                (distance_remap01 / flow_speed) + earthquake_recursion_index * ((1f / flow_speed) + (((pillar_height + max_pillar_height_offset * distance_remap01) * 0.5f) / pillar_speed) + earthquake_recursion_time_wait)
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    private void StartStructuredEarthquake(Vector3 mouse_pos, Vector3 player_pos, Vector3 mouse_rotation)
+    {
+        int ammount_of_circles = Mathf.RoundToInt((max_radius) / radius_increment);
+        int circle_index_start;
+        Vector3 start_point;
+        bool is_around_player = (mouse_pos - player_pos).magnitude < player_lock_on_radius;
+        if (is_around_player)
+        {
+            start_point = player_pos;
+            circle_index_start = Mathf.RoundToInt(player_safe_zone_radius / radius_increment);
+        }
+        else
+        {
+            start_point = mouse_pos;
+            circle_index_start = 1;
+        }
+
+        for (int earthquake_recursion_index = 0; earthquake_recursion_index < wave_recursion; earthquake_recursion_index++)
+        {
+            for (int circle_index = circle_index_start; circle_index <= ammount_of_circles; circle_index++)
+            {
+                float current_radius = radius_increment * circle_index;
+                float distance_remap01 = current_radius / max_radius;
+                float diameter = 2f * current_radius * Mathf.PI;
+                float radian_recursive = (angle_const_recursive / diameter) * Mathf.Deg2Rad;
+
+                for (float radian = 0; radian <= 2f * Mathf.PI; radian += radian_recursive)
+                {
+                    if (Random.Range(0f, 1f) < (1 - (distance_remap01 * density_loss_magnitude)))
+                    {
+                        Vector3 pillar_point = new Vector3(start_point.x + Mathf.Cos(radian) * current_radius, start_point.y, start_point.z + Mathf.Sin(radian) * current_radius);
                         StartCoroutine(
                             SpawnPillar(
                                 pillar_point,

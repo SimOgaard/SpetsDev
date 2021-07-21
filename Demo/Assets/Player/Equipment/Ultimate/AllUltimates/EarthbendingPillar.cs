@@ -15,7 +15,7 @@ public class EarthbendingPillar : MonoBehaviour
 
     public void NEWSpawnPillar(Vector3 point, float height, float time, float speed, float width, Quaternion rotation)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 5f, 0f), Vector3.down, out hit_data, 10f, layer_mask))
+        if (Physics.Raycast(point + new Vector3(0f, 10f, 0f), Vector3.down, out hit_data, 20f, layer_mask))
         {
             transform.position = hit_data.point - rotation * new Vector3(0f, 0.5f + height, 0f);
         }
@@ -32,7 +32,7 @@ public class EarthbendingPillar : MonoBehaviour
 
     public void NEWSpawnPillar(Vector3 point, float height, float time, float speed, float width)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 5f, 0f), Vector3.down, out hit_data, 10f, layer_mask))
+        if (Physics.Raycast(point + new Vector3(0f, 10f, 0f), Vector3.down, out hit_data, 20f, layer_mask))
         {
             transform.position = hit_data.point - new Vector3(0f, 0.5f + height, 0f);
         }

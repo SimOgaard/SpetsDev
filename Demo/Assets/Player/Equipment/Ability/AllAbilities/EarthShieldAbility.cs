@@ -31,7 +31,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
     public float pillar_alive_time = 5f;
 
     // Ability cooldown
-    public float ability_cooldown = 10f;
+    public float ability_cooldown = 1f;
     public float current_cooldown = 0f;
 
     /// <summary>
