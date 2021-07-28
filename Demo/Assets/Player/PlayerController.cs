@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Parrent controller of player.
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
     public enum Status { idle, walking, sprinting, sliding, using_weapon, using_ability, using_ultimate }
@@ -14,6 +17,9 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 move_direction_normalized;
 
+    /// <summary>
+    /// Changes current status of player.
+    /// </summary>
     public void ChangeStatus(Status s)
     {
         if (status == s)

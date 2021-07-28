@@ -103,9 +103,9 @@ public class MousePoint : MonoBehaviour
         transform.LookAt(GetTargetMousePos());
     }
 
-    private Ray ray;
-    private RaycastHit hit_data;
-    public LayerMask layer_mask;
+    /// <summary>
+    /// Gets world point of mouse cursor.
+    /// </summary>
     public Vector3 GetWorldPoint()
     {
         ray = cam.ScreenPointToRay(Input.mousePosition);
@@ -115,4 +115,7 @@ public class MousePoint : MonoBehaviour
         }
         return Vector3.zero;
     }
+    private Ray ray;
+    private RaycastHit hit_data;
+    public LayerMask layer_mask;
 }

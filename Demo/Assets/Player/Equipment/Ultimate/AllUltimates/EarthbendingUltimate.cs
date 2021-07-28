@@ -10,6 +10,9 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
 {
     private MousePoint mouse_point;
 
+    /// <summary>
+    /// All variables that can be changed on runtime to effect how this ultimate should behave.
+    /// </summary>
     public bool stach_pillars = false;
     public bool follow_mouse = false;
     public bool start_at_mouse = false;
@@ -23,10 +26,14 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
 
     public float alive_time = 5f;
 
-    public float ability_cooldown = 2f;
-    public float current_cooldown = 0f;
+    public float ultimate_cooldown = 2f;
+    public float _current_cooldown = 0f;
+    public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
     private bool is_casting = false;
 
+    /// <summary>
+    /// All variables that when changed need to reinstanciate all pillars in earthbending_pillars with earthbending_pillars[i].ChangePillar().
+    /// </summary>
     public float pillar_height = 7f;
     public float pillar_width = 2f;
     public float pillar_growth_speed = 20f;
@@ -55,10 +62,10 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     private void Update()
     {
         current_cooldown -= Time.deltaTime;
-        if(current_cooldown < 0f && current_pillar_amount < pillar_amount && !is_casting)
+        if(current_cooldown <= 0f && current_pillar_amount < pillar_amount && !is_casting)
         {
             current_pillar_amount++;
-            current_cooldown = ability_cooldown / pillar_amount;
+            current_cooldown = ultimate_cooldown / pillar_amount;
         }
     }
 
@@ -67,7 +74,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void UsePrimary()
     {
-        if((current_pillar_amount >= pillar_amount) || stach_pillars && !is_casting)
+        if((current_pillar_amount >= pillar_amount) && current_cooldown <= 0f || stach_pillars && !is_casting)
         {
             is_casting = true;
             ult_coroutine = FollowMouse();
@@ -87,27 +94,11 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
         }
     }
 
-    private IEnumerator LineTwordsMouse(Vector3 mouse_point)
-    {
-        Vector3 starting_point = transform.position;
-        Vector3 direction = (mouse_point - transform.position).normalized;
-
-        WaitForSeconds wait = new WaitForSeconds(0.1f);
-
-        for (int i = 1; i <= 8; i++)
-        {
-            Vector3 spawn_point = starting_point + direction * i * 4f;
-
-            OLDSpawnPillar(spawn_point, 20f, 15f, 0.5f, 50f);
-            yield return wait;
-        }
-    }
-
     private IEnumerator FollowMouse()
     {
         Vector3 mouse_point_pos = mouse_point.GetWorldPoint();
         Vector3 last_point = start_at_mouse ? mouse_point_pos : transform.position;
-        Vector3 direction_straight = (mouse_point_pos - transform.position).normalized;
+        Vector3 direction_straight = (new Vector3(mouse_point_pos.x, 0f, mouse_point_pos.z) - new Vector3(transform.position.x, 0f, transform.position.z)).normalized;
 
         WaitForSeconds wait = new WaitForSeconds(traverse_time);
 
@@ -144,16 +135,19 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
                 }
             }
 
-            SpawnPillar(new_point);
             last_point = new_point;
             current_pillar_amount--;
             first_spawn = false;
+            SpawnPillar(new_point);
             yield return wait;
         }
 
         is_casting = false;
     }
 
+    /// <summary>
+    /// Old ultimate concept that can be used in other abilities.
+    /// </summary>
     private IEnumerator Wave()
     {
         Vector3 mouse_direction = this.mouse_point.transform.forward;
@@ -181,28 +175,37 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
                 Vector3 spawn_point_left = wave_point - tangent * 4f * q;
                 Vector3 spawn_point_right = wave_point + tangent * 4f * q;
 
-                OLDSpawnPillar(spawn_point_left, 20f, 15f, 10f, 50f);
-                OLDSpawnPillar(spawn_point_right, 20f, 15f, 10f, 50f);
+                continue;
+                Debug.Log("This is where you were to spawn two pillars on spawn_point_left and spawn_point_right");
             }
             yield return wait;
         }
     }
 
     /// <summary>
-    /// Creates pillar game object instanciated with EarthbendingPillar component and right values.
+    /// Checks if there are allready instanciated pillar game objects that are inactive, if not add InstantiatePillar() to pool. Activate pillar game object and place it at given point.
     /// </summary>
     private void SpawnPillar(Vector3 point)
     {
-        GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
-        earthbending_pillar.NEWSpawnPillar(point, pillar_height, alive_time, pillar_growth_speed, pillar_width);
-    }
+        if (current_pool_index == earthbending_pillars.Count)
+        {
+            if (!earthbending_pillars[0].gameObject.activeSelf)
+            {
+                current_pool_index = 0;
+            }
+            else
+            {
+                earthbending_pillars.Add(InstantiatePillar());
+            }
+        }
+        else if (earthbending_pillars[current_pool_index].gameObject.activeSelf)
+        {
+            earthbending_pillars.Insert(current_pool_index, InstantiatePillar());
+        }
 
-    private void OLDSpawnPillar(Vector3 point, float under_ground_dist, float over_ground_dist, float time, float speed)
-    {
-        GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
-        earthbending_pillar.SpawnPillar(point, under_ground_dist, over_ground_dist, time, speed);
+        earthbending_pillars[current_pool_index].gameObject.SetActive(true);
+        earthbending_pillars[current_pool_index].PlacePillar(point);
+        current_pool_index++;
     }
 
     /// <summary>
@@ -218,5 +221,71 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+    }
+
+    /// <summary>
+    /// Returns current cooldown of equipment.
+    /// </summary>
+    public float GetCurrentCooldown()
+    {
+        return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown;
+    }
+    /// <summary>
+    /// Returns cooldown of equipment.
+    /// </summary>
+    public float GetCooldown()
+    {
+        return ultimate_cooldown;
+    }
+
+    /// <summary>
+    /// Creates new pillar game object instanciated with EarthbendingPillar component and right values and returns the newly created EarthbendingPillar component.
+    /// </summary>
+    private EarthbendingPillar InstantiatePillar()
+    {
+        GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
+        earthbending_pillar.InitEarthbendingPillar(pillar_height, pillar_width, Quaternion.Euler(0f, 45f, 0f), alive_time, pillar_growth_speed);
+        pillar_game_object.SetActive(false);
+        return earthbending_pillar;
+    }
+
+    /// <summary>
+    /// List of all instanciated EarthbendingPillar of this game object.
+    /// </summary>
+    private List<EarthbendingPillar> earthbending_pillars;
+    private int current_pool_index = 0;
+
+    /// <summary>
+    /// Starts object pooling when ultimate is in inventory.
+    /// </summary>
+    public void ObjectPool()
+    {
+        earthbending_pillars = new List<EarthbendingPillar>();
+        for (int i = 0; i < pillar_amount; i++)
+        {
+            earthbending_pillars.Add(InstantiatePillar());
+        }
+    }
+
+    /// <summary>
+    /// Delets pooled objects when ultimate is dropped.
+    /// </summary>
+    public void DeleteObjectPool()
+    {
+        if (earthbending_pillars == null)
+        {
+            return;
+        }
+        foreach(EarthbendingPillar earthbending_pillar in earthbending_pillars)
+        {
+            Destroy(earthbending_pillar.gameObject);
+        }
+        earthbending_pillars = null;
+    }
+
+    public void Upgrade()
+    {
+
     }
 }

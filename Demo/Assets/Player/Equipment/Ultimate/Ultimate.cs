@@ -21,12 +21,12 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
         void OnGround();
         void UsePrimary();
         void StopPrimary();
+        void ObjectPool();
+        void DeleteObjectPool();
         Sprite GetIconSprite();
-    }
-
-    public Equipment.EEquipment GetEquipmentType()
-    {
-        return Equipment.EEquipment.Ultimate;
+        void Upgrade();
+        float GetCurrentCooldown();
+        float GetCooldown();
     }
 
     /// <summary>
@@ -39,19 +39,11 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
     }
 
     /// <summary>
-    /// Initializes current_ultimate to one Ultimate. (now only EarthbendingUltimate)
-    /// </summary>
-    public void Awake()
-    {
-        current_ultimate = gameObject.AddComponent<EarthbendingUltimate>();
-    }
-
-    /// <summary>
     /// Unique shader data holding colors, time and width for when object of this type is dropped.
     /// </summary>
-    public Equipment.DroppedItemShaderStruct GetDroppedItemShaderStruct()
+    public DropItem.DroppedItemShaderStruct GetDroppedItemShaderStruct()
     {
-        Equipment.DroppedItemShaderStruct shader_struct;
+        DropItem.DroppedItemShaderStruct shader_struct;
         shader_struct.time = 0.2f;
         shader_struct.start_width = 0.75f;
         shader_struct.end_width = 0.1f;
@@ -85,5 +77,32 @@ public class Ultimate : MonoBehaviour, Equipment.IEquipment
     public Sprite GetIconSprite()
     {
         return current_ultimate.GetIconSprite();
+    }
+
+    /// <summary>
+    /// Returns current cooldown of equipment.
+    /// </summary>
+    public float GetCurrentCooldown()
+    {
+        return current_ultimate.GetCurrentCooldown();
+    }
+    /// <summary>
+    /// Returns cooldown of equipment.
+    /// </summary>
+    public float GetCooldown()
+    {
+        return current_ultimate.GetCooldown();
+    }
+
+    /// <summary>
+    /// Further transmits ObjectPool and DeleteObjectPool function from Master to child.
+    /// </summary>
+    public void ObjectPool()
+    {
+        current_ultimate.ObjectPool();
+    }
+    public void DeleteObjectPool()
+    {
+        current_ultimate.DeleteObjectPool();
     }
 }

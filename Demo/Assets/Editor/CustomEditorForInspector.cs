@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/// <summary>
+/// Changes Unity Inspector window to shot Scriptable Object fields and allow for drop down view
+/// </summary>
 [CustomEditor(typeof(ColossalPlains))]
 public class CustomEditorForInspector : Editor
 {

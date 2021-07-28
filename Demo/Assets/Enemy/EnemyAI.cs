@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -65,11 +66,15 @@ public class EnemyAI : MonoBehaviour
         golem_find_range_overide_pow = golem_find_range_overide * golem_find_range_overide;
         player_transform = GameObject.Find("Player").transform;
 
+        InitHealthBar();
+
         ConstructBehaviourTree();
     }
 
     private void Update()
     {
+        health_bar_transform.rotation = Quaternion.Euler(30f, 0f, 0f);
+
         top_node.Evaluate();
         if(top_node.node_state == NodeState.failure)
         {
@@ -151,10 +156,22 @@ public class EnemyAI : MonoBehaviour
         this.closest_golem = closest_golem;
     }
 
-
+    private Transform health_bar_transform;
+    private Slider health_bar_slider;
+    private void InitHealthBar()
+    {
+        health_bar_transform = transform.GetChild(1);
+        health_bar_slider = health_bar_transform.GetChild(0).GetComponent<Slider>();
+    }
+    private void UpdateHealthBar()
+    {
+        float bar_value = current_health / starting_health;
+        health_bar_slider.value = bar_value;
+    }
     private void OnMouseDown()
     {
         current_health -= 10f;
+        UpdateHealthBar();
     }
 
 }

@@ -2,25 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Iterates through all GameObjects in all_enemy_game_objects and damages gameobjects within given distance of fire.
+/// </summary>
 public class DamageByFire : MonoBehaviour
 {
     public List<GameObject> all_enemy_game_objects;
     public List<Vector3> all_fire_spots;
 
-    public float fire_distance = 10f;
+    [SerializeField] private float fire_distance = 4f;
     private float pow_fire_distance;
 
+    /// <summary>
+    /// Updates fire distance and invokes DamageClose() repeating with interval between each invoke to minimize compute and damage applied.
+    /// </summary>
     private void Start()
     {
         UpdateFireDistance(fire_distance);
         InvokeRepeating("DamageClose", 0.25f, 0.25f);
     }
 
-    private void UpdateFireDistance(float fire_distance)
+    /// <summary>
+    /// Updates the squared fire distance.
+    /// </summary>
+    public void UpdateFireDistance(float fire_distance)
     {
         pow_fire_distance = fire_distance * fire_distance;
     }
 
+    /// <summary>
+    /// Iterates through all GameObjects in all_enemy_game_objects and damages gameobjects within given distance of fire.
+    /// </summary>
     public void DamageClose()
     {
         foreach (GameObject game_object in all_enemy_game_objects)

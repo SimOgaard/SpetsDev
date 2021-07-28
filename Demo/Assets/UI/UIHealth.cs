@@ -5,23 +5,20 @@ using UnityEngine.UI;
 
 public class UIHealth : MonoBehaviour
 {
-    [SerializeField]
-    private Sprite health;
-    [SerializeField]
-    private Sprite health_missing;
+    [SerializeField] private Sprite health;
+    [SerializeField] private Sprite health_missing;
 
-    [SerializeField]
-    private float distance_x_offset;
-    [SerializeField]
-    private float distance_x_offset_recursive;
-    [SerializeField]
-    private float distance_y_offset;
-    [SerializeField]
-    private float distance_y_offset_recursive;
+    [SerializeField] private float distance_x_offset;
+    [SerializeField] private float distance_x_offset_recursive;
+    [SerializeField] private float distance_y_offset;
+    [SerializeField] private float distance_y_offset_recursive;
 
     private Image[] images;
-
     private int max_health;
+
+    /// <summary>
+    /// Updates max health by creating new health ui elements with right width, height and position.
+    /// </summary>
     public void UpdateMaxHealth(int max_health)
     {
         images = new Image[max_health];
@@ -57,6 +54,9 @@ public class UIHealth : MonoBehaviour
         this.max_health = max_health;
     }
 
+    /// <summary>
+    /// Changes opacity of fill in heart ui image.
+    /// </summary>
     public void UpdateCurrentHealth(int current_health)
     {
         for (int i = 0; i < max_health; i++)
@@ -65,6 +65,9 @@ public class UIHealth : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets max health and current health on game start.
+    /// </summary>
     private void Start()
     {
         UpdateMaxHealth(4);

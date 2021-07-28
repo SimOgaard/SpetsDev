@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Updates all meshes that holds every point that is on fire or is ashed.
+/// </summary>
 public class SetFire : MonoBehaviour
 {
     [SerializeField] private GameObject game_object_flammable;
@@ -11,13 +14,17 @@ public class SetFire : MonoBehaviour
 
     private Mesh mesh_flammable;
     private MeshFilter mesh_filter_flammable;
+    private MeshRenderer mesh_renderer_flammable;
     private Mesh mesh_non_flammable;
     private MeshFilter mesh_filter_non_flammable;
+    private MeshRenderer mesh_renderer_non_flammable;
 
     private Mesh mesh_flammable_ash;
     private MeshFilter mesh_filter_flammable_ash;
+    private MeshRenderer mesh_renderer_flammable_ash;
     private Mesh mesh_non_flammable_ash;
     private MeshFilter mesh_filter_non_flammable_ash;
+    private MeshRenderer mesh_renderer_non_flammable_ash;
 
     private List<Vector3> vertices_flammable = new List<Vector3>();
     private List<int> triangles_flammable = new List<int>();
@@ -33,13 +40,18 @@ public class SetFire : MonoBehaviour
 
     private DamageByFire damage_by_fire;
 
+    private float fire_width = 0.5f;
+
+    /// <summary>
+    /// Given point place triangle with normal.vector.up to mesh that holds flammable material.
+    /// </summary>
     public void UpdateFlammableFire(Vector3 point, float time)
     {
         damage_by_fire.all_fire_spots.Add(point);
 
-        Vector3 bottom_left_point = point + new Vector3(-0.5f, 0f, -0.5f);
-        Vector3 top_point = point + new Vector3(0f, 0f, 0.5f);
-        Vector3 bottom_right_point = point + new Vector3(0.5f, 0f, -0.5f);
+        Vector3 bottom_left_point = point + new Vector3(-fire_width, 0f, -fire_width);
+        Vector3 top_point = point + new Vector3(0f, 0f, fire_width);
+        Vector3 bottom_right_point = point + new Vector3(fire_width, 0f, -fire_width);
 
         int count = vertices_flammable.Count;
 
@@ -65,6 +77,9 @@ public class SetFire : MonoBehaviour
         UpdateFlammableMesh();
     }
 
+    /// <summary>
+    /// Updates flammable fire mesh.
+    /// </summary>
     private void UpdateFlammableMesh()
     {
         mesh_flammable.vertices = vertices_flammable.ToArray();
@@ -75,6 +90,9 @@ public class SetFire : MonoBehaviour
         mesh_filter_flammable.mesh = mesh_flammable;
     }
 
+    /// <summary>
+    /// Given point place triangle with normal.vector.up to mesh that holds flammable ash material.
+    /// </summary>
     private IEnumerator UpdateFlammableAsh(Vector3 point, Vector3 bottom_left_point, Vector3 top_point, Vector3 bottom_right_point, float time)
     {
         yield return new WaitForSeconds(time);
@@ -101,6 +119,9 @@ public class SetFire : MonoBehaviour
         UpdateFlammableMesh();
     }
 
+    /// <summary>
+    /// Updates flammable ash mesh.
+    /// </summary>
     private void UpdateFlammableAshMesh()
     {
         mesh_flammable_ash.vertices = vertices_flammable_ash.ToArray();
@@ -111,11 +132,14 @@ public class SetFire : MonoBehaviour
         mesh_filter_flammable_ash.mesh = mesh_flammable_ash;
     }
 
+    /// <summary>
+    /// Given point place triangle with normal.vector.up to mesh that holds non flammable material.
+    /// </summary>
     public void UpdateNonFlammableFire(Vector3 point, float time)
     {
-        Vector3 bottom_left_point = point + new Vector3(-0.5f, 0f, -0.5f);
-        Vector3 top_point = point + new Vector3(0f, 0f, 0.5f);
-        Vector3 bottom_right_point = point + new Vector3(0.5f, 0f, -0.5f);
+        Vector3 bottom_left_point = point + new Vector3(-fire_width, 0f, -fire_width);
+        Vector3 top_point = point + new Vector3(0f, 0f, fire_width);
+        Vector3 bottom_right_point = point + new Vector3(fire_width, 0f, -fire_width);
 
         int count = vertices_non_flammable.Count;
 
@@ -141,6 +165,9 @@ public class SetFire : MonoBehaviour
         UpdateNonFlammableMesh();
     }
 
+    /// <summary>
+    /// Updates non flammable mesh.
+    /// </summary>
     private void UpdateNonFlammableMesh()
     {
         mesh_non_flammable.vertices = vertices_non_flammable.ToArray();
@@ -151,6 +178,9 @@ public class SetFire : MonoBehaviour
         mesh_filter_non_flammable.mesh = mesh_non_flammable;
     }
 
+    /// <summary>
+    /// Given point place triangle with normal.vector.up to mesh that holds non flammable ash material.
+    /// </summary>
     private IEnumerator UpdateNonFlammableAsh(Vector3 bottom_left_point, Vector3 top_point, Vector3 bottom_right_point, float time)
     {
         yield return new WaitForSeconds(time);
@@ -175,6 +205,9 @@ public class SetFire : MonoBehaviour
         UpdateNonFlammableMesh();
     }
 
+    /// <summary>
+    /// Updates non flammable ash mesh.
+    /// </summary>
     private void UpdateNonFlammableAshMesh()
     {
         mesh_non_flammable_ash.vertices = vertices_non_flammable_ash.ToArray();
@@ -185,6 +218,49 @@ public class SetFire : MonoBehaviour
         mesh_filter_non_flammable_ash.mesh = mesh_non_flammable_ash;
     }
 
+    /// <summary>
+    /// Updates visual component of fire on ground when FireballAbility upgrades.
+    /// NOT YET IMPLEMENTED
+    /// </summary>
+    public void UpdateFire(float ground_fire_radius)
+    {
+        return;
+
+        fire_width = ground_fire_radius / 8f;
+
+        return;
+        mesh_renderer_flammable.material.SetFloat("_BladeWidth", ground_fire_radius / 4f);
+        mesh_renderer_flammable.material.SetFloat("_BladeHeight", ground_fire_radius / 3f);
+        mesh_renderer_non_flammable.material.SetFloat("_BladeWidth", ground_fire_radius / 8f);
+        mesh_renderer_non_flammable.material.SetFloat("_BladeHeight", ground_fire_radius / 12f);
+
+        Material old_material_non_flammable_ash = mesh_renderer_flammable_ash.material;
+        Material old_material_flammable_ash = mesh_renderer_non_flammable_ash.material;
+
+        // Set FlammableAsh and NonFlamableAsh to new game objects to keep ashes
+        game_object_flammable_ash = new GameObject("FlammableAsh");
+        game_object_non_flammable_ash = new GameObject("NonFlammableAsh");
+        game_object_flammable_ash.transform.parent = transform;
+        game_object_non_flammable_ash.transform.parent = transform;
+        mesh_flammable_ash = new Mesh();
+        mesh_non_flammable_ash = new Mesh();
+        mesh_filter_flammable_ash = game_object_flammable_ash.AddComponent<MeshFilter>();
+        mesh_filter_non_flammable_ash = game_object_non_flammable_ash.AddComponent<MeshFilter>();
+        mesh_renderer_flammable_ash = game_object_flammable_ash.AddComponent<MeshRenderer>();
+        mesh_renderer_non_flammable_ash = game_object_non_flammable_ash.AddComponent<MeshRenderer>();
+
+        // new ashes for new fire
+        mesh_renderer_flammable_ash.material = old_material_flammable_ash;
+        mesh_renderer_flammable_ash.material.SetFloat("_BladeWidth", ground_fire_radius / 4f);
+        mesh_renderer_flammable_ash.material.SetFloat("_BladeHeight", ground_fire_radius / 3f);
+        mesh_renderer_non_flammable_ash.material = old_material_non_flammable_ash;
+        mesh_renderer_non_flammable_ash.material.SetFloat("_BladeWidth", ground_fire_radius / 8f);
+        mesh_renderer_non_flammable_ash.material.SetFloat("_BladeHeight", ground_fire_radius / 12f);
+    }
+
+    /// <summary>
+    /// Grabs all components and initializes all meshes.
+    /// </summary>
     private void Start()
     {
         mesh_flammable = new Mesh();
@@ -195,6 +271,11 @@ public class SetFire : MonoBehaviour
         mesh_filter_non_flammable = game_object_non_flammable.GetComponent<MeshFilter>();
         mesh_filter_flammable_ash = game_object_flammable_ash.GetComponent<MeshFilter>();
         mesh_filter_non_flammable_ash = game_object_non_flammable_ash.GetComponent<MeshFilter>();
+        mesh_renderer_flammable = game_object_flammable.GetComponent<MeshRenderer>();
+        mesh_renderer_non_flammable = game_object_non_flammable.GetComponent<MeshRenderer>();
+        mesh_renderer_flammable_ash = game_object_flammable_ash.GetComponent<MeshRenderer>();
+        mesh_renderer_non_flammable_ash = game_object_non_flammable_ash.GetComponent<MeshRenderer>();
+        
         damage_by_fire = game_object_flammable.GetComponent<DamageByFire>();
     }
 }

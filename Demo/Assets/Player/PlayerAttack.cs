@@ -2,53 +2,56 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Depending on keypress, this object will send different messages that will call any funcions with matching names in components attached to the game object.
+/// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    private PlayerInventory player_inventory;
     private PlayerInput player_input;
 
     private void Start()
     {
-        player_inventory = GameObject.Find("EquipmentsInInventory").GetComponent<PlayerInventory>();
         player_input = GetComponent<PlayerInput>();
     }
 
+    /// <summary>
+    /// Continually checks for key presses.
+    /// </summary>
     private void Update()
     {
-        //Depending on keypress, this object will send different messages that will call any funcions with matching names in components attached to the game object.
-        if (player_inventory.weapon != null)
+        if (PlayerInventory.weapon != null)
         {
             if (Input.GetKeyDown(player_input.use_weapon))
             {
-                player_inventory.weapon.UsePrimary();
+                PlayerInventory.weapon.UsePrimary();
             }
             else if (Input.GetKeyUp(player_input.use_weapon))
             {
-                player_inventory.weapon.StopPrimary();
+                PlayerInventory.weapon.StopPrimary();
             }
         }
 
-        if (player_inventory.ability != null)
+        if (PlayerInventory.ability != null)
         {
             if (Input.GetKeyDown(player_input.use_ability))
             {
-                player_inventory.ability.UsePrimary();
+                PlayerInventory.ability.UsePrimary();
             }
             else if (Input.GetKeyUp(player_input.use_ability))
             {
-                player_inventory.ability.StopPrimary();
+                PlayerInventory.ability.StopPrimary();
             }
         }
 
-        if (player_inventory.ultimate != null)
+        if (PlayerInventory.ultimate != null)
         {
             if (Input.GetKeyDown(player_input.use_ultimate))
             {
-                player_inventory.ultimate.UsePrimary();
+                PlayerInventory.ultimate.UsePrimary();
             }
             else if (Input.GetKeyUp(player_input.use_ultimate))
             {
-                player_inventory.ultimate.StopPrimary();
+                PlayerInventory.ultimate.StopPrimary();
             }
         }
     }

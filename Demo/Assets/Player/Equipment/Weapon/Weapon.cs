@@ -15,14 +15,18 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
     /// <summary>
     /// Rulesets for all children of Weapon to follow.
     /// </summary>
-
     public interface IWeapon
     {
         void Destroy();
         void OnGround();
         void UsePrimary();
         void StopPrimary();
+        void ObjectPool();
+        void DeleteObjectPool();
         Sprite GetIconSprite();
+        void Upgrade();
+        float GetCurrentCooldown();
+        float GetCooldown();
     }
 
     /// <summary>
@@ -35,19 +39,11 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
     }
 
     /// <summary>
-    /// Initializes current_weapon to one Weapon. (now only HammerWeapon)
-    /// </summary>
-    public void Awake()
-    {
-        current_weapon = gameObject.AddComponent<HammerWeapon>();
-    }
-
-    /// <summary>
     /// Unique shader data holding colors, time and width for when object of this type is dropped.
     /// </summary>
-    public Equipment.DroppedItemShaderStruct GetDroppedItemShaderStruct()
+    public DropItem.DroppedItemShaderStruct GetDroppedItemShaderStruct()
     {
-        Equipment.DroppedItemShaderStruct shader_struct;
+        DropItem.DroppedItemShaderStruct shader_struct;
         shader_struct.time = 0.2f;
         shader_struct.start_width = 0.75f;
         shader_struct.end_width = 0.1f;
@@ -81,5 +77,32 @@ public class Weapon : MonoBehaviour, Equipment.IEquipment
     public Sprite GetIconSprite()
     {
         return current_weapon.GetIconSprite();
+    }
+
+    /// <summary>
+    /// Returns current cooldown of equipment.
+    /// </summary>
+    public float GetCurrentCooldown()
+    {
+        return current_weapon.GetCurrentCooldown();
+    }
+    /// <summary>
+    /// Returns cooldown of equipment.
+    /// </summary>
+    public float GetCooldown()
+    {
+        return current_weapon.GetCooldown();
+    }
+
+    /// <summary>
+    /// Further transmits ObjectPool and DeleteObjectPool function from Master to child.
+    /// </summary>
+    public void ObjectPool()
+    {
+        current_weapon.ObjectPool();
+    }
+    public void DeleteObjectPool()
+    {
+        current_weapon.DeleteObjectPool();
     }
 }

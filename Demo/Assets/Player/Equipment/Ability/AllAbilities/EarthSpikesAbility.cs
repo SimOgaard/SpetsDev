@@ -32,7 +32,8 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
 
     // Ability cooldown
     public float ability_cooldown = 0f;
-    public float current_cooldown = 0f;
+    public float _current_cooldown = 0f;
+    public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
 
     /// <summary>
     /// Destroys itself.
@@ -63,15 +64,15 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     public void UsePrimary()
     {
-        if (current_cooldown < 0f)
+        if (current_cooldown <= 0f)
         {
             current_cooldown = ability_cooldown;
-            StartCoroutine(RecursivePillarSpawnTEST(mouse_point.transform.forward, transform.position));
+            StartCoroutine(RecursivePillarSpawn(mouse_point.transform.forward, transform.position));
         }
     }
 
     /// <summary>
-    /// Stops this ultimate.
+    /// Stops this ability.
     /// </summary>
     public void StopPrimary()
     {
@@ -153,7 +154,9 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     {
         GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
         EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
-        earthbending_pillar.NEWSpawnPillar(point, height, time, pillar_speed, width, rotation);
+        earthbending_pillar.InitEarthbendingPillar(height, width, rotation, time, pillar_speed);
+        earthbending_pillar.PlacePillar(point);
+        //earthbending_pillar.should_be_deleted = true;
     }
 
     /// <summary>
@@ -169,5 +172,43 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+    }
+
+    /// <summary>
+    /// Returns current cooldown of equipment.
+    /// </summary>
+    public float GetCurrentCooldown()
+    {
+        return current_cooldown;
+    }
+    /// <summary>
+    /// Returns cooldown of equipment.
+    /// </summary>
+    public float GetCooldown()
+    {
+        return ability_cooldown;
+    }
+
+    /// <summary>
+    /// Starts object pooling when ability is in inventory.
+    /// </summary>
+    public void ObjectPool()
+    {
+        DeleteObjectPool();
+    }
+    /// <summary>
+    /// Delets pooled objects when ability is dropped.
+    /// </summary>
+    public void DeleteObjectPool()
+    {
+        if ("pooled objects" == null)
+        {
+            return;
+        }
+    }
+
+    public void Upgrade()
+    {
+
     }
 }

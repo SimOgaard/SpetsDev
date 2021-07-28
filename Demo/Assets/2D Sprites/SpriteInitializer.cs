@@ -14,59 +14,56 @@ using UnityEngine;
 /// </summary>
 public class SpriteInitializer : MonoBehaviour
 {
-    [SerializeField]
-    private Sprite sprite_to_render;
-    [SerializeField]
-    private RuntimeAnimatorController animation_to_render;
+    [SerializeField] private Sprite sprite_to_render;
+    [SerializeField] private RuntimeAnimatorController animation_to_render;
 
+    private GameObject sprite_game_object;
     private SpriteRenderer sprite_renderer;
     private Animator animator;
-
-    private GameObject game_object;
 
     /// <summary>
     /// Initializes gameobject with scale to offset cameras isometric view
     /// <summary>
-    public void Initialize(Sprite sprite, Vector3 rotation_in_vec_space)
+    public void Initialize(Sprite sprite, Vector3 rotation_in_vec_space, int render_order = 0)
     {
-        if (game_object != null)
+        if (sprite_game_object != null)
         {
-            Destroy(game_object);
+            Destroy(sprite_game_object);
         }
-        
-        // Initializes gameobject as child with sprite renderer component and given sprite
-        game_object = new GameObject();
-        game_object.transform.parent = transform;
-        game_object.transform.rotation = Quaternion.Euler(rotation_in_vec_space);
 
-        sprite_renderer = game_object.AddComponent<SpriteRenderer>();
+        // Initializes gameobject as child with sprite renderer component and given sprite
+        sprite_game_object = new GameObject();
+        sprite_game_object.transform.parent = transform;
+        sprite_game_object.transform.rotation = Quaternion.Euler(rotation_in_vec_space);
+
+        sprite_renderer = sprite_game_object.AddComponent<SpriteRenderer>();
         sprite_renderer.sprite = sprite;
+        sprite_renderer.sortingOrder = render_order;
         animator = null;
 
         // Applies scale to gameobject to correct camera rotation
         float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * (rotation_in_vec_space.x - 30f));
-        //float x_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * rotation_in_vec_space.y);
-        game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        game_object.transform.localPosition = new Vector3(0f, 3.5f, 0f);
+        sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
+        sprite_game_object.transform.localPosition = new Vector3(0f, 3.5f, 0f);
     }
     public void Initialize(RuntimeAnimatorController animation, Vector3 rotation_in_vec_space)
     {
-        if (game_object != null)
+        if (sprite_game_object != null)
         {
-            Destroy(game_object);
+            Destroy(sprite_game_object);
         }
 
-        game_object = new GameObject();
-        game_object.transform.parent = transform;
-        game_object.transform.rotation = Quaternion.Euler(rotation_in_vec_space);
+        sprite_game_object = new GameObject();
+        sprite_game_object.transform.parent = transform;
+        sprite_game_object.transform.rotation = Quaternion.Euler(rotation_in_vec_space);
 
-        sprite_renderer = game_object.AddComponent<SpriteRenderer>();
-        animator = game_object.AddComponent<Animator>();
+        sprite_renderer = sprite_game_object.AddComponent<SpriteRenderer>();
+        animator = sprite_game_object.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
 
         float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * (rotation_in_vec_space.x - 30f));
-        game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        game_object.transform.localPosition = new Vector3(0f, 3.5f, 0f);
+        sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
+        sprite_game_object.transform.localPosition = new Vector3(0f, 3.5f, 0f);
     }
 
     /// <summary>
@@ -98,7 +95,7 @@ public class SpriteInitializer : MonoBehaviour
     /// <summary>
     public void Destroy()
     {
-        Destroy(game_object);
+        Destroy(sprite_game_object);
         Destroy(this);
     }
 
