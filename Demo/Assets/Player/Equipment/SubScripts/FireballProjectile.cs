@@ -9,6 +9,7 @@ public class FireballProjectile : MonoBehaviour
 {
     private SetFire set_fire;
     private Rigidbody rigid_body;
+    private SphereCollider sphere_collider;
     private MeshRenderer mesh_renderer;
 
     private Material burned_out_material;
@@ -23,21 +24,37 @@ public class FireballProjectile : MonoBehaviour
     private float ground_fire_time_max;
     private float fireball_fire_time_min;
     private float fireball_fire_time_max;
+    private bool explode_on_first_hit;
+    private bool penetrate_enemies;
+
+    private bool has_exploded = false;
+
+    public float on_collision_damage;
 
     /// <summary>
     /// Set variables when initializing fireball in FireballAbility.
     /// </summary>
-    public void InitVar(SetFire set_fire, Material burned_out_material, Material fireball_material, SphereCollider sphere_collider, MeshRenderer mesh_renderer, Rigidbody rigid_body, float ground_fire_time_min, float ground_fire_time_max, float fireball_fire_time_min, float fireball_fire_time_max)
+    public void InitVar(SetFire set_fire, Material burned_out_material, Material fireball_material, SphereCollider sphere_collider, MeshRenderer mesh_renderer, Rigidbody rigid_body)
     {
         this.set_fire = set_fire;
         this.burned_out_material = burned_out_material;
         this.fireball_material = fireball_material;
+        this.sphere_collider = sphere_collider;
         this.mesh_renderer = mesh_renderer;
         this.rigid_body = rigid_body;
+    }
+
+    public void UpgradeVar(float ground_fire_time_min, float ground_fire_time_max, float fireball_fire_time_min, float fireball_fire_time_max, bool explode_on_first_hit, bool penetrate_enemies, float on_collision_damage)
+    {
         this.ground_fire_time_min = ground_fire_time_min;
         this.ground_fire_time_max = ground_fire_time_max;
         this.fireball_fire_time_min = fireball_fire_time_min;
         this.fireball_fire_time_max = fireball_fire_time_max;
+        this.explode_on_first_hit = explode_on_first_hit;
+        this.penetrate_enemies = penetrate_enemies;
+        this.on_collision_damage = on_collision_damage;
+
+        gameObject.layer = penetrate_enemies ? 15 : 14;
     }
 
     /// <summary>
@@ -69,6 +86,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void ApplyVelocity(Vector3 vel)
     {
+        has_exploded = false;
         rigid_body.velocity = vel;
     }
 
@@ -81,6 +99,15 @@ public class FireballProjectile : MonoBehaviour
         mesh_renderer.material.SetVector("_FireDirection", rigid_body.velocity * air_effect_magnitude - fire_heat_lift_force);
     }
 
+    public void Explode()
+    {
+        if (!has_exploded && explode_on_first_hit)
+        {
+            Debug.Log("EXPLODE WOW");
+            has_exploded = true;
+        }
+    }
+
     /// <summary>
     /// While colliding with ground check collision tag and update fire in SetFire.
     /// </summary>
@@ -90,6 +117,8 @@ public class FireballProjectile : MonoBehaviour
         {
             return;
         }
+
+        Explode();
 
         Vector3 new_burn_contact_point = transform.position;
         new_burn_contact_point.y -= 1f;

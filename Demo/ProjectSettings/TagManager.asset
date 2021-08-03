@@ -23,9 +23,9 @@ TagManager:
   - GameWorld
   - MiniMap
   - Projectile
-  - 
-  - 
-  - 
+  - ProjectileGoThrough
+  - Enemy
+  - SpawnedCollider
   - 
   - 
   - 

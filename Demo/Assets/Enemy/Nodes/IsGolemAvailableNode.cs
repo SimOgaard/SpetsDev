@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class IsGolemAvailableNode : Node
 {
-    private Transform[] available_golems;
+    private Transform throwable_parrent_transform;
     private EnemyAI ai;
 
-    public IsGolemAvailableNode(Transform[] available_golems, EnemyAI ai)
+    public IsGolemAvailableNode(Transform throwable_parrent_transform, EnemyAI ai)
     {
-        this.available_golems = available_golems;
+        this.throwable_parrent_transform = throwable_parrent_transform;
         this.ai = ai;
     }
 
@@ -22,20 +22,25 @@ public class IsGolemAvailableNode : Node
 
     private Transform FindClosestGolem()
     {
+        if (throwable_parrent_transform == null)
+        {
+            return null;
+        }
+
         Transform closest_golem = null;
         float min_dist_pow = float.PositiveInfinity;
         float dist_pow = 0f;
-        for (int i = 0; i < available_golems.Length; i++)
+        foreach (Transform golem in throwable_parrent_transform)
         {
-            if(available_golems[i] == null)
+            if (golem == null)
             {
                 continue;
             }
-            dist_pow = (available_golems[i].position - ai.transform.position).sqrMagnitude;
+            dist_pow = (golem.position - ai.transform.position).sqrMagnitude;
             if (dist_pow < min_dist_pow)
             {
                 min_dist_pow = dist_pow;
-                closest_golem = available_golems[i];
+                closest_golem = golem;
             }
         }
         return closest_golem;

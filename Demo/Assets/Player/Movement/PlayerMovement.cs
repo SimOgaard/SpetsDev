@@ -55,7 +55,10 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        slope_move_direction_normalized.y -= gravity * Time.deltaTime;
         is_grounded = (controller.Move(slope_move_direction_normalized * move_speed * movement_multiplier * (is_grounded ? 1f : air_multiplier) * Time.deltaTime) & CollisionFlags.Below) != 0;
+        if (!is_grounded)
+        {
+            controller.Move(Vector3.down * gravity * Time.deltaTime);
+        }
     }
 }

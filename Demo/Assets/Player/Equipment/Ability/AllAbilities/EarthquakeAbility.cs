@@ -13,10 +13,6 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private MousePoint mouse_point;
 
-    // För att damagea enemies, ta mitt punkten och kolla om distancen från mitt punkten till enemy är större än men mindre än damage radius
-    // ignorera y på alla calculationer
-    // öka båda "radierna" med tid
-
     /// <summary>
     /// All variables that when changed need to clear earthbending_pillars_for_each_ring and re run ObjectPool().
     /// </summary>
@@ -49,6 +45,9 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     public float ability_cooldown = 1f;
     public float _current_cooldown = 0f;
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
+
+    public float damage = 20f;
+    public float min_damage = 5f;
 
     /// <summary>
     /// Destroys itself.
@@ -142,7 +141,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 }
             }
             merged_circle_pillars.SetSharedValues(pillar_alive_time, pillar_speed, pillar_height + max_pillar_height_offset * distance_remap01);
-            StartCoroutine(SpawnPillarShared(merged_circle_pillars, (distance_remap01 / flow_speed), 1 == wave_recursion));
+            StartCoroutine(SpawnPillarShared(merged_circle_pillars, (distance_remap01 / flow_speed), 1 == wave_recursion, circle_index, start_point, current_radius + radius_increment * 0.5f, circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f));
         }
 
         for (int earthquake_recursion_index = 1; earthquake_recursion_index < wave_recursion; earthquake_recursion_index++)
@@ -152,7 +151,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 float current_radius = radius_increment * circle_index;
                 float distance_remap01 = current_radius / max_radius;
 
-                StartCoroutine(SpawnPillarShared(all_circles_merged_pillars[circle_index-1], (distance_remap01 / flow_speed) + earthquake_recursion_index * ((1f / flow_speed) + (((pillar_height + max_pillar_height_offset * distance_remap01) * 0.5f) / pillar_speed) + earthquake_recursion_time_wait), earthquake_recursion_index == wave_recursion - 1));
+                StartCoroutine(SpawnPillarShared(all_circles_merged_pillars[circle_index-1], (distance_remap01 / flow_speed) + earthquake_recursion_index * ((1f / flow_speed) + (((pillar_height + max_pillar_height_offset * distance_remap01) * 0.5f) / pillar_speed) + earthquake_recursion_time_wait), earthquake_recursion_index == wave_recursion - 1, circle_index, start_point, current_radius + radius_increment * 0.5f, circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f));
             }
         }
     }
@@ -160,12 +159,37 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// Controlls activation of merged ring and controlls weather or not it should be reused (disabled) or not (deleted).
     /// </summary>
-    private IEnumerator SpawnPillarShared(EarthbendingPillar merged_circle_pillars, float wait, bool should_be_deleted)
+    private IEnumerator SpawnPillarShared(EarthbendingPillar merged_circle_pillars, float wait, bool should_be_deleted, int circle_index, Vector3 mid_point, float max_radius, float min_radius)
     {
         merged_circle_pillars.gameObject.SetActive(false);
         yield return new WaitForSeconds(wait);
         merged_circle_pillars.should_be_deleted = should_be_deleted;
+        Damage(mid_point, max_radius, min_radius);
         merged_circle_pillars.gameObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Calculates distance from enemy to mid point of ability cast ignoring y values.
+    /// Damages enemy liniarly by distance.
+    /// </summary>
+    private void Damage(Vector3 mid_point, float max_radius, float min_radius)
+    {
+        mid_point.y = 0f;
+        foreach (EnemyAI enemy_ai in Enemies.all_enemy_ais)
+        {
+            Vector3 enemy_pos = enemy_ai.transform.position;
+            enemy_pos.y = 0f;
+
+            float current_radius = (enemy_pos - mid_point).magnitude;
+
+            if (current_radius < max_radius && current_radius > min_radius)
+            {
+                float distance_remap01 = current_radius / (this.max_radius + radius_increment * 0.5f);
+                float damage_by_liniar_function = -(damage - min_damage) * distance_remap01 + damage;
+
+                enemy_ai.current_health -= damage_by_liniar_function;
+            }
+        }
     }
 
     /// <summary>

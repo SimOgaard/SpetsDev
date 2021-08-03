@@ -9,13 +9,13 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCamera : MonoBehaviour
 {
-    [SerializeField]
-    private float camera_distance = 100f;
+    [SerializeField] private float camera_distance = 100f;
 
     private float camera_distance_to_y = Mathf.Sin(Mathf.Deg2Rad * 30f);
     private float camera_distance_to_z = Mathf.Cos(Mathf.Deg2Rad * 30f);
 
-    private float units_per_pixel = 40f / 216f;
+    private const float units_per_pixel_world = 40f / 216f;
+    private const float units_per_pixel_camera = 40f / 225f;
     private Quaternion camera_quaternion_rotation = Quaternion.Euler(30f, 0f, 0f);
     private Quaternion camera_quaternion_rotation_inverse = Quaternion.Euler(330f, 0f, 0f);
 
@@ -31,9 +31,9 @@ public class PixelPerfectCamera : MonoBehaviour
     private Vector3 RoundToPixel(Vector3 position)
     {
         Vector3 result;
-        result.x = Mathf.Round(position.x / units_per_pixel) * units_per_pixel;
-        result.y = Mathf.Round(position.y / units_per_pixel) * units_per_pixel;
-        result.z = Mathf.Round(position.z / units_per_pixel) * units_per_pixel;
+        result.x = Mathf.Round(position.x / units_per_pixel_world) * units_per_pixel_world;
+        result.y = Mathf.Round(position.y / units_per_pixel_world) * units_per_pixel_world;
+        result.z = Mathf.Round(position.z / units_per_pixel_world) * units_per_pixel_world;
 
         return result;
     }
@@ -90,6 +90,7 @@ public class PixelPerfectCamera : MonoBehaviour
     private void Awake()
     {
         m_camera = GetComponent<Camera>();
+        m_camera.orthographicSize = (225f / 216f) * 20f;
         SetCameraRotation();
         SetCameraNearClippingPlane();
     }
@@ -105,30 +106,30 @@ public class PixelPerfectCamera : MonoBehaviour
     }
 
     /// <summary>
-    /// Before render set camera render texture to temporary low res render texture.
+    /// Before render set camera render texture to temporary low res render texture. Bigger than actuall resolution to account for border pixel stretch.
     /// </summary>
     void OnPreRender()
     {
-        int width = 384;
-        int height = 216;
+        const int width = 400;
+        const int height = 225;
         rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
         m_camera.targetTexture = rt;
     }
 
     /// <summary>
-    /// When we render account for none integer offsets using blits to get smooth camera movement.
+    /// When we render account for none integer offsets using blits to get smooth camera movement. And scaled to right resolution in pixels 384x216 px.
     /// </summary>
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         src.filterMode = FilterMode.Point;
 
         // Translate offset.xy to render texture uv cordinates.
-        float to_positive = units_per_pixel * 0.5f;
-        float x_divider = 9f / 640f; //(1f * 216f) / (384f * 40f);
-        float y_divider = 1f / 40f;  //(1f * 384f) / (384f * 40f);
+        const float to_positive = units_per_pixel_camera * 0.5f;
+        const float x_divider = 9f / 640f; //(1f * 216f) / (384f * 40f);
+        const float y_divider = 1f / 40f;  //(1f * 384f) / (384f * 40f);
 
         Vector2 camera_offset = new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
-        Vector2 camera_scale = new Vector2(1f, 1f);
+        Vector2 camera_scale = new Vector2(384f / 400f, 216f / 225f);
 
         Graphics.Blit(src, dest, camera_scale, camera_offset);
 

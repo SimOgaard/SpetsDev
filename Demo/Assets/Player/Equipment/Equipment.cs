@@ -51,7 +51,7 @@ public class Equipment : MonoBehaviour
         current_equipment = gameObject.AddComponent<Ability>();
         Ability cached_type_of_ability = gameObject.GetComponent<Ability>();
 
-        int rand_ability = Mathf.RoundToInt(Random.Range(0f, 3f));
+        int rand_ability = Mathf.RoundToInt(Random.Range(0f, 4f));
         switch (rand_ability)
         {
             case 0:
@@ -64,6 +64,9 @@ public class Equipment : MonoBehaviour
                 cached_type_of_ability.current_ability = gameObject.AddComponent<EarthShieldAbility>();
                 break;
             case 3:
+                cached_type_of_ability.current_ability = gameObject.AddComponent<EarthOnCommandShieldAbility>();
+                break;
+            case 4:
                 cached_type_of_ability.current_ability = gameObject.AddComponent<EarthSpikesAbility>();
                 break;
         }

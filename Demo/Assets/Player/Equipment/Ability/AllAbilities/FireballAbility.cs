@@ -31,9 +31,11 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public float ground_fire_time_max = 7.5f;
     public float fireball_fire_time_min = 3.5f;
     public float fireball_fire_time_max = 5f;
+    public float on_collision_damage = 20f;
+    public float fire_damage = 2f;
 
     public bool penetrate_enemies = false;
-    public bool explode_on_first_hit = false;
+    public bool explode_on_first_hit = true;
 
     /// <summary>
     /// Destroys itself.
@@ -153,7 +155,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         fireball_projectiles[current_pool_index].Reset(transform.position + new Vector3(0f, 3f, 0f));
         fireball_projectiles[current_pool_index].StartBurning();
         
-        Vector3 aim_point = mouse_point.GetWorldPoint();
+        Vector3 aim_point = mouse_point.GetWorldPointAndEnemyMid();
         Vector3 start_point = fireball_projectiles[current_pool_index].transform.position;
 
         Vector3 force_direction = (aim_point - start_point);
@@ -215,6 +217,16 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     private FireballProjectile InstanciateFireballProjectile()
     {
         GameObject fireball_game_object = new GameObject("fireball");
+
+        GameObject fireball_trigger_game_object = new GameObject("fireball_trigger");
+        fireball_trigger_game_object.transform.parent = fireball_game_object.transform;
+        fireball_trigger_game_object.transform.position = Vector3.zero;
+        fireball_trigger_game_object.layer = 14;
+        SphereCollider fireball_trigger_sphere_collider = fireball_trigger_game_object.AddComponent<SphereCollider>();
+        FireballProjectileTrigger fireball_projectile_trigger = fireball_trigger_game_object.AddComponent<FireballProjectileTrigger>();
+        fireball_trigger_sphere_collider.isTrigger = true;
+        fireball_trigger_sphere_collider.radius = 1f;
+
         fireball_game_object.layer = 14;
         fireball_game_object.transform.position = Vector3.zero;
         fireball_game_object.transform.localScale = new Vector3(2f, 2f, 2f);
@@ -223,6 +235,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         fireball_collider.radius = 0.5f;
 
         Rigidbody fireball_rigidbody = fireball_game_object.AddComponent<Rigidbody>();
+        fireball_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         fireball_rigidbody.angularDrag = 1000f;
 
         MeshRenderer fireball_mesh_renderer = fireball_game_object.AddComponent<MeshRenderer>();
@@ -230,7 +243,10 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         fireball_mesh_filter.mesh = DropItem.GetLowPolySphereMesh();
 
         FireballProjectile fireball_projectile = fireball_game_object.AddComponent<FireballProjectile>();
-        fireball_projectile.InitVar(set_fire, fireball_burned_out_material, fireball_material, fireball_collider, fireball_mesh_renderer, fireball_rigidbody, ground_fire_time_min, ground_fire_time_max, fireball_fire_time_min, fireball_fire_time_max);
+        fireball_projectile_trigger.Init(fireball_projectile);
+        fireball_projectile.InitVar(set_fire, fireball_burned_out_material, fireball_material, fireball_collider, fireball_mesh_renderer, fireball_rigidbody);
+        fireball_projectile.UpgradeVar(ground_fire_time_min, ground_fire_time_max, fireball_fire_time_min, fireball_fire_time_max, explode_on_first_hit, penetrate_enemies, on_collision_damage);
+        damage_by_fire.UpdateFireDamage(fire_damage);
 
         fireball_game_object.SetActive(false);
         return fireball_projectile;
@@ -242,9 +258,9 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     private void UpdateFire()
     {
         damage_by_fire.UpdateFireDistance(ground_fire_radius);
-        set_fire.UpdateFire(ground_fire_radius);
+        Debug.Log("Updating fire visuals are not yet implemented lamao");
         return;
-        Debug.Log("NOT YET IMPLEMENTED");
+        set_fire.UpdateFire(ground_fire_radius);
     }
 
     private List<FireballProjectile> fireball_projectiles;
@@ -279,6 +295,11 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
 
     public void Upgrade()
     {
+        damage_by_fire.UpdateFireDamage(fire_damage);
 
+        foreach (FireballProjectile fireball_projectile in fireball_projectiles)
+        {
+            fireball_projectile.UpgradeVar(ground_fire_time_min, ground_fire_time_max, fireball_fire_time_min, fireball_fire_time_max, explode_on_first_hit, penetrate_enemies, on_collision_damage);
+        }
     }
 }

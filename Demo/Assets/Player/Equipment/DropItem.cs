@@ -14,8 +14,8 @@ public class DropItem : MonoBehaviour
     private MeshRenderer orb_mesh_renderer;
     private MeshFilter mesh_filter;
 
-    private Rigidbody rigidbody;
-    private SphereCollider collider;
+    private Rigidbody _rigidbody;
+    private SphereCollider _collider;
 
     private Transform items_in_inventory;
     private Transform items_in_air;
@@ -120,13 +120,13 @@ public class DropItem : MonoBehaviour
         transform.parent = items_in_air;
         transform.position = position;
 
-        rigidbody = gameObject.AddComponent<Rigidbody>();
-        rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        _rigidbody = gameObject.AddComponent<Rigidbody>();
+        _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
         Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f, selected_rotation * 0.5f + 180f), 0) * Vector3.forward * force;
-        rigidbody.AddForce(thrust, ForceMode.Force);
-        collider = gameObject.AddComponent<SphereCollider>();
-        collider.radius = 1f;
-        collider.isTrigger = true;
+        _rigidbody.AddForce(thrust, ForceMode.Force);
+        _collider = gameObject.AddComponent<SphereCollider>();
+        _collider.radius = 1f;
+        _collider.isTrigger = true;
     }
 
     /// <summary>
@@ -177,8 +177,8 @@ public class DropItem : MonoBehaviour
     private void OnGround()
     {
         grounded = true;
-        Destroy(collider);
-        Destroy(rigidbody);
+        Destroy(_collider);
+        Destroy(_rigidbody);
 
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
         sprite_initializer.Initialize(not_interacting_with_sprite, Vector3.zero);

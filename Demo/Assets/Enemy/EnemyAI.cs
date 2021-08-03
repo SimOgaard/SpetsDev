@@ -1,13 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
-    [SerializeField]
-    private float starting_health;
+    [SerializeField] private float starting_health;
     private float _current_health;
     public float current_health
     {
@@ -17,18 +15,12 @@ public class EnemyAI : MonoBehaviour
 
     public bool has_golem_in_hands;
 
-    [SerializeField]
-    private float chasing_range;
-    [SerializeField]
-    private float throw_range;
-    [SerializeField]
-    private float meele_range;
-    [SerializeField]
-    private float golem_find_range;
-    [SerializeField]
-    private float golem_find_range_overide;
-    [SerializeField]
-    private float golem_pickup_range;
+    [SerializeField] private float chasing_range;
+    [SerializeField] private float throw_range;
+    [SerializeField] private float meele_range;
+    [SerializeField] private float golem_find_range;
+    [SerializeField] private float golem_find_range_overide;
+    [SerializeField] private float golem_pickup_range;
     private float chasing_range_pow;
     private float throw_range_pow;
     private float meele_range_pow;
@@ -38,21 +30,20 @@ public class EnemyAI : MonoBehaviour
 
     private Transform player_transform;
     private Transform closest_golem;
-    [SerializeField]
-    private Transform[] available_golems;
-    [SerializeField]
-    private Transform meele_transform;
-
-    private NavMeshAgent agent;
+    [SerializeField] private Transform throwable_parrent_transform; 
+    [SerializeField] private Transform meele_transform;
 
     private Node top_node;
-
     private Material material;
+    private DamageByFire damage_by_fire;
+    private Agent agent;
 
     private void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-        material = GetComponent<MeshRenderer>().material;
+        agent = gameObject.GetComponent<Agent>();
+        material = transform.Find("Mesh").Find("UpperBody").GetComponent<MeshRenderer>().material;
+        player_transform = GameObject.Find("Player").transform;
+        damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
     }
 
     private void Start()
@@ -64,11 +55,18 @@ public class EnemyAI : MonoBehaviour
         golem_pickup_range_pow = golem_pickup_range * golem_pickup_range;
         golem_find_range_pow = golem_find_range * golem_find_range;
         golem_find_range_overide_pow = golem_find_range_overide * golem_find_range_overide;
-        player_transform = GameObject.Find("Player").transform;
 
         InitHealthBar();
 
         ConstructBehaviourTree();
+
+        InvokeRepeating("DamageCheckInterval", 0.25f, 0.25f);
+    }
+
+    private void DamageCheckInterval()
+    {
+        current_health -= damage_by_fire.Damage(transform);
+        UpdateHealthBar();
     }
 
     private void Update()
@@ -79,7 +77,7 @@ public class EnemyAI : MonoBehaviour
         if(top_node.node_state == NodeState.failure)
         {
             SetColor(Color.red);
-            agent.isStopped = true;
+            agent.is_stopped = true;
         }
     }
 
@@ -118,7 +116,7 @@ public class EnemyAI : MonoBehaviour
 
         RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide_pow, player_transform, transform);
         Inverter player_to_close_ignore_node_inverter = new Inverter(player_to_close_ignore_node);
-        IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(available_golems, this);
+        IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(throwable_parrent_transform, this);
         Selector go_to_golem_selector = new Selector(new List<Node> { pick_up_golem_sequence, go_to_golem_sequence });
         Sequence find_golem_sequence = new Sequence(new List<Node> { player_to_close_ignore_node_inverter, is_golem_available_node, go_to_golem_selector });
 
@@ -141,9 +139,12 @@ public class EnemyAI : MonoBehaviour
         return closest_golem;
     }
 
-    public void DestroyGolemInHands()
+    public void PlaceGolemInHands()
     {
-        Destroy(closest_golem.gameObject);
+        Transform hand_transform = transform.Find("Mesh").Find("Hand.R");
+        closest_golem.transform.parent = hand_transform;
+        closest_golem.transform.localPosition = Vector3.zero;
+        closest_golem.GetComponent<Agent>().CompleteStop();
     }
 
     public void SetColor(Color color)
@@ -158,20 +159,19 @@ public class EnemyAI : MonoBehaviour
 
     private Transform health_bar_transform;
     private Slider health_bar_slider;
+    private float health_bar_slider_pixel_width;
     private void InitHealthBar()
     {
-        health_bar_transform = transform.GetChild(1);
-        health_bar_slider = health_bar_transform.GetChild(0).GetComponent<Slider>();
+        health_bar_transform = transform.Find("Canvas");
+        float canvas_scale = 40f / (216f * transform.localScale.x);
+        health_bar_transform.localScale = new Vector3(canvas_scale, canvas_scale, canvas_scale);
+        Transform health_bar_slider_transform = health_bar_transform.GetChild(0);
+        health_bar_slider = health_bar_slider_transform.GetComponent<Slider>();
+        health_bar_slider_pixel_width = Mathf.RoundToInt(health_bar_slider_transform.GetComponent<RectTransform>().rect.width);
     }
     private void UpdateHealthBar()
     {
         float bar_value = current_health / starting_health;
-        health_bar_slider.value = bar_value;
+        health_bar_slider.value = (Mathf.CeilToInt(bar_value * health_bar_slider_pixel_width) / health_bar_slider_pixel_width);
     }
-    private void OnMouseDown()
-    {
-        current_health -= 10f;
-        UpdateHealthBar();
-    }
-
 }

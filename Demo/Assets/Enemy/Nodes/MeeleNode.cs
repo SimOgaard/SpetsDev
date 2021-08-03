@@ -5,10 +5,10 @@ using UnityEngine.AI;
 
 public class MeeleNode : Node
 {
-    private NavMeshAgent agent;
+    private Agent agent;
     private EnemyAI ai;
 
-    public MeeleNode(NavMeshAgent agent, EnemyAI ai)
+    public MeeleNode(Agent agent, EnemyAI ai)
     {
         this.agent = agent;
         this.ai = ai;
@@ -16,7 +16,7 @@ public class MeeleNode : Node
 
     public override NodeState Evaluate()
     {
-        agent.isStopped = true;
+        agent.is_stopped = true;
         ai.SetColor(Color.red);
         return NodeState.running;
     }

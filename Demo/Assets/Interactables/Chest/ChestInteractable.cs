@@ -56,7 +56,7 @@ public class ChestInteractable : MonoBehaviour
         is_open = true;
         transform.parent = GameObject.Find("UsedInteractables").transform;
 
-        SpawnChestItem(chest_type);
+        SpawnChestItemSpecified(chest_type);
 
         ChestOpeningAnimation();
 
@@ -191,24 +191,26 @@ public class ChestInteractable : MonoBehaviour
     /// </summary>
     public void SpawnChestItemSpecified(Equipment.EEquipment equipment_type)
     {
+        equipment = InitNewEquipment();
         switch (equipment_type)
         {
             case Equipment.EEquipment.Weapon:
-                equipment.current_equipment = gameObject.AddComponent<Weapon>();
-                Weapon cached_type_of_weapon = gameObject.GetComponent<Weapon>();
-                cached_type_of_weapon.current_weapon = gameObject.AddComponent<HammerWeapon>();
+                Weapon cached_weapon = equipment.gameObject.AddComponent<Weapon>();
+                equipment.current_equipment = cached_weapon;
+                cached_weapon.current_weapon = equipment.gameObject.AddComponent<HammerWeapon>();
                 break;
             case Equipment.EEquipment.Ability:
-                equipment.current_equipment = gameObject.AddComponent<Ability>();
-                Ability cached_type_of_ability = gameObject.GetComponent<Ability>();
-                cached_type_of_ability.current_ability = gameObject.AddComponent<EarthSpikesAbility>();
+                Ability cached_ability = equipment.gameObject.AddComponent<Ability>();
+                equipment.current_equipment = cached_ability;
+                cached_ability.current_ability = equipment.gameObject.AddComponent<EarthSpikesAbility>();
                 break;
             case Equipment.EEquipment.Ultimate:
-                equipment.current_equipment = gameObject.AddComponent<Ultimate>();
-                Ultimate cached_type_of_ultimate = gameObject.GetComponent<Ultimate>();
-                cached_type_of_ultimate.current_ultimate = gameObject.AddComponent<EarthbendingUltimate>();
+                Ultimate cached_ultimate = equipment.gameObject.AddComponent<Ultimate>();
+                equipment.current_equipment = cached_ultimate;
+                cached_ultimate.current_ultimate = equipment.gameObject.AddComponent<EarthbendingUltimate>();
                 break;
         }
+        equipment.DropEquipment(transform.position, 90);
     }
 
     public Equipment InitNewEquipment()

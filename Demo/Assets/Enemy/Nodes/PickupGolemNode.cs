@@ -14,7 +14,7 @@ public class PickupGolemNode : Node
     public override NodeState Evaluate()
     {
         ai.has_golem_in_hands = true;
-        ai.DestroyGolemInHands();
+        ai.PlaceGolemInHands();
         return NodeState.success;
     }
 }

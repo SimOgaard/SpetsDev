@@ -5,10 +5,10 @@ using UnityEngine.AI;
 
 public class ThrowGolemNode : Node
 {
-    private NavMeshAgent agent;
+    private Agent agent;
     private EnemyAI ai;
 
-    public ThrowGolemNode(NavMeshAgent agent, EnemyAI ai)
+    public ThrowGolemNode(Agent agent, EnemyAI ai)
     {
         this.agent = agent;
         this.ai = ai;
@@ -16,7 +16,7 @@ public class ThrowGolemNode : Node
 
     public override NodeState Evaluate()
     {
-        agent.isStopped = true;
+        agent.is_stopped = true;
         ai.SetColor(Color.magenta);
 
         Debug.Log("threw golem");

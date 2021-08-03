@@ -26,8 +26,8 @@ public class CameraMovement : MonoBehaviour
     {
         Vector3 player_position_diff = (transform.position - player_transform.position) * player_position_diff_amplitude;
         Vector3 player_heading = new Vector3(player_movement.controller.velocity.x * player_heading_xz_amplitude, player_movement.controller.velocity.y * player_heading_y_amplitude, player_movement.controller.velocity.z * player_heading_xz_amplitude);
-        Vector3 player_looking_plane = (mouse_point.GetTargetHitPoint() - player_transform.position) * player_looking_plane_amplitude;
-        Vector3 player_looking_3d = (mouse_point.GetTargetMousePos() - player_transform.position) * player_looking_3d_amplitude;
+        Vector3 player_looking_plane = (mouse_point.MousePosition2D() - player_transform.position) * player_looking_plane_amplitude;
+        Vector3 player_looking_3d = (mouse_point.GetWorldPoint() - player_transform.position) * player_looking_3d_amplitude;
 
         return player_position_diff + player_heading + player_looking_plane + player_looking_3d;
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor.AI;
 
 public class Ground : MonoBehaviour
 {
@@ -177,8 +178,8 @@ public class Ground : MonoBehaviour
         //gameObject.AddComponent(typeof(MeshFilter));
         //gameObject.AddComponent(typeof(MeshRenderer));
         //gameObject.AddComponent<MeshCollider>();
-
         InitMesh();
+        NavMeshBuilder.BuildNavMesh();
     }
 
     private void Update()

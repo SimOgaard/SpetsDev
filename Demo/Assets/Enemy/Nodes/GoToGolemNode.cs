@@ -5,10 +5,10 @@ using UnityEngine.AI;
 
 public class GoToGolemNode : Node
 {
-    private NavMeshAgent agent;
+    private Agent agent;
     private EnemyAI ai;
 
-    public GoToGolemNode(NavMeshAgent agent, EnemyAI ai)
+    public GoToGolemNode(Agent agent, EnemyAI ai)
     {
         this.agent = agent;
         this.ai = ai;
@@ -26,13 +26,13 @@ public class GoToGolemNode : Node
         float distance = (golem.position - agent.transform.position).sqrMagnitude;
         if (distance > 1f)
         {
-            agent.isStopped = false;
-            agent.SetDestination(golem.position);
+            agent.is_stopped = false;
+            agent.destination = golem.position;
             return NodeState.running;
         }
         else
         {
-            agent.isStopped = true;
+            agent.is_stopped = true;
             return NodeState.success;
         }
     }

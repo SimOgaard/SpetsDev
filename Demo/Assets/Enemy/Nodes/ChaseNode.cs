@@ -6,10 +6,10 @@ using UnityEngine.AI;
 public class ChaseNode : Node
 {
     private Transform target;
-    private NavMeshAgent agent;
+    private Agent agent;
     private EnemyAI ai;
 
-    public ChaseNode(Transform target, NavMeshAgent agent, EnemyAI ai)
+    public ChaseNode(Transform target, Agent agent, EnemyAI ai)
     {
         this.target = target;
         this.agent = agent;
@@ -22,13 +22,13 @@ public class ChaseNode : Node
         float distance = (target.position - agent.transform.position).sqrMagnitude;
         if (distance > 1f)
         {
-            agent.isStopped = false;
-            agent.SetDestination(target.position);
+            agent.is_stopped = false;
+            agent.destination = target.position;
             return NodeState.running;
         }
         else
         {
-            agent.isStopped = true;
+            agent.is_stopped = true;
             return NodeState.success;
         }
     }

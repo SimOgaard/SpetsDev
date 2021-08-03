@@ -6,9 +6,9 @@ using UnityEngine.AI;
 public class DeathNode : Node
 {
     private EnemyAI ai;
-    private NavMeshAgent agent;
+    private Agent agent;
 
-    public DeathNode(NavMeshAgent agent, EnemyAI ai)
+    public DeathNode(Agent agent, EnemyAI ai)
     {
         this.agent = agent;
         this.ai = ai;
@@ -16,7 +16,7 @@ public class DeathNode : Node
 
     public override NodeState Evaluate()
     {
-        agent.isStopped = true;
+        agent.Die();
         ai.SetColor(Color.black);
         return NodeState.running;
     }

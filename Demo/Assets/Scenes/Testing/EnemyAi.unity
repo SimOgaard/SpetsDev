@@ -1028,7 +1028,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 580706267}
-  - {fileID: 1290897944}
   - {fileID: 1720217021}
   m_Father: {fileID: 0}
   m_RootOrder: 10
@@ -1301,6 +1300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chest_type: 0
+  can_open: 1
   radius: 0
   power: 5750
   upwards_modifier: 5
@@ -1428,9 +1428,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89b5df613095b0c44a028eeec6422178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layer_mask:
+  player_offset_to_ground: -3
+  layer_mask_world:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 0
+  layer_mask_world_enemy:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &419351392
 GameObject:
   m_ObjectHideFlags: 0
@@ -2507,12 +2511,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b3203c1690cb94eba51b08c8333f22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapon_equipment: {fileID: 0}
-  weapon_parrent: {fileID: 0}
-  ability_equipment: {fileID: 0}
-  ability_parrent: {fileID: 0}
-  ultimate_equipment: {fileID: 0}
-  ultimate_parrent: {fileID: 0}
 --- !u!1 &732245101
 GameObject:
   m_ObjectHideFlags: 0
@@ -3321,6 +3319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chest_type: 1
+  can_open: 1
   radius: 0
   power: 5750
   upwards_modifier: 5
@@ -4214,6 +4213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chest_type: 2
+  can_open: 1
   radius: 0
   power: 5750
   upwards_modifier: 5
@@ -4328,8 +4328,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
-  m_Father: {fileID: 290649729}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!64 &1290897945
 MeshCollider:
@@ -4928,8 +4928,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   current_weapon_UI_game_object: {fileID: 1712389798}
+  weapon_cooldown_mateiral: {fileID: 0}
   current_ability_UI_game_object: {fileID: 281562404}
+  ability_cooldown_mateiral: {fileID: 0}
   current_ultimate_UI_game_object: {fileID: 745167210}
+  ultimate_cooldown_mateiral: {fileID: 0}
   background_color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1565742341
 GameObject:
@@ -5229,7 +5232,7 @@ Transform:
   - {fileID: 825756011}
   - {fileID: 161236282}
   m_Father: {fileID: 290649729}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1720404450
 GameObject:
