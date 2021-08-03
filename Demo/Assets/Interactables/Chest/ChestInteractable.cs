@@ -56,7 +56,7 @@ public class ChestInteractable : MonoBehaviour
         is_open = true;
         transform.parent = GameObject.Find("UsedInteractables").transform;
 
-        SpawnChestItemSpecified(chest_type);
+        SpawnChestItem(chest_type);
 
         ChestOpeningAnimation();
 
@@ -126,7 +126,7 @@ public class ChestInteractable : MonoBehaviour
                     equipment = InitNewEquipment();
                     Weapon.IWeapon cached_weapon = equipment.InitWeapon();
 
-                    int amount_of_upgrades = 10;
+                    int amount_of_upgrades = 1;
                     for (int i = 0; i < amount_of_upgrades; i++)
                     {
                         Upgrade upgrade = InitNewUpgrade();
@@ -147,7 +147,7 @@ public class ChestInteractable : MonoBehaviour
                     equipment = InitNewEquipment();
                     Ability.IAbility cached_ability = equipment.InitAbility();
 
-                    int amount_of_upgrades = 10;
+                    int amount_of_upgrades = 1;
                     for (int i = 0; i < amount_of_upgrades; i++)
                     {
                         Upgrade upgrade = InitNewUpgrade();
@@ -168,7 +168,7 @@ public class ChestInteractable : MonoBehaviour
                     equipment = InitNewEquipment();
                     Ultimate.IUltimate cached_ultimate = equipment.InitUltimate();
 
-                    int amount_of_upgrades = 10;
+                    int amount_of_upgrades = 1;
                     for (int i = 0; i < amount_of_upgrades; i++)
                     {
                         Upgrade upgrade = InitNewUpgrade();
@@ -202,7 +202,7 @@ public class ChestInteractable : MonoBehaviour
             case Equipment.EEquipment.Ability:
                 Ability cached_ability = equipment.gameObject.AddComponent<Ability>();
                 equipment.current_equipment = cached_ability;
-                cached_ability.current_ability = equipment.gameObject.AddComponent<EarthSpikesAbility>();
+                cached_ability.current_ability = equipment.gameObject.AddComponent<FireballAbility>();
                 break;
             case Equipment.EEquipment.Ultimate:
                 Ultimate cached_ultimate = equipment.gameObject.AddComponent<Ultimate>();
