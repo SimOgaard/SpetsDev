@@ -45,13 +45,13 @@ public class SetFire : MonoBehaviour
     /// <summary>
     /// Given point place triangle with normal.vector.up to mesh that holds flammable material.
     /// </summary>
-    public void UpdateFlammableFire(Vector3 point, float time)
+    public void UpdateFlammableFire(Vector3 point, Vector3 normal, float time)
     {
-        damage_by_fire.all_fire_spots.Add(point);
+        damage_by_fire.all_fire_spots.Add(new Vector3(point.x, 0f, point.z));
 
-        Vector3 bottom_left_point = point + new Vector3(-fire_width, 0f, -fire_width);
-        Vector3 top_point = point + new Vector3(0f, 0f, fire_width);
-        Vector3 bottom_right_point = point + new Vector3(fire_width, 0f, -fire_width);
+        Vector3 bottom_left_point = point + Quaternion.AngleAxis(0f, normal) * new Vector3(1f, 0f, 1f);
+        Vector3 top_point = point + Quaternion.AngleAxis(120f, normal) * new Vector3(1f, 0f, 1f);
+        Vector3 bottom_right_point = point + Quaternion.AngleAxis(240f, normal) * new Vector3(1f, 0f, 1f);
 
         int count = vertices_flammable.Count;
 
@@ -97,7 +97,7 @@ public class SetFire : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
 
-        damage_by_fire.all_fire_spots.Remove(point);
+        damage_by_fire.all_fire_spots.Remove(new Vector3(point.x, 0f, point.z));
 
         // remove triangle from flammable
         int vertices_flammable_index = vertices_flammable.FindIndex(ind => ind.Equals(bottom_left_point));
@@ -135,11 +135,11 @@ public class SetFire : MonoBehaviour
     /// <summary>
     /// Given point place triangle with normal.vector.up to mesh that holds non flammable material.
     /// </summary>
-    public void UpdateNonFlammableFire(Vector3 point, float time)
+    public void UpdateNonFlammableFire(Vector3 point, Vector3 normal, float time)
     {
-        Vector3 bottom_left_point = point + new Vector3(-fire_width, 0f, -fire_width);
-        Vector3 top_point = point + new Vector3(0f, 0f, fire_width);
-        Vector3 bottom_right_point = point + new Vector3(fire_width, 0f, -fire_width);
+        Vector3 bottom_left_point = point + Quaternion.AngleAxis(0f, normal) * new Vector3(1f, 0f, 1f);
+        Vector3 top_point = point + Quaternion.AngleAxis(120f, normal) * new Vector3(1f, 0f, 1f);
+        Vector3 bottom_right_point = point + Quaternion.AngleAxis(240f, normal) * new Vector3(1f, 0f, 1f);
 
         int count = vertices_non_flammable.Count;
 

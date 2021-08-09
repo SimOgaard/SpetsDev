@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
 {
+    public bool upgrade = false;
+
     private MousePoint mouse_point;
 
     /// <summary>
@@ -24,8 +26,6 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     public float distance_between = 3.25f;
     public float extra_distance_first_spawn = 3.25f;
 
-    public float alive_time = 5f;
-
     public float ultimate_cooldown = 2f;
     public float _current_cooldown = 0f;
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
@@ -34,6 +34,8 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// <summary>
     /// All variables that when changed need to reinstanciate all pillars in earthbending_pillars with earthbending_pillars[i].ChangePillar().
     /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public float alive_time = 5f;
     public float pillar_height = 7f;
     public float pillar_width = 2f;
     public float pillar_growth_speed = 20f;
@@ -61,6 +63,13 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
         if(current_cooldown <= 0f && current_pillar_amount < pillar_amount && !is_casting)
         {
@@ -228,14 +237,16 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public float GetCurrentCooldown()
     {
-        return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown;
+        //return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown; // Alt 1
+        return current_cooldown; // Alt 2
     }
     /// <summary>
     /// Returns cooldown of equipment.
     /// </summary>
     public float GetCooldown()
     {
-        return ultimate_cooldown;
+        //return ultimate_cooldown; // Alt 1
+        return ultimate_cooldown / pillar_amount; // Alt 2
     }
 
     /// <summary>
@@ -286,6 +297,9 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
 
     public void Upgrade()
     {
-
+        foreach (EarthbendingPillar earthbending_pillar in earthbending_pillars)
+        {
+            earthbending_pillar.ChangePillar(pillar_height, pillar_width, Quaternion.Euler(0f, 45f, 0f), alive_time, pillar_growth_speed);
+        }
     }
 }

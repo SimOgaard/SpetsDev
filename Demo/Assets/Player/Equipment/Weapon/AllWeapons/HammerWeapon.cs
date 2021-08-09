@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class HammerWeapon : MonoBehaviour, Weapon.IWeapon
 {
+    public bool upgrade = false;
+
     /// <summary>
     /// Destroys itself.
     /// </summary>
@@ -38,6 +40,16 @@ public class HammerWeapon : MonoBehaviour, Weapon.IWeapon
     public void StopPrimary()
     {
 
+    }
+
+    private void Update()
+    {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
     }
 
     /// <summary>

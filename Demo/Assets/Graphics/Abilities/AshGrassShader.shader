@@ -1,4 +1,4 @@
-﻿Shader "Custom/FireGrassShader"
+﻿Shader "Custom/AshGrassShader"
 {
     Properties
     {
@@ -190,7 +190,7 @@
 				}
 				else
 				{
-					col = (0,0,0,0);
+					discard;
 				}
 				return col;
             }

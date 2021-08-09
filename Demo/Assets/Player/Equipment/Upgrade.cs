@@ -93,7 +93,7 @@ public class Upgrade : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows weather or not this chest can be opened
+    /// Shows weather or not this upgrade can be taken
     /// </summary>
     public bool CanInteractWith()
     {

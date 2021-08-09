@@ -8,36 +8,41 @@ using UnityEngine;
 /// </summary>
 public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
 {
+    public bool upgrade = false;
+
     /// <summary>
     /// Used to get mouse position in world space.
     /// </summary>
     private MousePoint mouse_point;
 
-    // All variables could be changed by different uppgrades.
-    // where pillars can spawn around the player
-    public float structure_radius = 7.5f; // private const (dependent on feels)
-    public float structure_angle = 75f;
-    public float pillar_recursive_angle = 10f; // private const (dependent on pillar width)
+    /// <summary>
+    /// All variables that can be changed on runtime to effect how this ability should behave.
+    /// </summary>
+    public float structure_radius = 7.5f;
 
-    // pillar looks
     public float pillar_height = 8f;
-    public float pillar_height_offset = -2f; // private const (dependent on looks)
-    public float pillar_width = 1f; // private const (dependent on looks)
-    public float pillar_width_offset = -0.1f; // private const (dependent on looks)
+    public float pillar_height_offset = -2f;
+    public float pillar_width = 1f;
+    public float pillar_width_offset = -0.1f;
 
-    // pillar timed
     public float pillar_speed = 100f;
     public float structure_build_time = 0.025f;
-    public float pillar_alive_time = 0.25f;
+    public float pillar_alive_time = 0.1f;
 
-    // Ability cooldown
-    public float ability_cooldown = 0.2f;
+    public float ability_cooldown = 1f;
     public float _current_cooldown = 0f;
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
 
     public float damage = 10f;
     public float min_damage = 4f;
     public float damage_falloff_by_radius = 2f;
+
+    /// <summary>
+    /// All variables that when changed need to run Upgrade().
+    /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public float structure_angle = 75f;
+    public float pillar_recursive_angle = 10f;
 
     /// <summary>
     /// Destroys itself.
@@ -60,6 +65,13 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
     }
 
@@ -90,15 +102,15 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     {
         WaitForSeconds wait = new WaitForSeconds(structure_build_time);
         int itter = 0;
-
-        List<EarthbendingPillar> earthbending_pillar_list = new List<EarthbendingPillar>();
+        int index = 0;
 
         Vector3 shield_point = player_pos + Quaternion.Euler(0f, 0f, 0f) * mouse_direction * structure_radius;
         Quaternion rotation = new Quaternion();
         rotation.SetFromToRotation(Vector3.up, Quaternion.Euler(0f, 0f, 0f) * mouse_direction + new Vector3(0, 0.57735f, 0));
 
-        float time = float.MaxValue;
-        earthbending_pillar_list.Add(SpawnPillar(shield_point, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, time, rotation, itter));
+        SpawnPillar(earthbending_pillar_array[index++], shield_point, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, rotation, itter, true);
+        Vector3 ground_point = earthbending_pillar_array[0].ground_point;
+        //earthbending_pillar_list[0].DealDamageByTrigger(new Vector3(0f, 0.2f, 0f), 0.4f);
         itter++;
 
         for (float angle = pillar_recursive_angle; itter <= structure_angle / (pillar_recursive_angle * 2f); angle += pillar_recursive_angle)
@@ -106,7 +118,9 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
             yield return wait;
 
             Vector3 shield_point_left = player_pos + Quaternion.Euler(0f, -angle, 0f) * mouse_direction * structure_radius;
+            shield_point_left.y = ground_point.y;
             Vector3 shield_point_right = player_pos + Quaternion.Euler(0f, angle, 0f) * mouse_direction * structure_radius;
+            shield_point_right.y = ground_point.y;
 
             Quaternion rotation_left = new Quaternion();
             rotation_left.SetFromToRotation(Vector3.up, Quaternion.Euler(0f, -angle, 0f) * mouse_direction + new Vector3(0, 0.57735f, 0));
@@ -114,36 +128,31 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
             Quaternion rotation_right = new Quaternion();
             rotation_right.SetFromToRotation(Vector3.up, Quaternion.Euler(0f, angle, 0f) * mouse_direction + new Vector3(0, 0.57735f, 0));
 
-            earthbending_pillar_list.Add(SpawnPillar(shield_point_left, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, time, rotation_left, itter));
-            earthbending_pillar_list.Add(SpawnPillar(shield_point_right, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, time, rotation_right, itter));
+            SpawnPillar(earthbending_pillar_array[index++], shield_point_left, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, rotation_left, itter, false);
+            SpawnPillar(earthbending_pillar_array[index++], shield_point_right, pillar_height + pillar_height_offset * itter, pillar_width + pillar_width_offset * itter, rotation_right, itter, false);
             itter++;
         }
 
         yield return new WaitForSeconds(pillar_alive_time);
 
-        foreach (EarthbendingPillar earthbending_pillar in earthbending_pillar_list)
+        for (int i = 0; i < pillar_amount; i++)
         {
-            earthbending_pillar.should_be_deleted = true;
-            earthbending_pillar.move_state = EarthbendingPillar.MoveStates.down;
+            earthbending_pillar_array[i].move_state = EarthbendingPillar.MoveStates.down;
         }
     }
 
     /// <summary>
     /// Creates pillar game object instanciated with EarthbendingPillar component and right values.
     /// </summary>
-    private EarthbendingPillar SpawnPillar(Vector3 point, float height, float width, float time, Quaternion rotation, int index)
+    private EarthbendingPillar SpawnPillar(EarthbendingPillar earthbending_pillar, Vector3 point, float height, float width, Quaternion rotation, int index, bool ignore)
     {
+        earthbending_pillar.gameObject.SetActive(true);
         rotation *= Quaternion.Euler(Vector3.up * 45f);
-        GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
-        earthbending_pillar.deal_damage = true;
         earthbending_pillar.damage = Mathf.Max(damage - damage_falloff_by_radius * index, min_damage);
-        earthbending_pillar.InitEarthbendingPillar(height, width, rotation, time, pillar_speed);
-        earthbending_pillar.PlacePillar(point, transform.position.y, 2f);
+        earthbending_pillar.InitEarthbendingPillar(height, width, rotation, Mathf.Infinity, pillar_speed);
+        earthbending_pillar.PlacePillar(point, 2.5f, ignore);
 
         return earthbending_pillar;
-
-        //earthbending_pillar.should_be_deleted = true;
     }
 
     /// <summary>
@@ -176,26 +185,49 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
         return ability_cooldown;
     }
 
+    private EarthbendingPillar[] earthbending_pillar_array;
+    private int pillar_amount;
+
     /// <summary>
     /// Starts object pooling when ability is in inventory.
     /// </summary>
     public void ObjectPool()
     {
+        System.Guid guid = System.Guid.NewGuid();
+
         DeleteObjectPool();
+        pillar_amount = Mathf.FloorToInt(structure_angle / pillar_recursive_angle);
+        earthbending_pillar_array = new EarthbendingPillar[pillar_amount];
+
+        for (int i = 0; i < pillar_amount; i++)
+        {
+            GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
+            earthbending_pillar.SetDamageId(guid.ToString());
+            earthbending_pillar.DealDamageByTrigger();
+            earthbending_pillar_array[i] = earthbending_pillar;
+            pillar_game_object.SetActive(false);
+        }
     }
     /// <summary>
     /// Delets pooled objects when ability is dropped.
     /// </summary>
     public void DeleteObjectPool()
     {
-        if ("pooled objects" == null)
+        if (earthbending_pillar_array == null)
         {
             return;
         }
+        for (int i = 0; i < earthbending_pillar_array.Length; i++)
+        {
+            Destroy(earthbending_pillar_array[i].gameObject);
+        }
+        earthbending_pillar_array= null;
     }
 
     public void Upgrade()
     {
-
+        DeleteObjectPool();
+        ObjectPool();
     }
 }

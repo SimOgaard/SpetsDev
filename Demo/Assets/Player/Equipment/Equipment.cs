@@ -51,7 +51,7 @@ public class Equipment : MonoBehaviour
         current_equipment = gameObject.AddComponent<Ability>();
         Ability cached_type_of_ability = gameObject.GetComponent<Ability>();
 
-        int rand_ability = Mathf.RoundToInt(Random.Range(0f, 4f));
+        int rand_ability = Mathf.FloorToInt(Random.Range(0f, 4.999f));
         switch (rand_ability)
         {
             case 0:

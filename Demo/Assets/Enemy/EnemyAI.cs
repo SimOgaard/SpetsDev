@@ -5,12 +5,13 @@ using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
+    [SerializeField] private float health_remove_speed = 0.5f;
     [SerializeField] private float starting_health;
     private float _current_health;
     public float current_health
     {
         get { return _current_health; }
-        set { _current_health = Mathf.Clamp(value, 0f, starting_health); }
+        private set { _current_health = Mathf.Clamp(value, 0f, starting_health); UpdateHealthBar(); }
     }
 
     public bool has_golem_in_hands;
@@ -38,12 +39,15 @@ public class EnemyAI : MonoBehaviour
     private DamageByFire damage_by_fire;
     private Agent agent;
 
+    private float collider_radius;
+
     private void Awake()
     {
         agent = gameObject.GetComponent<Agent>();
         material = transform.Find("Mesh").Find("UpperBody").GetComponent<MeshRenderer>().material;
         player_transform = GameObject.Find("Player").transform;
         damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
+        collider_radius = gameObject.GetComponent<CapsuleCollider>().radius * transform.localScale.x;
     }
 
     private void Start()
@@ -65,13 +69,13 @@ public class EnemyAI : MonoBehaviour
 
     private void DamageCheckInterval()
     {
-        current_health -= damage_by_fire.Damage(transform);
-        UpdateHealthBar();
+        Damage(damage_by_fire.Damage(transform.position, collider_radius));
     }
 
     private void Update()
     {
         health_bar_transform.rotation = Quaternion.Euler(30f, 0f, 0f);
+        current_animated_float_value -= Time.deltaTime * health_remove_speed;
 
         top_node.Evaluate();
         if(top_node.node_state == NodeState.failure)
@@ -141,7 +145,7 @@ public class EnemyAI : MonoBehaviour
 
     public void PlaceGolemInHands()
     {
-        Transform hand_transform = transform.Find("Mesh").Find("Hand.R");
+        Transform hand_transform = transform.Find("Mesh").Find("LowerArm.R");
         closest_golem.transform.parent = hand_transform;
         closest_golem.transform.localPosition = Vector3.zero;
         closest_golem.GetComponent<Agent>().CompleteStop();
@@ -159,6 +163,7 @@ public class EnemyAI : MonoBehaviour
 
     private Transform health_bar_transform;
     private Slider health_bar_slider;
+    private Slider removed_health_bar_slider;
     private float health_bar_slider_pixel_width;
     private void InitHealthBar()
     {
@@ -168,10 +173,52 @@ public class EnemyAI : MonoBehaviour
         Transform health_bar_slider_transform = health_bar_transform.GetChild(0);
         health_bar_slider = health_bar_slider_transform.GetComponent<Slider>();
         health_bar_slider_pixel_width = Mathf.RoundToInt(health_bar_slider_transform.GetComponent<RectTransform>().rect.width);
+        Transform removed_health_bar_slider_transform = health_bar_slider_transform.GetChild(1);
+        removed_health_bar_slider = removed_health_bar_slider_transform.GetComponent<Slider>();
     }
     private void UpdateHealthBar()
     {
         float bar_value = current_health / starting_health;
         health_bar_slider.value = (Mathf.CeilToInt(bar_value * health_bar_slider_pixel_width) / health_bar_slider_pixel_width);
+    }
+
+    private float _current_animated_float_value;
+    private float current_animated_float_value
+    {
+        get { return _current_animated_float_value; }
+        set { _current_animated_float_value = Mathf.Clamp(value, health_bar_slider.value, 1f); AnimatedHealthBar(); }
+    }
+
+    private void AnimatedHealthBar()
+    {
+        removed_health_bar_slider.value = (Mathf.CeilToInt(current_animated_float_value * health_bar_slider_pixel_width) / health_bar_slider_pixel_width);
+    }
+
+    private List<string> damage_id_list = new List<string>();
+    /// <summary>
+    /// Remembers passed in damage id and discards further attempts of damaging ai with the same damage id. Damage id gets removed after given time.
+    /// </summary>
+    public bool Damage(float damage, string damage_id = "", float invulnerability_time = 0.25f)
+    {
+        if (damage_id == "")
+        {
+            current_health -= damage;
+            return true;
+        }
+
+        if (!damage_id_list.Contains(damage_id))
+        {
+            current_health -= damage;
+            damage_id_list.Add(damage_id);
+            StartCoroutine(RemoveIdFromList(invulnerability_time, damage_id));
+            return true;
+        }
+        return false;
+    }
+
+    private IEnumerator RemoveIdFromList(float time, string item)
+    {
+        yield return new WaitForSeconds(time);
+        damage_id_list.Remove(item);
     }
 }

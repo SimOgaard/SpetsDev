@@ -8,6 +8,7 @@ using UnityEngine;
 public class FireballProjectileTrigger : MonoBehaviour
 {
     private FireballProjectile fireball_projectile;
+    private string damage_id = System.Guid.NewGuid().ToString();
 
     public void Init(FireballProjectile fireball_projectile)
     {
@@ -18,7 +19,7 @@ public class FireballProjectileTrigger : MonoBehaviour
     {
         if (other.gameObject.layer == 16)
         {
-            other.gameObject.GetComponent<EnemyAI>().current_health -= fireball_projectile.on_collision_damage;
+            other.gameObject.GetComponent<EnemyAI>().Damage(fireball_projectile.OnHitDamage(), damage_id, 0.25f);
             fireball_projectile.Explode();
             return;
         }

@@ -131,7 +131,7 @@ public class MousePoint : MonoBehaviour
     public Vector3 GetWorldPoint()
     {
         ray = cam.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world))
+        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world_colliders_1))
         {
             return hit_data.point;
         }
@@ -143,7 +143,7 @@ public class MousePoint : MonoBehaviour
     public Vector3 GetWorldAndEnemyPoint()
     {
         ray = cam.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world_enemy))
+        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world_colliders_5))
         {
             return hit_data.point;
         }
@@ -155,7 +155,7 @@ public class MousePoint : MonoBehaviour
     public Vector3 GetWorldPointAndEnemyMid()
     {
         ray = cam.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world_enemy))
+        if (Physics.Raycast(ray, out hit_data, 250f, layer_mask_world_colliders_5))
         {
             if (hit_data.collider.gameObject.layer == 16)
             {
@@ -167,6 +167,28 @@ public class MousePoint : MonoBehaviour
     }
     private Ray ray;
     private RaycastHit hit_data;
-    public LayerMask layer_mask_world;
-    public LayerMask layer_mask_world_enemy;
+    /// <summary>
+    /// Gameworld Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world = 1 << 12;
+    /// <summary>
+    /// Default and Gameworld Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_1 = (1 << 0) | (1 << 12);
+    /// <summary>
+    /// Default, Gameworld, SpawnedCollider and SpawnedColliderPlayerIgnore Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_2 = (1 << 0) | (1 << 12) | (1 << 17) | (1 << 18);
+    /// <summary>
+    /// Default, Gameworld, Projectile and ProjectileGoThrough Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_3 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15);
+    /// <summary>
+    /// Default, Gameworld, Projectile, ProjectileGoThrough, SpawnedCollider and SpawnedColliderPlayerIgnore Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_4 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15) | (1 << 17) | (1 << 18);
+    /// <summary>
+    /// Default, Gameworld, Projectile, ProjectileGoThrough, SpawnedCollider, SpawnedColliderPlayerIgnore and Enemy Layer.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_5 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15) | (1 << 16) | (1 << 17) | (1 << 18);
 }

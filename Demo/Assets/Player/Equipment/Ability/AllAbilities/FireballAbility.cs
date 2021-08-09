@@ -8,10 +8,13 @@ using UnityEngine;
 /// </summary>
 public class FireballAbility : MonoBehaviour, Ability.IAbility
 {
-    private Material fireball_burned_out_material;
-    private Material fireball_material;
-    private DamageByFire damage_by_fire;
-    private SetFire set_fire;
+    public bool upgrade = false;
+
+    [HideInInspector] public GameObject explosion_prefab;
+    [HideInInspector] public Material fireball_burned_out_material;
+    [HideInInspector] public Material fireball_material;
+    [HideInInspector] public DamageByFire damage_by_fire;
+    [HideInInspector] public SetFire set_fire;
     private MousePoint mouse_point;
 
     /// <summary>
@@ -23,19 +26,29 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public float _current_cooldown = 0f;
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
 
-    /// <summary>
-    /// All variables that when changed need to delete all fireballs in all fireball lists so they are reinstanciated.
-    /// </summary>
-    public float ground_fire_radius = 4f;
     public float ground_fire_time_min = 2.5f;
     public float ground_fire_time_max = 7.5f;
     public float fireball_fire_time_min = 3.5f;
     public float fireball_fire_time_max = 5f;
-    public float on_collision_damage = 20f;
-    public float fire_damage = 2f;
+    public float on_collision_damage = 4f;
 
-    public bool penetrate_enemies = false;
     public bool explode_on_first_hit = true;
+
+    public float explosion_radius = 10f;
+    public float explosion_damage = 10f;
+    public float explosion_force = 250f;
+
+    /// <summary>
+    /// All variables that when changed need to delete all fireballs in all fireball lists so they are reinstanciated.
+    /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public bool penetrate_enemies = true;
+
+    public float rigidbody_angular_drag = 1000f;
+    public float rigidbody_mass = 5f;
+
+    public float ground_fire_radius = 1f;
+    public float fire_damage = 1f;
 
     /// <summary>
     /// Destroys itself.
@@ -58,6 +71,13 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
     }
 
@@ -84,7 +104,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// Calculates roots of a given quadratic equation and returns arctangent of most valid root.
     /// </summary>
-    public float CalculateQuadraticEquation(float a, float b, float c)
+    public static float CalculateQuadraticEquation(float a, float b, float c)
     {
         float disc, deno, x1, x2;
         if (a == 0)
@@ -103,16 +123,8 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
                 x1 = Mathf.Atan((-b / deno) + (Mathf.Sqrt(disc) / deno));
                 x2 = Mathf.Atan((-b / deno) - (Mathf.Sqrt(disc) / deno));
 
-                if (Mathf.PI / 4f >= x1 && x1 >= -Mathf.PI / 2f)
-                {
-                    return x1;
-                }
-                if (Mathf.PI / 4f >= x2 && x2 >= -Mathf.PI / 2f)
-                {
-                    return x2;
-                }
-                return Mathf.PI / 4f; // wat???
-                Debug.Log("Should be clamped?");
+                // Return smallest root angle
+                return x1 < x2 ? x1 : x2;
             }
             else if (disc == 0)
             {
@@ -122,10 +134,31 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
             }
             else
             {
-                // The roots are imaginary;
-                return Mathf.PI / 4f;
+                // The roots are imaginary
+                return Mathf.PI * 0.25f;
             }
         }
+    }
+
+    /// <summary>
+    /// Returns rotation to hit target given velocity. (Assumes drag is negligible)
+    /// Multiply by Vector3.right to translate to vector space.
+    /// </summary>
+    public static Quaternion ThrowingMotion(Vector3 starting_point, Vector3 destination, float velocity, float gravity)
+    {
+        Vector3 force_direction = (destination - starting_point);
+        Vector3 force_direction_normal = force_direction.normalized;
+
+        float distance_y = -force_direction.y;
+        float distance_x = new Vector2(force_direction.x, force_direction.z).magnitude;
+
+        float a = -200f * 0.5f * Mathf.Pow(distance_x / velocity, 2);
+        float rad = CalculateQuadraticEquation(a, distance_x, a + distance_y);
+
+        Vector2 rotate_around = new Vector2(force_direction.x, force_direction.z).normalized;
+        float angle_y = Mathf.Rad2Deg * Mathf.Atan2(rotate_around.x, rotate_around.y) - 90f;
+
+        return Quaternion.Euler(0f, angle_y, Mathf.Rad2Deg * rad);
     }
 
     /// <summary>
@@ -154,26 +187,12 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         fireball_projectiles[current_pool_index].gameObject.SetActive(true);
         fireball_projectiles[current_pool_index].Reset(transform.position + new Vector3(0f, 3f, 0f));
         fireball_projectiles[current_pool_index].StartBurning();
-        
-        Vector3 aim_point = mouse_point.GetWorldPointAndEnemyMid();
+
         Vector3 start_point = fireball_projectiles[current_pool_index].transform.position;
-
-        Vector3 force_direction = (aim_point - start_point);
-        Vector3 force_direction_normal = force_direction.normalized;
-
-        float distance_y = -force_direction.y;
-        float distance_x = new Vector2(force_direction.x, force_direction.z).magnitude;
-
-        float a = -200f * 0.5f * Mathf.Pow(distance_x / velocity, 2);
-        float rad = CalculateQuadraticEquation(a, distance_x, a + distance_y);
-
-        Vector2 rotate_around = new Vector2(force_direction.x, force_direction.z).normalized;
-        float angle_y = Mathf.Rad2Deg * Mathf.Atan2(rotate_around.x, rotate_around.y) - 90f;
-
-        Quaternion rotation = Quaternion.Euler(0f, angle_y, Mathf.Rad2Deg * rad);
+        Vector3 aim_point = mouse_point.GetWorldPointAndEnemyMid();
+        Quaternion rotation = ThrowingMotion(start_point, aim_point, velocity, -200f);
 
         fireball_projectiles[current_pool_index].ApplyVelocity(rotation * Vector3.right * velocity);
-
         current_pool_index++;
     }
 
@@ -225,7 +244,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         SphereCollider fireball_trigger_sphere_collider = fireball_trigger_game_object.AddComponent<SphereCollider>();
         FireballProjectileTrigger fireball_projectile_trigger = fireball_trigger_game_object.AddComponent<FireballProjectileTrigger>();
         fireball_trigger_sphere_collider.isTrigger = true;
-        fireball_trigger_sphere_collider.radius = 1f;
+        fireball_trigger_sphere_collider.radius = 0.75f;
 
         fireball_game_object.layer = 14;
         fireball_game_object.transform.position = Vector3.zero;
@@ -236,7 +255,6 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
 
         Rigidbody fireball_rigidbody = fireball_game_object.AddComponent<Rigidbody>();
         fireball_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-        fireball_rigidbody.angularDrag = 1000f;
 
         MeshRenderer fireball_mesh_renderer = fireball_game_object.AddComponent<MeshRenderer>();
         MeshFilter fireball_mesh_filter = fireball_game_object.AddComponent<MeshFilter>();
@@ -244,9 +262,8 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
 
         FireballProjectile fireball_projectile = fireball_game_object.AddComponent<FireballProjectile>();
         fireball_projectile_trigger.Init(fireball_projectile);
-        fireball_projectile.InitVar(set_fire, fireball_burned_out_material, fireball_material, fireball_collider, fireball_mesh_renderer, fireball_rigidbody);
-        fireball_projectile.UpgradeVar(ground_fire_time_min, ground_fire_time_max, fireball_fire_time_min, fireball_fire_time_max, explode_on_first_hit, penetrate_enemies, on_collision_damage);
-        damage_by_fire.UpdateFireDamage(fire_damage);
+        fireball_projectile.InitVar(this, fireball_rigidbody, fireball_mesh_renderer);
+        fireball_projectile.UpgradeVar();
 
         fireball_game_object.SetActive(false);
         return fireball_projectile;
@@ -257,6 +274,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void UpdateFire()
     {
+        damage_by_fire.UpdateFireDamage(fire_damage);
         damage_by_fire.UpdateFireDistance(ground_fire_radius);
         Debug.Log("Updating fire visuals are not yet implemented lamao");
         return;
@@ -272,7 +290,10 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public void ObjectPool()
     {
         DeleteObjectPool();
+        explosion_prefab = Instantiate(Resources.Load<GameObject>("Prefabs/Explosion"));
+        explosion_prefab.SetActive(false);
         fireball_projectiles = new List<FireballProjectile>();
+        Upgrade();
         fireball_projectiles.Add(InstanciateFireballProjectile());
     }
 
@@ -290,16 +311,17 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
             Destroy(fireball_projectiles[i].gameObject);
         }
         fireball_projectiles = null;
+        Destroy(explosion_prefab);
         current_pool_index = 0;
     }
 
     public void Upgrade()
     {
-        damage_by_fire.UpdateFireDamage(fire_damage);
+        UpdateFire();
 
         foreach (FireballProjectile fireball_projectile in fireball_projectiles)
         {
-            fireball_projectile.UpgradeVar(ground_fire_time_min, ground_fire_time_max, fireball_fire_time_min, fireball_fire_time_max, explode_on_first_hit, penetrate_enemies, on_collision_damage);
+            fireball_projectile.UpgradeVar();
         }
     }
 }

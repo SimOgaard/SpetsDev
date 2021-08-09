@@ -19,11 +19,11 @@ public class EarthbendingPillar : MonoBehaviour
     public float current_sleep_time;
 
     private RaycastHit hit_data;
-    private int layer_mask = 1 << 12;
 
     public bool should_be_deleted = false;
 
-    public bool deal_damage = false;
+    public bool deal_damage_by_collision = false;
+    public bool deal_damage_by_trigger = false;
     public float damage = 0f;
 
     List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
@@ -63,17 +63,19 @@ public class EarthbendingPillar : MonoBehaviour
         combined_mesh.CombineMeshes(combined_mesh_instance.ToArray());
         gameObject.AddComponent<MeshFilter>().mesh = combined_mesh;
         gameObject.AddComponent<MeshCollider>().sharedMesh = combined_mesh;
-        gameObject.AddComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse"));
+        gameObject.AddComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse")); // Custom/Stone Shader
     }
 
     /// <summary>
     /// Initilizes a kinematic rigidbody.
     /// </summary>
-    private void Start()
+    private void Awake()
     {
         pillar_rigidbody = gameObject.AddComponent<Rigidbody>();
         pillar_rigidbody.isKinematic = true;
         gameObject.layer = 17;
+
+        //gameObject.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Custom/Stone Shader"));
     }
 
     /// <summary>
@@ -93,7 +95,7 @@ public class EarthbendingPillar : MonoBehaviour
     /// </summary>
     public void PlacePillar(Vector3 point)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, layer_mask))
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
         {
             transform.position = hit_data.point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
             this.ground_point = hit_data.point;
@@ -101,22 +103,22 @@ public class EarthbendingPillar : MonoBehaviour
         }
         else
         {
-            transform.position = point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
-            this.ground_point = point;
-            this.under_ground_point = transform.position;
+            PlacePillarPoint(point);
         }
     }
 
     /// <summary>
-    /// Places pillar at ground given a point.
+    /// Places pillar at ground if ground position in y axis is in range of starting point.
+    /// Otherwise places pillar at given point.
     /// </summary>
-    public void PlacePillar(Vector3 point, float player_y, float y_displacement_ignore_threshold)
+    public void PlacePillar(Vector3 point, float y_max_diff, bool ignore)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, layer_mask))
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
         {
-            if (hit_data.point.y - player_y > y_displacement_ignore_threshold)
+            if (Mathf.Abs(hit_data.point.y - point.y) > y_max_diff && !ignore)
             {
-                hit_data.point = point;
+                PlacePillarPoint(point);
+                return;
             }
 
             transform.position = hit_data.point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
@@ -125,10 +127,92 @@ public class EarthbendingPillar : MonoBehaviour
         }
         else
         {
-            transform.position = point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
-            this.ground_point = point;
-            this.under_ground_point = transform.position;
+            PlacePillarPoint(point);
         }
+    }
+
+    /// <summary>
+    /// Places pillar at given point.
+    /// </summary>
+    public void PlacePillarPoint(Vector3 point)
+    {
+        transform.position = point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
+        this.ground_point = point;
+        this.under_ground_point = transform.position;
+    }
+
+    /// <summary>
+    /// Calculates point where pillar is hidden nomatter its rotation.
+    /// </summary>
+    public void PlacePillarHidden(Vector3 point, int solve_itteration = 10)
+    {
+        float height = transform.localScale.y;
+        float width = transform.localScale.x;
+        Quaternion rotation = transform.rotation;
+
+        Vector3 pillar_down_direction = rotation * Vector3.down;
+        float height_by_itteration = height / solve_itteration;
+
+        Vector3 ground_point_middle = GetGroundPoint(point);
+
+        float max_y_displacement = 0f;
+        for (int i = 1; i < solve_itteration; i++)
+        {
+            Vector3 test_point = point + pillar_down_direction * height_by_itteration * i;
+            Vector3 ground_point_current = GetGroundPoint(test_point);
+            float y_diff = ground_point_current.y - test_point.y;
+            if (y_diff < max_y_displacement)
+            {
+                max_y_displacement = y_diff;
+            }
+        }
+        ground_point_middle.y += max_y_displacement * 2f;
+
+        PlacePillarPoint(ground_point_middle);
+    }
+
+    public Vector3 GetGroundPoint(Vector3 point, float height_offset = 20f, float ray_max_distance = 40f)
+    {
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
+        {
+            return hit_data.point;
+        }
+        return point;
+    }
+
+    private string damage_id = "";
+    public void SetDamageId(string damage_id)
+    {
+        this.damage_id = damage_id;
+    }
+
+    public void DealDamageByCollision()
+    {
+        deal_damage_by_collision = true;
+    }
+
+    public void DealDamageByTrigger(Vector3 center, float radius)
+    {
+        deal_damage_by_trigger = true;
+        SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
+        damage_collider_trigger.isTrigger = true;
+        damage_collider_trigger.center = center;
+        damage_collider_trigger.radius = radius;
+    }
+
+    public void DealDamageByTrigger()
+    {
+        deal_damage_by_trigger = true;
+        SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
+        damage_collider_trigger.isTrigger = true;
+        damage_collider_trigger.center = new Vector3(0f, 0.5f, 0f);
+        damage_collider_trigger.radius = 0.05f;
+    }
+
+    public void SetTrigger()
+    {
+        deal_damage_by_trigger = true;
+        GetComponent<BoxCollider>().isTrigger = true;
     }
 
     /// <summary>
@@ -141,16 +225,15 @@ public class EarthbendingPillar : MonoBehaviour
         {
             case MoveStates.up:
                 Vector3 diff_up = ground_point - transform.position;
-                if (diff_up.sqrMagnitude < 0.1f)
+                if (diff_up.sqrMagnitude < 0.01f)
                 {
                     current_sleep_time = sleep_time;
+                    pillar_rigidbody.Sleep();
                     move_state = MoveStates.still;
-                    transform.position = ground_point;
                     break;
                 }
 
-                Vector3 dir_up = diff_up.normalized;
-                pillar_rigidbody.MovePosition(transform.position + dir_up * move_speed * Time.deltaTime);
+                pillar_rigidbody.MovePosition(Vector3.MoveTowards(transform.position, ground_point, move_speed * Time.deltaTime));
                 break;
             case MoveStates.still:
                 current_sleep_time -= Time.deltaTime;
@@ -160,11 +243,10 @@ public class EarthbendingPillar : MonoBehaviour
                     move_state = MoveStates.down;
                     break;
                 }
-                pillar_rigidbody.Sleep();
                 break;
             case MoveStates.down:
                 Vector3 diff_down = under_ground_point - transform.position;
-                if (diff_down.sqrMagnitude < 0.1f)
+                if (diff_down.sqrMagnitude < 0.01f)
                 {
                     move_state = MoveStates.up;
                     if (should_be_deleted)
@@ -173,22 +255,33 @@ public class EarthbendingPillar : MonoBehaviour
                     }
                     else
                     {
+                        pillar_rigidbody.Sleep();
                         gameObject.SetActive(false);
                     }
                     break;
                 }
 
-                Vector3 dir_down = diff_down.normalized;
-                pillar_rigidbody.MovePosition(transform.position + dir_down * move_speed * Time.deltaTime);
+                pillar_rigidbody.MovePosition(Vector3.MoveTowards(transform.position, under_ground_point, move_speed * Time.deltaTime));
                 break;
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (deal_damage && collision.gameObject.layer == 16)
+        if (deal_damage_by_collision && collision.gameObject.layer == 16 && move_state == MoveStates.up)
         {
-            collision.gameObject.GetComponent<EnemyAI>().current_health -= damage;
+            collision.gameObject.GetComponent<EnemyAI>().Damage(damage);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (deal_damage_by_trigger && other.gameObject.layer == 16 && move_state == MoveStates.up)
+        {
+            if (other.gameObject.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
+            {
+                other.gameObject.GetComponent<Rigidbody>().AddForce(750f * transform.up, ForceMode.Impulse);
+            }
         }
     }
 }

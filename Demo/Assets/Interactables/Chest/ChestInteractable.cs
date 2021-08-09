@@ -8,6 +8,7 @@ using UnityEngine;
 public class ChestInteractable : MonoBehaviour
 {
     // Specifies what Equipment this chest contains.
+    [SerializeField] private string equipment_type_string = "";
     [SerializeField] private Equipment.EEquipment chest_type;
     [SerializeField] private bool can_open = true;
     private SpriteInitializer sprite_initializer;
@@ -56,12 +57,16 @@ public class ChestInteractable : MonoBehaviour
         is_open = true;
         transform.parent = GameObject.Find("UsedInteractables").transform;
 
-        SpawnChestItem(chest_type);
+        if (equipment_type_string == "")
+        {
+            SpawnChestItem(chest_type);
+        }
+        else
+        {
+            SpawnChestItemSpecified(chest_type);
+        }
 
         ChestOpeningAnimation();
-
-        // debugging purposes, allows infinite chest openings
-        // Start();
     }
 
     /// <summary>
@@ -74,6 +79,7 @@ public class ChestInteractable : MonoBehaviour
         chest_top.isStatic = false;
         Rigidbody chest_top_rigidbody = chest_top.AddComponent<Rigidbody>();
         chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier);
+        chest_top_rigidbody.mass = 5f;
         // optinally makes chest lid static after given time to minimize compute.
         // StartCoroutine(StaticTop());
     }
@@ -197,17 +203,17 @@ public class ChestInteractable : MonoBehaviour
             case Equipment.EEquipment.Weapon:
                 Weapon cached_weapon = equipment.gameObject.AddComponent<Weapon>();
                 equipment.current_equipment = cached_weapon;
-                cached_weapon.current_weapon = equipment.gameObject.AddComponent<HammerWeapon>();
+                cached_weapon.current_weapon = equipment.gameObject.AddComponent(System.Type.GetType(equipment_type_string)) as Weapon.IWeapon;
                 break;
             case Equipment.EEquipment.Ability:
                 Ability cached_ability = equipment.gameObject.AddComponent<Ability>();
                 equipment.current_equipment = cached_ability;
-                cached_ability.current_ability = equipment.gameObject.AddComponent<FireballAbility>();
+                cached_ability.current_ability = equipment.gameObject.AddComponent(System.Type.GetType(equipment_type_string)) as Ability.IAbility;
                 break;
             case Equipment.EEquipment.Ultimate:
                 Ultimate cached_ultimate = equipment.gameObject.AddComponent<Ultimate>();
                 equipment.current_equipment = cached_ultimate;
-                cached_ultimate.current_ultimate = equipment.gameObject.AddComponent<EarthbendingUltimate>();
+                cached_ultimate.current_ultimate = equipment.gameObject.AddComponent(System.Type.GetType(equipment_type_string)) as Ultimate.IUltimate;
                 break;
         }
         equipment.DropEquipment(transform.position, 90);

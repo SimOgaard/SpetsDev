@@ -167,7 +167,7 @@
 
 				float3 noise_pos;
 				noise_pos.xy = i.uv;
-				noise_pos.y += 2 * _Time[0];
+				noise_pos.y -= 2 * _Time[0];
 				noise_pos.z = 0;
 
 				fnlDomainWarp3D(noise, noise_pos.x, noise_pos.y, noise_pos.z);
@@ -191,7 +191,7 @@
 				}
 				else
 				{
-					col = (0,0,0,0);
+					discard;
 				}
 				return col;
             }

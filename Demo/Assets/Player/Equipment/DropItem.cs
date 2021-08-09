@@ -239,5 +239,7 @@ public class DropItem : MonoBehaviour
         items_on_ground = GameObject.Find("ItemsOnGround").transform;
 
         not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
+
+        gameObject.layer = 11;
     }
 }

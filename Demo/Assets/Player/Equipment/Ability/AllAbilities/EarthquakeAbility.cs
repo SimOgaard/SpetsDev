@@ -8,21 +8,12 @@ using UnityEngine;
 /// </summary>
 public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
 {
+    public bool upgrade = false;
+
     /// <summary>
     /// Used to get mouse position in world space.
     /// </summary>
     private MousePoint mouse_point;
-
-    /// <summary>
-    /// All variables that when changed need to clear earthbending_pillars_for_each_ring and re run ObjectPool().
-    /// </summary>
-    public float radius_increment = 3f;
-    public float max_radius = 20f;
-
-    public float pillar_height = 1.5f;
-    public float max_pillar_height_offset = -0.25f;
-    public float pillar_width = 1.5f;
-    public float max_pillar_width_offset = -0.25f;
 
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ability should behave.
@@ -32,13 +23,12 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     public float density_loss_magnitude = 0f;
 
     public float player_safe_zone_radius = 8f;
-    public float player_lock_on_radius = 12.5f;
-    private float player_lock_on_radius_pow = 0f;
+    public float player_lock_on_radius = 5f;
 
-    public int wave_recursion = 10;
+    public int wave_recursion = 5;
     public float earthquake_recursion_time_wait = -0.3f;
 
-    public float flow_speed = 1f;
+    public float flow_speed = 0.5f;
     public float pillar_speed = 5f;
     public float pillar_alive_time = 0f;
 
@@ -48,6 +38,20 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
 
     public float damage = 20f;
     public float min_damage = 5f;
+
+    public bool ignore_player = true;
+
+    /// <summary>
+    /// All variables that when changed need to clear earthbending_pillars_for_each_ring and re run ObjectPool().
+    /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public float radius_increment = 3f;
+    public float max_radius = 20f;
+
+    public float pillar_height = 1.5f;
+    public float max_pillar_height_offset = -0.25f;
+    public float pillar_width = 1.5f;
+    public float max_pillar_width_offset = -0.25f;
 
     /// <summary>
     /// Destroys itself.
@@ -70,6 +74,13 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
     }
 
@@ -104,7 +115,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
         int ammount_of_circles = Mathf.RoundToInt((max_radius) / radius_increment);
         int circle_index_start;
         Vector3 start_point;
-        bool is_around_player = (mouse_pos - player_pos).sqrMagnitude < player_lock_on_radius_pow;
+        bool is_around_player = (mouse_pos - player_pos).magnitude < player_lock_on_radius;
         if (is_around_player)
         {
             start_point = player_pos;
@@ -113,6 +124,11 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
         else
         {
             start_point = mouse_pos;
+            circle_index_start = 1;
+        }
+
+        if (ignore_player)
+        {
             circle_index_start = 1;
         }
 
@@ -127,6 +143,10 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
 
             GameObject merged_circle_pillars_game_object = new GameObject();
             EarthbendingPillar merged_circle_pillars = merged_circle_pillars_game_object.AddComponent<EarthbendingPillar>();
+            if (ignore_player)
+            {
+                merged_circle_pillars_game_object.layer = 18;
+            }
 
             all_circles_merged_pillars[circle_index-1] = merged_circle_pillars;
 
@@ -141,7 +161,16 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 }
             }
             merged_circle_pillars.SetSharedValues(pillar_alive_time, pillar_speed, pillar_height + max_pillar_height_offset * distance_remap01);
-            StartCoroutine(SpawnPillarShared(merged_circle_pillars, (distance_remap01 / flow_speed), 1 == wave_recursion, circle_index, start_point, current_radius + radius_increment * 0.5f, circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f));
+            StartCoroutine(
+                SpawnPillarShared(
+                    merged_circle_pillars,
+                    (distance_remap01 / flow_speed),
+                    1 == wave_recursion,
+                    start_point,
+                    current_radius + radius_increment * 0.5f,
+                    circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f
+                )
+            );
         }
 
         for (int earthquake_recursion_index = 1; earthquake_recursion_index < wave_recursion; earthquake_recursion_index++)
@@ -151,7 +180,16 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 float current_radius = radius_increment * circle_index;
                 float distance_remap01 = current_radius / max_radius;
 
-                StartCoroutine(SpawnPillarShared(all_circles_merged_pillars[circle_index-1], (distance_remap01 / flow_speed) + earthquake_recursion_index * ((1f / flow_speed) + (((pillar_height + max_pillar_height_offset * distance_remap01) * 0.5f) / pillar_speed) + earthquake_recursion_time_wait), earthquake_recursion_index == wave_recursion - 1, circle_index, start_point, current_radius + radius_increment * 0.5f, circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f));
+                StartCoroutine(
+                    SpawnPillarShared(
+                        all_circles_merged_pillars[circle_index - 1],
+                        (distance_remap01 / flow_speed) + earthquake_recursion_index * ((1f / flow_speed) + (((pillar_height + max_pillar_height_offset * distance_remap01) * 0.5f) / pillar_speed) + earthquake_recursion_time_wait),
+                        earthquake_recursion_index == wave_recursion - 1,
+                        start_point,
+                        current_radius + radius_increment * 0.5f,
+                        circle_index == 1 ? 0f : current_radius - radius_increment * 0.5f
+                    )
+                );
             }
         }
     }
@@ -159,15 +197,17 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// Controlls activation of merged ring and controlls weather or not it should be reused (disabled) or not (deleted).
     /// </summary>
-    private IEnumerator SpawnPillarShared(EarthbendingPillar merged_circle_pillars, float wait, bool should_be_deleted, int circle_index, Vector3 mid_point, float max_radius, float min_radius)
+    private IEnumerator SpawnPillarShared(EarthbendingPillar merged_circle_pillars, float wait, bool should_be_deleted, Vector3 mid_point, float max_radius, float min_radius)
     {
         merged_circle_pillars.gameObject.SetActive(false);
         yield return new WaitForSeconds(wait);
         merged_circle_pillars.should_be_deleted = should_be_deleted;
-        Damage(mid_point, max_radius, min_radius);
         merged_circle_pillars.gameObject.SetActive(true);
+        yield return new WaitForSeconds(pillar_height * 0.5f / pillar_speed);
+        Damage(mid_point, max_radius, min_radius);
     }
 
+    private string damage_id = System.Guid.NewGuid().ToString();
     /// <summary>
     /// Calculates distance from enemy to mid point of ability cast ignoring y values.
     /// Damages enemy liniarly by distance.
@@ -187,7 +227,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 float distance_remap01 = current_radius / (this.max_radius + radius_increment * 0.5f);
                 float damage_by_liniar_function = -(damage - min_damage) * distance_remap01 + damage;
 
-                enemy_ai.current_health -= damage_by_liniar_function;
+                enemy_ai.Damage(damage_by_liniar_function, damage_id, 0.1f);
             }
         }
     }
@@ -203,7 +243,6 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     private Sprite icon_sprite;
     private void Start()
     {
-        player_lock_on_radius_pow = player_lock_on_radius * player_lock_on_radius;
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
     }
@@ -267,6 +306,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
 
     public void Upgrade()
     {
-
+        DeleteObjectPool();
+        ObjectPool();
     }
 }

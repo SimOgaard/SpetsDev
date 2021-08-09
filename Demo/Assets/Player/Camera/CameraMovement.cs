@@ -12,6 +12,7 @@ public class CameraMovement : MonoBehaviour
     private Transform player_transform;
     private Vector3 smoothed_position;
 
+    [SerializeField] private float max_distance;
     [SerializeField] private float smooth_speed;
     [SerializeField] [Range(0f, 1f)] private float player_position_diff_amplitude;
     [SerializeField] private float player_heading_xz_amplitude;
@@ -29,7 +30,7 @@ public class CameraMovement : MonoBehaviour
         Vector3 player_looking_plane = (mouse_point.MousePosition2D() - player_transform.position) * player_looking_plane_amplitude;
         Vector3 player_looking_3d = (mouse_point.GetWorldPoint() - player_transform.position) * player_looking_3d_amplitude;
 
-        return player_position_diff + player_heading + player_looking_plane + player_looking_3d;
+        return Vector3.ClampMagnitude(player_position_diff + player_heading + player_looking_plane + player_looking_3d, max_distance);
     }
 
     /// <summary>

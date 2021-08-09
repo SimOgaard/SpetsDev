@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
+    private bool is_dead = false;
     private bool complete_stop = false;
     public bool is_stopped = false;
     public Vector3 destination;
@@ -19,7 +20,6 @@ public class Agent : MonoBehaviour
 
     public int trigger_count;
     public bool is_grounded;
-    [SerializeField] private LayerMask layer_mask;
     private RaycastHit slope_hit;
 
     [SerializeField] private float height;
@@ -30,13 +30,14 @@ public class Agent : MonoBehaviour
     private RigidbodyConstraints rigidbody_constraints_airborn = RigidbodyConstraints.None;
 
     /// <summary>
-    /// Completely stops agent from moving and removes any angular velocity / velocity.
+    /// Completely stops agent from moving and removes any angular velocity / velocity. AAAAAH WHYYYY DO I NEED TO REMOVE RIGIDBODY
     /// </summary>
     public void CompleteStop()
     {
+        DestroyImmediate(enemy_rigidbody);
+        enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
+        enemy_rigidbody.isKinematic = true;
         complete_stop = true;
-        enemy_rigidbody.velocity = Vector3.zero;
-        enemy_rigidbody.angularVelocity = Vector3.zero;
     }
 
     /// <summary>
@@ -44,9 +45,9 @@ public class Agent : MonoBehaviour
     /// </summary>
     public void Die()
     {
+        is_dead = true;
         is_stopped = true;
         enemy_rigidbody.constraints = RigidbodyConstraints.None;
-        rigidbody_constraints_grounded = RigidbodyConstraints.None;
     }
 
     private void Start()
@@ -96,14 +97,21 @@ public class Agent : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (IsGround(other.gameObject.layer))
+        if (complete_stop)
+        {
+            return;
+        }
+        if (IsGround(other.gameObject.layer) && !is_dead)
         {
             trigger_count++;
             if (trigger_count == 1)
             {
-                enemy_rigidbody.constraints = rigidbody_constraints_grounded;
+                if (!is_dead)
+                {
+                    enemy_rigidbody.constraints = rigidbody_constraints_grounded;
+                    transform.rotation = Quaternion.LookRotation(look_dir);
+                }
                 enemy_rigidbody.drag = 10f;
-                transform.rotation = Quaternion.LookRotation(look_dir);
                 is_grounded = true;
             }
         }
@@ -112,12 +120,19 @@ public class Agent : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (complete_stop)
+        {
+            return;
+        }
         if (IsGround(other.gameObject.layer))
         {
             trigger_count--;
             if (trigger_count == 0)
             {
-                enemy_rigidbody.constraints = rigidbody_constraints_airborn;
+                if (!is_dead)
+                {
+                    enemy_rigidbody.constraints = rigidbody_constraints_airborn;
+                }
                 enemy_rigidbody.drag = 1f;
                 is_grounded = false;
             }
@@ -130,6 +145,6 @@ public class Agent : MonoBehaviour
     /// </summary>
     private bool IsGround(int layer)
     {
-        return (layer_mask.value & 1 << layer) != 0;
+        return (MousePoint.layer_mask_world_colliders_2.value & 1 << layer) != 0;
     }
 }

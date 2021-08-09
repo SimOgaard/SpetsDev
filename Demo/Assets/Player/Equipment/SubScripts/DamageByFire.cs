@@ -7,11 +7,9 @@ using UnityEngine;
 /// </summary>
 public class DamageByFire : MonoBehaviour
 {
-    public List<GameObject> all_enemy_game_objects;
     public List<Vector3> all_fire_spots;
 
-    [SerializeField] private float fire_distance = 4f;
-    private float pow_fire_distance;
+    [SerializeField] private float fire_distance = 2f;
     private float fire_damage = 1f;
 
     /// <summary>
@@ -28,7 +26,6 @@ public class DamageByFire : MonoBehaviour
     public void UpdateFireDistance(float fire_distance)
     {
         this.fire_distance = fire_distance;
-        pow_fire_distance = fire_distance * fire_distance;
     }
 
     public void UpdateFireDamage(float fire_damage)
@@ -37,15 +34,15 @@ public class DamageByFire : MonoBehaviour
     }
 
     /// <summary>
-    /// Iterates through all points in all_fire_spots and returns damage if transform is within given distance of point.
+    /// Iterates through all points in all_fire_spots and returns damage if position with given radius is within distance of point.
     /// </summary>
-    public float Damage(Transform transform)
+    public float Damage(Vector3 position, float radius)
     {
-        foreach(Vector3 fire_pos in all_fire_spots)
+        position.y = 0f;
+        foreach (Vector3 fire_pos in all_fire_spots)
         {
-            Vector3 game_object_pos = transform.position;
-            float distance = (game_object_pos - fire_pos).sqrMagnitude;
-            if (distance < pow_fire_distance)
+            float distance = (position - fire_pos).magnitude;
+            if (distance - radius < fire_distance)
             {
                 return fire_damage;
             }

@@ -8,22 +8,12 @@ using UnityEngine;
 /// </summary>
 public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
 {
+    public bool upgrade = false;
+
     /// <summary>
     /// Used to get mouse position in world space.
     /// </summary>
     private MousePoint mouse_point;
-
-    /// <summary>
-    /// All variables that when changed need to clear half_of_shield and re run ObjectPool().
-    /// </summary>
-    public float pillar_height = 7f;
-    public float pillar_height_offset = -0.5f; // private const (dependent on looks)
-    public float pillar_width = 2f; // private const (dependent on looks)
-    public float pillar_width_offset = -0.2f; // private const (dependent on looks)
-
-    public float structure_radius = 10f; // private const (dependent on feels)
-    public float structure_angle = 180f;
-    public float pillar_recursive_angle = 15f; // private const (dependent on pillar width)
 
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ability should behave.
@@ -36,8 +26,21 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
     public float _current_cooldown = 0f;
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
 
-    public bool is_allowed_to_remove_shield = false;
+    [HideInInspector] public bool is_allowed_to_remove_shield = false;
     public float shield_cooldown_refund_coefficient = 0.25f;
+
+    /// <summary>
+    /// All variables that when changed need to clear half_of_shield and re run ObjectPool().
+    /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public float pillar_height = 7f;
+    public float pillar_height_offset = -0.5f;
+    public float pillar_width = 2f;
+    public float pillar_width_offset = -0.2f;
+
+    public float structure_radius = 10f;
+    public float structure_angle = 180f;
+    public float pillar_recursive_angle = 15f;
 
     /// <summary>
     /// Destroys itself.
@@ -60,6 +63,13 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
     }
 
@@ -203,7 +213,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
         half_of_shield_pillar_amount = 0;
         for (float angle = pillar_recursive_angle; half_of_shield_pillar_amount <= structure_angle / (pillar_recursive_angle * 2f); angle += pillar_recursive_angle)
         {
-            half_of_shield_pillar_amount++;
+            half_of_shield_pillar_amount++; // AAAAAH MATHF.CEIL DO NOT WORK WTF IS TIHSIA DPKSA DOASD JANSKDAJS (180/15) != 12 ????? FUKC OJAS
         }
 
         half_of_shield = new EarthbendingPillar[half_of_shield_pillar_amount];
@@ -237,6 +247,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
 
     public void Upgrade()
     {
-
+        DeleteObjectPool();
+        ObjectPool();
     }
 }

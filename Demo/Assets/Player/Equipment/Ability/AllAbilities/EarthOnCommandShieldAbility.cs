@@ -8,22 +8,12 @@ using UnityEngine;
 /// </summary>
 public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
 {
+    public bool upgrade = false;
+
     /// <summary>
     /// Used to get mouse position in world space.
     /// </summary>
     private MousePoint mouse_point;
-
-    /// <summary>
-    /// All variables that when changed need to clear half_of_shield and re run ObjectPool().
-    /// </summary>
-    public float pillar_height = 8f;
-    public float pillar_height_offset = -1f; // private const (dependent on looks)
-    public float pillar_width = 1f; // private const (dependent on looks)
-    public float pillar_width_offset = -0.1f; // private const (dependent on looks)
-
-    public float structure_radius = 8f; // private const (dependent on feels)
-    public float structure_angle = 45f;
-    public float pillar_recursive_angle = 9f; // private const (dependent on pillar width)
 
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ability should behave.
@@ -37,6 +27,19 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     public float current_cooldown { get { return _current_cooldown; } set { _current_cooldown = Mathf.Max(0f, value); } }
     public float shield_cooldown_refund_coefficient = 0.75f;
     public bool allow_pull_down_shield = true;
+
+    /// <summary>
+    /// All variables that when changed need to clear half_of_shield and re run ObjectPool().
+    /// </summary>
+    [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
+    public float pillar_height = 8f;
+    public float pillar_height_offset = -1f;
+    public float pillar_width = 1f;
+    public float pillar_width_offset = -0.1f;
+
+    public float structure_radius = 8f;
+    public float structure_angle = 45f;
+    public float pillar_recursive_angle = 9f;
 
     /// <summary>
     /// Destroys itself.
@@ -59,6 +62,13 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     /// </summary>
     private void Update()
     {
+        if (upgrade)
+        {
+            Debug.Log("Uppgraded to new variables on " + GetType().Name);
+            upgrade = false;
+            Upgrade();
+        }
+
         current_cooldown -= Time.deltaTime;
     }
 
@@ -196,7 +206,6 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
         return ability_cooldown;
     }
 
-    private Vector3[] shield_position_to_player;
     private EarthbendingPillar[] merged_mirrored_shield;
     private EarthbendingPillar[] half_of_shield;
     private int half_of_shield_pillar_amount;
@@ -214,7 +223,6 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
             half_of_shield_pillar_amount++;
         }
 
-        shield_position_to_player = new Vector3[half_of_shield_pillar_amount];
         half_of_shield = new EarthbendingPillar[half_of_shield_pillar_amount];
         merged_mirrored_shield = new EarthbendingPillar[half_of_shield_pillar_amount];
         for (int i = 0; i < half_of_shield_pillar_amount; i++)
@@ -246,7 +254,8 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
 
     public void Upgrade()
     {
-
+        DeleteObjectPool();
+        ObjectPool();
     }
 }
 
