@@ -34,6 +34,24 @@ public class DamageByFire : MonoBehaviour
     }
 
     /// <summary>
+    /// Iterates through all points in all_fire_spots and returns combined damage if position with given radius is within distance of point.
+    /// </summary>
+    public float DamageStacked(Vector3 position, float radius)
+    {
+        float damage = 0f;
+        position.y = 0f;
+        foreach (Vector3 fire_pos in all_fire_spots)
+        {
+            float distance = (position - fire_pos).magnitude;
+            if (distance - radius < fire_distance)
+            {
+                damage += fire_damage;
+            }
+        }
+        return damage;
+    }
+
+    /// <summary>
     /// Iterates through all points in all_fire_spots and returns damage if position with given radius is within distance of point.
     /// </summary>
     public float Damage(Vector3 position, float radius)

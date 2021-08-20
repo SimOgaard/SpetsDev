@@ -24,7 +24,7 @@ public class Enemies : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         AddAllEnemiesInHierarchy(transform);
     }

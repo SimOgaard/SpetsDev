@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Cloud Material
+  m_Shader: {fileID: 4800000, guid: 4675659e12e79e04993903fd91bbe1a4, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap:
+    QUEUE: Transparent
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceDistortion:
+        m_Texture: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceNoise:
+        m_Texture: {fileID: 2800000, guid: 67f8701164a9bcb4180814af352aa7e0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _Noise_CellularDistanceFunction: 1
+    - _Noise_CellularJitter: 1
+    - _Noise_CellularReturnType: 1
+    - _Noise_FractalGain: 0.5
+    - _Noise_FractalLacunarity: 2
+    - _Noise_FractalOctaves: 5
+    - _Noise_FractalPingPongStrength: 2
+    - _Noise_FractalType: 1
+    - _Noise_FractalWeightedStrength: 0
+    - _Noise_Frequency: 0.02
+    - _Noise_NoiseType: 1
+    - _Noise_RotationType3D: 2
+    - _Noise_Seed: 1337
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _SurfaceDistortionAmount: 0.127
+    - _ThresholdDense: 0.6
+    - _ThresholdThin: 0.525
+    - _UVSec: 0
+    - _Warp_DomainWarpAmplitude: 30
+    - _Warp_DomainWarpType: 0
+    - _Warp_FractalGain: 0.5
+    - _Warp_FractalLacunarity: 2
+    - _Warp_FractalOctaves: 5
+    - _Warp_FractalType: 0
+    - _Warp_Frequency: 0.005
+    - _Warp_RotationType3D: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _CloudColor: {r: 1, g: 1, b: 1, a: 1}
+    - _CloudColorDense: {r: 0, g: 0, b: 0, a: 0.5019608}
+    - _CloudColorThin: {r: 0, g: 0, b: 0, a: 0.2509804}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _NoiseScroll: {r: 0.035, g: 0.015, b: 0.035, a: 0}
+    - _SurfaceNoiseScroll: {r: 0.03, g: 0.03, b: 0.03, a: 0}

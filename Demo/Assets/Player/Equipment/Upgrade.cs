@@ -61,7 +61,7 @@ public class Upgrade : MonoBehaviour
         shader_struct.color = new Color[2] { new Color(218f / 255f, 165f / 255f, 32f / 255f), new Color(238f / 255f, 232f / 255f, 170f / 255f) };
         shader_struct.alpha = new float[2] { 1f, 0.1f };
         shader_struct.trail_material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-        shader_struct.material = new Material(Shader.Find("Custom/ItemTestShader"));
+        shader_struct.material = new Material(Shader.Find(DropItem.drop_item_shader_tag));
         shader_struct.material.SetColor("_Color", new Color(250f / 255f, 250f / 255f, 210f / 255f));
         return shader_struct;
     }

@@ -102,7 +102,7 @@ public class MousePoint : MonoBehaviour
     /// <summary>
     /// Get world position of object mouse is pointing at.
     /// </summary>
-    public Vector3 GetTargetHitPoint ()
+    public Vector3 GetTargetHitPoint()
     {
         return cam.ScreenToWorldPoint(GetInputMousePosition());
     }
@@ -113,6 +113,38 @@ public class MousePoint : MonoBehaviour
     public void RotToTarget()
     {
         transform.LookAt(MousePosition2D());
+    }
+
+    public GameObject GetGameObjectWithRigidbody()
+    {
+        ray = cam.ScreenPointToRay(GetInputMousePosition());
+        RaycastHit[] hits = Physics.RaycastAll(ray, 250f);
+        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].rigidbody != null && !hits[i].rigidbody.isKinematic)
+            {
+                return hits[i].collider.gameObject;
+            }
+        }
+        return null;
+    }
+
+    public GameObject GetGameObjectWithRigidbody(float sphere_cast_radius)
+    {
+        ray = cam.ScreenPointToRay(GetInputMousePosition());
+        RaycastHit[] hits = Physics.SphereCastAll(ray, sphere_cast_radius, 250f);
+        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].rigidbody != null && !hits[i].rigidbody.isKinematic)
+            {
+                return hits[i].collider.gameObject;
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -174,21 +206,25 @@ public class MousePoint : MonoBehaviour
     /// <summary>
     /// Default and Gameworld Layer.
     /// </summary>
-    public static LayerMask layer_mask_world_colliders_1 = (1 << 0) | (1 << 12);
+    public static LayerMask layer_mask_world_colliders_1 = (1 << 0) | (1 << 12) | (1 << 19);
     /// <summary>
     /// Default, Gameworld, SpawnedCollider and SpawnedColliderPlayerIgnore Layer.
     /// </summary>
-    public static LayerMask layer_mask_world_colliders_2 = (1 << 0) | (1 << 12) | (1 << 17) | (1 << 18);
+    public static LayerMask layer_mask_world_colliders_2 = (1 << 0) | (1 << 12) | (1 << 19) | (1 << 17) | (1 << 18);
     /// <summary>
     /// Default, Gameworld, Projectile and ProjectileGoThrough Layer.
     /// </summary>
-    public static LayerMask layer_mask_world_colliders_3 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15);
+    public static LayerMask layer_mask_world_colliders_3 = (1 << 0) | (1 << 12) | (1 << 19) | (1 << 14) | (1 << 15);
     /// <summary>
     /// Default, Gameworld, Projectile, ProjectileGoThrough, SpawnedCollider and SpawnedColliderPlayerIgnore Layer.
     /// </summary>
-    public static LayerMask layer_mask_world_colliders_4 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15) | (1 << 17) | (1 << 18);
+    public static LayerMask layer_mask_world_colliders_4 = (1 << 0) | (1 << 12) | (1 << 19) | (1 << 14) | (1 << 15) | (1 << 17) | (1 << 18);
     /// <summary>
     /// Default, Gameworld, Projectile, ProjectileGoThrough, SpawnedCollider, SpawnedColliderPlayerIgnore and Enemy Layer.
     /// </summary>
-    public static LayerMask layer_mask_world_colliders_5 = (1 << 0) | (1 << 12) | (1 << 14) | (1 << 15) | (1 << 16) | (1 << 17) | (1 << 18);
+    public static LayerMask layer_mask_world_colliders_5 = (1 << 0) | (1 << 12) | (1 << 19) | (1 << 14) | (1 << 15) | (1 << 16) | (1 << 17) | (1 << 18);
+    /// <summary>
+    /// Default, Gameworld NOT GameWorldMove.
+    /// </summary>
+    public static LayerMask layer_mask_world_colliders_6 = (1 << 0) | (1 << 12);
 }

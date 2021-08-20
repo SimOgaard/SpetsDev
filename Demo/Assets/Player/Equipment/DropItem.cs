@@ -24,6 +24,8 @@ public class DropItem : MonoBehaviour
     private DroppedItemShaderStruct shader_struct;
     private System.Action on_drop_function;
 
+    public static string drop_item_shader_tag = "Custom/Equipment Drop Shader";
+
     /// <summary>
     /// Global struct used for populating data to shaders.
     /// </summary>
@@ -181,7 +183,7 @@ public class DropItem : MonoBehaviour
         Destroy(_rigidbody);
 
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
-        sprite_initializer.Initialize(not_interacting_with_sprite, Vector3.zero);
+        sprite_initializer.Initialize(not_interacting_with_sprite, Quaternion.identity);
 
         on_drop_function();
 
@@ -209,7 +211,7 @@ public class DropItem : MonoBehaviour
     /// </summary>
     private void OnTriggerEnter(Collider collision)
     {
-        if (collision.gameObject.layer == 12 && Time.timeSinceLevelLoad - initialization_time > static_time_threshold && !grounded)
+        if ((MousePoint.layer_mask_world_colliders_6.value & 1 << collision.gameObject.layer) != 0 && Time.timeSinceLevelLoad - initialization_time > static_time_threshold && !grounded && !collision.isTrigger)
         {
             OnGround();
         }

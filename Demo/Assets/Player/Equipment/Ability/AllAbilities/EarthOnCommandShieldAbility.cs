@@ -41,6 +41,14 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     public float structure_angle = 45f;
     public float pillar_recursive_angle = 9f;
 
+    [Header("Time that gets refunded")]
+    [SerializeField] private float _time_left_for_shield;
+    private float time_left_for_shield
+    {
+        get { return _time_left_for_shield; }
+        set { _time_left_for_shield = Mathf.Max(0f, value); }
+    }
+
     /// <summary>
     /// Destroys itself.
     /// </summary>
@@ -70,6 +78,7 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
         }
 
         current_cooldown -= Time.deltaTime;
+        time_left_for_shield -= Time.deltaTime;
     }
 
     /// <summary>
@@ -106,16 +115,15 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     private void PullDownShield()
     {
         StopAllCoroutines();
-        float time_removed = 0;
         for (int i = 0; i < half_of_shield_pillar_amount; i++)
         {
             if (merged_mirrored_shield[i] != null)
             {
                 merged_mirrored_shield[i].move_state = EarthbendingPillar.MoveStates.down;
-                time_removed += merged_mirrored_shield[i].current_sleep_time;
             }
         }
-        current_cooldown -= time_removed / half_of_shield_pillar_amount * shield_cooldown_refund_coefficient;
+        current_cooldown -= time_left_for_shield * shield_cooldown_refund_coefficient;
+        time_left_for_shield = 0f;
     }
 
     /// <summary>
@@ -144,7 +152,7 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
             merged_circle_pillars.InitEarthbendingPillar(half_of_shield[itter].gameObject);
             merged_circle_pillars.should_be_deleted = true;
 
-            merged_circle_pillars.SetSharedValues(structure_build_time * itter + pillar_alive_time, pillar_speed, pillar_height + pillar_height_offset * itter);
+            merged_circle_pillars.SetSharedValues(Mathf.Infinity, pillar_speed, pillar_height + pillar_height_offset * itter);
 
             // smootly rotates cubes instead of restricting/snapping it to 45 degrees
             // Quaternion rotation_left = Quaternion.LookRotation((shield_point_left - player_pos), Vector3.up);
@@ -171,6 +179,7 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
 
     private IEnumerator PullDownShieldAfter(float time)
     {
+        time_left_for_shield = time;
         WaitForSeconds wait = new WaitForSeconds(time);
         yield return wait;
         PullDownShield();
@@ -245,6 +254,7 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
         {
             return;
         }
+        PullDownShield();
         for (int i = 0; i < half_of_shield_pillar_amount; i++)
         {
             Destroy(half_of_shield[i].gameObject);

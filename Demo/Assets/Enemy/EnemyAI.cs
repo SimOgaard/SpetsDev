@@ -69,7 +69,7 @@ public class EnemyAI : MonoBehaviour
 
     private void DamageCheckInterval()
     {
-        Damage(damage_by_fire.Damage(transform.position, collider_radius));
+        Damage(damage_by_fire.DamageStacked(transform.position, collider_radius));
     }
 
     private void Update()

@@ -24,7 +24,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public float OnHitDamage()
     {
-        return fireball_ability.on_collision_damage;
+        return is_burned_out ? fireball_ability.on_collision_damage_burned_out : fireball_ability.on_collision_damage;
     }
 
     /// <summary>
@@ -85,6 +85,14 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void Update()
     {
+        if (transform.position.y < Water.water_level && !is_burned_out)
+        {
+            is_burned_out = true;
+            StopAllCoroutines();
+            StartCoroutine(BurnOut(0f));
+            StartCoroutine(BurnedOut(fireball_ability.fireball_fire_time_min));
+        }
+
         mesh_renderer.material.SetVector("_FireBallCentre", transform.position);
         mesh_renderer.material.SetVector("_FireDirection", rigid_body.velocity * air_effect_magnitude - fire_heat_lift_force);
     }
@@ -118,6 +126,49 @@ public class FireballProjectile : MonoBehaviour
             fireball_ability.explosion_prefab.SetActive(false);
             fireball_ability.explosion_prefab.SetActive(true);
             has_exploded = true;
+
+            StartCoroutine(RaycastFibonacciSphere(100, 0.75f, 2f, 0.0075f, 0.025f));
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private IEnumerator RaycastFibonacciSphere(int amount, float cutoff, float y_offset, float time_between, float time_begining)
+    {
+        Vector3 start_point = transform.position + Vector3.up * y_offset;
+
+        float phi = Mathf.PI * (3.0f - Mathf.Sqrt(5.0f));
+
+        yield return new WaitForSeconds(time_begining);
+        WaitForSeconds wait_between = new WaitForSeconds(time_between);
+
+        for (int i = amount; i > amount * cutoff; i--)
+        {
+            yield return wait_between;
+
+            float y = 1f - (i / (amount - 1f)) * 2f;
+            float radius = Mathf.Sqrt(1f - y * y);
+
+            float theta = phi * i;
+
+            float x = Mathf.Cos(theta) * radius;
+            float z = Mathf.Sin(theta) * radius;
+
+            Vector3 point = new Vector3(x, y, z);
+
+            RaycastHit hit;
+            if (Physics.Raycast(start_point, point, out hit, fireball_ability.explosion_radius, MousePoint.layer_mask_world))
+            {
+                if (hit.collider.tag == "Flammable")
+                {
+                    fireball_ability.set_fire.UpdateFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min, fireball_ability.ground_fire_time_max));
+                }
+                else
+                {
+                    fireball_ability.set_fire.UpdateNonFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min / 10f, fireball_ability.ground_fire_time_max / 10f));
+                }
+            }
         }
     }
 
@@ -157,14 +208,22 @@ public class FireballProjectile : MonoBehaviour
     }
 
     /// <summary>
-    /// After given time stop adding contact points to SetFire during collisions and change material of fireball. Then destroy game object.
+    /// After given time stop adding contact points to SetFire during collisions and change material of fireball.
     /// </summary>
     private IEnumerator BurnOut(float time)
     {
         yield return new WaitForSeconds(time);
         is_burned_out = true;
         mesh_renderer.material = fireball_ability.fireball_burned_out_material;
-        yield return new WaitForSeconds(time * 0.5f);
+        StartCoroutine(BurnedOut(fireball_ability.fireball_fire_time_min));
+    }
+
+    /// <summary>
+    /// Disable game object after given time.
+    /// </summary>
+    private IEnumerator BurnedOut(float time)
+    {
+        yield return new WaitForSeconds(time);
         gameObject.SetActive(false);
     }
 }

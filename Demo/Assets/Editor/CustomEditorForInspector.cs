@@ -6,27 +6,54 @@ using UnityEditor;
 /// <summary>
 /// Changes Unity Inspector window to shot Scriptable Object fields and allow for drop down view
 /// </summary>
-[CustomEditor(typeof(ColossalPlains))]
+[CustomEditor(typeof(WorldGenerationManager))]
 public class CustomEditorForInspector : Editor
 {
-    ColossalPlains colossal_plains;
-    Editor ground_editor;
+    private WorldGenerationManager world;
+    private Editor editor;
 
     public override void OnInspectorGUI()
     {
+        EditorGUILayout.BeginHorizontal();
+        Texture2D[] noise_images = world.world_generation.GetNoiseTextures();
+        for (int i = 0; i < noise_images.Length; i++)
+        {
+            if (i % 2 == 0)
+            {
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+            }
+
+            TextureField("Noise_" + i, noise_images[i]);
+        }
+        EditorGUILayout.EndHorizontal();
+
         using (var check = new EditorGUI.ChangeCheckScope())
         {
             base.OnInspectorGUI();
             if (check.changed)
             {
-                colossal_plains.CreateGroundMesh();
+                world.world_generation.UpdateWorld();
             }
         }
 
-        DrawSettingsEditor(colossal_plains.ground_noise_settings, colossal_plains.CreateGroundMesh, ref colossal_plains.ground_noise_settings_foldout, ref ground_editor);
+        NoiseLayerSettings settings = world.world_generation.GetNoiseSettings();
+        DrawSettingsEditor(settings, world.world_generation.UpdateWorld, ref world.foldout, ref editor);
     }
 
-    void DrawSettingsEditor(Object settings, System.Action onSettingsUpdated, ref bool foldout, ref Editor editor)
+    private static Texture2D TextureField(string name, Texture2D texture)
+    {
+        GUILayout.BeginVertical();
+        var style = new GUIStyle(GUI.skin.label);
+        style.alignment = TextAnchor.UpperCenter;
+        style.fixedWidth = 224;
+        GUILayout.Label(name, style);
+        var result = (Texture2D)EditorGUILayout.ObjectField(texture, typeof(Texture2D), false, GUILayout.Width(224), GUILayout.Height(224));
+        GUILayout.EndVertical();
+        return result;
+    }
+
+    private void DrawSettingsEditor(Object settings, System.Action onSettingsUpdated, ref bool foldout, ref Editor editor)
     {
         if (settings != null)
         {
@@ -52,6 +79,6 @@ public class CustomEditorForInspector : Editor
 
     private void OnEnable()
     {
-        colossal_plains = (ColossalPlains)target;
+        world = (WorldGenerationManager)target;
     }
 }

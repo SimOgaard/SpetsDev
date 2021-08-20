@@ -47,6 +47,11 @@ public class SetFire : MonoBehaviour
     /// </summary>
     public void UpdateFlammableFire(Vector3 point, Vector3 normal, float time)
     {
+        if (point.y < Water.water_level)
+        {
+            return;
+        }
+
         damage_by_fire.all_fire_spots.Add(new Vector3(point.x, 0f, point.z));
 
         Vector3 bottom_left_point = point + Quaternion.AngleAxis(0f, normal) * new Vector3(1f, 0f, 1f);
@@ -137,6 +142,11 @@ public class SetFire : MonoBehaviour
     /// </summary>
     public void UpdateNonFlammableFire(Vector3 point, Vector3 normal, float time)
     {
+        if (point.y < Water.water_level)
+        {
+            return;
+        }
+
         Vector3 bottom_left_point = point + Quaternion.AngleAxis(0f, normal) * new Vector3(1f, 0f, 1f);
         Vector3 top_point = point + Quaternion.AngleAxis(120f, normal) * new Vector3(1f, 0f, 1f);
         Vector3 bottom_right_point = point + Quaternion.AngleAxis(240f, normal) * new Vector3(1f, 0f, 1f);

@@ -50,7 +50,7 @@ public class Ability : MonoBehaviour, Equipment.IEquipment
         shader_struct.color = new Color[2] { Color.magenta, Color.red };
         shader_struct.alpha = new float[2] { 1f, 0.1f };
         shader_struct.trail_material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-        shader_struct.material = new Material(Shader.Find("Custom/ItemTestShader"));
+        shader_struct.material = new Material(Shader.Find(DropItem.drop_item_shader_tag));
         shader_struct.material.SetColor("_Color", new Color(1f, 0.85f, 1f));
         return shader_struct;
     }

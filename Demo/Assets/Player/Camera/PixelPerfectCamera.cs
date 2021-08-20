@@ -6,6 +6,7 @@ using UnityEngine;
 /// This script renders our scene at 384x216 resolution and upscales the result to the screen.
 /// At render the camera is snapped to nearest pixel in pixelgrid and the snap offset is corrected for when we blits the render texture to game view.
 /// </summary>
+[ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCamera : MonoBehaviour
 {
@@ -69,6 +70,10 @@ public class PixelPerfectCamera : MonoBehaviour
     /// </summary>
     private void SetCameraNearClippingPlane()
     {
+        if (Application.isEditor)
+        {
+            return;
+        }
         Vector4 clipPlaneWorldSpace = new Vector4(0f, 0f, 1f, 0f);
         Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(m_camera.cameraToWorldMatrix) * clipPlaneWorldSpace;
         m_camera.projectionMatrix = m_camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
@@ -108,7 +113,7 @@ public class PixelPerfectCamera : MonoBehaviour
     /// <summary>
     /// Before render set camera render texture to temporary low res render texture. Bigger than actuall resolution to account for border pixel stretch.
     /// </summary>
-    void OnPreRender()
+    private void OnPreRender()
     {
         const int width = 400;
         const int height = 225;
@@ -119,7 +124,7 @@ public class PixelPerfectCamera : MonoBehaviour
     /// <summary>
     /// When we render account for none integer offsets using blits to get smooth camera movement. And scaled to right resolution in pixels 384x216 px.
     /// </summary>
-    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         src.filterMode = FilterMode.Point;
 
@@ -139,7 +144,7 @@ public class PixelPerfectCamera : MonoBehaviour
     /// <summary>
     /// After render clear camera render texture.
     /// </summary>
-    void OnPostRender()
+    private void OnPostRender()
     {
         m_camera.targetTexture = null;
         RenderTexture.active = null;

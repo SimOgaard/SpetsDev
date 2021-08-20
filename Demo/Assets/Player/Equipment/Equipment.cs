@@ -9,7 +9,7 @@ using UnityEngine;
 public class Equipment : MonoBehaviour
 {
     // Stores all Equipment types globally. Is used to specify what to initialize.
-    public enum EEquipment { Weapon, Ability, Ultimate }
+    public enum EEquipment { Weapon, Ability, Ultimate, Random }
 
     // Current Equipment this component controlls.
     public IEquipment current_equipment;
