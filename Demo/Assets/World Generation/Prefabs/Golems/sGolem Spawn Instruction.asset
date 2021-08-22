@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
+  m_Name: sGolem Spawn Instruction
+  m_EditorClassIdentifier: 
+  parrent_name: 10
+  min_child_amount_required: 2
+  ignore_bounding_boxes: 0
+  spawn_chance: 0.3
+  ray_layer_mask:
+    serializedVersion: 2
+    m_Bits: 4096
+  shared_ray_position: 0
+  min_ray_position: {x: 0, y: 0, z: 0}
+  max_ray_position: {x: 0, y: 0, z: 0}
+  shared_position: 0
+  min_position: {x: 0, y: -3.7, z: 0}
+  max_position: {x: 0, y: -3.7, z: 0}
+  rotate_twords_ground_normal: 0
+  reset_rotation: 1
+  rotation_offset: 0
+  rotation_increment: 1
+  shared_scales: 0
+  min_scale: {x: 1, y: 1, z: 1}
+  max_scale: {x: 1, y: 1, z: 1}

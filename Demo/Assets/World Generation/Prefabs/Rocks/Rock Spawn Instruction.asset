@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
+  m_Name: Rock Spawn Instruction
+  m_EditorClassIdentifier: 
+  parrent_name: 0
+  min_child_amount_required: 0
+  ignore_bounding_boxes: 0
+  spawn_chance: 0.75
+  ray_layer_mask:
+    serializedVersion: 2
+    m_Bits: 4096
+  shared_ray_position: 0
+  min_ray_position: {x: 0, y: 0, z: 0}
+  max_ray_position: {x: 0, y: 0, z: 0}
+  shared_position: 0
+  min_position: {x: 0, y: 0, z: 0}
+  max_position: {x: 0, y: 0, z: 0}
+  rotate_twords_ground_normal: 1
+  reset_rotation: 1
+  rotation_offset: 45
+  rotation_increment: 90
+  shared_scales: 2
+  min_scale: {x: 0.65, y: 0.8, z: 0.65}
+  max_scale: {x: 0.85, y: 0.9, z: 0.85}

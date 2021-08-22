@@ -55,14 +55,14 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
-        WorldGenerationManager.InitNewChild(out mesh_game_object, transform, PlaceInWorld.PlacableGameObjectsParrent.ground_mesh);
+        WorldGenerationManager.InitNewChild(out mesh_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
         mesh_game_object.tag = "Flammable";
         create_mesh = mesh_game_object.AddComponent<CreateMesh>();
         spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
 
-        WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, PlaceInWorld.PlacableGameObjectsParrent.land_marks);
-        WorldGenerationManager.InitNewChild(out rocks_game_object, transform, PlaceInWorld.PlacableGameObjectsParrent.rocks);
-        WorldGenerationManager.InitNewChild(out trees_game_object, transform, PlaceInWorld.PlacableGameObjectsParrent.trees);
+        WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.land_marks);
+        WorldGenerationManager.InitNewChild(out rocks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
+        WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
 
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
         create_mesh.CreateGround(ground_mesh, Quaternion.Euler(0f, 45f, 0f));

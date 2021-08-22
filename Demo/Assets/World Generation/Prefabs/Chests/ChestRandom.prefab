@@ -233,38 +233,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawn_chance: 0.15
-  child_spawn_chanse: 1
-  rotate_twords_ground_normal: 0
-  reset_rotation: 1
-  rotation_offset: 0
-  rotation_increment: 45
-  child_rotation_offset: 0
-  child_rotation_increment: 0
-  shared_scales: 0
-  min_scale: {x: 1, y: 1, z: 1}
-  max_scale: {x: 1, y: 1, z: 1}
-  shared_position_ray: 0
-  min_position_ray: {x: 0, y: 0, z: 0}
-  max_position_ray: {x: 0, y: 0, z: 0}
-  shared_position: 0
-  min_position: {x: 0, y: 0, z: 0}
-  max_position: {x: 0, y: 0, z: 0}
-  child_shared_scales: 0
-  child_min_scale: {x: 1, y: 1, z: 1}
-  child_max_scale: {x: 1, y: 1, z: 1}
-  keep_child_local_position: 1
-  child_shared_position_ray: 0
-  child_min_position_ray: {x: 0, y: 0, z: 0}
-  child_max_position_ray: {x: 0, y: 0, z: 0}
-  child_shared_position: 0
-  child_min_position: {x: 0, y: 0, z: 0}
-  child_max_position: {x: 0, y: 0, z: 0}
-  ignore_bounding_boxes: 0
-  parrent_name: 4
-  child_spawning_layer_mask:
-    serializedVersion: 2
-    m_Bits: 4096
+  this_instruction: {fileID: 11400000, guid: ef2437d2987944b4cac2b0e4ac8d229c, type: 2}
+  child_instruction: {fileID: 0}
 --- !u!65 &8218052109670770207
 BoxCollider:
   m_ObjectHideFlags: 0

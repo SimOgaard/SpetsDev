@@ -15,13 +15,6 @@ public class SpawnPrefabs : MonoBehaviour
             return;
         }
 
-        /*
-        foreach(GameObject game_object in all_instanciated_game_objects)
-        {
-            DestroyImmediate(gameObject);
-        }
-        */
-
         int prefab_length = prefabs.Length;
         if (prefab_length == 0)
         {
@@ -40,23 +33,26 @@ public class SpawnPrefabs : MonoBehaviour
 
         bounding_boxes = new List<Collider>();
 
-        for (int i = 0; i < 200; i++)
+        for (int i = 0; i < 100; i++)
         {
             float x = Random.Range(-1f, 1f) * 100f;
             float z = Random.Range(-1f, 1f) * 100f;
 
-            Instantiate(prefabs[Mathf.RoundToInt(Random.value * (prefabs.Length - 1))], new Vector3(x, 100f, z), Quaternion.identity);
-            //all_instanciated_game_objects.Add(instanciated);
+            GameObject new_game_object = Instantiate(prefabs[Mathf.RoundToInt(Random.value * (prefabs.Length - 1))]);
+            PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
+            place.InitAsParrent(x, z);
         }
 
-        //List<GameObject> game_objects = new List<GameObject>();
-        //Random.InitState(1337);
-
-        // YOU NEED TO KNOW: does unity raycasthit account for newly placed collider
-
-        // select random x and z values
-        // choose random placable_objects to instanciate
-
-        // after everything is placed, go thorugh all of them and set layer to 12
+        foreach (Collider collider in bounding_boxes)
+        {
+            Destroy(collider);
+        }
+        bounding_boxes = null;
     }
+    /*
+    public void Start()
+    {
+        Physics.autoSyncTransforms = false;
+    }
+    */
 }

@@ -43,7 +43,7 @@ public class WorldGenerationManager : MonoBehaviour
 
     [HideInInspector] public bool foldout = true;
 
-    public static void InitNewChild(out GameObject child, Transform parrent, PlaceInWorld.PlacableGameObjectsParrent name)
+    public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
     {
         child = new GameObject(name.ToString());
         child.layer = 12;
@@ -51,7 +51,7 @@ public class WorldGenerationManager : MonoBehaviour
         child.transform.parent = parrent;
     }
 
-    public static void InitNewChild(out GameObject child, Transform parrent, PlaceInWorld.PlacableGameObjectsParrent name, params System.Type[] components)
+    public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
     {
         child = new GameObject(name.ToString());
         child.layer = 12;

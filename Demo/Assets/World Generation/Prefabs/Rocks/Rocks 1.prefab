@@ -46,38 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawn_chance: 1
-  child_spawn_chanse: 0.75
-  rotate_twords_ground_normal: 1
-  reset_rotation: 1
-  rotation_offset: 0
-  rotation_increment: 45
-  child_rotation_offset: 45
-  child_rotation_increment: 90
-  shared_scales: 2
-  min_scale: {x: 0.65, y: 1, z: 0.65}
-  max_scale: {x: 0.9, y: 1, z: 0.9}
-  shared_position_ray: 0
-  min_position_ray: {x: 0, y: 0, z: 0}
-  max_position_ray: {x: 0, y: 0, z: 0}
-  shared_position: 0
-  min_position: {x: 0, y: 0, z: 0}
-  max_position: {x: 0, y: 0, z: 0}
-  child_shared_scales: 0
-  child_min_scale: {x: 1, y: 1, z: 1}
-  child_max_scale: {x: 1, y: 1, z: 1}
-  keep_child_local_position: 0
-  child_shared_position_ray: 0
-  child_min_position_ray: {x: 0, y: 0, z: 0}
-  child_max_position_ray: {x: 0, y: 0, z: 0}
-  child_shared_position: 0
-  child_min_position: {x: 0, y: -0.25, z: 0}
-  child_max_position: {x: 0, y: 0.25, z: 0}
-  ignore_bounding_boxes: 0
-  parrent_name: 2
-  child_spawning_layer_mask:
-    serializedVersion: 2
-    m_Bits: 4096
+  this_instruction: {fileID: 11400000, guid: 80331a45f30d0d24da1011215751350c, type: 2}
+  child_instruction: {fileID: 11400000, guid: 6ea0e161139110a459b541428a873963, type: 2}
 --- !u!65 &1233430539544994787
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -105,7 +75,7 @@ GameObject:
   - component: {fileID: 2656273715037982384}
   m_Layer: 0
   m_Name: Cube (1)
-  m_TagString: GameWorld
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -119,7 +89,7 @@ Transform:
   m_GameObject: {fileID: 2656273715037982385}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.75, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 7, z: 2}
+  m_LocalScale: {x: 2, y: 6, z: 2}
   m_Children: []
   m_Father: {fileID: 2656273714191936000}
   m_RootOrder: 1
@@ -198,7 +168,7 @@ GameObject:
   - component: {fileID: 2656273715755329119}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: GameWorld
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -212,7 +182,7 @@ Transform:
   m_GameObject: {fileID: 2656273715755329116}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.75, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 5, z: 2}
+  m_LocalScale: {x: 2, y: 4, z: 2}
   m_Children: []
   m_Father: {fileID: 2656273714191936000}
   m_RootOrder: 0
