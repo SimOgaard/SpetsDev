@@ -42,7 +42,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void UpgradeVar()
     {
-        gameObject.layer = fireball_ability.penetrate_enemies ? 15 : 14;
+        gameObject.layer = fireball_ability.penetrate_enemies ? Layer.ignore_enemy_collision : Layer.default_;
         rigid_body.angularDrag = fireball_ability.rigidbody_angular_drag;
         rigid_body.mass = fireball_ability.rigidbody_mass;
     }
@@ -108,11 +108,11 @@ public class FireballProjectile : MonoBehaviour
             Collider[] all_collisions = Physics.OverlapSphere(fireball_pos, fireball_ability.explosion_radius);
             foreach (Collider collider in all_collisions)
             {
-                if (collider.gameObject == gameObject || collider.gameObject.layer == 11)
+                if (collider.gameObject == gameObject || Layer.IsInLayer(Layer.ignore_external_forces, collider.gameObject.layer))
                 {
                     continue;
                 }
-                if (collider.gameObject.layer == 16)
+                if (Layer.IsInLayer(Layer.enemy, collider.gameObject.layer))
                 {
                     collider.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage);
                     collider.attachedRigidbody.AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
@@ -158,9 +158,9 @@ public class FireballProjectile : MonoBehaviour
             Vector3 point = new Vector3(x, y, z);
 
             RaycastHit hit;
-            if (Physics.Raycast(start_point, point, out hit, fireball_ability.explosion_radius, MousePoint.layer_mask_world))
+            if (Physics.Raycast(start_point, point, out hit, fireball_ability.explosion_radius, Layer.Mask.static_ground))
             {
-                if (hit.collider.tag == "Flammable")
+                if (Tag.IsTaggedWith(hit.collider.tag, Tag.flammable))
                 {
                     fireball_ability.set_fire.UpdateFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min, fireball_ability.ground_fire_time_max));
                 }
@@ -185,7 +185,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void OnCollisionStay(Collision collision)
     {
-        if (is_burned_out || (MousePoint.layer_mask_world.value & 1 << collision.gameObject.layer) == 0)
+        if (is_burned_out || !Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer))
         {
             return;
         }
@@ -195,7 +195,7 @@ public class FireballProjectile : MonoBehaviour
         Vector3 normal = contact_point.normal;
         if ((last_burn_contact_point - new_burn_contact_point).sqrMagnitude > 3f)
         {
-            if (collision.gameObject.tag == "Flammable")
+            if (Tag.IsTaggedWith(collision.gameObject.tag, Tag.flammable))
             {
                 fireball_ability.set_fire.UpdateFlammableFire(new_burn_contact_point, normal, Random.Range(fireball_ability.ground_fire_time_min, fireball_ability.ground_fire_time_max));
             }

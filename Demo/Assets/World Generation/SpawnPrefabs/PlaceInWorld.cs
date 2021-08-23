@@ -9,13 +9,9 @@ public class PlaceInWorld : MonoBehaviour
 
     public static void SetRecursiveToGameWorld(GameObject obj)
     {
-        if ((MousePoint.layer_mask_world_colliders_6.value & 1 << obj.layer) != 0)
+        if (Layer.IsInLayer(Layer.Mask.spawned_game_world, obj.layer))
         {
-            obj.isStatic = true;
-        }
-        else if (((1 << 17) & 1 << obj.layer) != 0)
-        {
-            obj.layer = 0;
+            obj.layer = Layer.game_world;
             obj.isStatic = true;
         }
 
@@ -88,7 +84,7 @@ public class PlaceInWorld : MonoBehaviour
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
         for (int i = 0; i < hits.Length; i++)
         {
-            if ((placable_layer_mask.value & 1 << hits[i].transform.gameObject.layer) != 0)
+            if (Layer.IsInLayer(placable_layer_mask, hits[i].transform.gameObject.layer))
             {
                 return new Vector3[] { hits[i].point, hits[i].normal };
             }
@@ -237,140 +233,4 @@ public class PlaceInWorld : MonoBehaviour
         }
         Destroy(this);
     }
-    /*
-    public void Place(Transform child, ref int child_count, LayerMask placable_layer_mask)
-    {
-        if (Random.value > child_spawn_chanse)
-        {
-            Destroy(child.gameObject);
-            child_count--;
-            return;
-        }
-
-        Vector3 normal = Vector3.up;
-        if (!keep_child_local_position)
-        {
-            Vector3[] hit_data = PointNormalWithRayCast(transform.position + Vector3.up * 100f + RandomVector(min_position_ray, max_position_ray, shared_position_ray), Vector3.down, placable_layer_mask);
-            if (hit_data != null)
-            {
-                child.position = hit_data[0];
-                normal = hit_data[1];
-            }
-            else
-            {
-                Destroy(gameObject);
-                child_count--;
-                return;
-            }
-        }
-
-        if (rotate_twords_ground_normal)
-        {
-            child.rotation = Quaternion.FromToRotation(Vector3.up, normal);
-            child.RotateAround(child.position, child.up, RandomRotationAroundAxis(child_rotation_offset, child_rotation_increment));
-        }
-        else if (child_rotation_offset + child_rotation_increment != 0)
-        {
-            if (reset_rotation)
-            {
-                child.rotation = Quaternion.identity;
-            }
-            child.rotation = RandomRotationObject(child_rotation_offset, child_rotation_increment);
-        }
-        child.localScale = RandomVector(child_min_scale, child_max_scale, child_shared_scales, child.localScale);
-        child.localPosition += RandomVector(child_min_position, child_max_position, child_shared_position);
-    }
-
-    private void PlaceParrent(Transform child, ref int child_count, LayerMask placable_layer_mask)
-    {
-        gameObject.SetActive(false);
-        if (Random.value > spawn_chance)
-        {
-            child_count = 0;
-            return;
-        }
-
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position + Vector3.up * 100f + RandomVector(min_position_ray, max_position_ray, shared_position_ray), Vector3.down, out hit, Mathf.Infinity, placable_layer_mask))
-        {
-            transform.position = hit.point;
-            transform.rotation = RandomRotationObject(rotation_offset, rotation_increment);
-
-            transform.localScale = RandomVector(min_scale, max_scale, shared_scales, transform.localScale);
-            transform.localPosition += RandomVector(min_position, max_position, shared_position);
-        }
-        else
-        {
-            child_count = 0;
-        }
-        gameObject.SetActive(true);
-    }
-
-    //private bool is_child = false;
-    //private int child_count;
-
-    private void Awake()
-    {
-        is_child = transform.parent != null;
-        if (is_child)
-        {
-            return;
-        }
-
-        gameObject.layer = 17;
-        child_count = transform.childCount;
-
-        PlaceParrent();
-        if (child_count < min_child_amount_required)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        foreach (Transform child in transform)
-        {
-            if (child.TryGetComponent(out PlaceInWorld place_in_world))
-            {
-                place_in_world.PlaceParrent(child, ref child_count, child_spawning_layer_mask);
-            }
-            else
-            {
-                Place(child, ref child_count, child_spawning_layer_mask);
-            }
-
-            if (child_count <= 0)
-            {
-                Destroy(gameObject);
-                return;
-            }
-        }
-
-        Collider[] colliders = GetComponents<Collider>();
-        if (!ignore_bounding_boxes)
-        {
-            foreach (Collider col in SpawnPrefabs.bounding_boxes)
-            {
-                for (int i = 0; i < colliders.Length; i++)
-                {
-                    if (colliders[i].bounds.Intersects(col.bounds))
-                    {
-                        Destroy(gameObject);
-                        return;
-                    }
-                }
-            }
-        }
-
-        SpawnPrefabs.bounding_boxes.AddRange(colliders);
-
-        SetRecursiveToGameWorld(gameObject);
-    }
-
-    private void Start()
-    {
-        if (parrent_name !=  PlacableGameObjectsParrent.keep || !is_child)
-        {
-            transform.parent = GameObject.Find(parrent_name.ToString()).transform;
-        }
-    }
-    */
 }

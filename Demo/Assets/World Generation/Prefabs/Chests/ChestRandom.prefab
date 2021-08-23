@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7141246362841617436}
   - component: {fileID: 7141246362841617439}
   - component: {fileID: 2993243124810405310}
-  m_Layer: 19
+  m_Layer: 17
   m_Name: tChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 7141246363237769105}
   - component: {fileID: 7141246363237769104}
   - component: {fileID: 7641787057979386621}
-  m_Layer: 0
+  m_Layer: 19
   m_Name: bChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   - component: {fileID: 4682761705114209749}
   - component: {fileID: 8218052109670770207}
   - component: {fileID: 5730821405507337768}
-  m_Layer: 0
+  m_Layer: 19
   m_Name: ChestRandom
   m_TagString: Untagged
   m_Icon: {fileID: 0}

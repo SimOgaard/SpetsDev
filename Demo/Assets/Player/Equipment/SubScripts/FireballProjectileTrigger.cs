@@ -17,7 +17,7 @@ public class FireballProjectileTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 16)
+        if (Layer.IsInLayer(Layer.enemy, other.gameObject.layer))
         {
             other.gameObject.GetComponent<EnemyAI>().Damage(fireball_projectile.OnHitDamage(), damage_id, 0.25f);
             fireball_projectile.Explode();

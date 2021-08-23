@@ -145,7 +145,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
             EarthbendingPillar merged_circle_pillars = merged_circle_pillars_game_object.AddComponent<EarthbendingPillar>();
             if (ignore_player)
             {
-                merged_circle_pillars_game_object.layer = 18;
+                merged_circle_pillars_game_object.layer = Layer.ignore_player_collision;
             }
 
             all_circles_merged_pillars[circle_index-1] = merged_circle_pillars;

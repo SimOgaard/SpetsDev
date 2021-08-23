@@ -241,13 +241,11 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
         GameObject fireball_trigger_game_object = new GameObject("fireball_trigger");
         fireball_trigger_game_object.transform.parent = fireball_game_object.transform;
         fireball_trigger_game_object.transform.position = Vector3.zero;
-        fireball_trigger_game_object.layer = 14;
         SphereCollider fireball_trigger_sphere_collider = fireball_trigger_game_object.AddComponent<SphereCollider>();
         FireballProjectileTrigger fireball_projectile_trigger = fireball_trigger_game_object.AddComponent<FireballProjectileTrigger>();
         fireball_trigger_sphere_collider.isTrigger = true;
         fireball_trigger_sphere_collider.radius = 0.75f;
 
-        fireball_game_object.layer = 14;
         fireball_game_object.transform.position = Vector3.zero;
         fireball_game_object.transform.localScale = new Vector3(2f, 2f, 2f);
 

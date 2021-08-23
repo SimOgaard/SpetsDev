@@ -111,6 +111,8 @@ public class DropItem : MonoBehaviour
     /// </summary>
     public void InitDrop(Vector3 position, float selected_rotation, float force, DroppedItemShaderStruct shader_struct, System.Action on_drop_function)
     {
+        gameObject.layer = Layer.ignore_external_forces;
+
         this.shader_struct = shader_struct;
         this.on_drop_function = on_drop_function;
 
@@ -211,7 +213,7 @@ public class DropItem : MonoBehaviour
     /// </summary>
     private void OnTriggerEnter(Collider collision)
     {
-        if ((MousePoint.layer_mask_world_colliders_6.value & 1 << collision.gameObject.layer) != 0 && Time.timeSinceLevelLoad - initialization_time > static_time_threshold && !grounded && !collision.isTrigger)
+        if (Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer) && Time.timeSinceLevelLoad - initialization_time > static_time_threshold && !grounded && !collision.isTrigger)
         {
             OnGround();
         }
@@ -241,7 +243,5 @@ public class DropItem : MonoBehaviour
         items_on_ground = GameObject.Find("ItemsOnGround").transform;
 
         not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
-
-        gameObject.layer = 11;
     }
 }

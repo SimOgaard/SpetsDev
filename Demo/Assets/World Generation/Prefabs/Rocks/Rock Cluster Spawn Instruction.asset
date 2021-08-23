@@ -18,7 +18,7 @@ MonoBehaviour:
   spawn_chance: 0.75
   ray_layer_mask:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 65536
   shared_ray_position: 0
   min_ray_position: {x: 0, y: 0, z: 0}
   max_ray_position: {x: 0, y: 0, z: 0}

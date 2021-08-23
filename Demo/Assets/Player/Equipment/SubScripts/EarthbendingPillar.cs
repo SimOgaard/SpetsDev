@@ -63,7 +63,6 @@ public class EarthbendingPillar : MonoBehaviour
         combined_mesh.CombineMeshes(combined_mesh_instance.ToArray());
         gameObject.AddComponent<MeshFilter>().mesh = combined_mesh;
         gameObject.AddComponent<MeshCollider>().sharedMesh = combined_mesh;
-        gameObject.AddComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse")); // Custom/Stone Shader
     }
 
     /// <summary>
@@ -73,9 +72,9 @@ public class EarthbendingPillar : MonoBehaviour
     {
         pillar_rigidbody = gameObject.AddComponent<Rigidbody>();
         pillar_rigidbody.isKinematic = true;
-        gameObject.layer = 17;
 
-        //gameObject.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Custom/Stone Shader"));
+        MeshRenderer mesh_renderer = JoinMeshes.GetAddComponent(gameObject, typeof(MeshRenderer)) as MeshRenderer;
+        mesh_renderer.material = new Material(Shader.Find("Custom/Stone Shader"));
     }
 
     /// <summary>
@@ -95,7 +94,7 @@ public class EarthbendingPillar : MonoBehaviour
     /// </summary>
     public void PlacePillar(Vector3 point)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground))
         {
             transform.position = hit_data.point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
             this.ground_point = hit_data.point;
@@ -113,7 +112,7 @@ public class EarthbendingPillar : MonoBehaviour
     /// </summary>
     public void PlacePillar(Vector3 point, float y_max_diff, bool ignore)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground))
         {
             if (Mathf.Abs(hit_data.point.y - point.y) > y_max_diff && !ignore)
             {
@@ -173,7 +172,7 @@ public class EarthbendingPillar : MonoBehaviour
 
     public Vector3 GetGroundPoint(Vector3 point, float height_offset = 20f, float ray_max_distance = 40f)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, MousePoint.layer_mask_world))
+        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground))
         {
             return hit_data.point;
         }
@@ -268,7 +267,7 @@ public class EarthbendingPillar : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (deal_damage_by_collision && collision.gameObject.layer == 16 && move_state == MoveStates.up)
+        if (deal_damage_by_collision && Layer.IsInLayer(Layer.enemy, collision.gameObject.layer) && move_state == MoveStates.up)
         {
             collision.gameObject.GetComponent<EnemyAI>().Damage(damage);
         }
@@ -276,7 +275,7 @@ public class EarthbendingPillar : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (deal_damage_by_trigger && other.gameObject.layer == 16 && move_state == MoveStates.up)
+        if (deal_damage_by_trigger && Layer.IsInLayer(Layer.enemy, other.gameObject.layer) && move_state == MoveStates.up)
         {
             if (other.gameObject.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
             {

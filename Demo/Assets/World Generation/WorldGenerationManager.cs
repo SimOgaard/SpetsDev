@@ -46,7 +46,7 @@ public class WorldGenerationManager : MonoBehaviour
     public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
     {
         child = new GameObject(name.ToString());
-        child.layer = 12;
+        child.layer = Layer.game_world;
         child.isStatic = true;
         child.transform.parent = parrent;
     }
@@ -54,7 +54,7 @@ public class WorldGenerationManager : MonoBehaviour
     public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
     {
         child = new GameObject(name.ToString());
-        child.layer = 12;
+        child.layer = Layer.game_world;
         child.isStatic = true;
         child.transform.parent = parrent;
 

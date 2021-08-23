@@ -101,7 +101,7 @@ public class Agent : MonoBehaviour
         {
             return;
         }
-        if (IsGround(other.gameObject.layer) && !is_dead)
+        if (Layer.IsInLayer(Layer.Mask.ground_enemy, other.gameObject.layer) && !is_dead)
         {
             trigger_count++;
             if (trigger_count == 1)
@@ -124,7 +124,7 @@ public class Agent : MonoBehaviour
         {
             return;
         }
-        if (IsGround(other.gameObject.layer))
+        if (Layer.IsInLayer(Layer.Mask.ground_enemy, other.gameObject.layer))
         {
             trigger_count--;
             if (trigger_count == 0)
@@ -138,13 +138,5 @@ public class Agent : MonoBehaviour
             }
         }
         return;
-    }
-
-    /// <summary>
-    /// Returns true if given layer is in layer_mask.
-    /// </summary>
-    private bool IsGround(int layer)
-    {
-        return (MousePoint.layer_mask_world_colliders_2.value & 1 << layer) != 0;
     }
 }

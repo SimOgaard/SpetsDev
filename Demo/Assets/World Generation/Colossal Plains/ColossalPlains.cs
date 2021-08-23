@@ -51,7 +51,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
 
     private void Awake()
     {
-        gameObject.layer = 12;
+        gameObject.layer = Layer.game_world;
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
@@ -79,6 +79,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     {
         JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
         join_meshes.SetMaterial(new Material(Shader.Find("Custom/Stone Shader")));
+        join_meshes.SetCollider();
     }
 
     /*

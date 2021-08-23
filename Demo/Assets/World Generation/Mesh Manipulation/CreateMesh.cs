@@ -244,7 +244,7 @@ public class CreateMesh : MonoBehaviour
     public void CreateGround(Mesh mesh, Quaternion rotation)
     {
         transform.rotation = rotation;
-        gameObject.layer = 12;
+        gameObject.layer = Layer.game_world;
         gameObject.isStatic = true;
 
         mesh_filter = gameObject.AddComponent<MeshFilter>();
@@ -264,7 +264,7 @@ public class CreateMesh : MonoBehaviour
         }
 
         grass_game_object = new GameObject("grass");
-        grass_game_object.layer = 12;
+        grass_game_object.layer = Layer.game_world;
         grass_game_object.isStatic = true;
         grass_game_object.transform.parent = transform;
         grass_game_object.transform.localRotation = Quaternion.identity;
@@ -283,7 +283,7 @@ public class CreateMesh : MonoBehaviour
         }
 
         grass_game_object = new GameObject("grass");
-        grass_game_object.layer = 12;
+        grass_game_object.layer = Layer.game_world;
         grass_game_object.isStatic = true;
         grass_game_object.transform.parent = transform;
         grass_mesh_filter = grass_game_object.AddComponent<MeshFilter>();

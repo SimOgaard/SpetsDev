@@ -6,8 +6,6 @@ public class SpawnPrefabs : MonoBehaviour
 {
     public static List<Collider> bounding_boxes = new List<Collider>();
 
-    private List<GameObject> all_instanciated_game_objects = new List<GameObject>();
-
     public void Spawn(GameObject[] prefabs)
     {
         if (!Application.isPlaying)
@@ -49,10 +47,4 @@ public class SpawnPrefabs : MonoBehaviour
         }
         bounding_boxes = null;
     }
-    /*
-    public void Start()
-    {
-        Physics.autoSyncTransforms = false;
-    }
-    */
 }

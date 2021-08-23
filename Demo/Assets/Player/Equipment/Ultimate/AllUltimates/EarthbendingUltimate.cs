@@ -237,16 +237,16 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public float GetCurrentCooldown()
     {
-        //return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown; // Alt 1
-        return current_cooldown; // Alt 2
+        return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown; // Alt 1
+        //return current_cooldown; // Alt 2
     }
     /// <summary>
     /// Returns cooldown of equipment.
     /// </summary>
     public float GetCooldown()
     {
-        //return ultimate_cooldown; // Alt 1
-        return ultimate_cooldown / pillar_amount; // Alt 2
+        return ultimate_cooldown; // Alt 1
+        //return ultimate_cooldown / pillar_amount; // Alt 2
     }
 
     /// <summary>
