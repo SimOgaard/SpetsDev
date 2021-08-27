@@ -13,18 +13,24 @@ public class NormalsReplacementShader : MonoBehaviour
     {
         Camera this_camera = GetComponent<Camera>();
 
-        // Create a render texture matching the main camera's current dimensions.
         render_texture = new RenderTexture(this_camera.pixelWidth, this_camera.pixelHeight, 24);
-        // Surface the render texture as a global variable, available to all shaders.
         Shader.SetGlobalTexture("_CameraNormalsTexture", render_texture);
 
-        // Setup a copy of the camera to render the scene using the normals shader.
-        GameObject copy = new GameObject("Normals camera");
-        camera = copy.AddComponent<Camera>();
-        camera.CopyFrom(this_camera);
-        camera.transform.SetParent(transform);
-        camera.targetTexture = render_texture;
+        camera = CopyCamera(this_camera, render_texture, transform, "Normals camera");
         camera.SetReplacementShader(normals_shader, "RenderType");
-        camera.depth = this_camera.depth - 1;
+    }
+
+    /// <summary>
+    /// Setup a copy of given camera.
+    /// </summary>
+    public static Camera CopyCamera(Camera reference_camera, RenderTexture render_texture, Transform parrent, string name)
+    {
+        GameObject copy = new GameObject(name);
+        Camera camera = copy.AddComponent<Camera>();
+        camera.CopyFrom(reference_camera);
+        camera.transform.SetParent(parrent);
+        camera.targetTexture = render_texture;
+        camera.depth = reference_camera.depth - 1;
+        return camera;
     }
 }

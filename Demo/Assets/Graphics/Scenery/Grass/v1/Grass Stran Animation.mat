@@ -7,13 +7,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaterMaterial
-  m_Shader: {fileID: 4800000, guid: 9fc156b04da50c542bcf510248aed621, type: 3}
+  m_Name: Grass Stran Animation
+  m_Shader: {fileID: 4800000, guid: b827ede2a6a22184a8ab475a968543f3, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -55,22 +55,23 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _SurfaceDistortion:
+    - _WindDistortionMap:
         m_Texture: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
-        m_Scale: {x: 20, y: 20}
-        m_Offset: {x: 0, y: 0}
-    - _SurfaceNoise:
-        m_Texture: {fileID: 2800000, guid: 67f8701164a9bcb4180814af352aa7e0, type: 3}
-        m_Scale: {x: 15, y: 45}
+        m_Scale: {x: 0.001, y: 0.001}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _BendRotationRandom: 0.2
+    - _BladeCurve: 2
+    - _BladeForward: 0.38
+    - _BladeHeight: 0.5
+    - _BladeHeightRandom: 0.3
+    - _BladeWidth: 0.5
+    - _BladeWidthRandom: 0.05
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DepthMaxDistance: 4
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _FoamMaxDistance: 1.2
-    - _FoamMinDistance: 0.01
+    - _FirstThreshold: 0.425
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -78,21 +79,21 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _SecondThreshold: 0.806
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SurfaceDistortionAmount: 0.2
-    - _SurfaceNoiseCutoff: 0.777
+    - _TessellationUniform: 5
+    - _TranslucentGain: 1
     - _UVSec: 0
-    - _WaterHeight: 7
-    - _WaterReflectionAmount: 0
-    - _WaterRefractionAmplitude: 0.025
+    - _WindStrength: 2
     - _ZWrite: 1
     m_Colors:
+    - _BottomColor: {r: 0.121568635, g: 0.34117648, b: 0.30588236, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DepthGradientDeep: {r: 0.3803922, g: 0.6657238, b: 1, a: 0.6}
-    - _DepthGradientShallow: {r: 0.6179246, g: 0.90274435, b: 1, a: 0.4}
+    - _ColorDark: {r: 0.1215686, g: 0.3411765, b: 0.3058824, a: 1}
+    - _ColorLight: {r: 0.7607843, g: 0.8666667, b: 0.5960785, a: 1}
+    - _ColorMedium: {r: 0.4666667, g: 0.654902, b: 0.4196078, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SurfaceNoiseScroll: {r: 0.03, g: 0.01, b: 0, a: 0}
-    - _WaterReflectionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TopColor: {r: 0.7607844, g: 0.86666673, b: 0.59607846, a: 1}
+    - _WindFrequency: {r: 0.01, g: 0.01, b: 0, a: 0}

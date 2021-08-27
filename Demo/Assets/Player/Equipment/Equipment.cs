@@ -106,7 +106,18 @@ public class Equipment : MonoBehaviour
     public void DropEquipment(Vector3 position, float selected_rotation, float force = 5750f)
     {
         drop_item = gameObject.AddComponent<DropItem>();
-        drop_item.InitDrop(position, selected_rotation, force, current_equipment.GetDroppedItemShaderStruct(), current_equipment.OnGround);
+        drop_item.InitDrop(position, current_equipment.GetDroppedItemShaderStruct(), current_equipment.OnGround);
+        drop_item.Drop(selected_rotation, force);
+    }
+
+    /// <summary>
+    /// Drops equipment from given position to world pos.
+    /// </summary>
+    public void DropEquipment(Vector3 position, float selected_rotation, Vector3 direction, float force = 5750f)
+    {
+        drop_item = gameObject.AddComponent<DropItem>();
+        drop_item.InitDrop(position, current_equipment.GetDroppedItemShaderStruct(), current_equipment.OnGround);
+        drop_item.Drop(selected_rotation, force, direction);
     }
 
     /// <summary>

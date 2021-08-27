@@ -65,7 +65,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
 
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
-        create_mesh.CreateGround(ground_mesh, Quaternion.Euler(0f, 45f, 0f));
+        create_mesh.CreateGround(ground_mesh);
         create_mesh.CreateGrass(ground_mesh);
 
         Water water = new GameObject().AddComponent<Water>();
@@ -78,7 +78,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     private void Start()
     {
         JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
-        join_meshes.SetMaterial(new Material(Shader.Find("Custom/Stone Shader")));
+        join_meshes.SetMaterial(noise_layer_settings.stone_material);
         join_meshes.SetCollider();
     }
 

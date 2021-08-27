@@ -13,6 +13,7 @@ public class NoiseLayerSettings : ScriptableObject
     public Material ground_material;
     public Material grass_material;
     public Material water_material;
+    public Material stone_material;
 
     public GameObject[] spawn_prefabs;
 

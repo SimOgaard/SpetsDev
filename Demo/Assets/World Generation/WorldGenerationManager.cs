@@ -36,7 +36,7 @@ public class WorldGenerationManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         CreateWorld();
     }

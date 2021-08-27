@@ -272,7 +272,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void ObjectPool()
     {
-        earthbending_pillars = new List<EarthbendingPillar>();
+        DeleteObjectPool();
         for (int i = 0; i < pillar_amount; i++)
         {
             earthbending_pillars.Add(InstantiatePillar());
@@ -284,15 +284,15 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void DeleteObjectPool()
     {
-        if (earthbending_pillars == null)
+        current_pool_index = 0;
+        if (earthbending_pillars != null)
         {
-            return;
+            foreach(EarthbendingPillar earthbending_pillar in earthbending_pillars)
+            {
+                Destroy(earthbending_pillar.gameObject, alive_time * 2f);
+            }
         }
-        foreach(EarthbendingPillar earthbending_pillar in earthbending_pillars)
-        {
-            Destroy(earthbending_pillar.gameObject);
-        }
-        earthbending_pillars = null;
+        earthbending_pillars = new List<EarthbendingPillar>();
     }
 
     public void Upgrade()

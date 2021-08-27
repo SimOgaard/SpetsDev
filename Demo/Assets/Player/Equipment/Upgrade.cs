@@ -38,7 +38,18 @@ public class Upgrade : MonoBehaviour
     public void DropUpgrade(Vector3 position, float selected_rotation, float force = 5750f)
     {
         drop_item = gameObject.AddComponent<DropItem>();
-        drop_item.InitDrop(position, selected_rotation, force, GetDroppedItemShaderStruct(), OnGround);
+        drop_item.InitDrop(position, GetDroppedItemShaderStruct(), OnGround);
+        drop_item.Drop(selected_rotation, force);
+    }
+
+    /// <summary>
+    /// Drops upgrade from given position to world pos.
+    /// </summary>
+    public void DropUpgrade(Vector3 position, float selected_rotation, Vector3 direction, float force = 5750f)
+    {
+        drop_item = gameObject.AddComponent<DropItem>();
+        drop_item.InitDrop(position, GetDroppedItemShaderStruct(), OnGround);
+        drop_item.Drop(selected_rotation, force, direction);
     }
 
     /// <summary>

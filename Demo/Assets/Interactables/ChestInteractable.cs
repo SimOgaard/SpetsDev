@@ -133,15 +133,15 @@ public class ChestInteractable : MonoBehaviour
                     {
                         Upgrade upgrade = InitNewUpgrade();
                         upgrade.Init(cached_weapon);
-                        upgrade.DropUpgrade(transform.position, 90);
+                        upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                     }
 
-                    equipment.DropEquipment(transform.position, 90);
+                    equipment.DropEquipment(transform.position, 90, -Camera.main.transform.forward);
                     break;
                 }
                 upgrade = InitNewUpgrade();
                 upgrade.Init(PlayerInventory.weapon);
-                upgrade.DropUpgrade(transform.position, 90);
+                upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                 break;
             case Equipment.EEquipment.Ability:
                 if (PlayerInventory.ability == null || Random.Range(0f, 1f) < Equipment.spawn_equipment_chance)
@@ -154,15 +154,15 @@ public class ChestInteractable : MonoBehaviour
                     {
                         Upgrade upgrade = InitNewUpgrade();
                         upgrade.Init(cached_ability);
-                        upgrade.DropUpgrade(transform.position, 90);
+                        upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                     }
 
-                    equipment.DropEquipment(transform.position, 90);
+                    equipment.DropEquipment(transform.position, 90, -Camera.main.transform.forward);
                     break;
                 }
                 upgrade = InitNewUpgrade();
                 upgrade.Init(PlayerInventory.ability);
-                upgrade.DropUpgrade(transform.position, 90);
+                upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                 break;
             case Equipment.EEquipment.Ultimate:
                 if (PlayerInventory.ultimate == null || Random.Range(0f, 1f) < Equipment.spawn_equipment_chance)
@@ -175,15 +175,15 @@ public class ChestInteractable : MonoBehaviour
                     {
                         Upgrade upgrade = InitNewUpgrade();
                         upgrade.Init(cached_ultimate);
-                        upgrade.DropUpgrade(transform.position, 90);
+                        upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                     }
 
-                    equipment.DropEquipment(transform.position, 90);
+                    equipment.DropEquipment(transform.position, 90, -Camera.main.transform.forward);
                     break;
                 }
                 upgrade = InitNewUpgrade();
                 upgrade.Init(PlayerInventory.ultimate);
-                upgrade.DropUpgrade(transform.position, 90);
+                upgrade.DropUpgrade(transform.position, 90, -Camera.main.transform.forward);
                 break;
         }
     }
@@ -212,7 +212,7 @@ public class ChestInteractable : MonoBehaviour
                 cached_ultimate.current_ultimate = equipment.gameObject.AddComponent(System.Type.GetType(equipment_type_string)) as Ultimate.IUltimate;
                 break;
         }
-        equipment.DropEquipment(transform.position, 90);
+        equipment.DropEquipment(transform.position, 90, -Camera.main.transform.forward);
     }
 
     public Equipment InitNewEquipment()

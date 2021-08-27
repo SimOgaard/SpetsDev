@@ -109,7 +109,7 @@ public class DropItem : MonoBehaviour
     /// <summary>
     /// Starts the drop of item by applying forces and meshes.
     /// </summary>
-    public void InitDrop(Vector3 position, float selected_rotation, float force, DroppedItemShaderStruct shader_struct, System.Action on_drop_function)
+    public void InitDrop(Vector3 position, DroppedItemShaderStruct shader_struct, System.Action on_drop_function)
     {
         gameObject.layer = Layer.ignore_external_forces;
 
@@ -123,14 +123,34 @@ public class DropItem : MonoBehaviour
 
         transform.parent = items_in_air;
         transform.position = position;
+    }
+
+    /// <summary>
+    /// Starts the drop of item by applying forces and meshes.
+    /// </summary>
+    public void Drop(float selected_rotation, float force, Vector3 forward_vector)
+    {
+        float start_rotation = 0f;
+        if (forward_vector != Vector3.zero)
+        {
+            start_rotation = -((Mathf.Atan2(forward_vector.z, forward_vector.x) * Mathf.Rad2Deg) + 450f) % 360f;
+        }
 
         _rigidbody = gameObject.AddComponent<Rigidbody>();
         _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f, selected_rotation * 0.5f + 180f), 0) * Vector3.forward * force;
+        Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f + start_rotation, selected_rotation * 0.5f + 180f + start_rotation), 0) * Vector3.forward * force;
         _rigidbody.AddForce(thrust, ForceMode.Force);
         _collider = gameObject.AddComponent<SphereCollider>();
         _collider.radius = 1f;
         _collider.isTrigger = true;
+    }
+
+    /// <summary>
+    /// Starts the drop of item by applying forces and meshes.
+    /// </summary>
+    public void Drop(float selected_rotation, float force)
+    {
+        Drop(selected_rotation, force, Vector3.zero);
     }
 
     /// <summary>

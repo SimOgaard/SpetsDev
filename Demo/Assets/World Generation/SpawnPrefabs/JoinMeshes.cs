@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class JoinMeshes : MonoBehaviour
 {
-    private GameObject _gameObject;
+    private GameObject _gameObject = null;
     private Material material;
     private bool is_collider = false;
     private bool merge_all_children = true;
@@ -42,6 +42,8 @@ public class JoinMeshes : MonoBehaviour
 
     private IEnumerator Start()
     {
+        yield return new WaitForFixedUpdate();
+
         if(_gameObject == null)
         {
             _gameObject = gameObject;
@@ -51,12 +53,10 @@ public class JoinMeshes : MonoBehaviour
         MeshFilter mesh_filter = GetAddComponent(_gameObject, typeof(MeshFilter)) as MeshFilter;
         MeshCollider mesh_collider = is_collider ? GetAddComponent(_gameObject, typeof(MeshCollider)) as MeshCollider : null;
 
-        yield return new WaitForFixedUpdate();
-
         Vector3 old_scale = transform.localScale;
         Quaternion old_rot = transform.rotation;
         Vector3 old_pos = transform.position;
-        transform.localScale = new Vector3(1, 1, 1);
+        transform.localScale = new Vector3(1f, 1f, 1f);
         transform.rotation = Quaternion.identity;
         transform.position = Vector3.zero;
 

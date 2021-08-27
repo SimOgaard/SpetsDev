@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: sGolem Spawn Instruction
   m_EditorClassIdentifier: 
   parrent_name: 10
-  min_child_amount_required: 3
+  min_child_amount_required: 2
   ignore_bounding_boxes: 0
-  spawn_chance: 0.3
+  spawn_chance: 0.25
   ray_layer_mask:
     serializedVersion: 2
     m_Bits: 65536

@@ -7,13 +7,6 @@ using UnityEngine;
 /// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    private PlayerInput player_input;
-
-    private void Start()
-    {
-        player_input = GetComponent<PlayerInput>();
-    }
-
     /// <summary>
     /// Continually checks for key presses.
     /// </summary>
@@ -21,11 +14,11 @@ public class PlayerAttack : MonoBehaviour
     {
         if (PlayerInventory.weapon != null)
         {
-            if (Input.GetKeyDown(player_input.use_weapon))
+            if (Input.GetKeyDown(PlayerInput.use_weapon))
             {
                 PlayerInventory.weapon.UsePrimary();
             }
-            else if (Input.GetKeyUp(player_input.use_weapon))
+            else if (Input.GetKeyUp(PlayerInput.use_weapon))
             {
                 PlayerInventory.weapon.StopPrimary();
             }
@@ -33,11 +26,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (PlayerInventory.ability != null)
         {
-            if (Input.GetKeyDown(player_input.use_ability))
+            if (Input.GetKeyDown(PlayerInput.use_ability))
             {
                 PlayerInventory.ability.UsePrimary();
             }
-            else if (Input.GetKeyUp(player_input.use_ability))
+            else if (Input.GetKeyUp(PlayerInput.use_ability))
             {
                 PlayerInventory.ability.StopPrimary();
             }
@@ -45,11 +38,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (PlayerInventory.ultimate != null)
         {
-            if (Input.GetKeyDown(player_input.use_ultimate))
+            if (Input.GetKeyDown(PlayerInput.use_ultimate))
             {
                 PlayerInventory.ultimate.UsePrimary();
             }
-            else if (Input.GetKeyUp(player_input.use_ultimate))
+            else if (Input.GetKeyUp(PlayerInput.use_ultimate))
             {
                 PlayerInventory.ultimate.StopPrimary();
             }

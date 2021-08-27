@@ -27,12 +27,12 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 slope_move_direction_normalized;
     private Vector3 move_direction_normalized;
     private RaycastHit slope_hit;
-    private PlayerInput player_input;
+    private Transform camera_focus_transform;
 
     private void Start()
     {
+        camera_focus_transform = GameObject.Find("camera_focus_point").transform;
         controller = GetComponent<CharacterController>();
-        player_input = GetComponent<PlayerInput>();
         controller.material.dynamicFriction = 0f;
         controller.material.staticFriction = 0f;
     }
@@ -42,10 +42,10 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        move_direction_normalized = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+        move_direction_normalized = (camera_focus_transform.right * PlayerInput.horizontal + camera_focus_transform.forward * PlayerInput.vertical).normalized;
         Physics.Raycast(transform.position, Vector3.down, out slope_hit, player_height / 2f);
         slope_move_direction_normalized = Vector3.ProjectOnPlane(move_direction_normalized, slope_hit.normal).normalized;
-        move_speed = Mathf.Lerp(move_speed, Input.GetKey(player_input.sprint_key) ? sprint_speed : walk_speed, acceleration * Time.deltaTime);
+        move_speed = Mathf.Lerp(move_speed, Input.GetKey(PlayerInput.sprint_key) ? sprint_speed : walk_speed, acceleration * Time.deltaTime);
     }
 
     /// <summary>

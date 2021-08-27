@@ -114,4 +114,12 @@ public class SpriteInitializer : MonoBehaviour
             Initialize(animation_to_render, Quaternion.identity);
         }
     }
+
+    /// <summary>
+    /// Renders sprite to always be facing the camera.
+    /// </summary>
+    private void LateUpdate()
+    {
+        sprite_game_object.transform.forward = new Vector3(Camera.main.transform.forward.x, sprite_game_object.transform.forward.y, Camera.main.transform.forward.z);
+    }
 }

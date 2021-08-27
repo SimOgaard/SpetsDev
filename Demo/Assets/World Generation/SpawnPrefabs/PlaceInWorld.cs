@@ -164,9 +164,9 @@ public class PlaceInWorld : MonoBehaviour
         transform.localPosition += RandomVector(spawn_instruction.min_position, spawn_instruction.max_position, spawn_instruction.shared_position, transform.localScale);
 
         // Change parrent on delay so that destroys further in this script can effect them aswell.
-        if (spawn_instruction.parrent_name != SpawnInstruction.PlacableGameObjectsParrent.keep)
+        if (!is_parrent && spawn_instruction.parrent_name != SpawnInstruction.PlacableGameObjectsParrent.keep)
         {
-            transform.gameObject.AddComponent<ChangeParrentDelay>().SetParrent(GameObject.Find(spawn_instruction.parrent_name.ToString()).transform);
+            transform.parent = GameObject.Find(spawn_instruction.parrent_name.ToString()).transform;
         }
     }
 
@@ -195,6 +195,7 @@ public class PlaceInWorld : MonoBehaviour
             if (child.TryGetComponent(out PlaceInWorld place_in_world))
             {
                 place_in_world.InitAsChild(ref child_transform_amount);
+                Destroy(place_in_world);
             }
             else if (child_instruction != null)
             {
@@ -223,14 +224,8 @@ public class PlaceInWorld : MonoBehaviour
             }
         }
         SpawnPrefabs.bounding_boxes.AddRange(colliders);
-    }
 
-    private void Start()
-    {
-        if (transform.parent == null)
-        {
-            SetRecursiveToGameWorld(gameObject);
-        }
+        transform.parent = GameObject.Find(this_instruction.parrent_name.ToString()).transform;
         Destroy(this);
     }
 }

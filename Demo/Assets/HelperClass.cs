@@ -176,7 +176,7 @@ public static class Layer
     /// </summary>
     public static bool IsInLayer(int layer_value_1, int layer_value_2)
     {
-        return (layer_value_1 & 1 << layer_value_2) != 0;
+        return layer_value_1 == layer_value_2;
     }
 
     /// <summary>

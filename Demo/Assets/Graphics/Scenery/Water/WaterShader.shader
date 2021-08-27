@@ -31,7 +31,16 @@
 
 		// Control the distance that surfaces below the water will contribute to foam being rendered.
 		_FoamMaxDistance("Foam Maximum Distance", Float) = 0.4
-		_FoamMinDistance("Foam Minimum Distance", Float) = 0.04		
+		_FoamMinDistance("Foam Minimum Distance", Float) = 0.04
+
+		// NOT YET IMPLEMENTED
+		// Alpha value of water reflection.
+		_WaterReflectionAmount("Water Reflection Amount", Range(0, 1)) = 0.35
+		// Color blend of water reflection. // NOT SHURE IF I SHOULD USE
+		_WaterReflectionColor("Water Reflection Color", Color) = (1, 1, 1, 1)
+		
+		// Amplifies distortion of color value under water.
+		_WaterRefractionAmplitude("Water Refraction Amplitude", Float) = 0.025
     }
     SubShader
     {
@@ -39,6 +48,8 @@
 		{
 			"Queue" = "Transparent"
 		}
+
+		GrabPass { "_GrabTexture" }
 
         Pass
         {
@@ -114,6 +125,15 @@
 			sampler2D _CameraDepthTexture;
 			sampler2D _CameraNormalsTexture;
 
+			sampler2D _GrabTexture;
+
+			sampler2D _WaterReflectionTexture;
+		
+			float _WaterReflectionAmount;
+			float4 _WaterReflectionColor;
+		
+			float _WaterRefractionAmplitude;
+
             float4 frag (v2f i) : SV_Target
             {
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
@@ -132,7 +152,7 @@
 				// Calculate the color of the water based on the depth using our two gradient colors.
 				float waterDepthDifference01 = saturate(depthDifference / _DepthMaxDistance);
 				float4 waterColor = lerp(_DepthGradientShallow, _DepthGradientDeep, waterDepthDifference01);
-				
+
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.
 				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition));
@@ -162,6 +182,22 @@
 
 				float4 surfaceNoiseColor = _FoamColor;
 				surfaceNoiseColor.a *= surfaceNoise;
+
+
+
+				/*
+				float2 screen_uv = i.screenPosition.xy / i.screenPosition.w;
+				float2 screen_uv_flipped = float2(1 - screen_uv.x, screen_uv.y);
+				//float2 screen_uv_distort = 
+
+				float3 waterReflection = tex2D(_WaterReflectionTexture, screen_uv_flipped);
+				waterColor = alphaBlend(float4(waterReflection, _WaterReflectionAmount), waterColor);
+
+				float4 under_color = tex2D(_GrabTexture, screen_uv);
+				waterColor = alphaBlend(waterColor, under_color);
+				*/
+
+
 
 				// Use normal alpha blending to combine the foam with the surface.
 				return alphaBlend(surfaceNoiseColor, waterColor);

@@ -4,13 +4,10 @@
     {
 		_MainTex ("Texture", 2D) = "white" {}
 
-		_BendRotationRandom("Bend Rotation Random", Range(0, 1)) = 0.0
-		_BladePositionRandom("Blade Position Random", Range(0, 1)) = 0.0
-		_BladeWidth("Blade Width", Float) = 0.1
-		_BladeWidthRandom("Blade Width Random", Float) = 0.0
-		_BladeHeight("Blade Height", Float) = 0.1
-		_BladeHeightRandom("Blade Height Random", Float) = 0.0
-		_TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1
+        _Size ("Size", Float) = 1.0
+		_YDisplacement ("Y Displacement", Float) = 0.5
+		_XYDisplacementRandom ("X Y Displacement Random", Float) = 0.5
+		_TessellationUniform("Tessellation Uniform", Range(1, 32)) = 1
 
 		_ColorLight ("ColorLight", Color) = (0.7607843, 0.8666667, 0.5960785, 1)
         _ColorMedium ("ColorMedium", Color) = (0.4666667, 0.654902, 0.4196078, 1)
@@ -18,11 +15,6 @@
 
 		_FirstThreshold ("FirstThreshold", Range(0,1)) = 0.3
         _SecondThreshold ("SecondThreshold", Range(0,1)) = 0.5
-
-		_AnimationLength("Animation Length", Int) = 4
-		_AnimationSpeed("Animation Speed", Float) = 20
-		_AnimationOffset("Animation Offset", Float) = 20
-		_AnimationOffsetMagnitude("Animation Offset Magnitude", Float) = 20
     }
 
 	CGINCLUDE
@@ -34,12 +26,9 @@
 
 	#include "/Assets/Graphics/CustomTessellation.cginc"
 
-	float _BendRotationRandom;
-	float _BladePositionRandom;
-	float _BladeHeight;
-	float _BladeHeightRandom;	
-	float _BladeWidth;
-	float _BladeWidthRandom;
+    float _Size;
+	float _YDisplacement;
+	float _XYDisplacementRandom;
 
 	struct geometryOutput
 	{
@@ -68,31 +57,10 @@
 
 	float rand(float3 co)
 	{
-		float value = sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453;
-		if (value < 0.)
-		{
-			return -frac(value);		
-		}
-		return frac(value);
+		return sin(dot(co.xyz, float3(12.9898, 78.233, 53.539)));
 	}
 
-	float3x3 AngleAxis3x3(float angle, float3 axis)
-	{
-		float c, s;
-		sincos(angle, s, c);
-
-		float t = 1 - c;
-		float x = axis.x;
-		float y = axis.y;
-		float z = axis.z;
-
-		return float3x3(
-			t * x * x + c, t * x * y - s * z, t * x * z + s * y,
-			t * x * y + s * z, t * y * y + c, t * y * z - s * x,
-			t * x * z - s * y, t * y * z + s * x, t * z * z + c
-		);
-	}
-
+	/*
 	[maxvertexcount(4)]
 	void geo(triangle vertexOutput IN[3], inout TriangleStream<geometryOutput> triStream)
 	{
@@ -112,28 +80,65 @@
 
 		float3 randPosValue = (rand(pos.yxz), rand(pos.yzx), rand(pos.yyz)) * _BladePositionRandom;
 
-		/*
-		float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos) * UNITY_TWO_PI, float3(0, 0, 1));
-		float3x3 bendRotationMatrix = AngleAxis3x3(rand(pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
-		float3x3 transformationMatrix = mul(mul(tangentToLocal, facingRotationMatrix), bendRotationMatrix);
-		*/
+		
+		//float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos) * UNITY_TWO_PI, float3(0, 0, 1));
+		//float3x3 bendRotationMatrix = AngleAxis3x3(rand(pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
+		//float3x3 transformationMatrix = mul(mul(tangentToLocal, facingRotationMatrix), bendRotationMatrix);
+		
 
 		float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
 		float width = (rand(pos.xzy) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
 
-		/*
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal, randPosValue));
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, 0)), float2(1, 0), vNormal, randPosValue));
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, height * 2)), float2(0, 1), vNormal, randPosValue));
-		triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, height * 2)), float2(1, 1), vNormal, randPosValue));
-		*/
+		
+		//triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal, randPosValue));
+		//triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, 0)), float2(1, 0), vNormal, randPosValue));
+		//triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(-width, 0, height * 2)), float2(0, 1), vNormal, randPosValue));
+		//triStream.Append(VertexOutput(pos + mul(transformationMatrix, float3(width, 0, height * 2)), float2(1, 1), vNormal, randPosValue));
+		
 
 		triStream.Append(VertexOutput(pos + float3(-width + randPosValue.x, 0, randPosValue.z), float2(0, 0), vNormal));
 		triStream.Append(VertexOutput(pos + float3(width + randPosValue.x, 0, randPosValue.z), float2(1, 0), vNormal));
 		triStream.Append(VertexOutput(pos + float3(-width + randPosValue.x, height * 2.309402, randPosValue.z), float2(0, 1), vNormal));
 		triStream.Append(VertexOutput(pos + float3(width + randPosValue.x, height * 2.309402, randPosValue.z), float2(1, 1), vNormal));
 	}
+	*/
 
+	[maxvertexcount(4)]
+    void geo(point float4 p[1] : POSITION, inout TriangleStream<geometryOutput> triStream)
+    {
+        float3 center = p[0] + float3(0, _YDisplacement, 0);
+		float3 vNormal = float3(0,1,0);
+
+		geometryOutput o;
+
+        float3 up = float3(0, 1, 0);
+        float3 look = mul((float3x3)unity_CameraToWorld, float3(0,0,-1));;
+        look = normalize(look);
+
+        float3 right = cross(up, look);
+        up = cross(look, right);
+                
+        float3 r = right * _Size * 0.5;
+        float3 u = up * _Size * 0.5;
+
+		float3 forward = float3(0, 0, 1);
+		float3 right_displacement = right * rand(center) * _XYDisplacementRandom;
+		float3 up_displacement = forward * rand(center.xzy) * _XYDisplacementRandom;
+
+        float4 v[4];
+        v[0] = float4(center + r - u + right_displacement + up_displacement, 1.0f);
+        v[1] = float4(center + r + u + right_displacement + up_displacement, 1.0f);
+        v[2] = float4(center - r - u + right_displacement + up_displacement, 1.0f);
+        v[3] = float4(center - r + u + right_displacement + up_displacement, 1.0f);
+
+        triStream.Append(VertexOutput(UnityObjectToClipPos(v[0]), float2(0, 0), vNormal));
+
+        triStream.Append(VertexOutput(UnityObjectToClipPos(v[1]), float2(1, 0), vNormal));
+
+        triStream.Append(VertexOutput(UnityObjectToClipPos(v[2]), float2(0, 1), vNormal));
+
+        triStream.Append(VertexOutput(UnityObjectToClipPos(v[3]), float2(1, 1), vNormal));
+    }
 	ENDCG
 
     SubShader
@@ -144,9 +149,8 @@
         {
 			Tags
 			{
-				"Queue" = "Transparent"
-				"IgnoreProjector"="True"
-				"RenderType" = "Transparent"
+				"RenderType" = "Opaque"
+				"LightMode" = "ForwardBase"
 			}
 
             CGPROGRAM
@@ -169,18 +173,9 @@
 
 			sampler2D _MainTex;
 
-			int _AnimationLength;
-			float _AnimationSpeed;
-			float _AnimationOffset;
-			float _AnimationOffsetMagnitude;
-
 			float4 frag (geometryOutput i, fixed facing : VFACE) : SV_Target
             {
-				float2 uv = i.uv.xy;
-				uv.x = uv.x / _AnimationLength;
-				uv.x += floor(fmod(_Time[0] * _AnimationSpeed + sign(i.worldPos.x * _AnimationOffset) * _AnimationOffsetMagnitude, _AnimationLength)) / _AnimationLength;
-
-				float mask_value = tex2D(_MainTex, uv).r;
+				float mask_value = tex2D(_MainTex, i.uv).r;
 				if (mask_value != 0)
 				{
 					discard;
