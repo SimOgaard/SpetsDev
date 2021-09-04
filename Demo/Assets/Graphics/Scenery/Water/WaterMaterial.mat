@@ -57,20 +57,21 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SurfaceDistortion:
         m_Texture: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
-        m_Scale: {x: 20, y: 20}
+        m_Scale: {x: 10, y: 40}
         m_Offset: {x: 0, y: 0}
     - _SurfaceNoise:
         m_Texture: {fileID: 2800000, guid: 67f8701164a9bcb4180814af352aa7e0, type: 3}
-        m_Scale: {x: 15, y: 45}
+        m_Scale: {x: 15, y: 40}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DepthMaxDistance: 4
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _FoamMaxDistance: 1.2
-    - _FoamMinDistance: 0.01
+    - _FoamMaxDistance: 1
+    - _FoamMinDistance: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -81,12 +82,12 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SurfaceDistortionAmount: 0.2
+    - _SurfaceDistortionAmount: 0.248
     - _SurfaceNoiseCutoff: 0.777
     - _UVSec: 0
     - _WaterHeight: 7
-    - _WaterReflectionAmount: 0
-    - _WaterRefractionAmplitude: 0.025
+    - _WaterReflectionAmount: 0.25
+    - _WaterRefractionAmplitude: 3.66
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
@@ -95,4 +96,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.01, b: 0, a: 0}
-    - _WaterReflectionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _UnderWaterDistortAmount: {r: 0, g: 0, b: 0, a: 0}
+    - _UnderWaterDistortSpeed: {r: 0.03, g: 0.01, b: 0, a: 0}
+    - _WaterReflectionColor: {r: 1, g: 1, b: 1, a: 0}

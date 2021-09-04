@@ -27,8 +27,8 @@ public class MousePoint : MonoBehaviour
     public Vector3 GetScreenPosFromCentre()
     {
         Vector3 mousePos = GetInputMousePosition(); 
-        mousePos.x -= Screen.width / 2;
-        mousePos.y -= (Screen.height / 2);
+        mousePos.x -= Screen.width * 0.5f;
+        mousePos.y -= Screen.height * 0.5f;
         return mousePos;
     }
 
@@ -62,6 +62,18 @@ public class MousePoint : MonoBehaviour
         ray = cam.ScreenPointToRay(GetInputMousePosition());
         plane.Raycast(ray, out distance);
         return ray.GetPoint(distance) - new Vector3(0f, player_offset_to_ground, 0f);
+    }
+
+    /// <summary>
+    /// Gets the target position of the mouse calculated to be on the same plane as the player character. Allways returns value and requires less Compute than GetTargetMousePos();
+    /// </summary>
+    public Vector3 MiddleOcean()
+    {
+        float distance;
+        Plane plane = new Plane(Vector3.up, -Water.water_level);
+        ray = cam.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f));
+        plane.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
     }
 
     /// <summary>

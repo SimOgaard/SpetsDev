@@ -33,14 +33,16 @@
 		_FoamMaxDistance("Foam Maximum Distance", Float) = 0.4
 		_FoamMinDistance("Foam Minimum Distance", Float) = 0.04
 
-		// NOT YET IMPLEMENTED
 		// Alpha value of water reflection.
 		_WaterReflectionAmount("Water Reflection Amount", Range(0, 1)) = 0.35
 		// Color blend of water reflection. // NOT SHURE IF I SHOULD USE
 		_WaterReflectionColor("Water Reflection Color", Color) = (1, 1, 1, 1)
-		
-		// Amplifies distortion of color value under water.
-		_WaterRefractionAmplitude("Water Refraction Amplitude", Float) = 0.025
+	
+		// Speed, in UVs per second the noise will scroll. Only the xy components are used.
+		_UnderWaterDistortSpeed("Under Water Noise Speed", Vector) = (0.03, 0.03, 0, 0)
+
+		// Speed, in UVs per second the noise will scroll. Only the xy components are used.
+		_UnderWaterDistortAmount("Under Water Noise Amount", Vector) = (0.03, 0.03, 0, 0)
     }
     SubShader
     {
@@ -58,7 +60,7 @@
 			ZWrite Off
 
             CGPROGRAM
-			#define SMOOTHSTEP_AA 0.01
+			//#define SMOOTHSTEP_AA 0.01
             #pragma vertex vert
             #pragma fragment frag
 
@@ -127,12 +129,14 @@
 
 			sampler2D _GrabTexture;
 
-			sampler2D _WaterReflectionTexture;
-		
 			float _WaterReflectionAmount;
 			float4 _WaterReflectionColor;
 		
-			float _WaterRefractionAmplitude;
+			float2 _UnderWaterDistortSpeed;
+			float2 _UnderWaterDistortAmount;
+			uniform float4 _CameraOffset;
+			sampler2D _WaterReflectionTexture;
+			sampler2D _WaterReflectionTextureDepth;
 
             float4 frag (v2f i) : SV_Target
             {
@@ -167,7 +171,8 @@
 
 				float surfaceNoiseCutoff = foamDepthDifference01 * _SurfaceNoiseCutoff;
 
-				float2 distortSample = (tex2D(_SurfaceDistortion, i.distortUV).xy * 2 - 1) * _SurfaceDistortionAmount;
+				float2 distortTex = (tex2D(_SurfaceDistortion, i.distortUV).xy * 2 - 1); 
+				float2 distortSample = distortTex * _SurfaceDistortionAmount;
 
 				// Distort the noise UV based off the RG channels (using xy here) of the distortion texture.
 				// Also offset it by time, scaled by the scroll speed.
@@ -181,25 +186,61 @@
 				// float surfaceNoise = smoothstep(surfaceNoiseCutoff - SMOOTHSTEP_AA, surfaceNoiseCutoff + SMOOTHSTEP_AA, surfaceNoiseSample);
 
 				float4 surfaceNoiseColor = _FoamColor;
-				surfaceNoiseColor.a *= surfaceNoise;
+				surfaceNoiseColor.a = surfaceNoise;
+			
+				// Get pixel perfect distort value for water.
+				float2 under_water_distort_time = _Time.yy * _UnderWaterDistortSpeed.xy;
+				float2 under_water_distort = (tex2D(_SurfaceDistortion, i.distortUV + under_water_distort_time).xy * 2 - 1) * _UnderWaterDistortAmount.xy;
+				float2 px = float2(384, 216);
+				float2 distort_value = round(px * under_water_distort) / px;
 
+				// Screen uv coords for under water pixel.
+				float2 screen_uv = i.screenPosition.xy;
+				float2 screen_uv_distort = screen_uv + distort_value;
+				
+				// Get raw depth for new uv.
+				rawDepth = tex2D(_CameraDepthTexture, screen_uv_distort).r;
+				// Flip orthographic projection.
+				orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
+				// Recast surface 01-linear depth value to unity units.
+				orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
+				// Retrieve depth value to shader plane.
+				orthoPlainLinearDepth = 1 - i.screenPosition.z;
+				// Recast to unity units.
+				orthoPlainDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoPlainLinearDepth);
+				// Water depth for current pixel in unity units.
+				depthDifference = orthoEyeDepth - orthoPlainDepth;
 
+				// If we are under water.
+				//if (depthDifference > 0)
+				//{
+				//	float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
+				//	waterColor = alphaBlend(waterColor, under_color);
+				//}
+				
+				// Relfection uv.
+				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + distort_value;
 
-				/*
-				float2 screen_uv = i.screenPosition.xy / i.screenPosition.w;
-				float2 screen_uv_flipped = float2(1 - screen_uv.x, screen_uv.y);
-				//float2 screen_uv_distort = 
+				// Sample reflection camera color and depth value.
+				float4 waterReflection = float4(tex2D(_WaterReflectionTexture, screen_uv_reflection).xyz, _WaterReflectionAmount);
+				float depth_reflection_value = tex2D(_WaterReflectionTextureDepth, screen_uv_reflection).x;
 
-				float3 waterReflection = tex2D(_WaterReflectionTexture, screen_uv_flipped);
-				waterColor = alphaBlend(float4(waterReflection, _WaterReflectionAmount), waterColor);
-
-				float4 under_color = tex2D(_GrabTexture, screen_uv);
-				waterColor = alphaBlend(waterColor, under_color);
-				*/
-
-
-
-				// Use normal alpha blending to combine the foam with the surface.
+				// If the camera saw somthing.
+				if (depth_reflection_value != 0)
+				{
+					waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
+					if (depthDifference > 0)
+					{
+						float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
+						waterColor = alphaBlend(waterColor, under_color);
+					}
+					waterColor = alphaBlend(waterReflection, waterColor);
+				}
+				else if (depthDifference > 0)
+				{
+					float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
+					waterColor = alphaBlend(waterColor, under_color);
+				}
 				return alphaBlend(surfaceNoiseColor, waterColor);
             }
             ENDCG

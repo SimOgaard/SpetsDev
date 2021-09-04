@@ -5,58 +5,29 @@ using UnityEngine;
 public class PlanarReflectionManager : MonoBehaviour
 {
     private Camera reflection_camera;
-    private Camera this_camera;
-    private RenderTexture render_texture;
-    private Transform reflection_plain;
+    
+    private Transform camera_focus_point;
 
-    private void Start()
+    [SerializeField] private float camera_distance = 75f;
+
+    private void Awake()
     {
-        this_camera = GetComponent<Camera>();
-        render_texture = new RenderTexture(this_camera.pixelWidth, this_camera.pixelHeight, 24);
-        Shader.SetGlobalTexture("_WaterReflectionTexture", render_texture);
-
-        reflection_camera = NormalsReplacementShader.CopyCamera(this_camera, render_texture, transform, "ReflectionCamera");
-        reflection_plain = GameObject.Find("water").transform;
-    }
-
-    private void SetCameraToMirror()
-    {
-        Vector3 camera_direction_world_space = this_camera.transform.forward;
-        Vector3 camera_up_world_space = this_camera.transform.up;
-        Vector3 camera_position_world_space = this_camera.transform.position;
-
-        Vector3 camera_direction_plain_space = reflection_plain.InverseTransformDirection(camera_direction_world_space);
-        Vector3 camera_up_plane_space = reflection_plain.InverseTransformDirection(camera_up_world_space);
-        Vector3 camera_position_plain_space = reflection_plain.InverseTransformPoint(camera_position_world_space);
-
-        camera_direction_plain_space.y *= -1f;
-        camera_up_plane_space.y *= -1f;
-        camera_position_plain_space.y *= -1f;
-
-        camera_direction_world_space = reflection_plain.InverseTransformDirection(camera_direction_plain_space);
-        camera_up_world_space = reflection_plain.InverseTransformDirection(camera_up_plane_space);
-        camera_position_world_space = reflection_plain.InverseTransformPoint(camera_position_plain_space);
-
-        reflection_camera.transform.position = camera_position_world_space;
-        reflection_camera.transform.LookAt(camera_position_world_space + camera_direction_world_space, camera_up_world_space);
+        reflection_camera = GetComponent<Camera>();
+        camera_focus_point = new GameObject("reflection_focus_point").transform;
+        camera_focus_point.parent = transform.parent;
     }
 
     private void SetCameraNearClippingPlane()
     {
-        Vector4 clipPlaneWorldSpace = new Vector4(0f, 1f, 0f, -reflection_plain.position.y);
+        Vector4 clipPlaneWorldSpace = new Vector4(0f, 1f, 0f, -Water.water_level);
         Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(reflection_camera.worldToCameraMatrix)) * clipPlaneWorldSpace;
         reflection_camera.projectionMatrix = Camera.main.CalculateObliqueMatrix(clipPlaneCameraSpace);
     }
 
     private void OnPreCull()
     {
-        SetCameraToMirror();
+        PixelPerfectCameraRotation.MoveCamera(ref reflection_camera, camera_focus_point, new Vector3(-30f, 0f, 0f), camera_distance);
+        Vector2 camera_offset = PixelPerfectCameraRotation.PixelSnap(ref reflection_camera);
         SetCameraNearClippingPlane();
-    }
-
-    private void RenderReflection()
-    {
-
-        reflection_camera.Render();
     }
 }
