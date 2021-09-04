@@ -96,6 +96,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.01, b: 0, a: 0}
-    - _UnderWaterDistortAmount: {r: 0, g: 0, b: 0, a: 0}
+    - _UnderWaterDistortAmount: {r: 0.03, g: 0, b: 0, a: 0}
     - _UnderWaterDistortSpeed: {r: 0.03, g: 0.01, b: 0, a: 0}
     - _WaterReflectionColor: {r: 1, g: 1, b: 1, a: 0}

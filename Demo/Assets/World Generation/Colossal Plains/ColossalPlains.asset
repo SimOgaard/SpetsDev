@@ -112,7 +112,7 @@ MonoBehaviour:
       lacunarity: 1
       gain: 1
   ground_material: {fileID: 2100000, guid: 4e2855efffebdd84e897f8d290ebbd27, type: 2}
-  grass_material: {fileID: 2100000, guid: 226084f01ea20b44f97d9085bb71f767, type: 2}
+  grass_material: {fileID: 2100000, guid: dffe25dc321faa14f8118f27e41a4445, type: 2}
   water_material: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
   stone_material: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   spawn_prefabs:

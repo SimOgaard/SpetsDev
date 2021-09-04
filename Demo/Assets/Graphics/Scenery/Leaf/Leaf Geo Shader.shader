@@ -1,13 +1,17 @@
-﻿Shader "Custom/Grass Billboard Shader"
+﻿Shader "Custom/Leaf Shader"
 {
     Properties
     {
 		_MainTex ("Texture", 2D) = "white" {}
 		
         _Size ("Size", Float) = 1.0
-		_YDisplacement ("Y Displacement", Float) = 0.5
-		_XZDisplacementRandom ("X Z Displacement Random", Float) = 0.5
-		_TessellationUniform("Tessellation Uniform", Range(1, 32)) = 1
+        _ExtrudeDistance ("Extrude Distance", Float) = 0.0
+		_TessellationUniform ("Tessellation Uniform", Range(1, 32)) = 1
+
+		_DisplacementRandomUniformed ("Random Uniformed Displacement", Vector) = (0, 0, 0, 0)
+		_DisplacementRandom ("Random Displacement", Vector) = (0, 0, 0, 0)
+
+		_DiscardValue ("Discard Value", Range(0, 1)) = 0.5
 
 		_ColorLight ("ColorLight", Color) = (0.7607843, 0.8666667, 0.5960785, 1)
         _ColorMedium ("ColorMedium", Color) = (0.4666667, 0.654902, 0.4196078, 1)
@@ -34,9 +38,11 @@
 	float2 _WindFrequency;
 	float _WindStrength;
 
+	float3 _DisplacementRandomUniformed;
+	float3 _DisplacementRandom;
+
 	float _Size;
-	float _YDisplacement;
-	float _XZDisplacementRandom;
+	float _ExtrudeDistance;
 
 	struct g2f {
 		float4 pos : SV_POSITION;
@@ -69,9 +75,12 @@
 	}
 
 	[maxvertexcount(4)]
-	void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
+	void geo(point vertexOutput IN[1], inout TriangleStream<g2f> outStream)
 	{
-		float3 center = IN[0].vertex + float3(0, _YDisplacement, 0);
+		float3 vNormal = IN[0].normal;
+		float3 center = IN[0].vertex + vNormal * _ExtrudeDistance;
+		
+		center += _DisplacementRandomUniformed * float3(rand(center), rand(center.yxz), rand(center.yzx));
 
 		float3 up = float3(0, 1, 0);
 		float3 look = mul(mul((float3x3)unity_CameraToWorld, float3(0,0,-1)), unity_ObjectToWorld);
@@ -84,19 +93,14 @@
 		float3 u = up * _Size * 0.5;
 
 		float3 forward = float3(0, 0, 1);
-		float3 right_displacement = right * rand(center) * _XZDisplacementRandom;
-		float3 up_displacement = forward * rand(center.xzy) * _XZDisplacementRandom;
-		center += right_displacement + up_displacement;
+		
 		float4 v[4];
-		v[0] = float4(center + r - u, 1.0f);
-		v[1] = float4(center + r + u, 1.0f);
-		v[2] = float4(center - r - u, 1.0f);
-		v[3] = float4(center - r + u, 1.0f);
+		v[0] = float4(center + r - u + _DisplacementRandom * float3(rand(center.xzy), rand(center.yxz), rand(center.yzx)), 1.0f);
+		v[1] = float4(center + r + u + _DisplacementRandom * float3(rand(center.yyz), rand(center.xzz), rand(center.xyz)), 1.0f);
+		v[2] = float4(center - r - u + _DisplacementRandom * float3(rand(center.zzy), rand(center.zzx), rand(center.xzy)), 1.0f);
+		v[3] = float4(center - r + u + _DisplacementRandom * float3(rand(center.xyz), rand(center.xxz), rand(center.yyx)), 1.0f);
 
-		float3 vNormal = IN[0].normal;
-
-		float2 center_world = mul(unity_ObjectToWorld, center).xz;
-
+		float2 center_world = (mul(unity_ObjectToWorld, float4(0.0,0.0,0.0,1.0)) + center).xz;
 		float2 uv = center_world * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
 		float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
 
@@ -137,13 +141,21 @@
 			float _FirstThreshold;
 			float _SecondThreshold;
 
+			float _DiscardValue;
+
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
             fixed4 frag (g2f i, fixed facing : VFACE) : SV_Target
             {
+				float alpha_value = tex2D(_MainTex, i.uv).r;
+				if (alpha_value < _DiscardValue)
+				{
+					discard;
+				}
+
 				//return fixed4(i.wind.x, i.wind.y, 0, 1);
-				return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + floor((i.wind + 0.5) * 8) * 0.125);
+				//return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + floor((i.wind + 0.5) * 8) * 0.125);
 
 				/*
 				float mask_value = tex2D(_MainTex, i.uv * float2(0.25, 1)).r;
@@ -151,22 +163,24 @@
 				{
 					discard;
 				}
-                
+                */
 				fixed shadow = SHADOW_ATTENUATION(i);
                 fixed3 lighting = i.diff * shadow + i.ambient;
 
 				float4 col = _ColorLight;
+				//return _ColorLight * lighting.x;
+				
 				if (lighting.x < _FirstThreshold)
 				{
 					col = _ColorDark;
 				}
 				else if (lighting.x < _SecondThreshold)
 				{
-					col = _ColorMedium;				
+					col = _ColorMedium;
 				}
 
                 return col;
-				*/
+				
             }
             ENDCG
         }

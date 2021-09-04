@@ -17,6 +17,7 @@ public class SpriteInitializer : MonoBehaviour
     [SerializeField] private Sprite sprite_to_render;
     [SerializeField] private RuntimeAnimatorController animation_to_render;
 
+    private Material sprite_renderer_material;
     private GameObject sprite_game_object;
     private SpriteRenderer sprite_renderer;
     private Animator animator;
@@ -33,12 +34,13 @@ public class SpriteInitializer : MonoBehaviour
 
         // Initializes gameobject as child with sprite renderer component and given sprite
         sprite_game_object = new GameObject();
-        sprite_game_object.transform.rotation = rotation;
+        //sprite_game_object.transform.rotation = rotation;
         sprite_game_object.transform.parent = transform;
 
         sprite_renderer = sprite_game_object.AddComponent<SpriteRenderer>();
         sprite_renderer.sprite = sprite;
         sprite_renderer.sortingOrder = render_order;
+        sprite_renderer.material = sprite_renderer_material;
         animator = null;
 
         // Applies scale to gameobject to correct camera rotation
@@ -54,11 +56,12 @@ public class SpriteInitializer : MonoBehaviour
         }
 
         sprite_game_object = new GameObject();
-        sprite_game_object.transform.rotation = rotation;
+        //sprite_game_object.transform.rotation = rotation;
         sprite_game_object.transform.parent = transform;
 
         sprite_renderer = sprite_game_object.AddComponent<SpriteRenderer>();
         sprite_renderer.sortingOrder = render_order;
+        sprite_renderer.material = sprite_renderer_material;
         animator = sprite_game_object.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
 
@@ -100,6 +103,11 @@ public class SpriteInitializer : MonoBehaviour
         Destroy(this);
     }
 
+    private void Awake()
+    {
+        sprite_renderer_material = Resources.Load<Material>("Sprites/Sprte Billboard Material");
+    }
+
     /// <summary>
     /// Renders possible Scene assigned sprites.
     /// <summary>
@@ -113,13 +121,5 @@ public class SpriteInitializer : MonoBehaviour
         {
             Initialize(animation_to_render, Quaternion.identity);
         }
-    }
-
-    /// <summary>
-    /// Renders sprite to always be facing the camera.
-    /// </summary>
-    private void LateUpdate()
-    {
-        sprite_game_object.transform.forward = new Vector3(Camera.main.transform.forward.x, sprite_game_object.transform.forward.y, Camera.main.transform.forward.z);
     }
 }
