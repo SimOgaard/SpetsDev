@@ -86,7 +86,7 @@ Material:
     - _SurfaceNoiseCutoff: 0.777
     - _UVSec: 0
     - _WaterHeight: 7
-    - _WaterReflectionAmount: 0.25
+    - _WaterReflectionAmount: 1
     - _WaterRefractionAmplitude: 3.66
     - _ZWrite: 1
     m_Colors:

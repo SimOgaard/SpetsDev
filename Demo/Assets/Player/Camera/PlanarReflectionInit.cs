@@ -7,7 +7,7 @@ public class PlanarReflectionInit : MonoBehaviour
     private void Awake()
     {
         Camera this_camera = GetComponent<Camera>();
-        RenderTexture render_texture_target = new RenderTexture(400, 225, 0, RenderTextureFormat.Default);
+        RenderTexture render_texture_target = new RenderTexture(400, 225, 24, RenderTextureFormat.Default);
         render_texture_target.filterMode = FilterMode.Point;
         RenderTexture render_texture_target_depth = new RenderTexture(400, 225, 24, RenderTextureFormat.Depth);
         render_texture_target_depth.filterMode = FilterMode.Point;

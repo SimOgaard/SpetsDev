@@ -209,14 +209,7 @@
 				// Recast to unity units.
 				orthoPlainDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoPlainLinearDepth);
 				// Water depth for current pixel in unity units.
-				depthDifference = orthoEyeDepth - orthoPlainDepth;
-
-				// If we are under water.
-				//if (depthDifference > 0)
-				//{
-				//	float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
-				//	waterColor = alphaBlend(waterColor, under_color);
-				//}
+				depthDifference = orthoEyeDepth - orthoPlainDepth;				
 				
 				// Relfection uv.
 				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + distort_value;
@@ -225,21 +218,18 @@
 				float4 waterReflection = float4(tex2D(_WaterReflectionTexture, screen_uv_reflection).xyz, _WaterReflectionAmount);
 				float depth_reflection_value = tex2D(_WaterReflectionTextureDepth, screen_uv_reflection).x;
 
+				// If we are under water.
+				if (depthDifference > 0)
+				{
+					float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
+					waterColor = alphaBlend(waterColor, under_color);
+				}
+
 				// If the camera saw somthing.
 				if (depth_reflection_value != 0)
 				{
 					waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
-					if (depthDifference > 0)
-					{
-						float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
-						waterColor = alphaBlend(waterColor, under_color);
-					}
 					waterColor = alphaBlend(waterReflection, waterColor);
-				}
-				else if (depthDifference > 0)
-				{
-					float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
-					waterColor = alphaBlend(waterColor, under_color);
 				}
 				return alphaBlend(surfaceNoiseColor, waterColor);
             }

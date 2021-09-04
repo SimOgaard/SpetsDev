@@ -78,7 +78,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     private void Start()
     {
         JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
-        join_meshes.SetMaterial(noise_layer_settings.stone_material);
+        //join_meshes.SetMaterial(noise_layer_settings.stone_material);
         join_meshes.SetCollider();
     }
 

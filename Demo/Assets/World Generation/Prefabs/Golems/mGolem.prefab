@@ -581,7 +581,7 @@ GameObject:
   - component: {fileID: 3453427675978154555}
   m_Layer: 18
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: Merge
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
