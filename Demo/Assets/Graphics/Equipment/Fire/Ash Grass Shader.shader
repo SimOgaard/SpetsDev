@@ -137,7 +137,7 @@
 			#pragma domain domain
             
 			#include "Lighting.cginc"
-			#include "/Assets/Resources/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/FastNoiseLite.cginc"
 			
 			float4 _Color1;
 			float4 _Color2;

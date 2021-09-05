@@ -16,7 +16,7 @@
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-			#include "/Assets/Resources/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/FastNoiseLite.cginc"
 
 			float4 _Color1;
 			float4 _Color2;
