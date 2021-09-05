@@ -66,7 +66,7 @@ Material:
     - _DiscardValue: 0.5
     - _DstBlend: 0
     - _ExtrudeDistance: 0.001
-    - _FirstThreshold: 0.3
+    - _FirstThreshold: 0.106
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -74,7 +74,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SecondThreshold: 0.5
+    - _SecondThreshold: 0.602
     - _Size: 0.0125
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -87,9 +87,9 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorDark: {r: 0.1215686, g: 0.3411765, b: 0.3058824, a: 1}
-    - _ColorLight: {r: 0.7607843, g: 0.8666667, b: 0.5960785, a: 1}
-    - _ColorMedium: {r: 0.4666667, g: 0.654902, b: 0.4196078, a: 1}
+    - _ColorDark: {r: 0.033107866, g: 0.2264151, b: 0.14124584, a: 1}
+    - _ColorLight: {r: 0.5764706, g: 0.7725491, b: 0.44705886, a: 1}
+    - _ColorMedium: {r: 0.3137255, g: 0.47450984, b: 0.25882354, a: 1}
     - _DisplacementRandom: {r: 0.001, g: 0.001, b: 0.001, a: 0}
     - _DisplacementRandomUniformed: {r: 0.001, g: 0.001, b: 0.001, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

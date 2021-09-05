@@ -16,6 +16,7 @@ public class PlanarReflectionInit : MonoBehaviour
         Shader.SetGlobalTexture("_WaterReflectionTextureDepth", render_texture_target_depth);
 
         Camera reflection_camera = NormalsReplacementShader.CopyCamera(this_camera, transform.parent, "ReflectionCamera", 1);
+        //reflection_camera.clearFlags = CameraClearFlags.Nothing;
         reflection_camera.SetTargetBuffers(render_texture_target.colorBuffer, render_texture_target_depth.depthBuffer);
 
         reflection_camera.gameObject.AddComponent<PlanarReflectionManager>();

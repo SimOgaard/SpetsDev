@@ -113,7 +113,11 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             Vector3 relfection_camera_position = ray.GetPoint(distance);
             //Vector3 rounded_camera_position = RoundToPixel(relfection_camera_position);
             //Debug.Log(rounded_camera_position);
-
+            /*
+            Ray ray = new Ray(RoundToPixel(m_camera.transform.position) - m_camera.transform.up * m_camera.orthographicSize, m_camera.transform.forward);
+            plane.Raycast(ray, out distance);
+            Vector3 relfection_camera_position = ray.GetPoint(distance) + m_camera.transform.forward * m_camera.orthographicSize;
+            */
             reflection_camera_focus_point.position = relfection_camera_position;
             reflection_camera_focus_point.rotation = camera_focus_point.rotation;
         }

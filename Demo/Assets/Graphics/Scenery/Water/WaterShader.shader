@@ -231,7 +231,7 @@
 					waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
 					waterColor = alphaBlend(waterReflection, waterColor);
 				}
-				//return waterReflection;
+
 				return alphaBlend(surfaceNoiseColor, waterColor);
             }
             ENDCG
