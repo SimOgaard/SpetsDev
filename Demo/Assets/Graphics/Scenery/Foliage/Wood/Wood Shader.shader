@@ -1,12 +1,11 @@
-﻿Shader "Custom/Stone Shader"
+﻿Shader "Custom/Wood Shader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
 
+        _NormalTex ("Normal map", 2D) = "white" {}
 		_Color ("Color", Color) = (1, 1, 1, 1)
-		//_MossColor ("Moss Color", Color) = (1, 1, 1, 1)
-        //_MossThreshold("Moss Threshold", Float) = 0.3
     }
 
     SubShader
@@ -37,6 +36,7 @@
 				fixed3 diff : COLOR0;
                 fixed3 ambient : COLOR1;
                 float4 pos : SV_POSITION;
+				float2 uv : TEXCOORD2; 
             };
 
             sampler2D _MainTex;
@@ -45,6 +45,7 @@
             v2f vert (appdata_base v)
             {
                 v2f o;
+				o.uv = v.texcoord;
 				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
                 o.pos = UnityObjectToClipPos(v.vertex);
 				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -56,15 +57,13 @@
             }
 
 			float4 _Color;
-			//float4 _MossColor;
-			//float _MossThreshold;
-			/*
-			float remap01(float v) {
-				return saturate((v + 1) * 0.5);
-			}
-			*/
+			sampler2D _NormalTex;
+			float4 _NormalTex_ST;
+
             fixed4 frag (v2f i) : SV_Target
             {
+				float3 normal = tex2D(_NormalTex, _NormalTex_ST.xy * i.uv + _NormalTex_ST.zw);
+
 				fixed shadow = SHADOW_ATTENUATION(i);
                 fixed3 lighting = i.diff * shadow + i.ambient;
 

@@ -67,7 +67,7 @@
 
 			float4 frag(vertexOutput input) : COLOR
 			{
-				return tex2D(_MainTex, float2(input.tex.xy));
+				return tex2D(_MainTex, input.tex.xy);
 			}
 
 			ENDCG
