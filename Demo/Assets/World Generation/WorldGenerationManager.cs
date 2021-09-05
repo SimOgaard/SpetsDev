@@ -12,6 +12,7 @@ public class WorldGenerationManager : MonoBehaviour
 
     public interface WorldGeneration
     {
+        void Init();
         void DestroyAll();
         NoiseLayerSettings GetNoiseSettings();
         Texture2D[] GetNoiseTextures();
@@ -31,6 +32,7 @@ public class WorldGenerationManager : MonoBehaviour
             case Map.ColossalPlain:
                 GameObject colossal_plains_game_object = new GameObject("colossal_plains");
                 world_generation = colossal_plains_game_object.AddComponent<ColossalPlains>();
+                world_generation.Init();
                 colossal_plains_game_object.transform.parent = transform;
                 break;
         }

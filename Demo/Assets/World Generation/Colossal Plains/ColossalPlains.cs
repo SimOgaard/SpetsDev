@@ -49,7 +49,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
     }
 
-    private void Awake()
+    public void Init()
     {
         gameObject.layer = Layer.game_world;
         gameObject.isStatic = true;
@@ -78,7 +78,6 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     private void Start()
     {
         JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
-        //join_meshes.SetMaterial(noise_layer_settings.stone_material);
         join_meshes.SetCollider();
     }
 
