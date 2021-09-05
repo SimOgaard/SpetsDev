@@ -46,7 +46,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         create_mesh.UpdateGround(ground_mesh);
         create_mesh.UpdateGrass(ground_mesh);
         noise_textures = create_mesh.GetNoiseTextures();
-        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs);
+        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
     }
 
     private void Awake()
@@ -72,7 +72,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         water.Init(noise_layer_settings.water_material, 1000, 1000, 7, mesh_game_object.transform);
 
         noise_textures = create_mesh.GetNoiseTextures();
-        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs);
+        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
     }
 
     private void Start()

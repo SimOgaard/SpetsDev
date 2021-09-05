@@ -15,6 +15,7 @@ public class NoiseLayerSettings : ScriptableObject
     public Material water_material;
     public Material stone_material;
 
+    [Range(0, 0.1f)] public float object_density;
     public GameObject[] spawn_prefabs;
 
     [System.Serializable]

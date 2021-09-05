@@ -82,11 +82,11 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SurfaceDistortionAmount: 0.248
+    - _SurfaceDistortionAmount: 0.25
     - _SurfaceNoiseCutoff: 0.777
     - _UVSec: 0
     - _WaterHeight: 7
-    - _WaterReflectionAmount: 1
+    - _WaterReflectionAmount: 0.4
     - _WaterRefractionAmplitude: 3.66
     - _ZWrite: 1
     m_Colors:

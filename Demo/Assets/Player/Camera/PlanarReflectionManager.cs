@@ -8,7 +8,7 @@ public class PlanarReflectionManager : MonoBehaviour
     
     private Transform camera_focus_point;
 
-    [SerializeField] private float camera_distance = 75f;
+    [SerializeField] private float camera_distance = 125f;
 
     private void Awake()
     {

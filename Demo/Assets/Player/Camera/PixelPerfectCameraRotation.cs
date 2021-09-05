@@ -24,7 +24,6 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     public static Vector2 camera_offset;
 
     private Transform reflection_camera_focus_point;
-    private MousePoint mouse_point;
 
     /// <summary>
     /// Rounds given Vector3 position to pixel grid.
@@ -56,7 +55,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         const float to_positive = units_per_pixel_camera * 0.5f;
         const float x_divider = 9f / 640f; //(1f * 216f) / (384f * 40f);
         const float y_divider = 1f / 40f;  //(1f * 384f) / (384f * 40f);
-        return new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
+        Vector2 camera_offset = new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
+
+        return camera_offset;
     }
 
     /// <summary>
@@ -88,7 +89,6 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         camera_focus_point = GameObject.Find("camera_focus_point").transform;
         m_camera = GetComponent<Camera>();
         m_camera.orthographicSize = (225f / 216f) * 20f;
-        mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
         SetCameraNearClippingPlane();
     }
 
@@ -106,7 +106,15 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         Shader.SetGlobalVector("_CameraOffset", new Vector4(camera_offset.x, camera_offset.y, 0f, 0f));
         if (Application.isPlaying)
         {
-            reflection_camera_focus_point.position = mouse_point.MiddleOcean();
+            float distance;
+            Plane plane = new Plane(Vector3.up, -Water.water_level);
+            Ray ray = new Ray(m_camera.transform.position, m_camera.transform.forward);
+            plane.Raycast(ray, out distance);
+            Vector3 relfection_camera_position = ray.GetPoint(distance);
+            //Vector3 rounded_camera_position = RoundToPixel(relfection_camera_position);
+            //Debug.Log(rounded_camera_position);
+
+            reflection_camera_focus_point.position = relfection_camera_position;
             reflection_camera_focus_point.rotation = camera_focus_point.rotation;
         }
     }
