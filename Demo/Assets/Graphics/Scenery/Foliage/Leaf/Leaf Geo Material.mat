@@ -65,8 +65,8 @@ Material:
     - _DetailNormalMapScale: 1
     - _DiscardValue: 0.5
     - _DstBlend: 0
-    - _ExtrudeDistance: 0.001
-    - _FirstThreshold: 0.106
+    - _ExtrudeDistance: 0
+    - _FirstThreshold: 0.09
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -74,12 +74,13 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SecondThreshold: 0.602
-    - _Size: 0.0125
+    - _SecondThreshold: 0.675
+    - _Size: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TessellationUniform: 2
+    - _ThirdThreshold: 0.95
     - _UVSec: 0
     - _WindStrength: 2
     - _XYDisplacementRandom: 0
@@ -87,10 +88,12 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorDark: {r: 0.033107866, g: 0.2264151, b: 0.14124584, a: 1}
-    - _ColorLight: {r: 0.5764706, g: 0.7725491, b: 0.44705886, a: 1}
-    - _ColorMedium: {r: 0.3137255, g: 0.47450984, b: 0.25882354, a: 1}
-    - _DisplacementRandom: {r: 0.001, g: 0.001, b: 0.001, a: 0}
-    - _DisplacementRandomUniformed: {r: 0.001, g: 0.001, b: 0.001, a: 0}
+    - _ColorDark: {r: 0.34509805, g: 0.5647059, b: 0.43921572, a: 1}
+    - _ColorLight: {r: 0.77647066, g: 0.8235295, b: 0.70980394, a: 1}
+    - _ColorMedium: {r: 0.47058827, g: 0.62352943, b: 0.4039216, a: 1}
+    - _ColorReallyDark: {r: 0.21568629, g: 0.5058824, b: 0.44705886, a: 1}
+    - _DisplacementRandom: {r: 0, g: 0, b: 0, a: 0}
+    - _DisplacementRandomUniformed: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _WindFrequency: {r: 0.005, g: 0.0025, b: 0, a: 0}
+    - _WindFrequency: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []

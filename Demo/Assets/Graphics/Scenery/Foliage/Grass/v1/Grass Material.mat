@@ -70,7 +70,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _FirstThreshold: 0.425
+    - _FirstThreshold: 0.4
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -78,20 +78,22 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SecondThreshold: 0.5
+    - _SecondThreshold: 0.525
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TessellationUniform: 7
+    - _ThirdThreshold: 0.65
     - _TranslucentGain: 0.5
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
     - _BottomColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorDark: {r: 0.1215686, g: 0.3411765, b: 0.3058824, a: 1}
-    - _ColorLight: {r: 0.7607843, g: 0.8666667, b: 0.5960785, a: 1}
-    - _ColorMedium: {r: 0.4666667, g: 0.654902, b: 0.4196078, a: 1}
+    - _ColorDark: {r: 0.5568628, g: 0.8000001, b: 0.61960787, a: 1}
+    - _ColorLight: {r: 0.7254902, g: 0.9294118, b: 0.6745098, a: 1}
+    - _ColorMedium: {r: 0.5647059, g: 0.8745099, b: 0.56078434, a: 1}
+    - _ColorReallyDark: {r: 0.4039216, g: 0.64705884, b: 0.5372549, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _TopColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

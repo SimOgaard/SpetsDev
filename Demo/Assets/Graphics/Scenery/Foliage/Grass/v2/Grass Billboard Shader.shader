@@ -3,6 +3,7 @@
     Properties
     {
 		_MainTex ("Texture", 2D) = "white" {}
+		_TileSize ("Tile Size", Int) = 8
 		
         _Size ("Size", Float) = 1.0
 		_YDisplacement ("Y Displacement", Float) = 0.5
@@ -12,8 +13,11 @@
 		_ColorLight ("ColorLight", Color) = (0.7607843, 0.8666667, 0.5960785, 1)
         _ColorMedium ("ColorMedium", Color) = (0.4666667, 0.654902, 0.4196078, 1)
         _ColorDark ("ColorDark", Color) = (0.1215686, 0.3411765, 0.3058824, 1)
+		_ColorReallyDark ("ColorReallyDark", Color) = (0.1215686, 0.3411765, 0.3058824, 1)
+		
 		_FirstThreshold ("FirstThreshold", Range(0,1)) = 0.3
         _SecondThreshold ("SecondThreshold", Range(0,1)) = 0.5
+		_ThirdThreshold ("ThirdThreshold", Range(0,1)) = 0.5
 
 		_WindDistortionMap ("Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
@@ -37,6 +41,8 @@
 	float _Size;
 	float _YDisplacement;
 	float _XZDisplacementRandom;
+
+	float _TileSize;
 
 	struct g2f {
 		float4 pos : SV_POSITION;
@@ -98,12 +104,27 @@
 		float2 center_world = mul(unity_ObjectToWorld, center).xz;
 
 		float2 uv = center_world * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
-		float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
+		float2 windSample = tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy; // get wind value ranging (0.33 - 0.66)
+		float2 windSample01 = saturate(windSample * 3 - 1); // remap to 0-1
+		float2 windSamplenegpos = windSample01 * 2 - 1; // remap to -1 - 1
+		float2 windSampleStrength = windSamplenegpos * _WindStrength; // multiply by windstrength
+		float2 remap_01 = saturate(windSampleStrength * 0.5 + 0.5); // saturate between 01 to keep low/all/high values dependent on windstrength
+		float2 windSampleGrid;
+		if (remap_01.x == 1)
+		{
+			remap_01.x -= 0.0001;
+		}
+		if (remap_01.y == 1)
+		{
+			remap_01.y -= 0.0001;
+		}
+		windSampleGrid = floor(remap_01 * _TileSize) * (1 / _TileSize);
 
-		outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSample));
-		outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSample));
-		outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSample));
-		outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSample));
+
+		outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid));
 	}
 
 	ENDCG
@@ -133,21 +154,23 @@
 			fixed4 _ColorLight;
 			fixed4 _ColorMedium;
 			fixed4 _ColorDark;
+			fixed4 _ColorReallyDark;
 
 			float _FirstThreshold;
 			float _SecondThreshold;
+			float _ThirdThreshold;
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
             fixed4 frag (g2f i, fixed facing : VFACE) : SV_Target
             {
+				//return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind);
 				//return fixed4(i.wind.x, i.wind.y, 0, 1);
-				return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + floor((i.wind + 0.5) * 8) * 0.125);
+				float alpha = tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind).r;
 
-				/*
 				float mask_value = tex2D(_MainTex, i.uv * float2(0.25, 1)).r;
-				if (mask_value != 0)
+				if (alpha == 0)
 				{
 					discard;
 				}
@@ -158,15 +181,18 @@
 				float4 col = _ColorLight;
 				if (lighting.x < _FirstThreshold)
 				{
-					col = _ColorDark;
+					col = _ColorReallyDark;
 				}
 				else if (lighting.x < _SecondThreshold)
+				{
+					col = _ColorDark;
+				}
+				else if (lighting.x < _ThirdThreshold)
 				{
 					col = _ColorMedium;				
 				}
 
                 return col;
-				*/
             }
             ENDCG
         }

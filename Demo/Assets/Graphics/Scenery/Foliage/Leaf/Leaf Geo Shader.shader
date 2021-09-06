@@ -16,8 +16,10 @@
 		_ColorLight ("ColorLight", Color) = (0.7607843, 0.8666667, 0.5960785, 1)
         _ColorMedium ("ColorMedium", Color) = (0.4666667, 0.654902, 0.4196078, 1)
         _ColorDark ("ColorDark", Color) = (0.1215686, 0.3411765, 0.3058824, 1)
+		_ColorReallyDark ("ColorReallyDark", Color) = (0.1215686, 0.3411765, 0.3058824, 1)
 		_FirstThreshold ("FirstThreshold", Range(0,1)) = 0.3
         _SecondThreshold ("SecondThreshold", Range(0,1)) = 0.5
+        _ThirdThreshold ("ThirdThreshold", Range(0,1)) = 0.5
 
 		_WindDistortionMap ("Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
@@ -137,9 +139,11 @@
 			fixed4 _ColorLight;
 			fixed4 _ColorMedium;
 			fixed4 _ColorDark;
+			fixed4 _ColorReallyDark;
 
 			float _FirstThreshold;
 			float _SecondThreshold;
+			float _ThirdThreshold;
 
 			float _DiscardValue;
 
@@ -168,15 +172,17 @@
                 fixed3 lighting = i.diff * shadow + i.ambient;
 
 				float4 col = _ColorLight;
-				//return _ColorLight * lighting.x;
-				
 				if (lighting.x < _FirstThreshold)
 				{
-					col = _ColorDark;
+					col = _ColorReallyDark;
 				}
 				else if (lighting.x < _SecondThreshold)
 				{
-					col = _ColorMedium;
+					col = _ColorDark;
+				}
+				else if (lighting.x < _ThirdThreshold)
+				{
+					col = _ColorMedium;				
 				}
 
                 return col;
