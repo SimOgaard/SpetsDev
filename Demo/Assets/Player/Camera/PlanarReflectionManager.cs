@@ -5,16 +5,29 @@ using UnityEngine;
 public class PlanarReflectionManager : MonoBehaviour
 {
     private Camera reflection_camera;
-    
+
     private Transform camera_focus_point;
 
     [SerializeField] private float camera_distance = 125f;
 
+    [SerializeField] private Transform fucking_bitch_ass_god_cube;
+    [SerializeField] private float bitch_cube_distance = 140f;
     private void Awake()
     {
         reflection_camera = GetComponent<Camera>();
         camera_focus_point = new GameObject("reflection_focus_point").transform;
         camera_focus_point.parent = transform.parent;
+    }
+
+    private void Start()
+    {
+        GameObject fucking_bitch_ass_god_cube_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        fucking_bitch_ass_god_cube = fucking_bitch_ass_god_cube_game_object.transform;
+    }
+
+    private void Update()
+    {
+        fucking_bitch_ass_god_cube.transform.position = reflection_camera.transform.position + reflection_camera.transform.forward * bitch_cube_distance;
     }
 
     private void SetCameraNearClippingPlane()

@@ -134,7 +134,7 @@ public class PlaceInWorld : MonoBehaviour
         );
 
         // Place transform.
-        if (hit_data != null)
+        if (hit_data != null && Vector3.Dot(hit_data[1], Vector3.up) >= Mathf.Cos(spawn_instruction.max_rotation))
         {
             transform.position = hit_data[0];
             normal = hit_data[1];

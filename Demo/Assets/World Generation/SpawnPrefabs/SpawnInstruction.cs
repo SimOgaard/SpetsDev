@@ -34,6 +34,7 @@ public class SpawnInstruction : ScriptableObject
     public bool reset_rotation = true;
     [Range(0f, 359f)] public float rotation_offset = 0f;
     [Range(0f, 359f)] public float rotation_increment = 0f;
+    [Range(0f, 180f)] public float max_rotation = 180f;
 
     [Header("Spawning Scale")]
     public SharedXYZ shared_scales = SharedXYZ.none;
