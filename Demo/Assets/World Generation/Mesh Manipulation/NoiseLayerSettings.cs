@@ -12,6 +12,7 @@ public class NoiseLayerSettings : ScriptableObject
 
     public Material ground_material;
     public Material grass_material;
+    public AnimationCurve grass_curve;
     public Material water_material;
     public Material stone_material;
 

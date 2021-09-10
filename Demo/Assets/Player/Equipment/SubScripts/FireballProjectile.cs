@@ -42,7 +42,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void UpgradeVar()
     {
-        gameObject.layer = fireball_ability.penetrate_enemies ? Layer.ignore_enemy_collision : Layer.default_;
+        gameObject.layer = fireball_ability.penetrate_enemies ? Layer.ignore_enemy_collision : Layer.ignore_player_collision;
         rigid_body.angularDrag = fireball_ability.rigidbody_angular_drag;
         rigid_body.mass = fireball_ability.rigidbody_mass;
     }

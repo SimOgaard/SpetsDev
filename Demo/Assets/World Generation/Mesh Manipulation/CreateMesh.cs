@@ -14,6 +14,7 @@ public class CreateMesh : MonoBehaviour
     private MeshFilter grass_mesh_filter;
     private MeshRenderer grass_mesh_renderer;
     private Material grass_material;
+    private AnimationCurve grass_curve;
 
     private GameObject water_game_object;
     private MeshFilter water_mesh_filter;
@@ -26,6 +27,7 @@ public class CreateMesh : MonoBehaviour
     {
         material = noise_layer_settings.ground_material;
         grass_material = noise_layer_settings.grass_material;
+        grass_curve = noise_layer_settings.grass_curve;
         water_material = noise_layer_settings.water_material;
 
         Vector2 unit_size = noise_layer_settings.unit_size;
@@ -270,6 +272,7 @@ public class CreateMesh : MonoBehaviour
         grass_mesh_renderer = grass_game_object.AddComponent<MeshRenderer>();
 
         grass_mesh_filter.mesh = mesh;
+        CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
         grass_mesh_renderer.material = grass_material;
     }
 
@@ -314,6 +317,7 @@ public class CreateMesh : MonoBehaviour
         copy_mesh.triangles = triangles.ToArray();
         copy_mesh.Optimize();
         grass_mesh_filter.mesh = copy_mesh;
+        CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
         grass_mesh_renderer.material = grass_material;
     }
 
@@ -332,6 +336,7 @@ public class CreateMesh : MonoBehaviour
         }
 
         grass_mesh_filter.mesh = mesh;
+        CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
         grass_mesh_renderer.material = grass_material;
     }
 }
