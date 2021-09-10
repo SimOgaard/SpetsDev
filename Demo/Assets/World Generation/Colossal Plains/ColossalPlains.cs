@@ -43,10 +43,10 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     public void UpdateWorld()
     {
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
-        create_mesh.UpdateGround(ground_mesh);
         create_mesh.UpdateGrass(ground_mesh);
         noise_textures = create_mesh.GetNoiseTextures();
         spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.leaf_material, noise_layer_settings.leaf_curve);
     }
 
     public void Init()
@@ -55,6 +55,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.leaf_material, noise_layer_settings.leaf_curve);
         WorldGenerationManager.InitNewChild(out mesh_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
         mesh_game_object.tag = "Flammable";
         create_mesh = mesh_game_object.AddComponent<CreateMesh>();
@@ -65,7 +66,6 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
 
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
-        create_mesh.CreateGround(ground_mesh);
         create_mesh.CreateGrass(ground_mesh);
 
         Water water = new GameObject().AddComponent<Water>();

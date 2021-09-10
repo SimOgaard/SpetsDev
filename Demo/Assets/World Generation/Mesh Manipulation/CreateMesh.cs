@@ -5,10 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class CreateMesh : MonoBehaviour
 {
-    private MeshFilter mesh_filter;
-    private MeshRenderer mesh_renderer;
     private MeshCollider mesh_collider;
-    private Material material;
 
     private GameObject grass_game_object;
     private MeshFilter grass_mesh_filter;
@@ -25,7 +22,6 @@ public class CreateMesh : MonoBehaviour
 
     public Mesh CreateMeshByNoise(NoiseLayerSettings noise_layer_settings)
     {
-        material = noise_layer_settings.ground_material;
         grass_material = noise_layer_settings.grass_material;
         grass_curve = noise_layer_settings.grass_curve;
         water_material = noise_layer_settings.water_material;
@@ -243,20 +239,6 @@ public class CreateMesh : MonoBehaviour
         }
     }
 
-    public void CreateGround(Mesh mesh)
-    {
-        gameObject.layer = Layer.game_world;
-        gameObject.isStatic = true;
-
-        mesh_filter = gameObject.AddComponent<MeshFilter>();
-        mesh_renderer = gameObject.AddComponent<MeshRenderer>();
-        mesh_collider = gameObject.AddComponent<MeshCollider>();
-
-        mesh_filter.mesh = mesh;
-        mesh_renderer.material = material;
-        mesh_collider.sharedMesh = mesh;
-    }
-
     public void CreateGrass(Mesh mesh)
     {
         if (grass_material == null)
@@ -264,12 +246,12 @@ public class CreateMesh : MonoBehaviour
             return;
         }
 
-        grass_game_object = new GameObject("grass");
-        grass_game_object.layer = Layer.game_world;
-        grass_game_object.isStatic = true;
-        grass_game_object.transform.parent = transform;
-        grass_mesh_filter = grass_game_object.AddComponent<MeshFilter>();
-        grass_mesh_renderer = grass_game_object.AddComponent<MeshRenderer>();
+        gameObject.layer = Layer.game_world;
+        gameObject.isStatic = true;
+        grass_mesh_filter = gameObject.AddComponent<MeshFilter>();
+        grass_mesh_renderer = gameObject.AddComponent<MeshRenderer>();
+        mesh_collider = gameObject.AddComponent<MeshCollider>();
+        mesh_collider.sharedMesh = mesh;
 
         grass_mesh_filter.mesh = mesh;
         CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
@@ -278,6 +260,7 @@ public class CreateMesh : MonoBehaviour
 
     public void CreateGrass(Mesh mesh, float y_cut_off)
     {
+        // Not implemented
         if(grass_material == null)
         {
             return;
@@ -321,13 +304,6 @@ public class CreateMesh : MonoBehaviour
         grass_mesh_renderer.material = grass_material;
     }
 
-    public void UpdateGround(Mesh mesh)
-    {
-        mesh_filter.mesh = mesh;
-        mesh_renderer.material = material;
-        mesh_collider.sharedMesh = mesh;
-    }
-
     public void UpdateGrass(Mesh mesh)
     {
         if (grass_material == null)
@@ -336,6 +312,7 @@ public class CreateMesh : MonoBehaviour
         }
 
         grass_mesh_filter.mesh = mesh;
+        mesh_collider.sharedMesh = mesh;
         CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
         grass_mesh_renderer.material = grass_material;
     }

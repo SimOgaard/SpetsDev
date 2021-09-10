@@ -111,7 +111,6 @@ MonoBehaviour:
       octaves: 2
       lacunarity: 1
       gain: 1
-  ground_material: {fileID: 2100000, guid: 4e2855efffebdd84e897f8d290ebbd27, type: 2}
   grass_material: {fileID: 2100000, guid: dffe25dc321faa14f8118f27e41a4445, type: 2}
   grass_curve:
     serializedVersion: 2
@@ -134,6 +133,38 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  leaf_material: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
+  leaf_curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.0035514832
+      value: 1.0023499
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.99645996
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  wood_material: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
+  wood_curve:
+    serializedVersion: 2
+    m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4

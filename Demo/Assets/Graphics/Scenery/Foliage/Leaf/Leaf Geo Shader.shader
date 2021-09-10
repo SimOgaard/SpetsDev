@@ -14,6 +14,7 @@
 		_DiscardValue ("Discard Value", Range(0, 1)) = 0.5
 
 		_Colors ("Texture", 2D) = "white" {}
+		_CurveTexture ("Texture", 2D) = "white" {}
 
 		_WindDistortionMap ("Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
@@ -40,6 +41,9 @@
 	float _Size;
 	float _ExtrudeDistance;
 
+	sampler2D _CurveTexture;
+	float4 _CurveTexture_ST;
+	
 	struct g2f {
 		float4 pos : SV_POSITION;
 		float2 uv : TEXCOORD0;
@@ -157,12 +161,11 @@
 				}
                 */
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
-
-				fixed4 color = tex2D(_Colors, 1-saturate(lighting.x));
+				fixed3 lighting = i.diff * shadow + i.ambient;
+				float curve_value = tex2D(_CurveTexture, saturate(lighting.x)).r;
+				fixed4 color = tex2D(_Colors, curve_value);
 
 				return color;
-				
             }
             ENDCG
         }
