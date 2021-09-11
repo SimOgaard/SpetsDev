@@ -4,12 +4,14 @@
     {
 		_MainTex ("Texture", 2D) = "white" {}
 
-		_CloudColorThin("Cloud Color Thin", Color) = (1,1,1,1)
-		_ThresholdThin("Threshold Thin", Float) = 0.4
-		_CloudColorDense("Cloud Color Dense", Color) = (1,1,1,1)
-		_ThresholdDense("Threshold Dense", Float) = 0.6
+		_Opacity ("Opacity", Range(-2, 2)) = 0
+		_Coverage ("Coverage", Range(0, 1)) = 0
+		_Softness ("Softness", Range(0, 1)) = 0
 
-		_NoiseScroll("Noise Scroll XYZ", Vector) = (0.03, 0.03, 0.03, 0)
+		_HorizonAngleThreshold ("Horizon Angle Threshold", Range(0, 90)) = 10
+		_HorizonAngleFade ("Horizon Angle Fade", Range(0, 90)) = 10
+
+		_NoiseScroll ("Noise Scroll", Vector) = (0.035, 0.035, 0.035, 0)
 
 		[Header(Noise settings)]
 		_Noise_Seed("Seed", Int) = 1337
@@ -39,25 +41,156 @@
         _Warp_FractalLacunarity("Domain Warp Fractal Lacunarity", Float) = 2
         _Warp_FractalGain("Domain Warp Fractal Gain", Float) = 0.5
     }
-    SubShader
-    {
-		Tags
+
+	CGINCLUDE
+	#include "UnityCG.cginc"
+	#include "/Assets/Graphics/FastNoiseLite.cginc"
+
+	sampler2D _MainTex;
+
+	float4 _NoiseScroll;
+
+	float _Opacity;
+	float _Coverage;
+	float _Softness;
+
+	float _HorizonAngleThreshold;
+	float _HorizonAngleFade;
+
+	float _AngleToHorizon;
+
+	struct appdata_t
+	{
+		float4 vertex : POSITION;
+		float2 texcoord : TEXCOORD0;
+	};
+
+	struct VertexOut
+	{
+		float4 vertex : SV_POSITION;
+		float2 texcoord : TEXCOORD0;
+		float2 texcoordClouds : TEXCOORD1;
+	};
+
+	VertexOut Vert (appdata_t v)
+	{
+		VertexOut o;
+		o.vertex = UnityObjectToClipPos(v.vertex);
+		o.texcoord = v.texcoord.xy;
+
+		//o.texcoordClouds = TRANSFORM_TEX(v.texcoord.xy, _LayerTex);
+		//o.texcoordClouds -= _LayerParams.xy;
+
+		return o;
+	}
+
+	float remap01(float v) {
+		return saturate((v + 1) * 0.5);
+	}
+
+	#define BlendOpacity(base, blend, function, opacity)	(function(base, blend) * opacity + blend * (1.0 - opacity))
+
+	float GetNoiseValue(VertexOut i)
+	{
+		fnl_state noise = fnlCreateState();
+		noise.seed = 1337; //_Noise_Seed;
+		noise.frequency = 5; //_Noise_Frequency;
+		noise.noise_type = 1; //_Noise_NoiseType;
+		noise.rotation_type_3d = 2; //_Noise_RotationType3D;
+
+		noise.fractal_type = 1; //_Noise_FractalType;
+		noise.octaves = 5; //_Noise_FractalOctaves;
+		noise.lacunarity = 2.0; //_Noise_FractalLacunarity;
+		noise.gain = 0.5; //_Noise_FractalGain;
+		noise.weighted_strength = 0.0; //_Noise_FractalWeightedStrength;
+		noise.ping_pong_strength = 2.0; //_Noise_FractalPingPongStrength;
+
+		noise.cellular_distance_func = 1; //_Noise_CellularDistanceFunction;
+		noise.cellular_return_type = 1; //_Noise_CellularReturnType;
+		noise.cellular_jitter_mod = 1.0; //_Noise_CellularJitter;
+
+		fnl_state warp = fnlCreateState();
+		warp.domain_warp_type = 0; //_Warp_DomainWarpType;
+		warp.rotation_type_3d = 0; //_Warp_RotationType3D;
+		warp.domain_warp_amp = 30.0; //_Warp_DomainWarpAmplitude;
+		warp.frequency = 0.005; //_Warp_Frequency;
+
+		warp.fractal_type = 0; //_Warp_FractalType;
+		warp.octaves = 5; //_Warp_FractalOctaves;
+		warp.lacunarity = 2.0; //_Warp_FractalLacunarity;
+		warp.gain = 2.0; //_Warp_FractalGain;
+
+		float x = i.texcoord.x + _Time[0] * _NoiseScroll.x;
+		float y = _Time[0] * _NoiseScroll.y;
+		float z = i.texcoord.y + _Time[0] * _NoiseScroll.z;
+
+		fnlDomainWarp3D(warp, x, y, z);
+		return remap01(fnlGetNoise3D(noise, x, y, z));
+	}
+
+	float CalculateLayerAlpha(VertexOut i)
+	{
+		// Correct range
+		float stepValue = - _Softness + (1 - _Coverage) * (1 + (_Softness * 2));
+
+		float coverageMin = stepValue - _Softness;
+		float coverageMax = stepValue + _Softness;
+
+		float alpha = GetNoiseValue(i);
+		alpha = smoothstep(coverageMin, coverageMax, alpha);
+
+		return alpha + _Opacity;
+	}
+
+	fixed4 Frag (VertexOut i) : SV_Target
+	{
+		float angle = _AngleToHorizon - _HorizonAngleThreshold;
+		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
+		if (angle_opacity == 0)
 		{
-			"Queue" = "Transparent"
+			return 0;
 		}
 
-        Pass
+		float alpha = CalculateLayerAlpha(i) * angle_opacity;
+		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, alpha);
+		return color;
+	}
+
+	ENDCG
+
+	SubShader
+    {
+		Pass
+		{
+			ZTest Always Cull Off ZWrite Off
+
+			CGPROGRAM
+			#pragma vertex Vert
+			#pragma fragment Frag
+			ENDCG
+
+		}
+
+		/*
+		Pass
         {
-			Blend SrcAlpha OneMinusSrcAlpha
-			ZWrite Off
-
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-
-            #include "UnityCG.cginc"
+			CGPROGRAM
+            #include "UnityCustomRenderTexture.cginc"
 			#include "/Assets/Graphics/FastNoiseLite.cginc"
+            #pragma vertex CustomRenderTextureVertexShader
+            #pragma fragment frag
+            #pragma target 3.0
 
+            uniform float _AngleToHorizon;
+			sampler2D _MainTex;
+
+            float4 frag(v2f_customrendertexture IN) : COLOR
+            {
+				return float4(1,1,1,1);
+				
+                return tex2D(_MainTex, IN.localTexcoord.xy);
+            }
+			
             struct appdata
             {
 				float4 vertex : POSITION;
@@ -129,6 +262,9 @@
 
             float4 frag (v2f i) : SV_Target
             {
+				return float4(1,1,1,1);
+				discard;
+
 				fnl_state noise = fnlCreateState();
 				noise.seed = 1337; //_Noise_Seed;
 				noise.frequency = 25; //_Noise_Frequency;
@@ -173,7 +309,8 @@
 				}
 				return _CloudColorDense;
 			}
-            ENDCG
         }
+		*/
     }
+	Fallback Off
 }

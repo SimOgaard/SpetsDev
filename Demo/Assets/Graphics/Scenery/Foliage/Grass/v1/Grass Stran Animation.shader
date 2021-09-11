@@ -35,6 +35,7 @@
 	struct geometryOutput
 	{
 		float4 pos : SV_POSITION;
+        float3 worldPos : TEXCOORD2;
 		float3 normal : NORMAL;
 		float2 uv : TEXCOORD0;
 		SHADOW_COORDS(1)
@@ -75,6 +76,7 @@
 		geometryOutput o;
 
 		o.pos = UnityObjectToClipPos(pos);
+		o.worldPos = mul (unity_ObjectToWorld, pos);
 
 		o.normal = UnityObjectToWorldNormal(normal);
 		o.uv = uv;
@@ -192,7 +194,8 @@
 			Tags
 			{
 				"RenderType" = "Opaque"
-				"LightMode" = "ForwardBase"
+				"LightMode" = "ForwardAdd"
+				"PassFlags" = "OnlyDirectional"
 			}
 
             CGPROGRAM
@@ -213,10 +216,15 @@
 			float _FirstThreshold;
 			float _SecondThreshold;
 
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
+
 			float4 frag (geometryOutput i,  fixed facing : VFACE) : SV_Target
             {
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				float4 col = _ColorLight;
 				if (lighting.x < _FirstThreshold)

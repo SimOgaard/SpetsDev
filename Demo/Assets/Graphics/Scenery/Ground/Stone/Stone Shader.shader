@@ -15,7 +15,7 @@
         {
 			Tags {
 				"RenderType"= "Opaque"
-				"LightMode" = "ForwardBase"
+				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}
             CGPROGRAM
@@ -42,6 +42,9 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
+
             v2f vert (appdata_base v)
             {
                 v2f o;
@@ -66,9 +69,12 @@
             fixed4 frag (v2f i) : SV_Target
             {
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				float4 light_color = _LightColor0.rgba * lighting.r;
+				
 				float4 material_color = _Color * light_color;
 
 				return material_color;

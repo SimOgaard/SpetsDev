@@ -19,7 +19,7 @@
         {
 			Tags {
 				"RenderType"= "Opaque"
-				"LightMode" = "ForwardBase"
+				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}
             CGPROGRAM
@@ -39,6 +39,7 @@
 				fixed3 diff : COLOR0;
                 fixed3 ambient : COLOR1;
                 float4 pos : SV_POSITION;
+                float3 worldPos : TEXCOORD2;
             };
 
             sampler2D _MainTex;
@@ -53,9 +54,13 @@
 			float _SecondThreshold;
 			float _ThirdThreshold;
 
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
+
             v2f vert (appdata_base v)
             {
                 v2f o;
+				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.texcoord;
 				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -69,7 +74,9 @@
             fixed4 frag (v2f i) : SV_Target
             {
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				float4 col = _ColorLight;
 				if (lighting.x < _FirstThreshold)

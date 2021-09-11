@@ -22,7 +22,7 @@
         {
 			Tags {
 				"RenderType"= "Opaque"
-				"LightMode" = "ForwardBase"
+				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}
             CGPROGRAM
@@ -42,10 +42,14 @@
 				fixed3 diff : COLOR0;
                 fixed3 ambient : COLOR1;
                 float4 pos : SV_POSITION;
+                float3 worldPos : TEXCOORD2;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
 
 			fixed4 _Color;
 	        fixed4 _ColorLight;
@@ -68,6 +72,7 @@
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
+				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
                 o.uv = v.texcoord;
 				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
                 half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
@@ -83,7 +88,9 @@
 				float value = circle(i.uv + distortSample, _Radius);
 
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				if (value < 0.5){
 					float4 light_color = _LightColor0.rgba * lighting.r;

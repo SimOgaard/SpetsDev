@@ -121,6 +121,7 @@
 				"Queue" = "Transparent"
 				"IgnoreProjector"="True"
 				"RenderType" = "Transparent"
+				"LightMode" = "ForwardAdd"
 			}
 
             CGPROGRAM
@@ -136,6 +137,9 @@
 			
 			sampler2D _Colors;
 			float4 _Colors_ST;
+
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
 
 			float _DiscardValue;
 
@@ -161,7 +165,9 @@
 				}
                 */
 				fixed shadow = SHADOW_ATTENUATION(i);
-				fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 				float curve_value = tex2D(_CurveTexture, saturate(lighting.x)).r;
 				fixed4 color = tex2D(_Colors, curve_value);
 

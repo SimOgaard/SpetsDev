@@ -66,12 +66,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
+    - _Coverage: 0.55
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _HorizonAngleFade: 10
+    - _HorizonAngleThreshold: 10
     - _Metallic: 0
     - _Mode: 0
     - _Noise_CellularDistanceFunction: 1
@@ -88,8 +91,10 @@ Material:
     - _Noise_RotationType3D: 2
     - _Noise_Seed: 1337
     - _OcclusionStrength: 1
+    - _Opacity: 0.25
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
+    - _Softness: 0.2
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SurfaceDistortionAmount: 0.127
@@ -111,5 +116,6 @@ Material:
     - _CloudColorThin: {r: 0, g: 0, b: 0, a: 0.2509804}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _NoiseScroll: {r: 0.035, g: 0.015, b: 0.035, a: 0}
+    - _NoiseScroll: {r: 0.1, g: 0.025, b: 0.05, a: 0}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.03, b: 0.03, a: 0}
+  m_BuildTextureStacks: []

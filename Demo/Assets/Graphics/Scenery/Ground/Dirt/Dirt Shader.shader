@@ -38,7 +38,7 @@
     {
 		Tags {
 			"RenderType"= "Opaque"
-			"LightMode" = "ForwardBase"
+			"LightMode" = "ForwardAdd"
 			"PassFlags" = "OnlyDirectional"
 		}
 
@@ -109,6 +109,9 @@
 			float _Warp_FractalLacunarity;
 			float _Warp_FractalGain;
 
+			sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
+
 			float remap01(float v) {
 				return saturate((v + 1) * 0.5);
 			}
@@ -150,7 +153,9 @@
 				float noise_value = remap01(fnlGetNoise3D(noise, x, y, z));
 				
 				fixed shadow = SHADOW_ATTENUATION(i);
-                fixed3 lighting = i.diff * shadow + i.ambient;
+				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				//noise_value = noise_value < _Threshold ? 0 : 1;
 				//return noise_value;

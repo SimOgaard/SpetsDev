@@ -198,7 +198,7 @@ QualitySettings:
     - WebGL
   - serializedVersion: 2
     name: Ultra
-    pixelLightCount: 4
+    pixelLightCount: 1
     shadows: 1
     shadowResolution: 3
     shadowProjection: 1
