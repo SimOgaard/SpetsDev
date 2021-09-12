@@ -91,4 +91,4 @@ Shader "Custom/per vertex shader"
  
 		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
     }
- }
+}

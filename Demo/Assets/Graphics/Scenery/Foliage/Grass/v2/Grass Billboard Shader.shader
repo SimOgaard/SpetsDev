@@ -31,6 +31,14 @@
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+			#pragma target 3.0
+ 
+			#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				#define UNITY_SAMPLE_SCREEN_SHADOW(tex, uv) UNITY_SAMPLE_TEX2DARRAY_LOD( tex, float3((uv).x/(uv).w, (uv).y/(uv).w, (float)unity_StereoEyeIndex), 0 ).r
+			#else
+				#define UNITY_SAMPLE_SCREEN_SHADOW(tex, uv) tex2Dlod( tex, float4 (uv.xy / uv.w, 0, 0) ).r
+			#endif
+ 
 			#include "AutoLight.cginc"
 
 			#pragma vertex vert
@@ -97,13 +105,14 @@
 				"IgnoreProjector" = "True"
 				"RenderType" = "Transparent"
 				"LightMode" = "ForwardAdd"
+				"PassFlags" = "OnlyDirectional"
 			}
 
 			CGPROGRAM
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
-			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-			#include "AutoLight.cginc"
+		    #include "HLSLSupport.cginc"
+			#include "UnityShadowLibrary.cginc"
 			#include "/Assets/Graphics/CustomTessellation.cginc"
 
 			#pragma vertex vert
@@ -113,6 +122,14 @@
 			#pragma multi_compile_fwdbase
 			#pragma hull hull
 			#pragma domain domain
+
+			#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				#define UNITY_SAMPLE_SCREEN_SHADOW(tex, uv) UNITY_SAMPLE_TEX2DARRAY_LOD( tex, float3((uv).x/(uv).w, (uv).y/(uv).w, (float)unity_StereoEyeIndex), 0 ).r
+			#else
+				#define UNITY_SAMPLE_SCREEN_SHADOW(tex, uv) tex2Dlod( tex, float4 (uv.xy / uv.w, 0, 0) ).r
+			#endif
+
+			#include "AutoLight.cginc"
 
 			sampler2D _WindDistortionMap;
 			float4 _WindDistortionMap_ST;
@@ -131,15 +148,22 @@
 				float4 pos : SV_POSITION;
 				float2 uv : TEXCOORD0;
 				SHADOW_COORDS(1)
-				fixed3 diff : COLOR0;
-				fixed3 ambient : COLOR1;
 				float3 worldPos : TEXCOORD2;
 				float2 wind : TEXCOORD3;
-				float attenuation : TEXCOORD4;
+				float3 color : COLOR0;
 			};
 
 		  	sampler2D _LightTexture0;
 			float4x4 unity_WorldToLight;
+
+			sampler2D _Colors;
+			float4 _Colors_ST;
+
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+
+			sampler2D _CurveTexture;
+			float4 _CurveTexture_ST;
 
 			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float2 wind, float attenuation)
 			{
@@ -147,13 +171,19 @@
 				o.worldPos = pos;
 				o.pos = UnityObjectToClipPos(pos);
 				o.uv = uv;
-				half3 worldNormal = UnityObjectToWorldNormal(norm);
-				half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
-				o.diff = nl * _LightColor0.rgb;
-				o.ambient = ShadeSH9(half4(worldNormal,1));
 				o.wind = wind;
 				TRANSFER_SHADOW(o)
-				o.attenuation = attenuation;
+
+				half3 worldNormal = UnityObjectToWorldNormal(norm);
+				half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
+				fixed3 diff = nl * _LightColor0.rgb;
+				fixed3 ambient = ShadeSH9(half4(worldNormal,1));
+
+				fixed shadow = SHADOW_ATTENUATION(o);
+                fixed3 lighting = diff * shadow * attenuation + ambient;
+				float curve_value = tex2Dlod(_CurveTexture, float4(saturate(lighting.x),0,0,0)).r;
+				fixed4 color = tex2Dlod(_Colors, float4(curve_value,0,0,0));
+				o.color = color.rgb;
 
 				return o;
 			}
@@ -212,15 +242,6 @@
 				outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid, attenuation ));
 			}
 
-			sampler2D _Colors;
-			float4 _Colors_ST;
-
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
-
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
-
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
 				//return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind);
@@ -233,16 +254,10 @@
 					discard;
 				}
 
-				fixed shadow = SHADOW_ATTENUATION(i);
-				//float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
-				//float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * i.attenuation + i.ambient;
-				float curve_value = tex2D(_CurveTexture, saturate(lighting.x)).r;
-				fixed4 color = tex2D(_Colors, curve_value);
 
-				return i.attenuation;
+				return float4(i.color,1);
 
-				return color;
+				//return color;
 			}
 			ENDCG
 		}
