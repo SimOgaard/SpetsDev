@@ -125,6 +125,8 @@
 			float _TileAmount;
 			float _TilePixelSize;
 
+			#define y_scale 1 / cos(3.14159265 / 6);
+
 			struct g2f {
 				float4 pos : SV_POSITION;
 				float2 uv : TEXCOORD0;
@@ -163,23 +165,23 @@
 
 				float3 up = float3(0, 1, 0);
 				float3 look = mul(mul((float3x3)unity_CameraToWorld, float3(0,0,-1)), unity_ObjectToWorld);
+				look.y = 0;
 				look = normalize(look);
 
 				float3 right = normalize(cross(up, look));
-				up = normalize(cross(look, right));
+				//up = normalize(cross(look, right)) * y_scale;
 
 				float PixelSize = _TilePixelSize / (10.8); // 5.4 * 2
 				float3 r = right * PixelSize;
-				float3 u = up * PixelSize;
+				float3 u = up * PixelSize * 2;
 
-				float3 forward = float3(0, 0, 1);
-				float3 right_displacement = right * rand(center) * _XZDisplacementRandom;
-				float3 up_displacement = forward * rand(center.xzy) * _XZDisplacementRandom;
+				float3 right_displacement = float3(1, 0, 0) * rand(center) * _XZDisplacementRandom;
+				float3 up_displacement = float3(0, 0, 1) * rand(center.xzy) * _XZDisplacementRandom;
 				center += right_displacement + up_displacement;
 				float4 v[4];
-				v[0] = float4(center + r - u, 1.0f);
+				v[0] = float4(center + r, 1.0f);
 				v[1] = float4(center + r + u, 1.0f);
-				v[2] = float4(center - r - u, 1.0f);
+				v[2] = float4(center - r, 1.0f);
 				v[3] = float4(center - r + u, 1.0f);
 
 				float3 vNormal = IN[0].normal;

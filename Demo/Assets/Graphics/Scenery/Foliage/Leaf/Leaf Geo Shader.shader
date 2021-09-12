@@ -4,12 +4,13 @@
     {
 		_MainTex ("Texture", 2D) = "white" {}
 		
-        _Size ("Size", Float) = 1.0
+		_TileAmount("Amount of Tiles", Int) = 8
+		_TilePixelSize("Tile Pixel Size", Int) = 16
+
         _ExtrudeDistance ("Extrude Distance", Float) = 0.0
 		_TessellationUniform ("Tessellation Uniform", Range(1, 32)) = 1
 
-		_DisplacementRandomUniformed ("Random Uniformed Displacement", Vector) = (0, 0, 0, 0)
-		_DisplacementRandom ("Random Displacement", Vector) = (0, 0, 0, 0)
+		_UniformDisplacementRandom ("Random Uniformed Displacement", Vector) = (0, 0, 0, 0)
 
 		_DiscardValue ("Discard Value", Range(0, 1)) = 0.5
 
@@ -35,15 +36,18 @@
 	float2 _WindFrequency;
 	float _WindStrength;
 
-	float3 _DisplacementRandomUniformed;
-	float3 _DisplacementRandom;
+	float3 _UniformDisplacementRandom;
 
-	float _Size;
 	float _ExtrudeDistance;
 
 	sampler2D _CurveTexture;
 	float4 _CurveTexture_ST;
 	
+	#define y_scale 1 / cos(3.14159265 / 6);
+
+	float _TileAmount;
+	float _TilePixelSize;
+
 	struct g2f {
 		float4 pos : SV_POSITION;
 		float2 uv : TEXCOORD0;
@@ -78,27 +82,70 @@
 	void geo(point vertexOutput IN[1], inout TriangleStream<g2f> outStream)
 	{
 		float3 vNormal = IN[0].normal;
-		float3 center = IN[0].vertex + vNormal * _ExtrudeDistance;
+		float3 center = IN[0].vertex;
+
+		float3 up = float3(0, 1, 0);
+		float3 look = mul(mul((float3x3)unity_CameraToWorld, float3(0,0,-1)), unity_ObjectToWorld);
+		//look.y = 0;
+		look = normalize(look);
+
+		float3 right = normalize(cross(up, look));
+		up = normalize(cross(look, right)) * y_scale;
+
+		float PixelSize = _TilePixelSize / (10.8); // 5.4 * 2
+		float3 r = right * PixelSize;
+		float3 u = up * PixelSize;
+
+		float3 uniform_displacement = float3(rand(center), rand(center.yzx), rand(center.xzy)) * _UniformDisplacementRandom;
+		center += uniform_displacement + vNormal * _ExtrudeDistance;
+		float4 v[4];
+		v[0] = float4(center + r - u, 1.0f);
+		v[1] = float4(center + r + u, 1.0f);
+		v[2] = float4(center - r - u, 1.0f);
+		v[3] = float4(center - r + u, 1.0f);
+
+		float3 center_world = mul(unity_ObjectToWorld, center).xyz;
+				
+		float2 uv = center_world.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+		float2 windSample = tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy; // get wind value ranging (0.33 - 0.66)
+		float2 windSample01 = saturate(windSample * 3 - 1); // remap to 0-1
+		float2 windSamplenegpos = windSample01 * 2 - 1; // remap to -1 - 1
+		float2 windSampleStrength = windSamplenegpos * _WindStrength; // multiply by windstrength
+		float2 remap_01 = saturate(windSampleStrength * 0.5 + 0.5); // saturate between 01 to keep low/all/high values dependent on windstrength
+		float2 windSampleGrid;
+				
+		windSampleGrid = floor(remap_01 * (_TileAmount - 0.0001)) * (1 / _TileAmount);
+
+		outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSampleGrid));
+		outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid));
+
+		/*
+		float3 vNormal = IN[0].normal;
+		float3 center = IN[0].vertex;
 		
 		center += _DisplacementRandomUniformed * float3(rand(center), rand(center.yxz), rand(center.yzx));
 
 		float3 up = float3(0, 1, 0);
 		float3 look = mul(mul((float3x3)unity_CameraToWorld, float3(0,0,-1)), unity_ObjectToWorld);
+		look.y = 0;
 		look = normalize(look);
 
 		float3 right = normalize(cross(up, look));
-		up = normalize(cross(look, right));
+		up = normalize(cross(look, right)) * y_scale;
                 
-		float3 r = right * _Size * 0.5;
-		float3 u = up * _Size * 0.5;
+		float PixelSize = _TilePixelSize / (10.8); // 5.4 * 2
+		float3 r = right * PixelSize;
+		float3 u = up * PixelSize;
 
 		float3 forward = float3(0, 0, 1);
 		
 		float4 v[4];
-		v[0] = float4(center + r - u + _DisplacementRandom * float3(rand(center.xzy), rand(center.yxz), rand(center.yzx)), 1.0f);
-		v[1] = float4(center + r + u + _DisplacementRandom * float3(rand(center.yyz), rand(center.xzz), rand(center.xyz)), 1.0f);
-		v[2] = float4(center - r - u + _DisplacementRandom * float3(rand(center.zzy), rand(center.zzx), rand(center.xzy)), 1.0f);
-		v[3] = float4(center - r + u + _DisplacementRandom * float3(rand(center.xyz), rand(center.xxz), rand(center.yyx)), 1.0f);
+		v[0] = float4(center + r - u + _DisplacementRandom * float3(rand(center.xzy), rand(center.yxz), rand(center.yzx)) + vNormal * _ExtrudeDistance, 1.0f);
+		v[1] = float4(center + r + u + _DisplacementRandom * float3(rand(center.yyz), rand(center.xzz), rand(center.xyz)) + vNormal * _ExtrudeDistance, 1.0f);
+		v[2] = float4(center - r - u + _DisplacementRandom * float3(rand(center.zzy), rand(center.zzx), rand(center.xzy)) + vNormal * _ExtrudeDistance, 1.0f);
+		v[3] = float4(center - r + u + _DisplacementRandom * float3(rand(center.xyz), rand(center.xxz), rand(center.yyx)) + vNormal * _ExtrudeDistance, 1.0f);
 
 		float2 center_world = (mul(unity_ObjectToWorld, float4(0.0,0.0,0.0,1.0)) + center).xz;
 		float2 uv = center_world * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
@@ -108,6 +155,7 @@
 		outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSample));
 		outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSample));
 		outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSample));
+		*/
 	}
 
 	ENDCG
