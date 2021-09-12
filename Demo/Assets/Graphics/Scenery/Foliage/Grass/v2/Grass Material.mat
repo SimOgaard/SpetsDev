@@ -27,6 +27,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 7b4cb2484339c6142ae3f8dc2c16e9e2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ColorsTEST:
+        m_Texture: {fileID: 2800000, guid: 944613085fa16df419918e4ec8dc7e78, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _CurveTexture:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -100,7 +104,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TessellationUniform: 3
+    - _TessellationUniform: 1
     - _ThirdThreshold: 0.575
     - _TileAmount: 8
     - _TilePixelSize: 16

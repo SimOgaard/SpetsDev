@@ -135,9 +135,13 @@
 				fixed3 ambient : COLOR1;
 				float3 worldPos : TEXCOORD2;
 				float2 wind : TEXCOORD3;
+				float attenuation : TEXCOORD4;
 			};
 
-			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float2 wind)
+		  	sampler2D _LightTexture0;
+			float4x4 unity_WorldToLight;
+
+			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float2 wind, float attenuation)
 			{
 				g2f o;
 				o.worldPos = pos;
@@ -149,6 +153,7 @@
 				o.ambient = ShadeSH9(half4(worldNormal,1));
 				o.wind = wind;
 				TRANSFER_SHADOW(o)
+				o.attenuation = attenuation;
 
 				return o;
 			}
@@ -186,9 +191,9 @@
 
 				float3 vNormal = IN[0].normal;
 
-				float2 center_world = mul(unity_ObjectToWorld, center).xz;
+				float3 center_world = mul(unity_ObjectToWorld, center).xyz;
 				
-				float2 uv = center_world * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+				float2 uv = center_world.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
 				float2 windSample = tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy; // get wind value ranging (0.33 - 0.66)
 				float2 windSample01 = saturate(windSample * 3 - 1); // remap to 0-1
 				float2 windSamplenegpos = windSample01 * 2 - 1; // remap to -1 - 1
@@ -198,10 +203,13 @@
 				
 				windSampleGrid = floor(remap_01 * (_TileAmount - 0.0001)) * (1 / _TileAmount);
 
-				outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSampleGrid));
-				outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSampleGrid));
-				outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSampleGrid));
-				outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid));
+				float2 uvCookie = mul(unity_WorldToLight, float4(center_world, 1)).xy;
+				float attenuation = tex2Dlod(_LightTexture0, float4(uvCookie,0,0)).w;
+
+				outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid, attenuation ));
 			}
 
 			sampler2D _Colors;
@@ -209,9 +217,6 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-
-			sampler2D _LightTexture0;
-			float4x4 unity_WorldToLight;
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;
@@ -229,11 +234,13 @@
 				}
 
 				fixed shadow = SHADOW_ATTENUATION(i);
-				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
-				float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
+				//float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
+				//float attenuation = tex2D(_LightTexture0, uvCookie).w;
+                fixed3 lighting = i.diff * shadow * i.attenuation + i.ambient;
 				float curve_value = tex2D(_CurveTexture, saturate(lighting.x)).r;
 				fixed4 color = tex2D(_Colors, curve_value);
+
+				return i.attenuation;
 
 				return color;
 			}
