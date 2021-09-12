@@ -4,14 +4,12 @@
     {
 		_MainTex ("Texture", 2D) = "white" {}
 
-		_Opacity ("Opacity", Range(-2, 2)) = 0
-		_Coverage ("Coverage", Range(0, 1)) = 0
-		_Softness ("Softness", Range(0, 1)) = 0
-
 		_HorizonAngleThreshold ("Horizon Angle Threshold", Range(0, 90)) = 10
 		_HorizonAngleFade ("Horizon Angle Fade", Range(0, 90)) = 10
 
 		_NoiseScroll ("Noise Scroll", Vector) = (0.035, 0.035, 0.035, 0)
+
+		_CurveTexture ("Texture", 2D) = "white" {}
 
 		[Header(Noise settings)]
 		_Noise_Seed("Seed", Int) = 1337
@@ -52,12 +50,14 @@
 
 	float _Opacity;
 	float _Coverage;
-	float _Softness;
 
 	float _HorizonAngleThreshold;
 	float _HorizonAngleFade;
 
 	float _AngleToHorizon;
+
+	sampler2D _CurveTexture;
+	float4 _CurveTexture_ST;
 
 	struct appdata_t
 	{
@@ -87,8 +87,6 @@
 	float remap01(float v) {
 		return saturate((v + 1) * 0.5);
 	}
-
-	#define BlendOpacity(base, blend, function, opacity)	(function(base, blend) * opacity + blend * (1.0 - opacity))
 
 	float GetNoiseValue(VertexOut i)
 	{
@@ -128,31 +126,16 @@
 		return remap01(fnlGetNoise3D(noise, x, y, z));
 	}
 
-	float CalculateLayerAlpha(VertexOut i)
-	{
-		// Correct range
-		float stepValue = - _Softness + (1 - _Coverage) * (1 + (_Softness * 2));
-
-		float coverageMin = stepValue - _Softness;
-		float coverageMax = stepValue + _Softness;
-
-		float alpha = GetNoiseValue(i);
-		alpha = smoothstep(coverageMin, coverageMax, alpha);
-
-		return alpha + _Opacity;
-	}
-
 	fixed4 Frag (VertexOut i) : SV_Target
 	{
 		float angle = _AngleToHorizon - _HorizonAngleThreshold;
-		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
-		if (angle_opacity == 0)
-		{
-			return 0;
-		}
+		float angle_opacity = smoothstep(1, 0, angle / _HorizonAngleFade);
 
-		float alpha = CalculateLayerAlpha(i) * angle_opacity;
-		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, alpha);
+		float alpha = GetNoiseValue(i) + angle_opacity;
+		
+		float curve_value = tex2D(_CurveTexture, alpha).r;
+
+		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, curve_value);
 		return color;
 	}
 
