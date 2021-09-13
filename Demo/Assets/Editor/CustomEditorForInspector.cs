@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 /// <summary>
-/// Changes Unity Inspector window to shot Scriptable Object fields and allow for drop down view
+/// Changes Unity Inspector window to show Scriptable Object fields and allow for drop down view
 /// </summary>
 [CustomEditor(typeof(WorldGenerationManager))]
 public class CustomEditorForInspector : Editor

@@ -45,8 +45,9 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
         create_mesh.UpdateGrass(ground_mesh);
         noise_textures = create_mesh.GetNoiseTextures();
-        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.leaf_material, noise_layer_settings.leaf_curve);
+        //spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.light_curve_leaf);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.light_curve_wood);
     }
 
     public void Init()
@@ -55,7 +56,8 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.leaf_material, noise_layer_settings.leaf_curve);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.light_curve_leaf);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.light_curve_wood);
         WorldGenerationManager.InitNewChild(out mesh_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
         mesh_game_object.tag = "Flammable";
         create_mesh = mesh_game_object.AddComponent<CreateMesh>();
@@ -68,8 +70,17 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
         create_mesh.CreateGrass(ground_mesh);
 
+        // Flower testing
+        Mesh flower_mesh = create_mesh.DropMeshToPoints(ground_mesh, noise_layer_settings.flower_noise_layer, noise_layer_settings.flower_keep_range);
+        GameObject flower_game_object = new GameObject("flower_test");
+        flower_game_object.transform.parent = mesh_game_object.transform;
+        MeshFilter flower_mesh_filter = flower_game_object.AddComponent<MeshFilter>();
+        MeshRenderer flower_mesh_renderer = flower_game_object.AddComponent<MeshRenderer>();
+        flower_mesh_filter.mesh = flower_mesh;
+        flower_mesh_renderer.material = noise_layer_settings.material_leaf;
+
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(noise_layer_settings.water_material, 1000, 1000, 7, mesh_game_object.transform);
+        water.Init(noise_layer_settings.material_water, 1000, 1000, 7, mesh_game_object.transform);
 
         noise_textures = create_mesh.GetNoiseTextures();
         spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);

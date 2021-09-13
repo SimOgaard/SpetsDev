@@ -22,9 +22,9 @@ public class CreateMesh : MonoBehaviour
 
     public Mesh CreateMeshByNoise(NoiseLayerSettings noise_layer_settings)
     {
-        grass_material = noise_layer_settings.grass_material;
-        grass_curve = noise_layer_settings.grass_curve;
-        water_material = noise_layer_settings.water_material;
+        grass_material = noise_layer_settings.material_grass;
+        grass_curve = noise_layer_settings.light_curve_grass;
+        water_material = noise_layer_settings.material_water;
 
         Vector2 unit_size = noise_layer_settings.unit_size;
         Vector2Int resolution = noise_layer_settings.resolution;
@@ -72,11 +72,11 @@ public class CreateMesh : MonoBehaviour
             }
         }
 
-        int noise_length = noise_layer_settings.noise_layers.Length;
+        int noise_length = noise_layer_settings.terrain_noise_layers.Length;
         noise = new Noise[noise_length];
         for (int i = 0; i < noise_length; i++)
         {
-            noise[i] = new Noise(noise_layer_settings.noise_layers[i]);
+            noise[i] = new Noise(noise_layer_settings.terrain_noise_layers[i]);
         }
 
         for (int q = 0; q < noise_length; q++)
@@ -93,6 +93,37 @@ public class CreateMesh : MonoBehaviour
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
+        return mesh;
+    }
+
+    public Mesh DropMeshToPoints(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range)
+    {
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+
+        Noise noise_class = new Noise(noise_layer);
+
+        Vector3[] vertices_copy = reference_mesh.vertices;
+        for (int vertice_index = 0; vertice_index < reference_mesh.vertexCount; vertice_index += 3)
+        {
+            Vector3 vertice = vertices_copy[vertice_index];
+
+            float noise_value = noise_class.GetNoiseValue(vertice.x, vertice.z);
+            if (noise_value > keep_range.x && noise_value < keep_range.y)
+            {
+                Debug.Log(vertice);
+                vertices.Add(vertice);
+            }
+        }
+
+        Mesh mesh = new Mesh();
+        mesh.vertices = vertices.ToArray();
+        mesh.triangles = triangles.ToArray();
 
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
@@ -214,18 +245,6 @@ public class CreateMesh : MonoBehaviour
             smoothing_min = Mathf.Min(0f, -noise_layer.general.smoothing_min);
         }
 
-        public float GetNoiseValue(float x, float z)
-        {
-            x += offsett.x;
-            z += offsett.y;
-            warp.DomainWarp(ref x, ref z);
-            float noise_value = noise.GetNoise(x, z);
-            noise_value = (noise_value + 1f) * 0.5f;
-            noise_value = SmoothMin(noise_value);
-            noise_value = SmoothMax(noise_value);
-            return noise_value * amplitude;
-        }
-
         public float GetNoiseValueColor(float x, float z)
         {
             x += offsett.x;
@@ -236,6 +255,11 @@ public class CreateMesh : MonoBehaviour
             noise_value = SmoothMin(noise_value);
             noise_value = SmoothMax(noise_value);
             return noise_value;
+        }
+
+        public float GetNoiseValue(float x, float z)
+        {
+            return GetNoiseValueColor(x, z) * amplitude;
         }
     }
 

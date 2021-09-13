@@ -4,8 +4,8 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
 
-        _NormalTex ("Normal map", 2D) = "white" {}
-		_Color ("Color", Color) = (1, 1, 1, 1)
+        _Colors ("Color Texture", 2D) = "white" {}
+		_CurveTexture ("Curve Texture", 2D) = "white" {}
     }
 
     SubShader
@@ -42,6 +42,12 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+			sampler2D _Colors;
+			float4 _Colors_ST;
+
+			sampler2D _CurveTexture;
+			float4 _CurveTexture_ST;
+
             v2f vert (appdata_base v)
             {
                 v2f o;
@@ -65,17 +71,15 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-				float3 normal = tex2D(_NormalTex, _NormalTex_ST.xy * i.uv + _NormalTex_ST.zw);
-
 				fixed shadow = SHADOW_ATTENUATION(i);
 				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 				float attenuation = tex2D(_LightTexture0, uvCookie).w;
                 fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
 
-				float4 light_color = _LightColor0.rgba * lighting.r;
-				float4 material_color = _Color * light_color;
+				float curve_value = tex2D(_CurveTexture, saturate(lighting.x)).r;
+				fixed4 color = tex2D(_Colors, curve_value);
 
-				return material_color;
+				return color;
 				/*
 				fnl_state noise = fnlCreateState();
 				noise.seed = 1337; //_Noise_Seed;

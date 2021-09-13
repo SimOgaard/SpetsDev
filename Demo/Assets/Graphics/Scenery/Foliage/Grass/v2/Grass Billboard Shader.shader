@@ -10,10 +10,10 @@
 		_XZDisplacementRandom ("X Z Displacement Random", Float) = 0.5
 		_TessellationUniform("Tessellation Uniform", Range(1, 32)) = 1
 
-		_Colors ("Texture", 2D) = "white" {}
-		_CurveTexture ("Texture", 2D) = "white" {}
+		_Colors ("Color Texture", 2D) = "white" {}
+		_CurveTexture ("Curve Texture", 2D) = "white" {}
 		
-		_WindDistortionMap ("Texture", 2D) = "white" {}
+		_WindDistortionMap ("Distortion Map Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
 		_WindStrength("Wind Strength", Float) = 1
     }

@@ -33,8 +33,6 @@ public class CloudShadows : MonoBehaviour
         // Calculate the angle between the lights direction and the horizon.
         float angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
 
-        Debug.Log(angleToHorizon);
-
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
         // DO NOT HAVE IN THE END 123

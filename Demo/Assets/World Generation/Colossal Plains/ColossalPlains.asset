@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unit_size: {x: 2, y: 2}
   resolution: {x: 100, y: 100}
-  noise_layers:
+  terrain_noise_layers:
   - enabled: 1
     general:
-      amplitude: 7.5
+      amplitude: 10
       offsett: {x: 0, y: 0}
       min_value: 0
-      smoothing_min: 0
+      smoothing_min: 1.75
       max_value: 1
       smoothing_max: 0
     general_noise:
@@ -31,8 +31,8 @@ MonoBehaviour:
       fractal_type: 1
       octaves: 5
       lacunarity: 2
-      gain: 0.4
-      weighted_strength: 0.3
+      gain: 0.5
+      weighted_strength: 0
       ping_pong_strength: 0
     cellular:
       cellular_distance_function: 0
@@ -40,16 +40,42 @@ MonoBehaviour:
       jitter: 0
     domain_warp:
       domain_warp_type: 0
-      amplitude: 5
-      frequency: 1
+      amplitude: 0
+      frequency: 0
     domain_warp_fractal:
       fractal_type: 0
-      octaves: 2
+      octaves: 1
       lacunarity: 0
       gain: 0
-  - enabled: 1
+  material_grass: {fileID: 2100000, guid: dffe25dc321faa14f8118f27e41a4445, type: 2}
+  light_curve_grass:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.005329132
+      value: 1.0094299
+      inSlope: -0.16673419
+      outSlope: -0.16673419
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.106905945
+    - serializedVersion: 3
+      time: 1.0016141
+      value: 0.008609049
+      inSlope: -1.9741418
+      outSlope: -1.9741418
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.044404846
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  flower_noise_layer:
+    enabled: 1
     general:
-      amplitude: 2.5
+      amplitude: 1
       offsett: {x: 0, y: 0}
       min_value: 0
       smoothing_min: 0
@@ -57,128 +83,81 @@ MonoBehaviour:
       smoothing_max: 0
     general_noise:
       noise_type: 0
-      seed: 100
-      frequency: 0.025
+      seed: 1337
+      frequency: 0.05
     fractal:
-      fractal_type: 1
-      octaves: 5
+      fractal_type: 0
+      octaves: 3
       lacunarity: 2
-      gain: 0.75
-      weighted_strength: 0.35
-      ping_pong_strength: 0
+      gain: 0.5
+      weighted_strength: 0
+      ping_pong_strength: 2
     cellular:
       cellular_distance_function: 0
       cellular_return_type: 0
-      jitter: 0
-    domain_warp:
-      domain_warp_type: 0
-      amplitude: 5
-      frequency: 1
-    domain_warp_fractal:
-      fractal_type: 0
-      octaves: 2
-      lacunarity: 0
-      gain: 0
-  - enabled: 1
-    general:
-      amplitude: 5
-      offsett: {x: 0, y: 0}
-      min_value: 0
-      smoothing_min: 0
-      max_value: 1
-      smoothing_max: 0
-    general_noise:
-      noise_type: 2
-      seed: 100
-      frequency: 0.025
-    fractal:
-      fractal_type: 2
-      octaves: 5
-      lacunarity: 1.35
-      gain: 0.75
-      weighted_strength: 0.35
-      ping_pong_strength: 0
-    cellular:
-      cellular_distance_function: 0
-      cellular_return_type: 1
       jitter: 1
     domain_warp:
       domain_warp_type: 0
-      amplitude: 5
-      frequency: 1
+      amplitude: 30
+      frequency: 0.005
     domain_warp_fractal:
-      fractal_type: 1
-      octaves: 2
-      lacunarity: 1
-      gain: 1
-  grass_material: {fileID: 2100000, guid: dffe25dc321faa14f8118f27e41a4445, type: 2}
-  grass_curve:
+      fractal_type: 0
+      octaves: 5
+      lacunarity: 2
+      gain: 0.5
+  flower_keep_range: {x: 0.9, y: 1}
+  material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
+  light_curve_leaf:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -0.003578186
-      value: 0.9910469
-      inSlope: -1.5223869
-      outSlope: -1.5223869
+      time: -0.008747101
+      value: 0.9948311
+      inSlope: -1.6132715
+      outSlope: -1.6132715
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.0461812
+      outWeight: 0.05809935
     - serializedVersion: 3
-      time: 0.7745619
-      value: 0.24532124
-      inSlope: -0.7186592
-      outSlope: -0.7186592
+      time: 1
+      value: -0.0050468445
+      inSlope: -0.46976033
+      outSlope: -0.46976033
       tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.08978858
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  material_wood: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
+  light_curve_wood:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.0042648315
+      value: 0.9999504
+      inSlope: -1.0017802
+      outSlope: -1.0017802
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.9985962
+      value: -0.0046958923
+      inSlope: -1.0017802
+      outSlope: -1.0017802
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.28866133
-    - serializedVersion: 3
-      time: 1.0199
-      value: -0.005316617
-      inSlope: -2.5199006
-      outSlope: -2.5199006
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.19507922
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  leaf_material: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
-  leaf_curve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -0.0017623901
-      value: 0.8865051
-      inSlope: -0.90734893
-      outSlope: -0.90734893
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.07104791
-    - serializedVersion: 3
-      time: 0.9929199
-      value: 0.009475708
-      inSlope: -0.3653853
-      outSlope: -0.3653853
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.07800048
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  wood_material: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
-  wood_curve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  water_material: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
-  stone_material: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
+  material_water: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
+  material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
   spawn_prefabs:
   - {fileID: 8817600298576257608, guid: 8b30b2fdd47bd15469b535156ddbea59, type: 3}

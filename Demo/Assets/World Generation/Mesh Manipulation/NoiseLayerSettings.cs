@@ -5,21 +5,30 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class NoiseLayerSettings : ScriptableObject
 {
+    [Header("World Size")]
     [Min(0.01f)] public Vector2 unit_size;
     [Min(2)] public Vector2Int resolution;
 
-    public NoiseLayer[] noise_layers;
+    [Header("Terrain")]
+    public NoiseLayer[] terrain_noise_layers;
 
-    public Material grass_material;
-    public AnimationCurve grass_curve;
+    [Header("Grass")]
+    public Material material_grass;
+    public AnimationCurve light_curve_grass;
 
-    public Material leaf_material;
-    public AnimationCurve leaf_curve;
-    public Material wood_material;
-    public AnimationCurve wood_curve;
+    [Header("Flower")]
+    public NoiseLayer flower_noise_layer;
+    public Vector2 flower_keep_range;
 
-    public Material water_material;
-    public Material stone_material;
+    [Header("Tree")]
+    public Material material_leaf;
+    public AnimationCurve light_curve_leaf;
+    public Material material_wood;
+    public AnimationCurve light_curve_wood;
+
+    [Header("Other")]
+    public Material material_water;
+    public Material material_stone;
 
     [Range(0, 0.1f)] public float object_density;
     public GameObject[] spawn_prefabs;
