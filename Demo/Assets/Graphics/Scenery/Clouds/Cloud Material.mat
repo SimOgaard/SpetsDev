@@ -78,7 +78,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HorizonAngleFade: 10
+    - _HorizonAngleFade: 35
     - _HorizonAngleThreshold: 10
     - _Metallic: 0
     - _Mode: 0
@@ -121,6 +121,6 @@ Material:
     - _CloudColorThin: {r: 0, g: 0, b: 0, a: 0.2509804}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _NoiseScroll: {r: 0.1, g: 0.025, b: 0.05, a: 0}
+    - _NoiseScroll: {r: 0.75, g: 0.1, b: 0, a: 0}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.03, b: 0.03, a: 0}
   m_BuildTextureStacks: []

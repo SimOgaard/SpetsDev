@@ -129,11 +129,11 @@
 	fixed4 Frag (VertexOut i) : SV_Target
 	{
 		float angle = _AngleToHorizon - _HorizonAngleThreshold;
-		float angle_opacity = smoothstep(1, 0, angle / _HorizonAngleFade);
+		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
 
-		float alpha = GetNoiseValue(i) + angle_opacity;
+		float alpha = GetNoiseValue(i);
 		
-		float curve_value = tex2D(_CurveTexture, alpha).r;
+		float curve_value = tex2D(_CurveTexture, alpha).r * angle_opacity;
 
 		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, curve_value);
 		return color;
