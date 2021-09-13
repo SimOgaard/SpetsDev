@@ -72,40 +72,69 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  flower_noise_layer:
-    enabled: 1
-    general:
-      amplitude: 1
-      offsett: {x: 0, y: 0}
-      min_value: 0
-      smoothing_min: 0
-      max_value: 1
-      smoothing_max: 0
-    general_noise:
-      noise_type: 0
-      seed: 1337
-      frequency: 0.05
-    fractal:
-      fractal_type: 0
-      octaves: 3
-      lacunarity: 2
-      gain: 0.5
-      weighted_strength: 0
-      ping_pong_strength: 2
-    cellular:
-      cellular_distance_function: 0
-      cellular_return_type: 0
-      jitter: 1
-    domain_warp:
-      domain_warp_type: 0
-      amplitude: 30
-      frequency: 0.005
-    domain_warp_fractal:
-      fractal_type: 0
-      octaves: 5
-      lacunarity: 2
-      gain: 0.5
-  flower_keep_range: {x: 0.9, y: 1}
+  random_foliage:
+  - name: flowers
+    material: {fileID: 2100000, guid: af577c50e6085b34b8fb07870848e129, type: 2}
+    light_curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    noise_layer:
+      enabled: 1
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 0
+        frequency: 0.01
+      fractal:
+        fractal_type: 1
+        octaves: 5
+        lacunarity: 2
+        gain: 0.5
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0.8, y: 1}
+    keep_range_random: 0.25
+    col_diff: 0
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   light_curve_leaf:
     serializedVersion: 2

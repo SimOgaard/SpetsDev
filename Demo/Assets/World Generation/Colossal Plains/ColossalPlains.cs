@@ -70,14 +70,15 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
         create_mesh.CreateGrass(ground_mesh);
 
-        // Flower testing
-        Mesh flower_mesh = create_mesh.DropMeshToPoints(ground_mesh, noise_layer_settings.flower_noise_layer, noise_layer_settings.flower_keep_range);
-        GameObject flower_game_object = new GameObject("flower_test");
-        flower_game_object.transform.parent = mesh_game_object.transform;
-        MeshFilter flower_mesh_filter = flower_game_object.AddComponent<MeshFilter>();
-        MeshRenderer flower_mesh_renderer = flower_game_object.AddComponent<MeshRenderer>();
-        flower_mesh_filter.mesh = flower_mesh;
-        flower_mesh_renderer.material = noise_layer_settings.material_leaf;
+        for (int i = 0; i < noise_layer_settings.random_foliage.Length; i++)
+        {
+            // Flower testing
+            NoiseLayerSettings.Foliage foliage_settings = noise_layer_settings.random_foliage[i];
+            Mesh foliage_mesh = create_mesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random);
+            CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.light_curve);
+            GameObject foliage_game_object = create_mesh.CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name);
+            foliage_game_object.transform.parent = mesh_game_object.transform;
+        }
 
         Water water = new GameObject().AddComponent<Water>();
         water.Init(noise_layer_settings.material_water, 1000, 1000, 7, mesh_game_object.transform);

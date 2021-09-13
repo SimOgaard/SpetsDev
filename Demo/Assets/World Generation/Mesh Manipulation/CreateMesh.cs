@@ -101,7 +101,7 @@ public class CreateMesh : MonoBehaviour
         return mesh;
     }
 
-    public Mesh DropMeshToPoints(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range)
+    public Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range_noise, float keep_range_random)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -109,15 +109,28 @@ public class CreateMesh : MonoBehaviour
         Noise noise_class = new Noise(noise_layer);
 
         Vector3[] vertices_copy = reference_mesh.vertices;
-        for (int vertice_index = 0; vertice_index < reference_mesh.vertexCount; vertice_index += 3)
+        int[] triangles_copy = reference_mesh.triangles;
+        for (int triangle_index = 0; triangle_index < triangles_copy.Length; triangle_index += 3)
         {
-            Vector3 vertice = vertices_copy[vertice_index];
+            Vector3 vertice_1 = vertices_copy[triangles_copy[triangle_index]];
+            Vector3 vertice_2 = vertices_copy[triangles_copy[triangle_index + 1]];
+            Vector3 vertice_3 = vertices_copy[triangles_copy[triangle_index + 2]];
 
-            float noise_value = noise_class.GetNoiseValue(vertice.x, vertice.z);
-            if (noise_value > keep_range.x && noise_value < keep_range.y)
+            float x = (vertice_1.x + vertice_2.x + vertice_3.x) / 3;
+            float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3;
+
+            float noise_value = noise_class.GetNoiseValue(x, z);
+            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && Random.value <= keep_range_random)
             {
-                Debug.Log(vertice);
-                vertices.Add(vertice);
+                int index = vertices.Count;
+
+                triangles.Add(index);
+                triangles.Add(index + 1);
+                triangles.Add(index + 2);
+
+                vertices.Add(vertice_1);
+                vertices.Add(vertice_2);
+                vertices.Add(vertice_3);
             }
         }
 
@@ -339,5 +352,15 @@ public class CreateMesh : MonoBehaviour
         mesh_collider.sharedMesh = mesh;
         CurveCreator.AddCurveTexture(ref grass_material, grass_curve);
         grass_mesh_renderer.material = grass_material;
+    }
+
+    public GameObject CreateRandomFoliage(Mesh mesh, Material material, string name)
+    {
+        GameObject foliage_game_object = new GameObject(name);
+
+        foliage_game_object.AddComponent<MeshFilter>().mesh = mesh;
+        foliage_game_object.AddComponent<MeshRenderer>().material = material;
+
+        return foliage_game_object;
     }
 }

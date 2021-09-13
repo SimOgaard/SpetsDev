@@ -16,9 +16,8 @@ public class NoiseLayerSettings : ScriptableObject
     public Material material_grass;
     public AnimationCurve light_curve_grass;
 
-    [Header("Flower")]
-    public NoiseLayer flower_noise_layer;
-    public Vector2 flower_keep_range;
+    [Header("Random Foliage")]
+    public Foliage[] random_foliage;
 
     [Header("Tree")]
     public Material material_leaf;
@@ -30,6 +29,7 @@ public class NoiseLayerSettings : ScriptableObject
     public Material material_water;
     public Material material_stone;
 
+    [Header("Spawn")]
     [Range(0, 0.1f)] public float object_density;
     public GameObject[] spawn_prefabs;
 
@@ -100,5 +100,17 @@ public class NoiseLayerSettings : ScriptableObject
             public float lacunarity = 2.0f;
             public float gain = 0.5f;
         }
+    }
+
+    [System.Serializable]
+    public class Foliage
+    {
+        public string name;
+        public Material material;
+        public AnimationCurve light_curve;
+        public NoiseLayer noise_layer;
+        public Vector2 keep_range_noise;
+        public float keep_range_random;
+        public int col_diff;
     }
 }
