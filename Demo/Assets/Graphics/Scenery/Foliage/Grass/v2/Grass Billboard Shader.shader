@@ -206,7 +206,7 @@
 				float3 right = normalize(cross(up, look));
 				//up = normalize(cross(look, right)) * y_scale;
 
-				float PixelSize = _TilePixelSize / (10.8); // 5.4 * 2
+				float PixelSize = _TilePixelSize / (5.4 * 2);
 				float3 r = right * PixelSize;
 				float3 u = up * PixelSize * 2;
 
@@ -246,7 +246,8 @@
 			{
 				//return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind);
 				//return fixed4(i.wind.x, i.wind.y, 0, 1);
-				float alpha = tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind).r;
+				float uv_remap = 1 / _TileAmount;
+				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
 
 				float mask_value = tex2D(_MainTex, i.uv * float2(0.25, 1)).r;
 				if (alpha == 0)
