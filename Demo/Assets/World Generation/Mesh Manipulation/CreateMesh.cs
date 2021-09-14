@@ -101,7 +101,7 @@ public class CreateMesh : MonoBehaviour
         return mesh;
     }
 
-    public Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range_noise, float keep_range_random)
+    public Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -120,7 +120,7 @@ public class CreateMesh : MonoBehaviour
             float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3;
 
             float noise_value = noise_class.GetNoiseValue(x, z);
-            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && Random.value <= keep_range_random)
+            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && Random.value <= keep_range_random_noise || Random.value <= keep_range_random)
             {
                 int index = vertices.Count;
 

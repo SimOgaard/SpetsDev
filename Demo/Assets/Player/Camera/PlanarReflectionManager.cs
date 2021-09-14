@@ -22,6 +22,7 @@ public class PlanarReflectionManager : MonoBehaviour
     private void Start()
     {
         GameObject fucking_bitch_ass_god_cube_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        fucking_bitch_ass_god_cube_game_object.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Nature/Terrain/Diffuse"));
         fucking_bitch_ass_god_cube_game_object.name = "fucking bitch ass god cube";
         Destroy(fucking_bitch_ass_god_cube_game_object.GetComponent<BoxCollider>());
         fucking_bitch_ass_god_cube = fucking_bitch_ass_god_cube_game_object.transform;

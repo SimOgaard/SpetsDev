@@ -79,22 +79,22 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
+        time: 0.0071029663
+        value: 0.9929199
+        inSlope: -1.4551173
+        outSlope: -1.4551173
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.060390767
       - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 1
-        outSlope: 1
-        tangentMode: 34
+        time: 0.9947027
+        value: 0.09542441
+        inSlope: -0.06632028
+        outSlope: -0.06632028
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.035523962
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -133,7 +133,8 @@ MonoBehaviour:
         lacunarity: 0
         gain: 0
     keep_range_noise: {x: 0.8, y: 1}
-    keep_range_random: 0.25
+    keep_range_random_noise: 0.25
+    keep_range_random: 0.001
     col_diff: 0
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   light_curve_leaf:

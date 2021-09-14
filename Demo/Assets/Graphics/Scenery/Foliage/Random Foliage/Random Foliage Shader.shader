@@ -1,4 +1,4 @@
-Shader "Custom/Flower Shader"
+Shader "Custom/Random Foliage Shader"
 {
     Properties
     {
@@ -12,6 +12,12 @@ Shader "Custom/Flower Shader"
 
 		_Colors ("Color Texture", 2D) = "white" {}
 		_CurveTexture ("Curve Texture", 2D) = "white" {}
+
+		_StencilComp ("Stencil Comparison", Float) = 8
+		_Stencil ("Stencil ID", Float) = 0
+        _StencilOp ("Stencil Operation", Float) = 0
+        _StencilWriteMask ("Stencil Write Mask", Float) = 255
+        _StencilReadMask ("Stencil Read Mask", Float) = 255
     }
 
 	SubShader
@@ -26,6 +32,8 @@ Shader "Custom/Flower Shader"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}
+
+			Blend SrcAlpha OneMinusSrcAlpha
 
 			CGPROGRAM
 			#include "UnityCG.cginc"

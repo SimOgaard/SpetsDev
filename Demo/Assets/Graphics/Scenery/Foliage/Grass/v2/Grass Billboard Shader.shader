@@ -244,21 +244,15 @@
 
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
-				//return tex2D(_MainTex, i.uv * float2(0.125, 0.125) + i.wind);
-				//return fixed4(i.wind.x, i.wind.y, 0, 1);
 				float uv_remap = 1 / _TileAmount;
 				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
 
-				float mask_value = tex2D(_MainTex, i.uv * float2(0.25, 1)).r;
 				if (alpha == 0)
 				{
 					discard;
 				}
 
-
 				return float4(i.color,1);
-
-				//return color;
 			}
 			ENDCG
 		}

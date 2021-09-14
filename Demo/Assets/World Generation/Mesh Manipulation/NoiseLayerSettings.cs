@@ -110,6 +110,7 @@ public class NoiseLayerSettings : ScriptableObject
         public AnimationCurve light_curve;
         public NoiseLayer noise_layer;
         public Vector2 keep_range_noise;
+        public float keep_range_random_noise;
         public float keep_range_random;
         public int col_diff;
     }

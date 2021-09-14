@@ -13,7 +13,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 3010
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -24,7 +24,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Colors:
-        m_Texture: {fileID: 2800000, guid: 0adb1d15ffdccbd4e9bfbdff31bbba38, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5a7114851fd371a4e83c2ac0ec7d9cf2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CurveTexture:
@@ -48,7 +48,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 19b58b7d6f838c94bbf9b436a5194167, type: 3}
+        m_Texture: {fileID: 2800000, guid: 18ac4aaff6cac1d45a7c1e8a539d9a1d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -85,12 +85,12 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TessellationUniform: 1
-    - _TileAmount: 4
+    - _TileAmount: 1
     - _TilePixelSize: 16
     - _UVSec: 0
     - _WindStrength: 1
     - _XZDisplacementRandom: 0.5
-    - _YDisplacement: 1
+    - _YDisplacement: -0.5
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

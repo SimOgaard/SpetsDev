@@ -171,7 +171,7 @@
 				"RenderType" = "Transparent"
 				"LightMode" = "ForwardAdd"
 			}
-
+			
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
