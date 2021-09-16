@@ -99,14 +99,7 @@
 
 		Pass
 		{
-			Tags
-			{
-				"Queue" = "Transparent"
-				"IgnoreProjector" = "True"
-				"RenderType" = "Transparent"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
-			}
+			Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
 
 			CGPROGRAM
 			#include "UnityCG.cginc"

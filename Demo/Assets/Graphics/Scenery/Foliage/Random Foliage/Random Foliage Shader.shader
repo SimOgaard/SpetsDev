@@ -13,27 +13,18 @@ Shader "Custom/Random Foliage Shader"
 		_Colors ("Color Texture", 2D) = "white" {}
 		_CurveTexture ("Curve Texture", 2D) = "white" {}
 
-		_StencilComp ("Stencil Comparison", Float) = 8
-		_Stencil ("Stencil ID", Float) = 0
-        _StencilOp ("Stencil Operation", Float) = 0
-        _StencilWriteMask ("Stencil Write Mask", Float) = 255
-        _StencilReadMask ("Stencil Read Mask", Float) = 255
+		_WindDistortionMap ("Distortion Map Texture", 2D) = "white" {}
+		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
+		_WindStrength("Wind Strength", Float) = 1
     }
 
 	SubShader
 	{
 		Pass
 		{
-			Tags
-			{
-				"Queue" = "Transparent"
-				"IgnoreProjector" = "True"
-				"RenderType" = "Transparent"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
-			}
+			Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest+1" }
 
-			Blend SrcAlpha OneMinusSrcAlpha
+			ZTest Always
 
 			CGPROGRAM
 			#include "UnityCG.cginc"
@@ -58,6 +49,11 @@ Shader "Custom/Random Foliage Shader"
 
 			#include "AutoLight.cginc"
 
+			sampler2D _WindDistortionMap;
+			float4 _WindDistortionMap_ST;
+			float2 _WindFrequency;
+			float _WindStrength;
+
 			float _YDisplacement;
 			float _XZDisplacementRandom;
 
@@ -72,6 +68,7 @@ Shader "Custom/Random Foliage Shader"
 				SHADOW_COORDS(1)
 				float3 worldPos : TEXCOORD2;
 				float3 color : COLOR0;
+				float2 wind : TEXCOORD3;
 			};
 
 		  	sampler2D _LightTexture0;
@@ -86,12 +83,13 @@ Shader "Custom/Random Foliage Shader"
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;
 
-			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float attenuation)
+			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float2 wind, float attenuation)
 			{
 				g2f o;
 				o.worldPos = pos;
 				o.pos = UnityObjectToClipPos(pos);
 				o.uv = uv;
+				o.wind = wind;
 				TRANSFER_SHADOW(o)
 
 				half3 worldNormal = UnityObjectToWorldNormal(norm);
@@ -143,19 +141,29 @@ Shader "Custom/Random Foliage Shader"
 
 				float3 center_world = mul(unity_ObjectToWorld, center).xyz;
 
+				float2 uv = center_world.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+				float2 windSample = tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy; // get wind value ranging (0.33 - 0.66)
+				float2 windSample01 = saturate(windSample * 3 - 1); // remap to 0-1
+				float2 windSamplenegpos = windSample01 * 2 - 1; // remap to -1 - 1
+				float2 windSampleStrength = windSamplenegpos * _WindStrength; // multiply by windstrength
+				float2 remap_01 = saturate(windSampleStrength * 0.5 + 0.5); // saturate between 01 to keep low/all/high values dependent on windstrength
+				float2 windSampleGrid;
+				
+				windSampleGrid = floor(remap_01 * (_TileAmount - 0.0001)) * (1 / _TileAmount);
+
 				float2 uvCookie = mul(unity_WorldToLight, float4(center_world, 1)).xy;
 				float attenuation = tex2Dlod(_LightTexture0, float4(uvCookie,0,0)).w;
 
-				outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, attenuation ));
-				outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, attenuation ));
-				outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, attenuation ));
-				outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, attenuation ));
+				outStream.Append(VertexOutput(v[0], float2(1, 0), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[1], float2(1, 1), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[2], float2(0, 0), vNormal, windSampleGrid, attenuation ));
+				outStream.Append(VertexOutput(v[3], float2(0, 1), vNormal, windSampleGrid, attenuation ));
 			}
 
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
 				float uv_remap = 1 / _TileAmount;
-				float alpha = tex2D(_MainTex, i.uv).r;
+				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
 
 				if (alpha == 0)
 				{

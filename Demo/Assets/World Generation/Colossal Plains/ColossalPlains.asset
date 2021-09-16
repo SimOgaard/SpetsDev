@@ -48,57 +48,63 @@ MonoBehaviour:
       lacunarity: 0
       gain: 0
   material_grass: {fileID: 2100000, guid: dffe25dc321faa14f8118f27e41a4445, type: 2}
-  light_curve_grass:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0.005329132
-      value: 1.0094299
-      inSlope: -0.16673419
-      outSlope: -0.16673419
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.106905945
-    - serializedVersion: 3
-      time: 1.0016141
-      value: 0.008609049
-      inSlope: -1.9741418
-      outSlope: -1.9741418
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.044404846
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  random_foliage:
-  - name: flowers
-    material: {fileID: 2100000, guid: af577c50e6085b34b8fb07870848e129, type: 2}
+  curve_grass:
     light_curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.0071029663
-        value: 0.9929199
-        inSlope: -1.4551173
-        outSlope: -1.4551173
+        time: 0.028335571
+        value: 0.9834671
+        inSlope: -0.16673419
+        outSlope: -0.16673419
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0.060390767
+        outWeight: 0.106905945
       - serializedVersion: 3
-        time: 0.9947027
-        value: 0.09542441
-        inSlope: -0.06632028
-        outSlope: -0.06632028
+        time: 1.0016141
+        value: 0.008609049
+        inSlope: -1.9741418
+        outSlope: -1.9741418
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.035523962
+        inWeight: 0.044404846
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    resolution: 255
+    col_diff: 0
+  random_foliage:
+  - name: flowers
+    material: {fileID: 2100000, guid: af577c50e6085b34b8fb07870848e129, type: 2}
+    curve:
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0.028335571
+          value: 0.9834671
+          inSlope: -0.16673419
+          outSlope: -0.16673419
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.106905945
+        - serializedVersion: 3
+          time: 1.0016141
+          value: 0.008609049
+          inSlope: -1.9741418
+          outSlope: -1.9741418
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.044404846
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 3
+      col_diff: 0
     noise_layer:
       enabled: 1
       general:
@@ -135,33 +141,35 @@ MonoBehaviour:
     keep_range_noise: {x: 0.8, y: 1}
     keep_range_random_noise: 0.25
     keep_range_random: 0.001
-    col_diff: 0
   - name: grass col diff
     material: {fileID: 2100000, guid: 3dba13ccd65d0bb4e9c2b72acac87805, type: 2}
-    light_curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0.001789093
-        value: 0.88904953
-        inSlope: -0.16673419
-        outSlope: -0.16673419
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.106905945
-      - serializedVersion: 3
-        time: 1.0016141
-        value: -0.20257258
-        inSlope: -1.9741418
-        outSlope: -1.9741418
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.044404846
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
+    curve:
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: -0.001750946
+          value: 0.88668823
+          inSlope: -0.16673419
+          outSlope: -0.16673419
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.106905945
+        - serializedVersion: 3
+          time: 0.9993558
+          value: -0.12090755
+          inSlope: -1.9741418
+          outSlope: -1.9741418
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.044404846
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 10
+      col_diff: 0
     noise_layer:
       enabled: 1
       general:
@@ -198,57 +206,62 @@ MonoBehaviour:
     keep_range_noise: {x: 0, y: 0}
     keep_range_random_noise: 0
     keep_range_random: 0.002
-    col_diff: 1
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
-  light_curve_leaf:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -0.008747101
-      value: 0.9948311
-      inSlope: -1.6132715
-      outSlope: -1.6132715
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.05809935
-    - serializedVersion: 3
-      time: 1
-      value: -0.0050468445
-      inSlope: -0.46976033
-      outSlope: -0.46976033
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.08978858
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  curve_leaf:
+    light_curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.005329132
+        value: 1.0094299
+        inSlope: -1.2161795
+        outSlope: -1.2161795
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.060390774
+      - serializedVersion: 3
+        time: 1.0016141
+        value: 0.008609049
+        inSlope: -0.9051311
+        outSlope: -0.9051311
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.09946702
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    resolution: 4
+    col_diff: 0
   material_wood: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
-  light_curve_wood:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -0.0042648315
-      value: 0.9999504
-      inSlope: -1.0017802
-      outSlope: -1.0017802
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.9985962
-      value: -0.0046958923
-      inSlope: -1.0017802
-      outSlope: -1.0017802
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  curve_wood:
+    light_curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.005329132
+        value: 1.0094299
+        inSlope: -0.16673419
+        outSlope: -0.16673419
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.106905945
+      - serializedVersion: 3
+        time: 1.0016141
+        value: 0.008609049
+        inSlope: -1.2617764
+        outSlope: -1.2617764
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.065719254
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    resolution: 3
+    col_diff: 0
   material_water: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01

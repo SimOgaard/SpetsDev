@@ -46,8 +46,8 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         create_mesh.UpdateGrass(ground_mesh);
         noise_textures = create_mesh.GetNoiseTextures();
         //spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.light_curve_leaf);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.light_curve_wood);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.curve_leaf);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.curve_wood);
     }
 
     public void Init()
@@ -56,8 +56,8 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.light_curve_leaf);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.light_curve_wood);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.curve_leaf);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.curve_wood);
         WorldGenerationManager.InitNewChild(out mesh_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
         mesh_game_object.tag = "Flammable";
         create_mesh = mesh_game_object.AddComponent<CreateMesh>();
@@ -75,7 +75,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
             // Flower testing
             NoiseLayerSettings.Foliage foliage_settings = noise_layer_settings.random_foliage[i];
             Mesh foliage_mesh = create_mesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random);
-            CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.light_curve);
+            CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
             GameObject foliage_game_object = create_mesh.CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name);
             foliage_game_object.transform.parent = mesh_game_object.transform;
         }

@@ -14,16 +14,16 @@ public class NoiseLayerSettings : ScriptableObject
 
     [Header("Grass")]
     public Material material_grass;
-    public AnimationCurve light_curve_grass;
+    public Curve curve_grass;
 
     [Header("Random Foliage")]
     public Foliage[] random_foliage;
 
     [Header("Tree")]
     public Material material_leaf;
-    public AnimationCurve light_curve_leaf;
+    public Curve curve_leaf;
     public Material material_wood;
-    public AnimationCurve light_curve_wood;
+    public Curve curve_wood;
 
     [Header("Other")]
     public Material material_water;
@@ -103,15 +103,22 @@ public class NoiseLayerSettings : ScriptableObject
     }
 
     [System.Serializable]
+    public class Curve
+    {
+        public AnimationCurve light_curve;
+        public int resolution;
+        public int col_diff;
+    }
+
+    [System.Serializable]
     public class Foliage
     {
         public string name;
         public Material material;
-        public AnimationCurve light_curve;
+        public Curve curve;
         public NoiseLayer noise_layer;
         public Vector2 keep_range_noise;
         public float keep_range_random_noise;
         public float keep_range_random;
-        public int col_diff;
     }
 }

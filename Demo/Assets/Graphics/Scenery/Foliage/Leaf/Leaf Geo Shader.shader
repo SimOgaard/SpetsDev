@@ -164,13 +164,7 @@
     {
         Pass
         {
-			Tags
-			{
-				"Queue" = "Transparent"
-				"IgnoreProjector"="True"
-				"RenderType" = "Transparent"
-				"LightMode" = "ForwardAdd"
-			}
+			Tags { "RenderType"="TransparentCutout" "Queue"="Transparent-1" }
 			
             CGPROGRAM
             #pragma vertex vert

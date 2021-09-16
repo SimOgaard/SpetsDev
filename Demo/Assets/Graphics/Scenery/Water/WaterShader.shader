@@ -135,6 +135,7 @@
 			float2 _UnderWaterDistortSpeed;
 			float2 _UnderWaterDistortAmount;
 			uniform float4 _CameraOffset;
+
 			sampler2D _WaterReflectionTexture;
 			sampler2D _WaterReflectionTextureDepth;
 

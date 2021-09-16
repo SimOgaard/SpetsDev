@@ -11,7 +11,7 @@ public class CreateMesh : MonoBehaviour
     private MeshFilter grass_mesh_filter;
     private MeshRenderer grass_mesh_renderer;
     private Material grass_material;
-    private AnimationCurve grass_curve;
+    private NoiseLayerSettings.Curve grass_curve;
 
     private GameObject water_game_object;
     private MeshFilter water_mesh_filter;
@@ -23,7 +23,7 @@ public class CreateMesh : MonoBehaviour
     public Mesh CreateMeshByNoise(NoiseLayerSettings noise_layer_settings)
     {
         grass_material = noise_layer_settings.material_grass;
-        grass_curve = noise_layer_settings.light_curve_grass;
+        grass_curve = noise_layer_settings.curve_grass;
         water_material = noise_layer_settings.material_water;
 
         Vector2 unit_size = noise_layer_settings.unit_size;

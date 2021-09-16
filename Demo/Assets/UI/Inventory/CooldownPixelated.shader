@@ -12,8 +12,6 @@
 
     SubShader
 	{
-		Cull Off
-
 		Pass
 		{
 			Tags {

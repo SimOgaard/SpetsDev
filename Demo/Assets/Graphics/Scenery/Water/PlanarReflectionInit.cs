@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlanarReflectionInit : MonoBehaviour
 {
+    private CommandBuffer rgb_buffer;
+    private CommandBuffer depth_buffer;
+
     private void Awake()
     {
         Camera this_camera = GetComponent<Camera>();

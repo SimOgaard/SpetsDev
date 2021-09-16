@@ -8,8 +8,7 @@ public class CloudShadows : MonoBehaviour
     [SerializeField] private Light light;
     [SerializeField] private RenderTexture shadow_render_texture;
     [SerializeField] private Material cloud_shadow_material;
-    [SerializeField] private AnimationCurve curve;
-    [SerializeField] private int resolution = 10;
+    [SerializeField] private NoiseLayerSettings.Curve curve;
 
     private void Start()
     {
@@ -36,7 +35,7 @@ public class CloudShadows : MonoBehaviour
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
         // DO NOT HAVE IN THE END 123
-        CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve, resolution);
+        CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
 
         // Blit using material.
         Graphics.Blit(null, shadow_render_texture, cloud_shadow_material);
