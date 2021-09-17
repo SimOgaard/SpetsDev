@@ -13,8 +13,6 @@ public class CurveCreator : MonoBehaviour
         {
             float curve_value = curve.light_curve.Evaluate((float) x / (float) curve.resolution);
 
-            Debug.Log(curve_value);
-
             curve_texture.SetPixel(x, 0, new Color(curve_value, curve_value, curve_value));
         }
         curve_texture.Apply();

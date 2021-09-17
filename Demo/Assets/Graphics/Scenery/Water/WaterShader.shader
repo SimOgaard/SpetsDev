@@ -160,7 +160,7 @@
 
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.
-				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition));
+				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition)).rgb;
 				
 				// Modulate the amount of foam we display based on the difference
 				// between the normals of our water surface and the object behind it.
@@ -222,7 +222,7 @@
 				// If we are under water.
 				if (depthDifference > 0)
 				{
-					float4 under_color = tex2D(_GrabTexture, screen_uv_distort);
+					float4 under_color = float4(tex2D(_GrabTexture, screen_uv_distort).rgb, 1);
 					waterColor = alphaBlend(waterColor, under_color);
 				}
 
