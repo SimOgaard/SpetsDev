@@ -23,6 +23,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     public static Vector2 camera_offset;
 
+    private PlanarReflectionManager planar_reflection_manager;
     private Transform reflection_camera_focus_point;
 
     /// <summary>
@@ -97,7 +98,21 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         if (Application.isPlaying)
         {
             reflection_camera_focus_point = GameObject.Find("reflection_focus_point").transform;
+            planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
+
+            GameObject fucking_bitch_ass_god_cube_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            fucking_bitch_ass_god_cube_game_object.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Nature/Terrain/Diffuse"));
+            fucking_bitch_ass_god_cube_game_object.name = "fucking bitch ass god cube";
+            Destroy(fucking_bitch_ass_god_cube_game_object.GetComponent<BoxCollider>());
+            fucking_bitch_ass_god_cube = fucking_bitch_ass_god_cube_game_object.transform;
+            fucking_bitch_ass_god_cube.localScale = Vector3.zero;
         }
+    }
+
+    [SerializeField] private Transform fucking_bitch_ass_god_cube;
+    private void Update()
+    {
+        fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
     }
 
     private void LateUpdate()
@@ -107,9 +122,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         if (Application.isPlaying)
         {
             float distance;
-            Plane plane = new Plane(Vector3.up, -Water.water_level);
+            Plane plane_1 = new Plane(Vector3.up, -Water.water_level);
             Ray ray = new Ray(m_camera.transform.position, m_camera.transform.forward);
-            plane.Raycast(ray, out distance);
+            plane_1.Raycast(ray, out distance);
             Vector3 relfection_camera_position = ray.GetPoint(distance);
             //Vector3 rounded_camera_position = RoundToPixel(relfection_camera_position);
             //Debug.Log(rounded_camera_position);
@@ -121,11 +136,22 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             reflection_camera_focus_point.position = relfection_camera_position;
             reflection_camera_focus_point.rotation = camera_focus_point.rotation;
         }
+        camera_offset = PixelSnap(ref m_camera);
+
+        // Create rays for bottom corners of the camera
+        Ray bot_right_ray = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray bot_left_ray = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+
+
+        planar_reflection_manager.ConstructMatrix4X4Ortho(bot_right_ray, bot_left_ray, 2f * m_camera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
+
+        //planar_reflection_manager.CopyMatrix(m_camera.worldToCameraMatrix, m_camera.transform);
+        //planar_reflection_manager.RotateAround(Vector3.zero, m_camera.transform.right);
+        //planar_reflection_manager.SetCameraNearClippingPlane();
     }
 
     private void OnPreCull()
     {
-        camera_offset = PixelSnap(ref m_camera);
     }
 
     /// <summary>
@@ -161,5 +187,60 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     {
         m_camera.targetTexture = null;
         RenderTexture.active = null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Construct plane representing the water level
+        Plane plane = new Plane(Vector3.up, -Water.water_level);
+
+        // Create rays for bottom corners of the camera
+        Ray bot_right_ray = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray bot_left_ray = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+
+        // Assign floats of ray distance for bottom corners
+        float bot_right_distance;
+        float bot_left_distance;
+
+        // Raycast to plain
+        plane.Raycast(bot_right_ray, out bot_right_distance);
+        plane.Raycast(bot_left_ray, out bot_left_distance);
+
+        // Get each position of all four camera corners where they hit the water plain
+        Vector3 top_right_position = bot_right_ray.GetPoint(bot_right_distance);
+        Vector3 top_left_position = bot_left_ray.GetPoint(bot_left_distance);
+
+        // Draw red raycasts twords those points
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(bot_right_ray.origin, bot_right_ray.direction * bot_right_distance);
+        Gizmos.DrawRay(bot_left_ray.origin, bot_left_ray.direction * bot_left_distance);
+
+        // Draw a yellow sphere at the hit location
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(top_right_position, 1);
+        Gizmos.DrawSphere(top_left_position, 1);
+
+        // Get height of orthographic camera
+        float camera_height = 2f * m_camera.orthographicSize;
+
+        // Get sidebar of new camera
+        Vector3 camera_sidebar_direction = transform.rotation * Quaternion.Euler(-60f, 0f, 0f) * Vector3.down;
+        Vector3 camera_sidebar = camera_sidebar_direction * camera_height;
+
+        // Continue drawing magenta raycast that represent the bottom screen edges
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(top_right_position, camera_sidebar);
+        Gizmos.DrawRay(top_left_position, camera_sidebar);
+
+        // Create the vectors representing each corner of our new worldToCameraMatrix.
+        Vector3 bot_right_position = top_right_position + camera_sidebar;
+        Vector3 bot_left_position = top_left_position + camera_sidebar;
+
+        // Draw 
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(bot_right_position, 1);
+        Gizmos.DrawSphere(bot_left_position, 1);
+
+        // Yellow points are now representing the top right and top left corners of our new camera whilst the green points represent bottom right and bottom left corners.
     }
 }

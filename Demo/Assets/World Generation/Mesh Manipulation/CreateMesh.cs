@@ -101,7 +101,7 @@ public class CreateMesh : MonoBehaviour
         return mesh;
     }
 
-    public Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random)
+    public Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -128,9 +128,9 @@ public class CreateMesh : MonoBehaviour
                 triangles.Add(index + 1);
                 triangles.Add(index + 2);
 
-                vertices.Add(vertice_1);
-                vertices.Add(vertice_2);
-                vertices.Add(vertice_3);
+                vertices.Add(vertice_1 + offset);
+                vertices.Add(vertice_2 + offset);
+                vertices.Add(vertice_3 + offset);
             }
         }
 

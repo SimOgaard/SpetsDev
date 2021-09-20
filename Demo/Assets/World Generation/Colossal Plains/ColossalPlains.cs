@@ -74,10 +74,11 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         {
             // Flower testing
             NoiseLayerSettings.Foliage foliage_settings = noise_layer_settings.random_foliage[i];
-            Mesh foliage_mesh = create_mesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random);
+            Mesh foliage_mesh = create_mesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.zero);
             CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
             GameObject foliage_game_object = create_mesh.CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name);
             foliage_game_object.transform.parent = mesh_game_object.transform;
+            foliage_game_object.transform.position += Vector3.up * 0.1f;
         }
 
         Water water = new GameObject().AddComponent<Water>();

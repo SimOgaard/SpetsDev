@@ -15,6 +15,8 @@ public class CopyCameraPosition : MonoBehaviour
 
     private void OnPreCull()
     {
+        transform.localRotation = camera_to_copy.transform.rotation;
+        transform.position = camera_to_copy.transform.position;
         this_camera.worldToCameraMatrix = camera_to_copy.worldToCameraMatrix;
     }
 
