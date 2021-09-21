@@ -16,6 +16,8 @@
 		_WindDistortionMap ("Distortion Map Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
 		_WindStrength("Wind Strength", Float) = 1
+
+		_ShadowSoftness("Shadow Softness", Float) = 0.5
     }
 
 	SubShader
@@ -158,6 +160,8 @@
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;
 
+			float _ShadowSoftness;
+
 			g2f VertexOutput(float3 pos, float2 uv, float3 norm, float2 wind, float attenuation)
 			{
 				g2f o;
@@ -172,8 +176,8 @@
 				fixed3 diff = nl * _LightColor0.rgb;
 				fixed3 ambient = ShadeSH9(half4(worldNormal,1));
 
-				fixed shadow = SHADOW_ATTENUATION(o);
-                fixed3 lighting = diff * shadow * attenuation + ambient;
+				//fixed shadow = SHADOW_ATTENUATION(o);
+                fixed3 lighting = diff /** shadow*/ * attenuation + ambient;
 				float curve_value = tex2Dlod(_CurveTexture, float4(saturate(lighting.x),0,0,0)).r;
 				fixed4 color = tex2Dlod(_Colors, float4(curve_value,0,0,0));
 				o.color = color.rgb;
@@ -237,6 +241,9 @@
 
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
+				float shadow = SHADOW_ATTENUATION(i);
+				shadow = saturate(shadow + _ShadowSoftness);
+
 				float uv_remap = 1 / _TileAmount;
 				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
 
@@ -245,7 +252,7 @@
 					discard;
 				}
 
-				return float4(i.color,1);
+				return float4(i.color * shadow,1);
 			}
 			ENDCG
 		}
