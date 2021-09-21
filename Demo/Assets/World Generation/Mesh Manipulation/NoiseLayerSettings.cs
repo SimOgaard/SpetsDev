@@ -25,8 +25,10 @@ public class NoiseLayerSettings : ScriptableObject
     public Material material_wood;
     public Curve curve_wood;
 
+    [Header("Water")]
+    public Water water;
+
     [Header("Other")]
-    public Material material_water;
     public Material material_stone;
 
     [Header("Spawn")]
@@ -120,5 +122,14 @@ public class NoiseLayerSettings : ScriptableObject
         public Vector2 keep_range_noise;
         public float keep_range_random_noise;
         public float keep_range_random;
+    }
+
+    [System.Serializable]
+    public class Water
+    {
+        public Material material;
+        public float level;
+        public float bobing_frequency;
+        public float bobing_amplitude;
     }
 }

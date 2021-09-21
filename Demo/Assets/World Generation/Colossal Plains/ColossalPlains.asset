@@ -205,7 +205,7 @@ MonoBehaviour:
         gain: 0
     keep_range_noise: {x: 0, y: 0}
     keep_range_random_noise: 0
-    keep_range_random: 0.002
+    keep_range_random: 0.0055
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   curve_leaf:
     light_curve:
@@ -262,7 +262,11 @@ MonoBehaviour:
       m_RotationOrder: 4
     resolution: 3
     col_diff: 0
-  material_water: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
+  water:
+    material: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
+    level: 8
+    bobing_frequency: 0.75
+    bobing_amplitude: 0.25
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
   spawn_prefabs:

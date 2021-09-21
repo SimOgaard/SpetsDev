@@ -82,7 +82,7 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         }
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(noise_layer_settings.material_water, 1000, 1000, 7, mesh_game_object.transform);
+        water.Init(noise_layer_settings.water.material, 1000, 1000, noise_layer_settings.water.level, mesh_game_object.transform);
 
         noise_textures = create_mesh.GetNoiseTextures();
         spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
@@ -94,10 +94,10 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         join_meshes.SetCollider();
     }
 
-    /*
+    
     private void Update()
     {
-        Water.water_level += Time.deltaTime;
+        float water_level_wave = noise_layer_settings.water.bobing_amplitude * Mathf.Sin(Time.time * noise_layer_settings.water.bobing_frequency);
+        Water.water_level = noise_layer_settings.water.level + water_level_wave;
     }
-    */
 }

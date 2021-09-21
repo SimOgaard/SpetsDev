@@ -14,7 +14,8 @@
         Pass
         {
 			Tags {
-				"RenderType"= "Opaque"
+				"Queue"="Transparent-1"
+				//"RenderType"= "Opaque"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}

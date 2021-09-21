@@ -75,6 +75,7 @@ public class EarthbendingPillar : MonoBehaviour
 
         MeshRenderer mesh_renderer = JoinMeshes.GetAddComponent(gameObject, typeof(MeshRenderer)) as MeshRenderer;
         mesh_renderer.material = new Material(Shader.Find("Custom/Stone Shader"));
+        mesh_renderer.material.renderQueue = 2999;
     }
 
     /// <summary>

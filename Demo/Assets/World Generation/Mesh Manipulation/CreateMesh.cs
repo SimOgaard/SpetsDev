@@ -24,7 +24,7 @@ public class CreateMesh : MonoBehaviour
     {
         grass_material = noise_layer_settings.material_grass;
         grass_curve = noise_layer_settings.curve_grass;
-        water_material = noise_layer_settings.material_water;
+        water_material = noise_layer_settings.water.material;
 
         Vector2 unit_size = noise_layer_settings.unit_size;
         Vector2Int resolution = noise_layer_settings.resolution;
