@@ -67,6 +67,8 @@
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;
+			
+			float _ShadowSoftness;
 
 			v2f vert(appdata_base v)
 			{
@@ -84,7 +86,8 @@
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-				fixed shadow = SHADOW_ATTENUATION(i);
+				float shadow = SHADOW_ATTENUATION(i);
+				shadow = saturate(shadow + _ShadowSoftness);
 				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 				float attenuation = tex2D(_LightTexture0, uvCookie).w;
                 fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
@@ -176,8 +179,10 @@
 				fixed3 diff = nl * _LightColor0.rgb;
 				fixed3 ambient = ShadeSH9(half4(worldNormal,1));
 
-				//fixed shadow = SHADOW_ATTENUATION(o);
-                fixed3 lighting = diff /** shadow*/ * attenuation + ambient;
+				fixed shadow = SHADOW_ATTENUATION(o);
+                shadow = saturate(shadow + _ShadowSoftness);
+
+				fixed3 lighting = diff * shadow * attenuation + ambient;
 				float curve_value = tex2Dlod(_CurveTexture, float4(saturate(lighting.x),0,0,0)).r;
 				fixed4 color = tex2Dlod(_Colors, float4(curve_value,0,0,0));
 				o.color = color.rgb;
@@ -241,9 +246,6 @@
 
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
-				float shadow = SHADOW_ATTENUATION(i);
-				shadow = saturate(shadow + _ShadowSoftness);
-
 				float uv_remap = 1 / _TileAmount;
 				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
 
@@ -252,7 +254,7 @@
 					discard;
 				}
 
-				return float4(i.color * shadow,1);
+				return float4(i.color,1);
 			}
 			ENDCG
 		}

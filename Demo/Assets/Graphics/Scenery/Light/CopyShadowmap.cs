@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+// Run in edit mode so we can see in the scene view
 [RequireComponent(typeof(Light)), ExecuteInEditMode]
 public class CopyShadowmap : MonoBehaviour
 {
