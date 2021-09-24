@@ -105,7 +105,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TessellationUniform: 3
+    - _TessellationUniform: 1
     - _ThirdThreshold: 0.575
     - _TileAmount: 8
     - _TilePixelSize: 16
@@ -114,7 +114,7 @@ Material:
     - _WindStrength: 1
     - _XYDisplacementRandom: 0.75
     - _XZDisplacementRandom: 0.5
-    - _YDisplacement: 0
+    - _YDisplacement: 1.75
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

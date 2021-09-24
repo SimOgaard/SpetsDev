@@ -62,14 +62,14 @@ Shader "Custom/shadow testing shader 2"
 			struct g2f
 			{
 				float4 pos : SV_POSITION;
-				float3 color : COLOR0;
+				float light : TEXCOORD0;
 			};
 
 			g2f VertexOutput(float3 pos, float directionalLightValue)
 			{
 				g2f o;
 				o.pos = UnityObjectToClipPos(pos);
-				o.color = _LightColor0 * directionalLightValue;
+				o.light = directionalLightValue;
 				return o;
 			}
 
@@ -115,7 +115,7 @@ Shader "Custom/shadow testing shader 2"
 
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
-				return float4(i.color,1);
+				return i.light;
 			}
 			ENDCG
 		}
