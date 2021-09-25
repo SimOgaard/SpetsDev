@@ -2,8 +2,8 @@
 #include "/Assets/Graphics/CGincFiles/WindSetup.cginc"
 
 float _TilePixelSize;
-float _YDisplacement;
-float _XZDisplacementRandom;
+float _ExtrudeDistance;
+float3 _UniformDisplacementRandom;
 
 struct g2f
 {
@@ -35,14 +35,12 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 
 	fixed lightValue = LightCalculation(center, flatNormal);
 	
-	fixed x_displacement = rand(center) * _XZDisplacementRandom;
-	fixed y_displacement = _YDisplacement;
-	fixed z_displacement = rand(center.xzy) * _XZDisplacementRandom;
-	center += fixed3(x_displacement, y_displacement, z_displacement);
+	fixed3 uniform_displacement = float3(rand(center), rand(center.yzx), rand(center.xzy)) * _UniformDisplacementRandom;
+	center += uniform_displacement + flatNormal * _ExtrudeDistance;
 
 	fixed pixelSize = _TilePixelSize / (5.4 * 2);
 	float4 vectors[4];
-	Get4VectorsUp(center, pixelSize, vectors);
+	Get4Vectors(center, pixelSize, vectors);
 
 	fixed2 wind = GetWind(center);
 

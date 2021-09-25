@@ -83,14 +83,15 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SecondThreshold: 0.675
+    - _ShadowSoftness: 1
     - _Size: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TessellationUniform: 3
+    - _TessellationUniform: 1
     - _ThirdThreshold: 0.85
     - _TileAmount: 1
-    - _TilePixelSize: 2
+    - _TilePixelSize: 4
     - _UVSec: 0
     - _WindStrength: 2
     - _XYDisplacementRandom: 0

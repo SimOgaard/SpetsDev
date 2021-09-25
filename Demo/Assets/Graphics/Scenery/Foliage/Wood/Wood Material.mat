@@ -80,6 +80,7 @@ Material:
     - _MossThreshold: 0.3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ShadowSoftness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

@@ -27,7 +27,6 @@ public class SetAsEnemy : MonoBehaviour
     private void Start()
     {
         JoinMeshes join_meshes = gameObject.AddComponent<JoinMeshes>();
-        //join_meshes.SetMaterial(new Material(Shader.Find("Custom/Stone Shader")));
         join_meshes.SetMergeByTags(true);
         RecursiveEnemy(gameObject);
         Destroy(this);

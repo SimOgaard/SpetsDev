@@ -3,114 +3,71 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Color ("Color", Color) = (1, 1, 1, 1)
-        _ColorLight ("ColorLight", Color) = (0.7607843, 0.8666667, 0.5960785, 1)
-        _ColorMedium ("ColorMedium", Color) = (0.4666667, 0.654902, 0.4196078, 1)
-        _ColorDark ("ColorDark", Color) = (0.1215686, 0.3411765, 0.3058824, 1)
 
-        _FirstThreshold ("FirstThreshold", Range(0,1)) = 0.3
-        _SecondThreshold ("SecondThreshold", Range(0,1)) = 0.5
+        _Color ("Color", Color) = (1, 1, 1, 1)
+        _Colors ("Color Texture", 2D) = "white" {}
+		_CurveTexture ("Curve Texture", 2D) = "white" {}
 
 		_Distort("Distort", 2D) = "white" {}
 		_Radius("Radius", Range(0, 1)) = 0.75
 		_DistortionAmount("Distortion Amount", Float) = 0.1
+
+		_ShadowSoftness("Shadow Softness", Float) = 0.5
     }
 
     SubShader
     {
-        Pass
-        {
+		Pass
+		{
 			Tags {
-				"RenderType"= "Opaque"
+				"Queue"="Transparent-1"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-
-            #include "UnityCG.cginc"
-			#include "Lighting.cginc"
-
+			CGPROGRAM
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-            #include "AutoLight.cginc"
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-				SHADOW_COORDS(1)
-				fixed3 diff : COLOR0;
-                fixed3 ambient : COLOR1;
-                float4 pos : SV_POSITION;
-                float3 worldPos : TEXCOORD2;
-            };
+			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+			sampler2D _CurveTexture;
+			float4 _CurveTexture_ST;
 
-			sampler2D _LightTexture0;
-			float4x4 unity_WorldToLight;
+			sampler2D _Colors;
+			float4 _Colors_ST;
 
-			fixed4 _Color;
-	        fixed4 _ColorLight;
-			fixed4 _ColorMedium;
-			fixed4 _ColorDark;
-
-			float _FirstThreshold;
-			float _SecondThreshold;
+			float4 _Color;
 
 			sampler2D _Distort;
 			float _DistortionAmount;
 			float _Radius;
 
 			float circle(in float2 _st, in float _radius){
-				float2 dist = _st-float2(0.5, 0.5);
+				fixed2 dist = _st-fixed2(0.5, 0.5);
 				return 1.-smoothstep(_radius-(_radius*0.01), _radius+(_radius*0.01), dot(dist,dist)*4.0);
 			}
 
-            v2f vert (appdata_base v)
-            {
-                v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
-				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
-                o.uv = v.texcoord;
-				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
-                o.diff = nl * _LightColor0.rgb;
-                o.ambient = ShadeSH9(half4(worldNormal,1));
-                TRANSFER_SHADOW(o)
-                return o;
-            }
-
-            fixed4 frag (v2f i) : SV_Target
-            {
-				float2 distortSample = (tex2D(_Distort, i.uv).xy * 2 - 1) * _DistortionAmount;
-				float value = circle(i.uv + distortSample, _Radius);
-
-				fixed shadow = SHADOW_ATTENUATION(i);
-				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
-				float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
+			fixed4 frag(v2f i) : SV_Target
+			{
+				fixed light = CalculateLight(i);
+				
+				fixed2 distortSample = (tex2D(_Distort, i.uv).xy * 2 - 1) * _DistortionAmount;
+				fixed value = circle(i.uv + distortSample, _Radius);
 
 				if (value < 0.5){
-					float4 light_color = _LightColor0.rgba * lighting.r;
+					fixed4 light_color = _LightColor0.rgba * light;
 					return _Color * light_color;
 				}
 
-				float4 col = _ColorLight;
-				if (lighting.x < _FirstThreshold)
-				{
-					col = _ColorDark;
-				}
-				else if (lighting.x < _SecondThreshold)
-				{
-					col = _ColorMedium;				
-				}
+				fixed curve_value = tex2D(_CurveTexture, light).r;
+				fixed4 color = tex2D(_Colors, curve_value);
 
-                return col;
-            }
-            ENDCG
-        }
+				return color;
+			}
+			ENDCG
+		}
 		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
     }
 }

@@ -3,8 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class CurveCreator : MonoBehaviour
 {
+    [SerializeField] private NoiseLayerSettings.Curve curve;
+    [SerializeField] private Material material;
+
+    private void Start()
+    {
+        material = GetComponent<MeshRenderer>().material;
+    }
+
+    private void Update()
+    {
+        AddCurveTexture(ref material, curve);
+    }
+
     public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve)
     {
         Texture2D curve_texture = new Texture2D(curve.resolution, 1, TextureFormat.R8, false);

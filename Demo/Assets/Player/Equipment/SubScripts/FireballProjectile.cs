@@ -166,7 +166,7 @@ public class FireballProjectile : MonoBehaviour
                 }
                 else
                 {
-                    fireball_ability.set_fire.UpdateNonFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min / 10f, fireball_ability.ground_fire_time_max / 10f));
+                    fireball_ability.set_fire.UpdateNonFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min / fireball_ability.ground_none_flammable_time_decreesement, fireball_ability.ground_fire_time_max / fireball_ability.ground_none_flammable_time_decreesement));
                 }
             }
         }
@@ -201,7 +201,7 @@ public class FireballProjectile : MonoBehaviour
             }
             else
             {
-                fireball_ability.set_fire.UpdateNonFlammableFire(new_burn_contact_point, normal, Random.Range(fireball_ability.ground_fire_time_min / 10f, fireball_ability.ground_fire_time_max / 10f));
+                fireball_ability.set_fire.UpdateNonFlammableFire(new_burn_contact_point, normal, Random.Range(fireball_ability.ground_fire_time_min / fireball_ability.ground_none_flammable_time_decreesement, fireball_ability.ground_fire_time_max / fireball_ability.ground_none_flammable_time_decreesement));
             }
             last_burn_contact_point = new_burn_contact_point;
         }

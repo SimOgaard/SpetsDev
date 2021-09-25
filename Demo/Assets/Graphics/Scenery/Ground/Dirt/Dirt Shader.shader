@@ -2,9 +2,8 @@
 {
     Properties
     {
-		_CrackColor("Crack Color", Color) = (1,1,1,1)
-		_StoneColor("Stone Color", Color) = (1,1,1,1)
-		_Threshold("Threshold", Float) = 0.1
+		_Colors ("Color Texture", 2D) = "white" {}
+		_CurveTexture ("Curve Texture", 2D) = "white" {}
 
 		[Header(Noise settings)]
 		_Noise_Seed("Seed", Int) = 1337
@@ -36,52 +35,28 @@
     }
     SubShader
     {
-		Tags {
-			"RenderType"= "Opaque"
-			"LightMode" = "ForwardAdd"
-			"PassFlags" = "OnlyDirectional"
-		}
-
         Pass
         {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+			Tags {
+				"Queue"="Transparent-1"
+				"LightMode" = "ForwardAdd"
+				"PassFlags" = "OnlyDirectional"
+			}
 
-            #include "UnityCG.cginc"
-			#include "Lighting.cginc"
+			CGPROGRAM
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-            #include "AutoLight.cginc"
 
+			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
 			#include "/Assets/Graphics/FastNoiseLite.cginc"
 
-            struct v2f
-            {
-                float4 pos : SV_POSITION;
-                float3 worldPos : TEXCOORD0;
-				SHADOW_COORDS(1)
-				fixed3 diff : COLOR0;
-                fixed3 ambient : COLOR1;
-            };
+			sampler2D _CurveTexture;
+			float4 _CurveTexture_ST;
 
-            v2f vert (appdata_base v)
-            {
-                v2f o;
-
-				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
-				o.pos = UnityObjectToClipPos(v.vertex);
-                half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
-                o.diff = nl * _LightColor0.rgb;
-                o.ambient = ShadeSH9(half4(worldNormal,1));
-                TRANSFER_SHADOW(o)
-                
-                return o;
-            }
-
-			float4 _CrackColor;
-			float4 _StoneColor;
-			float _Threshold;
+			sampler2D _Colors;
+			float4 _Colors_ST;
 
 			int _Noise_Seed;
 			float _Noise_Frequency;
@@ -109,13 +84,6 @@
 			float _Warp_FractalLacunarity;
 			float _Warp_FractalGain;
 
-			sampler2D _LightTexture0;
-			float4x4 unity_WorldToLight;
-
-			float remap01(float v) {
-				return saturate((v + 1) * 0.5);
-			}
-
             float4 frag (v2f i) : SV_Target
             {
 				fnl_state noise = fnlCreateState();
@@ -131,7 +99,7 @@
 				noise.weighted_strength = 0.0; //_Noise_FractalWeightedStrength;
 				noise.ping_pong_strength = 0.0; //_Noise_FractalPingPongStrength;
 
-				noise.cellular_distance_func = 0; //_Noise_CellularDistanceFunction;
+				noise.cellular_distance_func = 1; //_Noise_CellularDistanceFunction;
 				noise.cellular_return_type = 4; //_Noise_CellularReturnType;
 				noise.cellular_jitter_mod = 1.0; //_Noise_CellularJitter;
 
@@ -150,21 +118,14 @@
 				float y = i.worldPos.y;
 				float z = i.worldPos.z;
 				fnlDomainWarp3D(warp, x, y, z);
-				float noise_value = remap01(fnlGetNoise3D(noise, x, y, z));
-				
-				fixed shadow = SHADOW_ATTENUATION(i);
-				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
-				float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
+				fixed noise_value = saturate(fnlGetNoise3D(noise, x, y, z) + 1);
 
-				//noise_value = noise_value < _Threshold ? 0 : 1;
-				//return noise_value;
+				fixed light = CalculateLight(i);
 
-				if (noise_value < _Threshold)
-				{
-					return _CrackColor;
-				}
-				return _StoneColor;
+				fixed curve_value = tex2D(_CurveTexture, noise_value).r;
+				fixed4 color = tex2D(_Colors, curve_value);
+
+				return color;
 			}
             ENDCG
         }

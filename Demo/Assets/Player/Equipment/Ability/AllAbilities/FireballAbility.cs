@@ -30,6 +30,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public float ground_fire_time_max = 7.5f;
     public float fireball_fire_time_min = 3.5f;
     public float fireball_fire_time_max = 5f;
+    public float ground_none_flammable_time_decreesement = 5f;
     public float on_collision_damage = 4f;
     public float on_collision_damage_burned_out = 1f;
 
@@ -209,9 +210,9 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     private void Start()
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
-        fireball_material = new Material(Shader.Find("Custom/FireBallShader"));
+        fireball_material = Resources.Load<Material>("Materials/Fire Ball Material");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
-        fireball_burned_out_material = new Material(Shader.Find("Custom/AshBallShader"));
+        fireball_burned_out_material = Resources.Load<Material>("Materials/Ash Ball Material");
         set_fire = GameObject.Find("Fire").GetComponent<SetFire>();
         damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
     }

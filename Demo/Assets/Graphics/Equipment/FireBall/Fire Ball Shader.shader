@@ -2,52 +2,39 @@
 {
     Properties
     {
-		_Color1("Color 1", Color) = (1,0.8431373, 0.2117647, 1)
-		_Color2("Color 2", Color) = (0.9411765, 0.3921569, 0.2431373, 1)
-		_Color3("Color 3", Color) = (0.764706, 0.1490196, 0.1058824, 1)
-		_Threshold1 ("Threshold1", Range(0,1)) = 0.4
-		_Threshold2 ("Threshold2", Range(0,1)) = 0.65
+		_Colors ("Color Texture", 2D) = "white" {}
+		_CurveTexture ("Curve Texture", 2D) = "white" {}
     }
     SubShader
     {
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #include "UnityCG.cginc"
+		Pass
+		{
+			Tags {
+				"Queue"="Transparent-1"
+			}
+			CGPROGRAM
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "/Assets/Graphics/CGincFiles/NoShading.cginc"
 			#include "/Assets/Graphics/FastNoiseLite.cginc"
 
-			float4 _Color1;
-			float4 _Color2;
-			float4 _Color3;
-			float _Threshold1;
-			float _Threshold2;
+			sampler2D _CurveTexture;
+			float4 _CurveTexture_ST;
+
+			sampler2D _Colors;
+			float4 _Colors_ST;
 
 			float4 _FireBallCentre;
 			float4 _FireDirection;
-
-            struct output
-            {
-                float3 worldPos : TEXCOORD1;
-                float4 vertex : SV_POSITION;
-            };
 
 			float remap01(float v) {
 				return saturate(0.5+v);
 			}
 
-            output vert(appdata_base v)
-            {
-                output o;
-				o.worldPos = mul (unity_ObjectToWorld, v.vertex) - _FireBallCentre.xyz;
-				o.vertex = UnityObjectToClipPos(v.vertex);
-
-				return o;
-            }
-
-            fixed4 frag (output o) : SV_Target
-            {
+			fixed4 frag(v2f i) : SV_Target
+			{
 				fnl_state noise = fnlCreateState();
 				noise.rotation_type_3d = 2;
 
@@ -60,33 +47,19 @@
 
 				noise.domain_warp_amp = 3;
 
-				float3 noise_pos = o.worldPos;
+				float3 noise_pos = i.worldPos;
 				noise_pos += _FireDirection.xyz * _Time[0];
 
 				fnlDomainWarp3D(noise, noise_pos.x, noise_pos.y, noise_pos.z);
-				float noiseLight = remap01(fnlGetNoise3D(noise, noise_pos.x, noise_pos.y, noise_pos.z));
-				
-				// blend
-				//float4 col = lerp(_ColorUndertone, _ColorFire, noiseLight);
+				fixed noise_value = remap01(fnlGetNoise3D(noise, noise_pos.x, noise_pos.y, noise_pos.z));
 
-				// cartoon stripes
-				float4 col;
-				if (noiseLight < _Threshold1)
-				{
-					col = _Color1;
-				}
-				else if (noiseLight < _Threshold2)
-				{
-					col = _Color2;
-				}
-				else
-				{
-					col = _Color3;
-				}
+				fixed curve_value = tex2D(_CurveTexture, noise_value).r;
+				fixed4 color = tex2D(_Colors, curve_value);
 
-				return col;
-            }
-            ENDCG
-        }
+				return color;
+			}
+			ENDCG
+		}
+		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
     }
 }
