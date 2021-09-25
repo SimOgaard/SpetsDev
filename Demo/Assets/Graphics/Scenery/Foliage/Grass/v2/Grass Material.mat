@@ -100,12 +100,12 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SecondThreshold: 0.45
-    - _ShadowSoftness: 0.5
+    - _ShadowSoftness: 0.75
     - _Size: 3
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TessellationUniform: 1
+    - _TessellationUniform: 2
     - _ThirdThreshold: 0.575
     - _TileAmount: 8
     - _TilePixelSize: 16

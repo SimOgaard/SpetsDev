@@ -22,8 +22,9 @@ Shader "Custom/shadow testing shader 3"
 			#pragma require geometry
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
+			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
-			#include "/Assets/Graphics/CGincFiles/Geo/SimpleGeo.cginc"
+			#include "/Assets/Graphics/CGincFiles/FlatGeo.cginc"
 			
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{

@@ -8,40 +8,12 @@ float4x4 unity_WorldToLight;
 UNITY_DECLARE_SHADOWMAP(_DirectionalShadowmap);
 float _ShadowSoftness;
 
-struct vertexInput
-{
-	float4 vertex : POSITION;
-	float3 normal : NORMAL;
-	float4 tangent : TANGENT;
-};
-
-struct vertexOutput
-{
-	float4 vertex : SV_POSITION;
-	float3 normal : NORMAL;
-	float4 tangent : TANGENT;
-};
-
-vertexInput vert(vertexInput v)
-{
-	return v;
-}
-
-vertexOutput tessVert(vertexInput v)
-{
-	vertexOutput o;
-	o.vertex = v.vertex; // Note that the vertex is NOT transformed to clip space here;
-	o.normal = v.normal;
-	o.tangent = v.tangent;
-	return o;
-}
-
 fixed LightCalculation(float3 center, float3 normal)
 {
 	float2 lightUVCookie = mul(unity_WorldToLight, float4(center, 1)).xy;
 	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
 	float3 worldNormal = UnityObjectToWorldNormal(normal);
-	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap);
+	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
 
 	// Support cascaded shadows
 	float4 shadowCoords0 = mul (unity_WorldToShadow[0], float4 (center, 1));

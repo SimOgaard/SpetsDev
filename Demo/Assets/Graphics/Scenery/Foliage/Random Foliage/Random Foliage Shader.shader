@@ -38,8 +38,9 @@ Shader "Custom/Random Foliage Shader"
 			#pragma require geometry
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
+			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
-			#include "/Assets/Graphics/CGincFiles/Geo/GrassBillboard.cginc"
+			#include "/Assets/Graphics/CGincFiles/BillboardGrass.cginc"
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;

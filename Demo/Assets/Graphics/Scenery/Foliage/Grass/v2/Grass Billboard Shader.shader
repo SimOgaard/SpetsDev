@@ -32,13 +32,10 @@
 			CGPROGRAM
 			#pragma target 3.0
 			#pragma vertex vert
-			#pragma geometry geo
 			#pragma fragment frag
-			#pragma require geometry
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-			#include "/Assets/Graphics/CGincFiles/NormalShadingSetup.cginc"
-			#include "/Assets/Graphics/CGincFiles/Geo/SimpleGeo.cginc"
+			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;
@@ -46,10 +43,13 @@
 			sampler2D _Colors;
 			float4 _Colors_ST;
 
-			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
+			fixed4 frag(v2f i) : SV_Target
 			{
-				fixed curve_value = tex2D(_CurveTexture, i.light).r;
+				fixed light = CalculateLight(i);
+
+				fixed curve_value = tex2D(_CurveTexture, light).r;
 				fixed4 color = tex2D(_Colors, curve_value);
+
 				return color;
 			}
 			ENDCG
@@ -64,15 +64,23 @@
 			}
 
 			CGPROGRAM
-			#pragma target 3.0
+			//#pragma target 3.0
 			#pragma vertex vert
 			#pragma geometry geo
 			#pragma fragment frag
 			#pragma require geometry
+
+			// For Tessellation
+			#pragma hull hull
+			#pragma domain domain
+			#pragma target 4.6
+
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
+			//#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
+			#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
-			#include "/Assets/Graphics/CGincFiles/Geo/GrassBillboard.cginc"
+			#include "/Assets/Graphics/CGincFiles/BillboardGrass.cginc"
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;

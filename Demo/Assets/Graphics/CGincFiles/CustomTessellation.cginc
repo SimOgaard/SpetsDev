@@ -1,6 +1,3 @@
-// Tessellation programs based on this article by Catlike Coding:
-// https://catlikecoding.com/unity/tutorials/advanced-rendering/tessellation/
-
 struct vertexInput
 {
 	float4 vertex : POSITION;
