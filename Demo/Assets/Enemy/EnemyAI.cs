@@ -44,13 +44,12 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         agent = gameObject.GetComponent<Agent>();
-        material = transform.Find("Mesh").Find("UpperBody").GetComponent<MeshRenderer>().material;
+        //material = GetComponent<MeshRenderer>().material;
         player_transform = GameObject.Find("Player").transform;
         damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
-        collider_radius = gameObject.GetComponent<CapsuleCollider>().radius * transform.localScale.x;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         _current_health = starting_health;
         chasing_range_pow = chasing_range * chasing_range;
@@ -65,6 +64,9 @@ public class EnemyAI : MonoBehaviour
         ConstructBehaviourTree();
 
         InvokeRepeating("DamageCheckInterval", 0.25f, 0.25f);
+
+        yield return new WaitForEndOfFrame();
+        collider_radius = gameObject.AddComponent<CapsuleCollider>().radius * transform.localScale.x;
     }
 
     private void DamageCheckInterval()
@@ -153,7 +155,7 @@ public class EnemyAI : MonoBehaviour
 
     public void SetColor(Color color)
     {
-        material.color = color;
+        //material.color = color;
     }
 
     public void SetClosestGolem(Transform closest_golem)

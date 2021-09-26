@@ -23,7 +23,7 @@ public class Agent : MonoBehaviour
     private RaycastHit slope_hit;
 
     [SerializeField] private float height;
-    private Rigidbody enemy_rigidbody;
+    [SerializeField] private Rigidbody enemy_rigidbody;
     private float gravity = 25000f;
 
     private RigidbodyConstraints rigidbody_constraints_grounded = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
@@ -34,6 +34,7 @@ public class Agent : MonoBehaviour
     /// </summary>
     public void CompleteStop()
     {
+        return;
         DestroyImmediate(enemy_rigidbody);
         enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
         enemy_rigidbody.isKinematic = true;
@@ -50,10 +51,10 @@ public class Agent : MonoBehaviour
         enemy_rigidbody.constraints = RigidbodyConstraints.None;
     }
 
-    private void Start()
+    private void Awake()
     {
         height *= 0.5f;
-        enemy_rigidbody = GetComponent<Rigidbody>();
+        //enemy_rigidbody = GetComponent<Rigidbody>();
     }
 
     /// <summary>
