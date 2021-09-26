@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ColossalPlains
   m_EditorClassIdentifier: 
   unit_size: {x: 2, y: 2}
-  resolution: {x: 100, y: 100}
+  resolution: {x: 250, y: 250}
   terrain_noise_layers:
   - enabled: 1
     general:
@@ -76,7 +76,7 @@ MonoBehaviour:
     resolution: 255
     col_diff: 0
   random_foliage:
-  - name: flowers
+  - name: flowers red
     material: {fileID: 2100000, guid: af577c50e6085b34b8fb07870848e129, type: 2}
     curve:
       light_curve:
@@ -206,6 +206,136 @@ MonoBehaviour:
     keep_range_noise: {x: 0, y: 0}
     keep_range_random_noise: 0
     keep_range_random: 0.0055
+  - name: flowers blue
+    material: {fileID: 2100000, guid: e8c6b2ed49c9d9f48804cf540e9a4dc6, type: 2}
+    curve:
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0.028335571
+          value: 0.9834671
+          inSlope: -0.16673419
+          outSlope: -0.16673419
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.106905945
+        - serializedVersion: 3
+          time: 1.0016141
+          value: 0.008609049
+          inSlope: -1.9741418
+          outSlope: -1.9741418
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.044404846
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 3
+      col_diff: 0
+    noise_layer:
+      enabled: 1
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 1
+        frequency: 0.01
+      fractal:
+        fractal_type: 1
+        octaves: 5
+        lacunarity: 2
+        gain: 0.5
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0.85, y: 1}
+    keep_range_random_noise: 0.125
+    keep_range_random: 0.0005
+  - name: flowers yellow
+    material: {fileID: 2100000, guid: 521b288d35819d647b90f0c34be96c63, type: 2}
+    curve:
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0.028335571
+          value: 0.9834671
+          inSlope: -0.16673419
+          outSlope: -0.16673419
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.106905945
+        - serializedVersion: 3
+          time: 1.0016141
+          value: 0.008609049
+          inSlope: -1.9741418
+          outSlope: -1.9741418
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.044404846
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 3
+      col_diff: 0
+    noise_layer:
+      enabled: 1
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 2
+        frequency: 0.01
+      fractal:
+        fractal_type: 1
+        octaves: 5
+        lacunarity: 2
+        gain: 0.5
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0.85, y: 1}
+    keep_range_random_noise: 0.125
+    keep_range_random: 0.0005
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   curve_leaf:
     light_curve:

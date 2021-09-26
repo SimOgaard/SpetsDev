@@ -6,7 +6,7 @@ public class PlanarReflectionManager : MonoBehaviour
 {
     private Camera reflection_camera;
 
-    [SerializeField] private float camera_far_clipping_plane = 100f;
+    [SerializeField] private float camera_far_clipping_plane = 150f;
 
     private void Awake()
     {
