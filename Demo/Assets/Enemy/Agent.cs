@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// How the enemy should interact with the worlds physics.
+/// </summary>
 public class Agent : MonoBehaviour
 {
-    private bool is_dead = false;
     private bool complete_stop = false;
     public bool is_stopped = false;
+
     public Vector3 destination;
     public float wanted_move_speed = 0f;
 
@@ -18,43 +21,22 @@ public class Agent : MonoBehaviour
     private Vector3 slope_move_direction_normalized;
     private Vector3 look_dir;
 
-    public int trigger_count;
-    public bool is_grounded;
+    public bool is_grounded = true;
     private RaycastHit slope_hit;
 
-    [SerializeField] private float height;
-    [SerializeField] private Rigidbody enemy_rigidbody;
-    private float gravity = 25000f;
-
-    private RigidbodyConstraints rigidbody_constraints_grounded = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-    private RigidbodyConstraints rigidbody_constraints_airborn = RigidbodyConstraints.None;
+    [SerializeField] private float ground_raycast_length;
+    public Rigidbody enemy_rigidbody;
+    private float gravity = 2500f;
 
     /// <summary>
     /// Completely stops agent from moving and removes any angular velocity / velocity. AAAAAH WHYYYY DO I NEED TO REMOVE RIGIDBODY
     /// </summary>
     public void CompleteStop()
     {
-        return;
         DestroyImmediate(enemy_rigidbody);
         enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
         enemy_rigidbody.isKinematic = true;
         complete_stop = true;
-    }
-
-    /// <summary>
-    /// Stops agent from moving and removes any rigidbody restraints.
-    /// </summary>
-    public void Die()
-    {
-        is_dead = true;
-        is_stopped = true;
-        enemy_rigidbody.constraints = RigidbodyConstraints.None;
-    }
-
-    private void Awake()
-    {
-        height *= 0.5f;
-        //enemy_rigidbody = GetComponent<Rigidbody>();
     }
 
     /// <summary>
@@ -69,7 +51,7 @@ public class Agent : MonoBehaviour
 
         move_direction_normalized = (destination - transform.position).normalized;
         look_dir = new Vector3(move_direction_normalized.x, 0f, move_direction_normalized.z);
-        Physics.Raycast(transform.position, Vector3.down, out slope_hit, height);
+        Physics.Raycast(transform.position, Vector3.down, out slope_hit, ground_raycast_length);
         slope_move_direction_normalized = Vector3.ProjectOnPlane(move_direction_normalized, slope_hit.normal).normalized;
         move_speed = Mathf.Lerp(move_speed, wanted_move_speed, acceleration * Time.deltaTime);
     }
@@ -94,50 +76,5 @@ public class Agent : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(new_dir);
         }
         enemy_rigidbody.AddForce(Vector3.down * gravity * Time.deltaTime, ForceMode.Acceleration);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (complete_stop)
-        {
-            return;
-        }
-        if (Layer.IsInLayer(Layer.Mask.ground_enemy, other.gameObject.layer) && !is_dead)
-        {
-            trigger_count++;
-            if (trigger_count == 1)
-            {
-                if (!is_dead)
-                {
-                    enemy_rigidbody.constraints = rigidbody_constraints_grounded;
-                    transform.rotation = Quaternion.LookRotation(look_dir);
-                }
-                enemy_rigidbody.drag = 10f;
-                is_grounded = true;
-            }
-        }
-        return;
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (complete_stop)
-        {
-            return;
-        }
-        if (Layer.IsInLayer(Layer.Mask.ground_enemy, other.gameObject.layer))
-        {
-            trigger_count--;
-            if (trigger_count == 0)
-            {
-                if (!is_dead)
-                {
-                    enemy_rigidbody.constraints = rigidbody_constraints_airborn;
-                }
-                enemy_rigidbody.drag = 1f;
-                is_grounded = false;
-            }
-        }
-        return;
     }
 }

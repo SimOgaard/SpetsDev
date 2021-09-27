@@ -13,8 +13,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     [SerializeField] private Vector3 camera_rotation_init = new Vector3(30f, 0f, 0f);
     [SerializeField] private float camera_distance = 100f;
 
-    private const float units_per_pixel_world = 40f / 216f;
-    private const float units_per_pixel_camera = 40f / 225f;
+    public const float units_per_pixel_world = 40f / 216f;
+    public const float units_per_pixel_camera = 40f / 225f;
     private Vector3 offset;
 
     [SerializeField] private Transform camera_focus_point;

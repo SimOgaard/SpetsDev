@@ -215,7 +215,7 @@ public class PlaceInWorld : MonoBehaviour
             {
                 for (int i = 0; i < colliders.Length; i++)
                 {
-                    if (colliders[i].bounds.Intersects(col.bounds))
+                    if (colliders[i].bounds.Intersects(col.bounds) && colliders[i].enabled)
                     {
                         Destroy(gameObject);
                         return;
@@ -223,7 +223,13 @@ public class PlaceInWorld : MonoBehaviour
                 }
             }
         }
-        SpawnPrefabs.bounding_boxes.AddRange(colliders);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].isTrigger)
+            {
+                SpawnPrefabs.bounding_boxes.Add(colliders[i]);
+            }
+        }
 
         transform.parent = GameObject.Find(this_instruction.parrent_name.ToString()).transform;
         Destroy(this);

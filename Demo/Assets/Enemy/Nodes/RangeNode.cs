@@ -10,7 +10,7 @@ public class RangeNode : Node
 
     public RangeNode(float range, Transform target, Transform origin)
     {
-        this.range = range;
+        this.range = range * range;
         this.target = target;
         this.origin = origin;
     }

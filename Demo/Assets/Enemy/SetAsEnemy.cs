@@ -11,7 +11,14 @@ public class SetAsEnemy : MonoBehaviour
             Collider[] colliders = game_object.GetComponents<Collider>();
             for (int i = 0; i < colliders.Length; i++)
             {
-                Destroy(colliders[i]);
+                if (colliders[i].isTrigger)
+                {
+                    Destroy(colliders[i]);
+                }
+                else
+                {
+                    colliders[i].enabled = true;
+                }
             }
         }
 
@@ -28,6 +35,11 @@ public class SetAsEnemy : MonoBehaviour
     {
         JoinMeshes join_meshes = gameObject.AddComponent<JoinMeshes>();
         join_meshes.SetMergeByTags(true);
+
+        Rigidbody enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
+        enemy_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        GetComponent<Agent>().enemy_rigidbody = enemy_rigidbody;
+
         RecursiveEnemy(gameObject);
         Destroy(this);
     }
