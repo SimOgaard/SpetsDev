@@ -5,6 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class CloudShadows : MonoBehaviour
 {
+    [SerializeField] private bool invert;
     [SerializeField] private Light light;
     [SerializeField] private RenderTexture shadow_render_texture;
     [SerializeField] private Material cloud_shadow_material;
@@ -39,7 +40,14 @@ public class CloudShadows : MonoBehaviour
 
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
-        cloud_shadow_material.SetVector("_LightPosition", transform.position);
+        if (invert)
+        {
+            cloud_shadow_material.SetVector("_LightPosition", -transform.position);
+        }
+        else
+        {
+            cloud_shadow_material.SetVector("_LightPosition", transform.position);
+        }
 
         #if UNITY_EDITOR
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);

@@ -137,8 +137,7 @@
 			uniform float4 _CameraOffset;
 
 			sampler2D _WaterReflectionTexture;
-			sampler2D _WaterReflectionTextureDepth;
-
+			
             float4 frag (v2f i) : SV_Target
             {
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
@@ -216,8 +215,8 @@
 				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + distort_value;
 
 				// Sample reflection camera color and depth value.
-				float4 waterReflection = float4(tex2D(_WaterReflectionTexture, screen_uv_reflection).xyz, _WaterReflectionAmount);
-				float depth_reflection_value = tex2D(_WaterReflectionTextureDepth, screen_uv_reflection).x;
+				float4 waterReflection = tex2D(_WaterReflectionTexture, screen_uv_reflection);
+				waterReflection.a *= _WaterReflectionAmount;
 
 				// If we are under water.
 				if (depthDifference > 0)
@@ -226,12 +225,8 @@
 					waterColor = alphaBlend(waterColor, under_color);
 				}
 
-				// If the camera saw somthing.
-				if (depth_reflection_value != 0)
-				{
-					waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
-					waterColor = alphaBlend(waterReflection, waterColor);
-				}
+				waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
+				waterColor = alphaBlend(waterReflection, waterColor);
 
 				return alphaBlend(surfaceNoiseColor, waterColor);
             }

@@ -29,7 +29,7 @@
 			{
 				fixed light = CalculateLight(i);
 				fixed4 light_color = _LightColor0.rgba * light;
-				return _Color * light_color;
+				return fixed4(_Color.rgb * light_color.rgb, 1);
 			}
 			ENDCG
 		}

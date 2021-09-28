@@ -104,7 +104,7 @@
 				fixed curve_value = tex2D(_CurveTexture, i.light).r;
 				fixed4 color = tex2D(_Colors, curve_value);
 
-				return color;
+				return fixed4(color.rgb, 1);
 			}
 			ENDCG
 		}

@@ -34,21 +34,15 @@
 			}
 
 			CGPROGRAM
-			//#pragma target 3.0
+			#pragma target 3.0
 			#pragma vertex vert
 			#pragma geometry geo
 			#pragma fragment frag
 			#pragma require geometry
 
-			// For Tessellation
-			#pragma hull hull
-			#pragma domain domain
-			#pragma target 4.6
-
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-			//#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
-			#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
+			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardLeaf.cginc"
 
@@ -76,7 +70,7 @@
 				fixed curve_value = tex2D(_CurveTexture, i.light).r;
 				fixed4 color = tex2D(_Colors, curve_value);
 
-				return color;
+				return fixed4(color.rgb, 1);
 			}
 			ENDCG
 		}

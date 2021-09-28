@@ -102,7 +102,7 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void Explode()
     {
-        if (!has_exploded && fireball_ability.explode_on_first_hit)
+        if (!is_burned_out && !has_exploded && fireball_ability.explode_on_first_hit)
         {
             Vector3 fireball_pos = transform.position;
             Collider[] all_collisions = Physics.OverlapSphere(fireball_pos, fireball_ability.explosion_radius);
@@ -174,10 +174,7 @@ public class FireballProjectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!is_burned_out)
-        {
-            Explode();
-        }
+        Explode();
     }
 
     /// <summary>

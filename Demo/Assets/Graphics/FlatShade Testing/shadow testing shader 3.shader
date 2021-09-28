@@ -28,7 +28,7 @@ Shader "Custom/shadow testing shader 3"
 			
 			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
 			{
-				return i.light;
+				return fixed4(i.light, i.light, i.light, 1);
 			}
 			ENDCG
 		}

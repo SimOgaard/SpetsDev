@@ -9,7 +9,7 @@
 	SubShader
 	{
 		Tags {"Queue" = "Transparent+1000" "IgnoreProjector" = "True" "RenderType" = "Transparent" "DisableBatching" = "True" }
-		ZWrite Off
+		ZWrite On
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass
