@@ -202,6 +202,7 @@ GameObject:
   - component: {fileID: 4682761705114209749}
   - component: {fileID: 8218052109670770207}
   - component: {fileID: 5730821405507337768}
+  - component: {fileID: -5646793820301839702}
   m_Layer: 19
   m_Name: ChestRandom
   m_TagString: Untagged
@@ -250,8 +251,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 4, y: 50, z: 2.5}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 4, y: 5, z: 2.5}
+  m_Center: {x: 0, y: 1.25, z: 0}
 --- !u!114 &5730821405507337768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,3 +273,20 @@ MonoBehaviour:
   upwards_modifier: 5
   explosion_offset: 5
   chest_top_static_after: 5
+--- !u!114 &-5646793820301839702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7141246363922379835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounding_boxes:
+  - {fileID: 8218052109670770207}
+  destroy_children: 0
+  collider1: {fileID: 0}
+  collider2: {fileID: 0}

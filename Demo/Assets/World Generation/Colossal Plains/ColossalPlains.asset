@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ColossalPlains
   m_EditorClassIdentifier: 
   unit_size: {x: 2, y: 2}
-  resolution: {x: 250, y: 250}
+  resolution: {x: 100, y: 100}
   terrain_noise_layers:
   - enabled: 1
     general:
@@ -77,6 +77,7 @@ MonoBehaviour:
     col_diff: 0
   random_foliage:
   - name: flowers red
+    enabled: 1
     material: {fileID: 2100000, guid: af577c50e6085b34b8fb07870848e129, type: 2}
     curve:
       light_curve:
@@ -142,6 +143,7 @@ MonoBehaviour:
     keep_range_random_noise: 0.25
     keep_range_random: 0.001
   - name: grass col diff
+    enabled: 0
     material: {fileID: 2100000, guid: 3dba13ccd65d0bb4e9c2b72acac87805, type: 2}
     curve:
       light_curve:
@@ -207,6 +209,7 @@ MonoBehaviour:
     keep_range_random_noise: 0
     keep_range_random: 0.0055
   - name: flowers blue
+    enabled: 1
     material: {fileID: 2100000, guid: e8c6b2ed49c9d9f48804cf540e9a4dc6, type: 2}
     curve:
       light_curve:
@@ -272,6 +275,7 @@ MonoBehaviour:
     keep_range_random_noise: 0.125
     keep_range_random: 0.0005
   - name: flowers yellow
+    enabled: 1
     material: {fileID: 2100000, guid: 521b288d35819d647b90f0c34be96c63, type: 2}
     curve:
       light_curve:

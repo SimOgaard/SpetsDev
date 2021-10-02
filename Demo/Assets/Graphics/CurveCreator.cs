@@ -42,10 +42,10 @@ public class CurveCreator : MonoBehaviour
         for (int x = 0; x < curve.resolution; x++)
         {
             float curve_value = Mathf.Clamp01(curve.light_curve.Evaluate(((float) x + one_div_half) * one_div));
-            float curve_value_discrete = Mathf.Floor(curve_value / steps) * steps; // is 0.05, 0.15 0.25 ... 0.95
+            //float curve_value_discrete = Mathf.Floor(curve_value / steps) * steps; // is 0.05, 0.15 0.25 ... 0.95
             float curve_step = (float) curve.col_diff * steps; // shifts range to side
 
-            float curve_color = curve_value_discrete + curve_step;
+            float curve_color = curve_value/*_discrete*/ + curve_step;
             curve_texture.SetPixel(x, 0, new Color(curve_color, curve_color, curve_color));
         }
         curve_texture.Apply();

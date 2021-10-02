@@ -116,6 +116,7 @@ public class NoiseLayerSettings : ScriptableObject
     public class Foliage
     {
         public string name;
+        public bool enabled = true;
         public Material material;
         public Curve curve;
         public NoiseLayer noise_layer;

@@ -74,6 +74,11 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         {
             // Flower testing
             NoiseLayerSettings.Foliage foliage_settings = noise_layer_settings.random_foliage[i];
+            if (!foliage_settings.enabled)
+            {
+                continue;
+            }
+
             Mesh foliage_mesh = create_mesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.zero);
             CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
             GameObject foliage_game_object = create_mesh.CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name);

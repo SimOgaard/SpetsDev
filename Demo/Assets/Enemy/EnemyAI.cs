@@ -23,10 +23,6 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         player_transform = GameObject.Find("Player").transform;
-    }
-
-    private void Start()
-    {
         agent = GetComponent<Agent>();
         InitHealthBar();
         current_health = starting_health;

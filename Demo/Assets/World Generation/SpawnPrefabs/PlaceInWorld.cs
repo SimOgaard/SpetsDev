@@ -7,6 +7,8 @@ public class PlaceInWorld : MonoBehaviour
     public SpawnInstruction this_instruction;
     public SpawnInstruction child_instruction;
 
+    private List<Collider> bounding_boxes = new List<Collider>();
+
     public static void SetRecursiveToGameWorld(GameObject obj)
     {
         if (Layer.IsInLayer(Layer.Mask.spawned_game_world, obj.layer))
@@ -96,7 +98,7 @@ public class PlaceInWorld : MonoBehaviour
     {
         if (is_parrent)
         {
-            child_transform_amount = 0;
+            child_transform_amount = -1;
         }
         else
         {
@@ -114,14 +116,14 @@ public class PlaceInWorld : MonoBehaviour
         return false;
     }
 
-    public static void Spawn(Transform transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
+    public static List<Collider> Spawn(Transform transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
     {
         // Should this Transform spawn?
         if (Random.value > spawn_instruction.spawn_chance)
         {
             Destroy(transform.gameObject);
             CountDownChild(ref child_transform_amount, is_parrent);
-            return;
+            return null;
         }
 
         // Raycast
@@ -143,7 +145,7 @@ public class PlaceInWorld : MonoBehaviour
         {
             Destroy(transform.gameObject);
             CountDownChild(ref child_transform_amount, is_parrent);
-            return;
+            return null;
         }
 
         // Apply rotation, scale and position offsets.
@@ -168,11 +170,64 @@ public class PlaceInWorld : MonoBehaviour
         {
             transform.parent = GameObject.Find(spawn_instruction.parrent_name.ToString()).transform;
         }
+
+        Physics.SyncTransforms();
+
+        if (transform.TryGetComponent(out BoundingBoxes bounding_boxes))
+        {
+            List<Collider> bounds = bounding_boxes.GetBoundingBoxes();
+            List<Collider> bounds_to_be_removed = new List<Collider>();
+
+            if (!spawn_instruction.ignore_bounding_boxes)
+            {
+                bool destroy_children = bounding_boxes.ShouldDestroyChildren();
+
+                foreach (Collider spawning_collider in bounds)
+                {
+                    foreach (Collider instanciated_colliders in SpawnPrefabs.bounding_boxes)
+                    {
+                        if (destroy_children)
+                        {
+                            //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
+                            if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
+                            {
+                                Destroy(spawning_collider.gameObject);
+                                bounds_to_be_removed.Add(spawning_collider);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
+                            if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
+                            {
+                                Destroy(transform.gameObject);
+                                CountDownChild(ref child_transform_amount, is_parrent);
+                                return null;
+                            }
+                        }
+                    }
+                }
+
+                foreach (Collider bound in bounds_to_be_removed)
+                {
+                    bounds.Remove(bound);
+                }
+
+                return bounds;
+            }
+
+            return bounds;
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public void InitAsChild(ref int child_transform_amount)
+    public List<Collider> InitAsChild(ref int child_transform_amount)
     {
-        Spawn(transform, this_instruction, ref child_transform_amount);
+        return Spawn(transform, this_instruction, ref child_transform_amount);
     }
 
     public void InitAsParrent(float x, float z)
@@ -182,7 +237,12 @@ public class PlaceInWorld : MonoBehaviour
 
         // Spawn this gameobject.
         transform.position = new Vector3(x, 0f, z);
-        Spawn(transform, this_instruction, ref child_transform_amount, true);
+        List<Collider> parrent_colliders = Spawn(transform, this_instruction, ref child_transform_amount, true);
+        if (parrent_colliders != null)
+        {
+            bounding_boxes.AddRange(parrent_colliders);
+        }
+
         if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
         {
             Destroy(gameObject);
@@ -194,12 +254,20 @@ public class PlaceInWorld : MonoBehaviour
         {
             if (child.TryGetComponent(out PlaceInWorld place_in_world))
             {
-                place_in_world.InitAsChild(ref child_transform_amount);
+                List<Collider> object_colliders = place_in_world.InitAsChild(ref child_transform_amount);
+                if(object_colliders != null)
+                {
+                    bounding_boxes.AddRange(object_colliders);
+                }
                 Destroy(place_in_world);
             }
             else if (child_instruction != null)
             {
-                Spawn(child, child_instruction, ref child_transform_amount);
+                List<Collider> object_colliders = Spawn(child, child_instruction, ref child_transform_amount);
+                if (object_colliders != null)
+                {
+                    bounding_boxes.AddRange(object_colliders);
+                }
             }
             if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
             {
@@ -207,30 +275,7 @@ public class PlaceInWorld : MonoBehaviour
             }
         }
 
-        // Check if bounding boxes intersects.
-        Collider[] colliders = GetComponents<Collider>();
-        if (!this_instruction.ignore_bounding_boxes)
-        {
-            foreach (Collider col in SpawnPrefabs.bounding_boxes)
-            {
-                for (int i = 0; i < colliders.Length; i++)
-                {
-                    if (colliders[i].bounds.Intersects(col.bounds) && colliders[i].enabled)
-                    {
-                        Destroy(gameObject);
-                        return;
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i].isTrigger)
-            {
-                SpawnPrefabs.bounding_boxes.Add(colliders[i]);
-            }
-        }
-
+        SpawnPrefabs.bounding_boxes.AddRange(bounding_boxes);
         transform.parent = GameObject.Find(this_instruction.parrent_name.ToString()).transform;
         Destroy(this);
     }

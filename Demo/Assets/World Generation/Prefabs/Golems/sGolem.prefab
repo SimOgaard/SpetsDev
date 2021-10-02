@@ -1451,6 +1451,7 @@ GameObject:
   - component: {fileID: 1323705643777353973}
   - component: {fileID: 8724186405840053940}
   - component: {fileID: -3033594527747519721}
+  - component: {fileID: 8420093585059234348}
   m_Layer: 0
   m_Name: sGolem
   m_TagString: Untagged
@@ -1501,8 +1502,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 4, y: 50, z: 6}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 4, y: 5, z: 3}
+  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!114 &8923356299403897493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1548,7 +1549,6 @@ MonoBehaviour:
   golem_type: 0
   has_golem_in_hands: 0
   closest_golem: {fileID: 0}
-  throwable_parrent_transform: {fileID: 0}
   meele_transform: {fileID: 9219934813834523833}
   meele_range: 10
   chasing_range: 20
@@ -1591,6 +1591,20 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 2, z: 0}
+--- !u!114 &8420093585059234348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8817600298576257608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounding_boxes:
+  - {fileID: 3995320892679754474}
 --- !u!1 &9178619316158324222
 GameObject:
   m_ObjectHideFlags: 0

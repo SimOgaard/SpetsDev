@@ -176,7 +176,7 @@ public class GolemBehaviour : MonoBehaviour
         return new Selector(new List<Node> { health_sequence, hide_sequence, meele_sequence, throw_selector, chase_sequence, search_sequence });
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         top_node.Evaluate();
         if (top_node.node_state == NodeState.failure)
@@ -192,7 +192,6 @@ public class GolemBehaviour : MonoBehaviour
     private void Awake()
     {
         throwable_parrent_transform = GetThrowableTransform(golem_type);
-        meele_transform = transform.Find("Golem").Find("Hand.R");
         damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
         enemy_ai = GetComponent<EnemyAI>();
     }

@@ -23,12 +23,13 @@ MonoBehaviour:
   min_ray_position: {x: 0, y: 0, z: 0}
   max_ray_position: {x: 0, y: 0, z: 0}
   shared_position: 0
-  min_position: {x: 0, y: 0, z: 0}
-  max_position: {x: 0, y: 0, z: 0}
+  min_position: {x: 0, y: 0.025, z: 0}
+  max_position: {x: 0, y: 0.1, z: 0}
   rotate_twords_ground_normal: 1
   reset_rotation: 1
   rotation_offset: 45
   rotation_increment: 90
+  max_rotation: 180
   shared_scales: 2
   min_scale: {x: 0.65, y: 0.8, z: 0.65}
   max_scale: {x: 0.85, y: 0.9, z: 0.85}

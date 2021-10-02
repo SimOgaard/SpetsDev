@@ -10,11 +10,11 @@ public class CloudShadows : MonoBehaviour
     [SerializeField] private RenderTexture shadow_render_texture;
     [SerializeField] private Material cloud_shadow_material;
     [SerializeField] private NoiseLayerSettings.Curve curve;
-    private Transform player_transform;
+    private Transform camera_focus_point_transform;
 
     private void Start()
     {
-        player_transform = GameObject.Find("Player").transform;
+        camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
         light = GetComponent<Light>();
         shadow_render_texture = CreateShadowRenderTexture(1024);
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
@@ -33,7 +33,7 @@ public class CloudShadows : MonoBehaviour
     private void Update()
     {
         // Reposition directional light to be over player to keep
-        transform.position = player_transform.position;
+        transform.position = camera_focus_point_transform.position;
 
         // Calculate the angle between the lights direction and the horizon.
         float angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
