@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c60036b307786342b91c190e62121f3, type: 3}
   m_Name: ColossalPlains
   m_EditorClassIdentifier: 
-  unit_size: {x: 2, y: 2}
-  resolution: {x: 100, y: 100}
+  unit_size: {x: 1, y: 1}
+  resolution: {x: 250, y: 250}
   terrain_noise_layers:
   - enabled: 1
     general:
@@ -139,9 +139,9 @@ MonoBehaviour:
         octaves: 0
         lacunarity: 0
         gain: 0
-    keep_range_noise: {x: 0.8, y: 1}
-    keep_range_random_noise: 0.25
-    keep_range_random: 0.001
+    keep_range_noise: {x: 0.825, y: 1}
+    keep_range_random_noise: 0.05
+    keep_range_random: 0.00025
   - name: grass col diff
     enabled: 0
     material: {fileID: 2100000, guid: 3dba13ccd65d0bb4e9c2b72acac87805, type: 2}
@@ -207,7 +207,7 @@ MonoBehaviour:
         gain: 0
     keep_range_noise: {x: 0, y: 0}
     keep_range_random_noise: 0
-    keep_range_random: 0.0055
+    keep_range_random: 0.00275
   - name: flowers blue
     enabled: 1
     material: {fileID: 2100000, guid: e8c6b2ed49c9d9f48804cf540e9a4dc6, type: 2}
@@ -271,9 +271,9 @@ MonoBehaviour:
         octaves: 0
         lacunarity: 0
         gain: 0
-    keep_range_noise: {x: 0.85, y: 1}
-    keep_range_random_noise: 0.125
-    keep_range_random: 0.0005
+    keep_range_noise: {x: 0.825, y: 1}
+    keep_range_random_noise: 0.05
+    keep_range_random: 0.00025
   - name: flowers yellow
     enabled: 1
     material: {fileID: 2100000, guid: 521b288d35819d647b90f0c34be96c63, type: 2}
@@ -315,7 +315,7 @@ MonoBehaviour:
         smoothing_max: 0
       general_noise:
         noise_type: 0
-        seed: 2
+        seed: 4454
         frequency: 0.01
       fractal:
         fractal_type: 1
@@ -337,9 +337,9 @@ MonoBehaviour:
         octaves: 0
         lacunarity: 0
         gain: 0
-    keep_range_noise: {x: 0.85, y: 1}
-    keep_range_random_noise: 0.125
-    keep_range_random: 0.0005
+    keep_range_noise: {x: 0.825, y: 1}
+    keep_range_random_noise: 0.05
+    keep_range_random: 0.00025
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   curve_leaf:
     light_curve:
@@ -402,7 +402,7 @@ MonoBehaviour:
     bobing_frequency: 0.75
     bobing_amplitude: 0.25
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
-  object_density: 0.01
+  object_density: 0.02
   spawn_prefabs:
   - {fileID: 8817600298576257608, guid: 8b30b2fdd47bd15469b535156ddbea59, type: 3}
   - {fileID: 2024596662710969881, guid: 1eec095998ae0064b962226be4ab7ab6, type: 3}

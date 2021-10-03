@@ -48,6 +48,7 @@
     {
 		Tags
 		{
+			"RenderType" = "Transparent"
 			"Queue" = "Transparent"
 		}
 
@@ -151,7 +152,7 @@
 				// Recast to unity units.
 				float orthoPlainDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoPlainLinearDepth);
 				// Water depth for current pixel in unity units.
-				float depthDifference = orthoEyeDepth - orthoPlainDepth;
+				float depthDifference = (orthoEyeDepth - orthoPlainDepth) / 10.0;
 
 				// Calculate the color of the water based on the depth using our two gradient colors.
 				float waterDepthDifference01 = saturate(depthDifference / _DepthMaxDistance);
@@ -160,12 +161,18 @@
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.
 				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition)).rgb;
-				
+
 				// Modulate the amount of foam we display based on the difference
 				// between the normals of our water surface and the object behind it.
 				// Larger differences allow for extra foam to attempt to keep the overall
 				// amount consistent.
-				float3 normalDot = saturate(dot(existingNormal, i.viewNormal));
+				fixed3 WTF = fixed3(0.0, 0.866, 0.5); // 0 cos 30 sin 30
+
+				float3 normalDot = saturate(dot(existingNormal, WTF));
+
+				//float3 forward = mul((float3x3)unity_CameraToWorld, float3(0,0,1)); 
+
+				//return float4(normalDot,1);
 				float foamDistance = lerp(_FoamMaxDistance, _FoamMinDistance, normalDot);
 				float foamDepthDifference01 = saturate(depthDifference / foamDistance);
 

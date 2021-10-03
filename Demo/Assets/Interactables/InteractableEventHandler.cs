@@ -153,7 +153,7 @@ public class InteractableEventHandler : MonoBehaviour
 
         if (nearest_interactable != null)
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(PlayerInput.interact_key))
             {
                 InteractWith(nearest_interactable);
             }

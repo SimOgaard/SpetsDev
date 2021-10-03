@@ -72,55 +72,30 @@ public class CameraMovement : MonoBehaviour
         get { return _x_value; }
         set { _x_value = Mathf.Clamp01(value); }
     }
-
-    private float f(float time, float direction_heading)
-    {
-        //float remaped = wanted_rotation - last_stopped_rotation;
-
-        float A = direction_heading * y_axis_rotation * 0.5f + last_stopped_rotation;
-        float B = wanted_rotation - direction_heading * y_axis_rotation * 0.5f;
-        float C = current_rotation;
-
-        Debug.Log("Accelerate from: " + last_stopped_rotation + " to: " + A);
-        Debug.Log("De-Accelerate from: " + B + " to: " + wanted_rotation);
-        Debug.Log("C: " + C);
-
-        if (C < A)
-        {
-            // use time instead of c?
-            float value = (time - last_stopped_rotation) / y_axis_rotation;
-            return value;
-        }
-        if (C > B)
-        {
-            // use time instead of c?
-            float value = (time - B) / y_axis_rotation;
-            return value + 0.5f;
-        }
-
-        return 0.5f;
-    }
-
-
-    /// <summary>
-    /// När denna funktion körs ska du sätta current_rotation som X värde på bild-graf.
-    /// Öka X värdet med Time.deltaTime / x_axis_time om du inte är mellan A och B.
-    /// Om du är mellan A och B sätt current_rotation som X värde.
-    /// 
-    /// Ta ut Y värde från X ovan.
-    /// 
-    /// Om du inte är mellan A och B: Använd Y värde ovan som X värde på rotation_curve.
-    /// Om du är under A: Sätta current_rotation till last_stopped_rotation + Y värde ovan
-    /// Om du är över B: Sätta current_rotation till B + Y värde ovan
-    /// 
-    /// </summary>
-    /// <param name="direction"></param>
-    /// <returns></returns>
-
-    public float C = 0f;
-    float old_direction_heading = 0f;
+    
+    private float C = 0f;
+    private float old_direction_heading = 0f;
+    private float old_direction = 0f;
     private IEnumerator RotateCamera(float direction)
     {
+        /*
+        if (old_direction != direction && old_direction != 0f)
+        {
+            if (direction < 0f)
+            {
+                wanted_rotation = current_rotation - current_rotation % y_axis_rotation;
+            }
+            else
+            {
+                wanted_rotation = current_rotation - current_rotation % y_axis_rotation + y_axis_rotation;
+            }
+        }
+        else
+        {
+            wanted_rotation += direction * y_axis_rotation;
+        }
+        old_direction = direction;
+        */
         wanted_rotation += direction * y_axis_rotation;
 
         float direction_heading = current_rotation < wanted_rotation ? 1f : -1f;
@@ -148,6 +123,18 @@ public class CameraMovement : MonoBehaviour
             }
             else if (C > B && direction_heading > 0f || C < B && direction_heading < 0f)
             {
+                bool left = Input.GetKey(PlayerInput.left_rotation);
+                bool right = Input.GetKey(PlayerInput.right_rotation);
+                if (left && !right)
+                {
+                    StartCoroutine(RotateCamera(1));
+                    yield break;
+                }
+                if (right && !left)
+                {
+                    StartCoroutine(RotateCamera(-1));
+                    yield break;
+                }
                 float b = wanted_rotation - direction_heading * y_axis_rotation;
                 C += direction_heading * ((Time.deltaTime / x_axis_time) * y_axis_rotation);
                 float x_time = (direction_heading * (C - B) / y_axis_rotation) + 0.5f;

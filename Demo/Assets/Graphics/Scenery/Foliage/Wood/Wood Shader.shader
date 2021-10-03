@@ -14,7 +14,8 @@
     {
         Pass
         {
-			Tags {
+			Tags
+			{
 				"Queue" = "Transparent-1"
 				"RenderType"= "Opaque"
 				"LightMode" = "ForwardAdd"

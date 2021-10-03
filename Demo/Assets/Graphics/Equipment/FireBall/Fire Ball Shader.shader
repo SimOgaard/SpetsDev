@@ -9,7 +9,9 @@
     {
 		Pass
 		{
-			Tags {
+			Tags
+			{
+				"RenderType" = "Opaque"
 				"Queue"="Transparent-1"
 			}
 			CGPROGRAM

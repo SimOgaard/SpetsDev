@@ -24,7 +24,8 @@
 	{
 		Pass
 		{
-			Tags {
+			Tags
+			{
 				"RenderType" = "Opaque"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
@@ -58,27 +59,28 @@
 
 		Pass
 		{
-			Tags {
+			Tags
+			{
 				"RenderType"="TransparentCutout"
 				"Queue"="AlphaTest"
 			}
 
 			CGPROGRAM
-			//#pragma target 3.0
+			#pragma target 3.0
 			#pragma vertex vert
 			#pragma geometry geo
 			#pragma fragment frag
 			#pragma require geometry
 
 			// For Tessellation
-			#pragma hull hull
-			#pragma domain domain
-			#pragma target 4.6
+			//#pragma hull hull
+			//#pragma domain domain
+			//#pragma target 4.6
 
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-			//#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
-			#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
+			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
+			//#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardGrass.cginc"
 

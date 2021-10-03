@@ -29,7 +29,7 @@ public class CreateMesh : MonoBehaviour
         Vector2 unit_size = noise_layer_settings.unit_size;
         Vector2Int resolution = noise_layer_settings.resolution;
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
 
         resolution.x = Mathf.Max(resolution.x + 1, 2);
         resolution.y = Mathf.Max(resolution.y + 1, 2);

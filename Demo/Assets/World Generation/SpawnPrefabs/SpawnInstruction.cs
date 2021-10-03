@@ -17,6 +17,9 @@ public class SpawnInstruction : ScriptableObject
 
     [Header("Spawning Chance")]
     [Range(0f, 1f)] public float spawn_chance = 1f;
+    public Vector2 spawn_range_noise;
+    [Range(0f, 1f)] public float spawn_chance_noise = 1f;
+    public NoiseLayerSettings.NoiseLayer noise_layer;
 
     [Header("Spawning Ray")]
     public LayerMask ray_layer_mask = (1 << 12);

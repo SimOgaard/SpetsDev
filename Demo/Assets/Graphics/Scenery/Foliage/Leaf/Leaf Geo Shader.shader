@@ -28,7 +28,8 @@
     {
 		Pass
 		{
-			Tags {
+			Tags
+			{
 				"RenderType"="TransparentCutout"
 				"Queue"="Transparent-1"
 			}

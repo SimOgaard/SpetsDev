@@ -15,7 +15,42 @@ MonoBehaviour:
   parrent_name: 3
   min_child_amount_required: 1
   ignore_bounding_boxes: 0
-  spawn_chance: 0.75
+  spawn_chance: 0.1
+  spawn_range_noise: {x: 0.75, y: 1}
+  spawn_chance_noise: 0.25
+  noise_layer:
+    enabled: 1
+    general:
+      amplitude: 1
+      offsett: {x: 0, y: 0}
+      min_value: 0
+      smoothing_min: 0
+      max_value: 1
+      smoothing_max: 0
+    general_noise:
+      noise_type: 0
+      seed: 128
+      frequency: 0.01
+    fractal:
+      fractal_type: 1
+      octaves: 3
+      lacunarity: 2
+      gain: 0.5
+      weighted_strength: 0
+      ping_pong_strength: 2
+    cellular:
+      cellular_distance_function: 0
+      cellular_return_type: 0
+      jitter: 1
+    domain_warp:
+      domain_warp_type: 0
+      amplitude: 30
+      frequency: 0.005
+    domain_warp_fractal:
+      fractal_type: 0
+      octaves: 5
+      lacunarity: 2
+      gain: 0.5
   ray_layer_mask:
     serializedVersion: 2
     m_Bits: 65536
@@ -29,6 +64,7 @@ MonoBehaviour:
   reset_rotation: 1
   rotation_offset: 0
   rotation_increment: 1
+  max_rotation: 180
   shared_scales: 0
   min_scale: {x: 1, y: 1, z: 1}
   max_scale: {x: 1, y: 1, z: 1}

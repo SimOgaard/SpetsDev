@@ -119,11 +119,26 @@ public class PlaceInWorld : MonoBehaviour
     public static List<Collider> Spawn(Transform transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
     {
         // Should this Transform spawn?
-        if (Random.value > spawn_instruction.spawn_chance)
+        if (spawn_instruction.noise_layer.enabled)
         {
-            Destroy(transform.gameObject);
-            CountDownChild(ref child_transform_amount, is_parrent);
-            return null;
+            CreateMesh.Noise noise = new CreateMesh.Noise(spawn_instruction.noise_layer);
+            float noise_value = noise.GetNoiseValue(transform.position.x, transform.position.z);
+
+            if (!(Random.value <= spawn_instruction.spawn_chance || (noise_value > spawn_instruction.spawn_range_noise.x && noise_value < spawn_instruction.spawn_range_noise.y && Random.value <= spawn_instruction.spawn_chance_noise)))
+            {
+                Destroy(transform.gameObject);
+                CountDownChild(ref child_transform_amount, is_parrent);
+                return null;
+            }
+        }
+        else
+        {
+            if (!(Random.value <= spawn_instruction.spawn_chance))
+            {
+                Destroy(transform.gameObject);
+                CountDownChild(ref child_transform_amount, is_parrent);
+                return null;
+            }
         }
 
         // Raycast
