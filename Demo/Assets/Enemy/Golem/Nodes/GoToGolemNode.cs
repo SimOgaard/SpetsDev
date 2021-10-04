@@ -28,13 +28,13 @@ public class GoToGolemNode : Node
         float distance = (golem.position - agent.transform.position).sqrMagnitude;
         if (distance > 1f)
         {
-            agent.is_stopped = false;
+            agent.StartMoving();
             agent.destination = golem.position;
             return NodeState.running;
         }
         else
         {
-            agent.is_stopped = true;
+            agent.StopMoving();
             return NodeState.success;
         }
     }

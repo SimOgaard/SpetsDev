@@ -115,7 +115,7 @@ public class FireballProjectile : MonoBehaviour
                 if (Layer.IsInLayer(Layer.enemy, collider.gameObject.layer))
                 {
                     collider.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage);
-                    collider.attachedRigidbody.AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
+                    collider.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse, fireball_ability.tumble_time);
                 }
                 else if (collider.TryGetComponent(out Rigidbody rigid_body))
                 {

@@ -25,6 +25,7 @@ public class EarthbendingPillar : MonoBehaviour
     public bool deal_damage_by_collision = false;
     public bool deal_damage_by_trigger = false;
     public float damage = 0f;
+    public float tumble_time;
 
     List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
 
@@ -190,8 +191,9 @@ public class EarthbendingPillar : MonoBehaviour
         deal_damage_by_collision = true;
     }
 
-    public void DealDamageByTrigger(Vector3 center, float radius)
+    public void DealDamageByTrigger(Vector3 center, float radius, float tumble_time)
     {
+        this.tumble_time = tumble_time;
         deal_damage_by_trigger = true;
         SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
         damage_collider_trigger.isTrigger = true;
@@ -199,8 +201,9 @@ public class EarthbendingPillar : MonoBehaviour
         damage_collider_trigger.radius = radius;
     }
 
-    public void DealDamageByTrigger()
+    public void DealDamageByTrigger(float tumble_time)
     {
+        this.tumble_time = tumble_time;
         deal_damage_by_trigger = true;
         SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
         damage_collider_trigger.isTrigger = true;
@@ -279,7 +282,7 @@ public class EarthbendingPillar : MonoBehaviour
         {
             if (other.gameObject.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
             {
-                other.gameObject.GetComponent<Rigidbody>().AddForce(750f * transform.up, ForceMode.Impulse);
+                other.gameObject.GetComponent<Agent>().AddForce(750f * transform.up, ForceMode.Impulse, tumble_time);
             }
         }
     }

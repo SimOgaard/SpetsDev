@@ -37,8 +37,7 @@ public class SetAsEnemy : MonoBehaviour
         join_meshes.SetMergeByTags(true);
 
         Rigidbody enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
-        enemy_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        GetComponent<Agent>().enemy_rigidbody = enemy_rigidbody;
+        GetComponent<Agent>().AddRigidBody(enemy_rigidbody);
 
         RecursiveEnemy(gameObject);
         Destroy(this);

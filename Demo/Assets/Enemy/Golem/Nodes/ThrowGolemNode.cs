@@ -18,7 +18,7 @@ public class ThrowGolemNode : Node
 
     public override NodeState Evaluate()
     {
-        agent.is_stopped = true;
+        agent.StopMoving();
         ai.SetColor(Color.magenta);
 
         Debug.Log("threw golem");

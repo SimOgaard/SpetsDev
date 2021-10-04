@@ -39,6 +39,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public float explosion_radius = 10f;
     public float explosion_damage = 10f;
     public float explosion_force = 250f;
+    public float tumble_time = 2f;
 
     /// <summary>
     /// All variables that when changed need to delete all fireballs in all fireball lists so they are reinstanciated.

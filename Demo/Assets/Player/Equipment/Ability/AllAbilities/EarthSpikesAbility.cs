@@ -43,6 +43,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
     public float structure_angle = 75f;
     public float pillar_recursive_angle = 10f;
+    public float tumble_time = 3f;
 
     /// <summary>
     /// Destroys itself.
@@ -204,7 +205,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
             GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
             earthbending_pillar.SetDamageId(guid.ToString());
-            earthbending_pillar.DealDamageByTrigger();
+            earthbending_pillar.DealDamageByTrigger(tumble_time);
             earthbending_pillar_array[i] = earthbending_pillar;
             pillar_game_object.SetActive(false);
         }

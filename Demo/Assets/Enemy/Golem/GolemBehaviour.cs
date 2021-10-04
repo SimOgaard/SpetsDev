@@ -181,8 +181,8 @@ public class GolemBehaviour : MonoBehaviour
         top_node.Evaluate();
         if (top_node.node_state == NodeState.failure)
         {
-            enemy_ai.SetColor(Color.red);
-            enemy_ai.agent.is_stopped = true;
+            enemy_ai.SetColor(Color.magenta);
+            enemy_ai.agent.StopMoving();
         }
     }
 
@@ -239,7 +239,7 @@ public class GolemBehaviour : MonoBehaviour
         Transform hand_transform = transform.Find("Golem").Find("Hand.R");
         closest_golem.transform.parent = hand_transform;
         closest_golem.transform.localPosition = Vector3.zero;
-        closest_golem.GetComponent<Agent>().CompleteStop();
+        //closest_golem.GetComponent<Agent>().Tumble();
     }
 
     public void SetClosestGolem(Transform closest_golem)
