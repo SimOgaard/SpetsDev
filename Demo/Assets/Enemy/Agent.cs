@@ -11,26 +11,37 @@ public class Agent : MonoBehaviour
 
     public Vector3 destination;
 
-    private Vector3 move_direction_normalized;
-    private Vector3 slope_move_direction_normalized;
-    private Vector3 look_direction_normalized;
-
-    public bool is_grounded = true;
-    private RaycastHit slope_hit;
-
+    [Header("Ground")]
     [SerializeField] private float ground_raycast_length;
-    public Rigidbody enemy_rigidbody;
+    [SerializeField] private float ground_raycast_hover;
+    private RaycastHit ground_raycast_hit;
+    public bool is_grounded = true;
 
     [Header("Movement")]
     [SerializeField] private float max_move_speed = 5f;
-    [SerializeField] private float acceleration = 2.5f;
-    [SerializeField] private float current_move_speed = 0f;
+    [SerializeField] private float movement_acceleration = 2.5f;
+    [SerializeField] private AnimationCurve acceleration_factor_from_dot;
+    [SerializeField] private float max_acceleration_force = 2f;
+    [SerializeField] private float speed_factor;
+    [SerializeField] private float max_acceleration_force_factor;
+    [SerializeField] private Vector3 force_scale;
+    [SerializeField] private AnimationCurve max_acceleration_factor_from_dot;
     private float wanted_move_speed;
+    private Vector3 m_goal_velocity;
+
+    [Header("Spring")]
+    [SerializeField] private float ride_spring_strenght;
+    [SerializeField] private float ride_spring_damper;
+    [SerializeField] private float hover_height;
+
+    [Header("Upright Spring")]
+    [SerializeField] private float upright_joint_spring_strength;
+    [SerializeField] private float upright_joint_spring_damper;
 
     [Header("Rotation")]
+    [SerializeField] private float max_slope_rotation = 20f;
     [SerializeField] private VectorPid angularVelocityController = new VectorPid(25f, 0.5f, 30f);
     [SerializeField] private VectorPid headingController = new VectorPid(25f, 0.5f, 30f);
-    [SerializeField] private float max_slope_rotation = 20f;
     private float max_slope_rotation_cos;
 
     [Header("Rigid Body")]
@@ -39,11 +50,11 @@ public class Agent : MonoBehaviour
     [SerializeField] private float drag;
     [SerializeField] private float max_depenetration_velocity;
     [SerializeField] private float mass;
+    public Rigidbody enemy_rigidbody;
 
     [Header("Tumble")]
     [SerializeField] private float tumble_time_modifier;
-    [SerializeField] private float slope_tumble_time;
-    [SerializeField] private float un_grounded_tumble_time;
+    [SerializeField] private float tripped_tumble_time;
 
     private IEnumerator tumble_coroutine;
 
@@ -109,7 +120,10 @@ public class Agent : MonoBehaviour
     /// </summary>
     public IEnumerator Tumble(float tumble_time)
     {
-        if (tumble_time_modifier == 0f)
+        yield break;
+
+        float tumble_time_with_modifier = tumble_time * tumble_time_modifier;
+        if (tumble_time_with_modifier == 0f)
         {
             yield break;
         }
@@ -117,11 +131,25 @@ public class Agent : MonoBehaviour
         enemy_rigidbody.constraints = RigidbodyConstraints.None;
         tumbling = true;
 
-        yield return new WaitForSeconds(tumble_time * tumble_time_modifier);
+        yield return new WaitForSeconds(tumble_time_with_modifier);
 
         enemy_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         tumbling = false;
         transform.rotation = Quaternion.identity;
+    }
+
+    public static Quaternion ShortestRotation(Quaternion a, Quaternion b)
+    {
+        if (Quaternion.Dot(a, b) < 0)
+        {
+            return a * Quaternion.Inverse(Multiply(b, -1));
+        }
+        else return a * Quaternion.Inverse(b);
+    }
+
+    public static Quaternion Multiply(Quaternion input, float scalar)
+    {
+        return new Quaternion(input.x * scalar, input.y * scalar, input.z * scalar, input.w * scalar);
     }
 
     /// <summary>
@@ -137,16 +165,67 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            is_grounded = Physics.Raycast(transform.position + Vector3.up * ground_raycast_length * 0.5f, Vector3.down, out slope_hit, ground_raycast_length, Layer.Mask.ground_enemy);
+            is_grounded = Physics.Raycast(transform.position + Vector3.up * ground_raycast_hover, Vector3.down, out ground_raycast_hit, ground_raycast_length, Layer.Mask.ground_enemy);
 
-            if (Vector3.Dot(slope_hit.normal, Vector3.up) < max_slope_rotation_cos)
+            if (is_grounded && Vector3.Dot(ground_raycast_hit.normal, Vector3.up) > max_slope_rotation_cos)
             {
-                StartTumble(slope_tumble_time);
-                return;
-            }
+                // hover
+                Vector3 velocity = enemy_rigidbody.velocity;
+                Vector3 ray_direction = transform.TransformDirection(Vector3.down);
 
-            if (is_grounded)
-            {
+                Vector3 other_velocity = Vector3.zero;
+                Rigidbody hit_rigid_body = ground_raycast_hit.rigidbody;
+                if (hit_rigid_body != null)
+                {
+                    other_velocity = hit_rigid_body.velocity;
+                }
+
+                float ray_direction_velocity = Vector3.Dot(ray_direction, velocity);
+                float other_ray_direction_velocity = Vector3.Dot(ray_direction, other_velocity);
+
+                float relative_velocity = ray_direction_velocity - other_ray_direction_velocity;
+                float x = ground_raycast_hit.distance - hover_height;
+                float spring_force = (x * ride_spring_strenght) - (relative_velocity * ride_spring_damper);
+
+                //Debug.Log(ray_direction);
+
+                enemy_rigidbody.AddForce(ray_direction * spring_force);
+                Vector3 ground_velocity = Vector3.zero;
+                if (hit_rigid_body != null)
+                {
+                    hit_rigid_body.AddForceAtPosition(ray_direction * -spring_force, ground_raycast_hit.point);
+                    ground_velocity = hit_rigid_body.velocity;
+                }
+
+                // upright
+                Vector3 desiredHeading = destination - transform.position;
+                Vector3 norm_desired_heading = (new Vector3(desiredHeading.x, 0f, desiredHeading.z)).normalized;
+
+                Quaternion character_current = transform.rotation;
+                Quaternion to_goal = ShortestRotation(Quaternion.LookRotation(norm_desired_heading), character_current);
+
+                Vector3 rotation_axis;
+                float rotation_degrees;
+                to_goal.ToAngleAxis(out rotation_degrees, out rotation_axis);
+
+                float rotation_radians = rotation_degrees * Mathf.Deg2Rad;
+                enemy_rigidbody.AddTorque((rotation_axis * (rotation_radians * upright_joint_spring_strength)) - (enemy_rigidbody.angularVelocity * upright_joint_spring_damper));
+
+                // move
+                float velocity_dot = Vector3.Dot(norm_desired_heading, transform.forward);
+                float acceleration = movement_acceleration * acceleration_factor_from_dot.Evaluate(velocity_dot);
+
+                Vector3 goal_velocity = norm_desired_heading * max_move_speed * speed_factor;
+                m_goal_velocity = Vector3.MoveTowards(m_goal_velocity, goal_velocity + ground_velocity, acceleration * Time.fixedDeltaTime);
+
+                Vector3 needed_acceleration = (m_goal_velocity - enemy_rigidbody.velocity) / Time.fixedDeltaTime;
+
+                float max_acceleration = max_acceleration_force * max_acceleration_factor_from_dot.Evaluate(velocity_dot) * max_acceleration_force_factor;
+                needed_acceleration = Vector3.ClampMagnitude(needed_acceleration, max_acceleration);
+
+                enemy_rigidbody.AddForce(Vector3.Scale(needed_acceleration * enemy_rigidbody.mass, force_scale));
+
+                /*
                 Vector3 angularVelocityError = -enemy_rigidbody.angularVelocity;
                 Debug.DrawRay(transform.position, enemy_rigidbody.angularVelocity * 10, Color.black);
 
@@ -172,12 +251,13 @@ public class Agent : MonoBehaviour
 
                 slope_move_direction_normalized = Vector3.ProjectOnPlane(transform.forward, slope_hit.normal).normalized;
                 current_move_speed = Mathf.Lerp(current_move_speed, wanted_move_speed * angular_difference, acceleration * Time.deltaTime);
+                */
                 //enemy_rigidbody.velocity = transform.forward * current_move_speed;
                 //enemy_rigidbody.MovePosition(slope_hit.point + slope_move_direction_normalized * current_move_speed * Time.deltaTime);
             }
             else
             {
-                StartTumble(un_grounded_tumble_time);
+                StartTumble(tripped_tumble_time);
                 return;
             }
         }
@@ -185,6 +265,6 @@ public class Agent : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawLine(transform.position + Vector3.up * ground_raycast_length * 0.5f, transform.position + Vector3.down * ground_raycast_length * 0.5f);
+        Gizmos.DrawLine(transform.position + Vector3.up * ground_raycast_hover, transform.position + Vector3.down * ground_raycast_length + Vector3.up * ground_raycast_hover);
     }
 }

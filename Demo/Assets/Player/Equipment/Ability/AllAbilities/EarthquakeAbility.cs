@@ -160,7 +160,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                     merged_circle_pillars.should_be_deleted = 1 == wave_recursion;
                 }
             }
-            merged_circle_pillars.SetSharedValues(pillar_alive_time, pillar_speed, pillar_height + max_pillar_height_offset * distance_remap01);
+            merged_circle_pillars.SetSharedValues(pillar_alive_time, pillar_speed, pillar_height + max_pillar_height_offset * distance_remap01, material);
             StartCoroutine(
                 SpawnPillarShared(
                     merged_circle_pillars,
@@ -240,11 +240,13 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
         return icon_sprite;
     }
 
+    private Material material;
     private Sprite icon_sprite;
     private void Start()
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+        material = Resources.Load<Material>("Materials/Stone Material");
     }
 
     /// <summary>
@@ -279,7 +281,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
             float distance_remap01 = current_radius / max_radius;
             float diameter = 2f * current_radius * Mathf.PI;
 
-            GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_quake_object");
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
 
             earthbending_pillar.InitEarthbendingPillar(pillar_height + max_pillar_height_offset * distance_remap01, pillar_width + max_pillar_width_offset * distance_remap01, Quaternion.Euler(0f, 45f, 0f), pillar_alive_time, pillar_speed);

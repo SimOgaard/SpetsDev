@@ -164,11 +164,13 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
         return icon_sprite;
     }
 
+    private Material material;
     private Sprite icon_sprite;
     private void Start()
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+        material = Resources.Load<Material>("Materials/Stone Material");
     }
 
     /// <summary>
@@ -202,7 +204,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
 
         for (int i = 0; i < pillar_amount; i++)
         {
-            GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_spike_object");
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
             earthbending_pillar.SetDamageId(guid.ToString());
             earthbending_pillar.DealDamageByTrigger(tumble_time);

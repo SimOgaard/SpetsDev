@@ -11,7 +11,7 @@ public class CurveCreator : MonoBehaviour
 
     private void Start()
     {
-        material = GetComponent<MeshRenderer>().material;
+        material = GetComponent<MeshRenderer>().sharedMaterial;
     }
 
     private void Update()

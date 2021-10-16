@@ -225,11 +225,13 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
         return icon_sprite;
     }
 
+    private Material material;
     private Sprite icon_sprite;
     private void Start()
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+        material = Resources.Load<Material>("Materials/Stone Material");
     }
 
     /// <summary>
@@ -254,7 +256,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     private EarthbendingPillar InstantiatePillar()
     {
-        GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "eart_object");
         EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
         earthbending_pillar.InitEarthbendingPillar(pillar_height, pillar_width, Quaternion.Euler(0f, 45f, 0f), alive_time, pillar_growth_speed);
         pillar_game_object.SetActive(false);

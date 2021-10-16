@@ -52,7 +52,7 @@ public class EarthbendingPillar : MonoBehaviour
     /// <summary>
     /// Merges meshes and sets values for merged pillar this script controls.
     /// </summary>
-    public void SetSharedValues(float sleep_time, float move_speed, float height)
+    public void SetSharedValues(float sleep_time, float move_speed, float height, Material material)
     {
         this.sleep_time = sleep_time;
         current_sleep_time = sleep_time;
@@ -64,6 +64,7 @@ public class EarthbendingPillar : MonoBehaviour
         combined_mesh.CombineMeshes(combined_mesh_instance.ToArray());
         gameObject.AddComponent<MeshFilter>().mesh = combined_mesh;
         gameObject.AddComponent<MeshCollider>().sharedMesh = combined_mesh;
+        gameObject.AddComponent<MeshRenderer>().material = material;
     }
 
     /// <summary>
@@ -73,9 +74,6 @@ public class EarthbendingPillar : MonoBehaviour
     {
         pillar_rigidbody = gameObject.AddComponent<Rigidbody>();
         pillar_rigidbody.isKinematic = true;
-
-        MeshRenderer mesh_renderer = JoinMeshes.GetAddComponent(gameObject, typeof(MeshRenderer)) as MeshRenderer;
-        mesh_renderer.material = Resources.Load<Material>("Materials/Stone Material");
     }
 
     /// <summary>

@@ -6,6 +6,7 @@ sampler2D _LightTexture0;
 float4x4 unity_WorldToLight;
 
 float _ShadowSoftness;
+float _DarkestValue;
 
 struct v2f
 {
@@ -35,8 +36,9 @@ fixed CalculateLight(v2f i)
 {
 	float shadow = SHADOW_ATTENUATION(i);
 	shadow = saturate(shadow + _ShadowSoftness);
+
 	fixed2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 	fixed attenuation = tex2D(_LightTexture0, uvCookie).w;
     fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
-	return saturate(lighting.x);
+	return max(saturate(lighting.x), _DarkestValue);
 }

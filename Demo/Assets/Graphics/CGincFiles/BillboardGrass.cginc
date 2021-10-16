@@ -31,14 +31,17 @@ fixed rand(float3 co)
 void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 {
 	float3 flatNormal = normalize(cross(IN[1].vertex - IN[0].vertex, IN[2].vertex - IN[0].vertex));
-	float3 center = (IN[0].vertex + IN[1].vertex + IN[1].vertex) / 3;
+	float4 center = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
+	float3 world_center = mul(unity_ObjectToWorld, center).xyz;
 
-	fixed lightValue = LightCalculation(center, flatNormal);
+	fixed lightValue = LightCalculation(world_center, flatNormal);
 	
-	fixed x_displacement = rand(center) * _XZDisplacementRandom;
+	fixed x_displacement = rand(world_center.xyz) * _XZDisplacementRandom;
 	fixed y_displacement = _YDisplacement;
-	fixed z_displacement = rand(center.xzy) * _XZDisplacementRandom;
-	center += fixed3(x_displacement, y_displacement, z_displacement);
+	fixed z_displacement = rand(world_center.xzy) * _XZDisplacementRandom;
+	world_center += fixed3(x_displacement, y_displacement, z_displacement);
+
+	center = mul(unity_WorldToObject, world_center);
 
 	fixed pixelSize = _TilePixelSize / (5.4 * 2);
 	float4 vectors[4];

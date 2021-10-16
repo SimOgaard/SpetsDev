@@ -138,6 +138,47 @@ public class CreateMesh : MonoBehaviour
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
 
+        mesh.Optimize();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
+        return mesh;
+    }
+
+    public static Mesh CubeMesh()
+    {
+        Vector3[] vertices = {
+            new Vector3 (-0.5f, -0.5f, -0.5f),
+            new Vector3 (0.5f, -0.5f, -0.5f),
+            new Vector3 (0.5f, 0.5f, -0.5f),
+            new Vector3 (-0.5f, 0.5f, -0.5f),
+            new Vector3 (-0.5f, 0.5f, 0.5f),
+            new Vector3 (0.5f, 0.5f, 0.5f),
+            new Vector3 (0.5f, -0.5f, 0.5f),
+            new Vector3 (-0.5f, -0.5f, 0.5f),
+        };
+
+        int[] triangles = {
+            0, 2, 1, //face front
+			0, 3, 2,
+            2, 3, 4, //face top
+			2, 4, 5,
+            1, 2, 5, //face right
+			1, 5, 6,
+            0, 7, 4, //face left
+			0, 4, 3,
+            5, 4, 7, //face back
+			5, 7, 6,
+            0, 6, 7, //face bottom
+			0, 1, 6
+        };
+
+        Mesh mesh = new Mesh();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        mesh.Optimize();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
@@ -166,6 +207,24 @@ public class CreateMesh : MonoBehaviour
         mesh.triangles = tris;
 
         return mesh;
+    }
+
+    public static GameObject CreatePrimitive(Mesh mesh, Material material, string name = "Primitive")
+    {
+        
+        GameObject game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        MeshRenderer mesh_renderer = game_object.GetComponent<MeshRenderer>();
+        mesh_renderer.material = material;
+        return game_object;
+        
+        /*
+        GameObject game_object = new GameObject(name);
+        MeshFilter mesh_filter = game_object.AddComponent<MeshFilter>();
+        mesh_filter.mesh = mesh;
+        MeshRenderer mesh_renderer = game_object.AddComponent<MeshRenderer>();
+        mesh_renderer.material = material;
+        return game_object;
+        */
     }
 
     public Texture2D[] GetNoiseTextures()

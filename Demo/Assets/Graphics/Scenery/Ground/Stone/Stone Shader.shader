@@ -4,6 +4,8 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
 		_Color ("Color", Color) = (1, 1, 1, 1)
+		_ShadowSoftness("_ShadowSoftness", Range(0,1)) = 0.5
+		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
     }
 
     SubShader
@@ -13,7 +15,7 @@
 			Tags
 			{
 				"RenderType" = "Opaque"
-				"Queue"="Transparent-1"
+				"Queue"="Geometry+2"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}

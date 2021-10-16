@@ -18,6 +18,7 @@ Shader "Custom/Random Foliage Shader"
 		_WindStrength("Wind Strength", Float) = 1
 
 		_ShadowSoftness("Shadow Softness", Float) = 0.5
+		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
     }
 
 	SubShader
@@ -26,7 +27,7 @@ Shader "Custom/Random Foliage Shader"
 		{
 			Tags {
 				"RenderType"="TransparentCutout"
-				"Queue"="AlphaTest+1"
+				"Queue"="Geometry+1"
 			}
 			ZTest Always
 

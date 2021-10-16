@@ -155,7 +155,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
             merged_circle_pillars.InitEarthbendingPillar(half_of_shield[itter].gameObject);
             merged_circle_pillars.should_be_deleted = true;
 
-            merged_circle_pillars.SetSharedValues(pillar_alive_time - structure_build_time * itter, pillar_speed, pillar_height + pillar_height_offset * itter);
+            merged_circle_pillars.SetSharedValues(pillar_alive_time - structure_build_time * itter, pillar_speed, pillar_height + pillar_height_offset * itter, material);
 
             // smootly rotates cubes instead of restricting/snapping it to 45 degrees
             // Quaternion rotation_left = Quaternion.LookRotation((shield_point_left - player_pos), Vector3.up);
@@ -177,11 +177,13 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
         return icon_sprite;
     }
 
+    private Material material;
     private Sprite icon_sprite;
     private void Start()
     {
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
         mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
+        material = Resources.Load<Material>("Materials/Stone Material");
     }
     
     /// <summary>
@@ -220,7 +222,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
         merged_mirrored_shield = new EarthbendingPillar[half_of_shield_pillar_amount];
         for (int i = 0; i < half_of_shield_pillar_amount; i++)
         {
-            GameObject pillar_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_shield_object");
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
 
             earthbending_pillar.InitEarthbendingPillar(pillar_height + pillar_height_offset * i, pillar_width + pillar_width_offset * i, Quaternion.Euler(0f, 45f, 0f), pillar_alive_time, pillar_speed);

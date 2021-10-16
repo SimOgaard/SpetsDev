@@ -7,7 +7,8 @@
         _Colors ("Color Texture", 2D) = "white" {}
 		_CurveTexture ("Curve Texture", 2D) = "white" {}
 
-		_ShadowSoftness("Shadow Softness", Float) = 0.5
+		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
+		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
     }
 
     SubShader
@@ -16,7 +17,7 @@
         {
 			Tags
 			{
-				"Queue" = "Transparent-1"
+				"Queue" = "Geometry+2"
 				"RenderType"= "Opaque"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"

@@ -2,7 +2,7 @@ Shader "Custom/shadow testing shader 3"
 {
     Properties
     {
-		_ShadowSoftness("Shadow Softness", Float) = 0.5
+		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
     }
 
 	SubShader

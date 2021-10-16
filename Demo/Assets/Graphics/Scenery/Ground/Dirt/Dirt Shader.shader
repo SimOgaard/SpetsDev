@@ -40,7 +40,7 @@
 			Tags
 			{
 				"RenderType"= "Opaque"
-				"Queue"="Transparent-1"
+				"Queue"="Geometry+2"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}

@@ -98,12 +98,14 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         {
             planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
 
+            /*
             GameObject fucking_bitch_ass_god_cube_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
             fucking_bitch_ass_god_cube_game_object.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Nature/Terrain/Diffuse"));
             fucking_bitch_ass_god_cube_game_object.name = "fucking bitch ass god cube";
             Destroy(fucking_bitch_ass_god_cube_game_object.GetComponent<BoxCollider>());
             fucking_bitch_ass_god_cube = fucking_bitch_ass_god_cube_game_object.transform;
             fucking_bitch_ass_god_cube.localScale = Vector3.zero;
+            */
         }
     }
 
@@ -112,7 +114,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     {
         if (Application.isPlaying)
         {
-            fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
+            //fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
         }
     }
 

@@ -12,7 +12,7 @@
 			Tags
 			{
 				"RenderType" = "Opaque"
-				"Queue"="Transparent-1"
+				"Queue"="Geometry+2"
 			}
 			CGPROGRAM
 			#pragma target 3.0
