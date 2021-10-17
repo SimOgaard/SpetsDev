@@ -8,6 +8,7 @@ float4x4 unity_WorldToLight;
 UNITY_DECLARE_SHADOWMAP(_DirectionalShadowmap);
 float _ShadowSoftness;
 float _DarkestValue;
+float _DayNightTime;
 
 fixed LightCalculation(float4 center, float3 normal)
 {
@@ -32,9 +33,9 @@ fixed LightCalculation(float4 center, float3 normal)
  
 	// Sample the shadowmap
 	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness);
+	shadow = saturate(shadow + _ShadowSoftness * _DayNightTime);
 
-	return max(directionalLightValue * shadow, _DarkestValue);
+	return max(directionalLightValue * shadow, _DarkestValue * _DayNightTime);
 }
 
 fixed LightCalculation(float3 center, float3 normal)
@@ -60,7 +61,7 @@ fixed LightCalculation(float3 center, float3 normal)
  
 	// Sample the shadowmap
 	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness);
+	shadow = saturate(shadow + _ShadowSoftness * _DayNightTime);
 
-	return max(directionalLightValue * shadow, _DarkestValue);
+	return max(directionalLightValue * shadow, _DarkestValue * _DayNightTime);
 }

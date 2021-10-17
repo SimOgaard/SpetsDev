@@ -7,6 +7,7 @@ float4x4 unity_WorldToLight;
 
 float _ShadowSoftness;
 float _DarkestValue;
+float _DayNightTime;
 
 struct v2f
 {
@@ -35,10 +36,10 @@ v2f vert(appdata_base v)
 fixed CalculateLight(v2f i)
 {
 	float shadow = SHADOW_ATTENUATION(i);
-	shadow = saturate(shadow + _ShadowSoftness);
+	shadow = saturate(shadow + _ShadowSoftness * _DayNightTime);
 
 	fixed2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 	fixed attenuation = tex2D(_LightTexture0, uvCookie).w;
     fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
-	return max(saturate(lighting.x), _DarkestValue);
+	return max(saturate(lighting.x), _DarkestValue * _DayNightTime);
 }

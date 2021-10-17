@@ -90,7 +90,7 @@ Material:
     - _UVSec: 0
     - _WindStrength: 1
     - _XZDisplacementRandom: 0.5
-    - _YDisplacement: 0.75
+    - _YDisplacement: 1
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

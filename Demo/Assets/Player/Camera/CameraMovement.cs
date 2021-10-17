@@ -27,6 +27,7 @@ public class CameraMovement : MonoBehaviour
     [SerializeField] private float y_axis_rotation;
     [SerializeField] private float x_axis_time;
     [SerializeField] private float snap_increment;
+    [SerializeField] [Range(0.5f, 1f)] private float reccursive_rotation_threshold;
 
     [SerializeField] private float last_stopped_rotation;
     [SerializeField] private float current_rotation;
@@ -123,22 +124,42 @@ public class CameraMovement : MonoBehaviour
             }
             else if (C > B && direction_heading > 0f || C < B && direction_heading < 0f)
             {
-                bool left = Input.GetKey(PlayerInput.left_rotation);
-                bool right = Input.GetKey(PlayerInput.right_rotation);
-                if (left && !right)
-                {
-                    StartCoroutine(RotateCamera(1));
-                    yield break;
-                }
-                if (right && !left)
-                {
-                    StartCoroutine(RotateCamera(-1));
-                    yield break;
-                }
                 float b = wanted_rotation - direction_heading * y_axis_rotation;
                 C += direction_heading * ((Time.deltaTime / x_axis_time) * y_axis_rotation);
                 float x_time = (direction_heading * (C - B) / y_axis_rotation) + 0.5f;
                 float curve_rotation_value = rotation_curve.Evaluate(x_time);
+
+                bool left = Input.GetKey(PlayerInput.left_rotation);
+                bool right = Input.GetKey(PlayerInput.right_rotation);
+                if (left && !right)
+                {
+                    current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
+                    C = current_rotation;
+                    transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+                    
+                    if (x_time > reccursive_rotation_threshold)
+                    {
+                        StartCoroutine(RotateCamera(1));
+                        yield break;
+                    }
+                    yield return wait;
+                    continue;
+                }
+                if (right && !left)
+                {
+                    current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
+                    C = current_rotation;
+                    transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+
+                    if (x_time > reccursive_rotation_threshold)
+                    {
+                        StartCoroutine(RotateCamera(-1));
+                        yield break;
+                    }
+                    yield return wait;
+                    continue;
+                }
+
                 current_rotation = b + direction_heading * curve_rotation_value * y_axis_rotation;
             }
             else
@@ -198,12 +219,12 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if(Input.GetKeyDown(PlayerInput.left_rotation))
+        if(Input.GetKeyDown(PlayerInput.left_rotation) || (Input.GetKeyUp(PlayerInput.right_rotation) && Input.GetKey(PlayerInput.left_rotation)))
         {
             StopAllCoroutines();
             StartCoroutine(RotateCamera(1));
         }
-        else if (Input.GetKeyDown(PlayerInput.right_rotation))
+        else if (Input.GetKeyDown(PlayerInput.right_rotation) || (Input.GetKeyUp(PlayerInput.left_rotation) && Input.GetKey(PlayerInput.right_rotation)))
         {
             StopAllCoroutines();
             StartCoroutine(RotateCamera(-1));

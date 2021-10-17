@@ -107,6 +107,7 @@ public class CreateMesh : MonoBehaviour
         List<int> triangles = new List<int>();
 
         Noise noise_class = new Noise(noise_layer);
+        Random.InitState(noise_layer.general_noise.seed);
 
         Vector3[] vertices_copy = reference_mesh.vertices;
         int[] triangles_copy = reference_mesh.triangles;

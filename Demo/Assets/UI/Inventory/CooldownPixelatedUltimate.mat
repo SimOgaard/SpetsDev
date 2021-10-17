@@ -58,7 +58,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Angle: 0.25
-    - _Arc1: 0.08292421
+    - _Arc1: 0
     - _Arc2: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
