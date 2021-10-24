@@ -105,6 +105,7 @@ public class Bone
     [Header("Graphical User Interface")]
     [SerializeField] private Color gui_color = Color.green;
     [SerializeField] private float gui_radius = 0.25f;
+#if UNITY_EDITOR
     public void DrawGUI(Transform armature_transform)
     {
         Gizmos.color = gui_color;
@@ -138,7 +139,7 @@ public class Bone
             current = current.parent;
         }
     }
-
+#endif
     /// <summary>
     /// INVERSE KINEMATICS
     /// </summary>

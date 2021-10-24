@@ -28,6 +28,7 @@ public class Armature : MonoBehaviour
         leg_r.ResolveIK();
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         arm_l.DrawGUI(transform);
@@ -35,4 +36,5 @@ public class Armature : MonoBehaviour
         leg_l.DrawGUI(transform);
         leg_r.DrawGUI(transform);
     }
+#endif
 }

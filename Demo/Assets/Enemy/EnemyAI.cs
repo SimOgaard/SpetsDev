@@ -8,8 +8,14 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyAI : MonoBehaviour
 {
+    public interface IAIBehaviour
+    {
+        void Die();
+    }
+
     [HideInInspector] public Agent agent;
     [HideInInspector] public Transform player_transform;
+    public Transform chase_transform;
 
     [SerializeField] private float health_remove_speed = 0.5f;
     [SerializeField] private float starting_health;
@@ -17,12 +23,33 @@ public class EnemyAI : MonoBehaviour
     public float current_health
     {
         get { return _current_health; }
-        private set { _current_health = Mathf.Clamp(value, 0f, starting_health); UpdateHealthBar(); }
+        private set
+        {
+            if (value <= 0f)
+            {
+                _current_health = 0f;
+                UpdateHealthBar();
+                //Die();
+                return;
+            }
+            else if (value > starting_health)
+            {
+                _current_health = starting_health;
+            }
+            else
+            {
+                _current_health = value;
+            }
+            UpdateHealthBar();
+        }
     }
+
+    public float damage;
 
     private void Awake()
     {
         player_transform = GameObject.Find("Player").transform;
+        chase_transform = new GameObject("enemy chase transform").transform;
         agent = GetComponent<Agent>();
         InitHealthBar();
         current_health = starting_health;
@@ -150,14 +177,23 @@ public class EnemyAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Kills this unit by disabeling all scripts on it
+    /// Kills this unit by disabeling scripts
     /// </summary>
     public void Die()
     {
+        Debug.Log("died");
+        SetColor(Color.black);
+
+        agent.enabled = false;
+        IAIBehaviour script = (IAIBehaviour)GetComponent(typeof(IAIBehaviour));
+        script.Die();
+
+        /*
         MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
         foreach (MonoBehaviour script in scripts)
         {
             script.enabled = false;
         }
+        */
     }
 }

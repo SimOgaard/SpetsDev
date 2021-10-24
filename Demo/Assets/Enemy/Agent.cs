@@ -69,7 +69,7 @@ public class Agent : MonoBehaviour
         enemy_rigidbody.isKinematic = false;
         enemy_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        enemy_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        enemy_rigidbody.useGravity = true;
 
         max_slope_rotation_cos = Mathf.Cos(max_slope_rotation * Mathf.Deg2Rad);
 
@@ -263,8 +263,10 @@ public class Agent : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position + Vector3.up * ground_raycast_hover, transform.position + Vector3.down * ground_raycast_length + Vector3.up * ground_raycast_hover);
     }
+#endif
 }

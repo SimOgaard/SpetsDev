@@ -5,22 +5,52 @@ using UnityEngine;
 /// <summary>
 /// Holds general functionality that all golems should inherrent from.
 /// </summary>
-public class GolemBehaviour : MonoBehaviour
+public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 {
     public enum GolemType { Small, Medium, Large };
     public GolemType golem_type;
-
-    public bool has_golem_in_hands;
-    [SerializeField] private Transform closest_golem;
-    [HideInInspector] private Transform throwable_parrent_transform;
 
     [SerializeField] private Transform meele_transform;
 
     private Node top_node;
     private EnemyAI enemy_ai;
 
+    /// <summary>
+    /// Range where enemy will try to hit the player.
+    /// Will try to minimize distance between meele transform and player transform.
+    /// </summary>
     [SerializeField] private float meele_range;
+
+    /// <summary>
+    /// Range where enemy will unburrow self.
+    /// Player position updates to where they stood when provoked.
+    /// </summary>
+    [SerializeField] private float buried_find_range;
+
+    /// <summary>
+    /// If player position is not updated for this long burry self.
+    /// </summary>
+    [SerializeField] private float buried_self_time;
+
+    /// <summary>
+    /// How much enemy should walk around where they think player is.
+    /// </summary>
+    [SerializeField] private float wander_strength;
+
+    /// <summary>
+    /// If unburried and player this close to golem, update player position
+    /// </summary>
+    [SerializeField] private float find_range;
+
+    /// <summary>
+    /// If sees player and player this close to golem, update player position
+    /// </summary>
     [SerializeField] private float chasing_range;
+    // Node that makes agent go to point and walk around near point for x amount of time.
+
+    public bool has_golem_in_hands;
+    [SerializeField] private Transform closest_golem;
+    [HideInInspector] private Transform throwable_parrent_transform;
 
     [SerializeField] private float golem_pickup_range;
 
@@ -44,32 +74,39 @@ public class GolemBehaviour : MonoBehaviour
 
     private Node SmallGolemBehaviourTree()
     {
-        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, enemy_ai.player_transform, transform);
+        // Unburies self
+        IsBuriedNode is_buried = new IsBuriedNode(this);
+        RangeNode buried_range = new RangeNode(buried_find_range, enemy_ai.player_transform, transform);
+        RunFunctionNode un_bury_self = new RunFunctionNode(UnBurySelf);
+        Sequence un_bury = new Sequence(new List<Node> { is_buried, buried_range, un_bury_self });
 
-        // Controlls when ai dies
-        HealthNode health_node = new HealthNode(enemy_ai);
-        DeathNode death_node = new DeathNode(enemy_ai);
-        Sequence health_sequence = new Sequence(new List<Node> { health_node, death_node });
+        // Buries self
+        RunFunctionNode bury_self = new RunFunctionNode(BurySelf);
+
+        // Patroll
+        ProceduralWalkNode procedural_walk = new ProceduralWalkNode(enemy_ai.chase_transform, wander_strength);
+        ChaseNode chase = new ChaseNode(enemy_ai.chase_transform, enemy_ai.agent, enemy_ai, meele_transform);
+        Sequence patroll = new Sequence(new List<Node> { procedural_walk, chase });
+
 
         // Controlls spawned enemy in ground
-        // NOT YET IMPLEMENTED
-        Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        //Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        RangeNode meele_range_node = new RangeNode(meele_range, enemy_ai.player_transform, meele_transform);
-        MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
-        Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
+        //RangeNode meele_range_node = new RangeNode(meele_range, enemy_ai.player_transform, meele_transform);
+        //MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
+        //Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
 
         // Chases player
-        RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai);
-        Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
+        //RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, meele_transform);
+        //ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai);
+        //Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
         // Searches for player
         // NOT YET IMPLEMENTED
-        Sequence search_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        //Sequence search_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
-        return new Selector(new List<Node> { health_sequence, hide_sequence, meele_sequence, chase_sequence, search_sequence });
+        return new Selector(new List<Node> { un_bury, is_buried, bury_self, patroll });
     }
 
     private Node MediumGolemBehaviourTree()
@@ -114,7 +151,7 @@ public class GolemBehaviour : MonoBehaviour
 
         // Chases player
         RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai);
+        ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai, meele_transform);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
         // Searches for player
@@ -166,7 +203,7 @@ public class GolemBehaviour : MonoBehaviour
 
         // Chases player
         RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai);
+        ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai, meele_transform);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
         // Searches for player
@@ -178,11 +215,13 @@ public class GolemBehaviour : MonoBehaviour
 
     private void LateUpdate()
     {
+#if UNITY_EDITOR
+        top_node = ConstructBehaviourTree(golem_type);
+#endif
         top_node.Evaluate();
         if (top_node.node_state == NodeState.failure)
         {
             enemy_ai.SetColor(Color.magenta);
-            enemy_ai.agent.StopMoving();
         }
     }
 
@@ -245,5 +284,32 @@ public class GolemBehaviour : MonoBehaviour
     public void SetClosestGolem(Transform closest_golem)
     {
         this.closest_golem = closest_golem;
+    }
+
+    public void Die()
+    {
+        this.enabled = false;
+    }
+
+    public bool is_buried = true;
+    public float time_since_seen_player = 0f;
+    public NodeState BurySelf()
+    {
+        time_since_seen_player += Time.deltaTime;
+        if (time_since_seen_player >= buried_self_time)
+        {
+            time_since_seen_player = 0f;
+            is_buried = true;
+            return NodeState.running;
+        }
+        return NodeState.failure;
+    }
+
+    public NodeState UnBurySelf()
+    {
+        is_buried = false;
+        time_since_seen_player = 0f;
+        enemy_ai.chase_transform.position = enemy_ai.player_transform.position;
+        return NodeState.running;
     }
 }

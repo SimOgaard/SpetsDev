@@ -300,21 +300,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tumbling: 0
   destination: {x: 0, y: 0, z: 0}
-  is_grounded: 1
   ground_raycast_length: 5
-  enemy_rigidbody: {fileID: 0}
+  ground_raycast_hover: 0
+  is_grounded: 1
   max_move_speed: 5
-  acceleration: 2.5
-  current_move_speed: 0
-  max_angular_speed: 2.5
-  angular_acceleration: 1.5
-  current_angular_speed: 0
+  movement_acceleration: 2.5
+  acceleration_factor_from_dot:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  max_acceleration_force: 2
+  speed_factor: 0
+  max_acceleration_force_factor: 0
+  force_scale: {x: 0, y: 0, z: 0}
+  max_acceleration_factor_from_dot:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  ride_spring_strenght: 0
+  ride_spring_damper: 0
+  hover_height: 0
+  upright_joint_spring_strength: 0
+  upright_joint_spring_damper: 0
   max_slope_rotation: 20
   angular_drag: 10
   max_angular_velocity: 1
   drag: 5
   max_depenetration_velocity: 1
   mass: 25
+  enemy_rigidbody: {fileID: 0}
+  tumble_time_modifier: 0
+  tripped_tumble_time: 0
 --- !u!135 &3750073745247767256
 SphereCollider:
   m_ObjectHideFlags: 0

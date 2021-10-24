@@ -24,6 +24,7 @@ public class GolemStandUpTest : MonoBehaviour
         
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         /*
@@ -33,7 +34,7 @@ public class GolemStandUpTest : MonoBehaviour
         leg_l.DrawGUI(transform);
         */
     }
-
+#endif
     /*
     private void Start()
     {

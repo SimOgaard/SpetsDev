@@ -588,7 +588,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 93d308e07d1c03347abef37af697a1fc, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -970,6 +970,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
+--- !u!1 &5809582275561989896
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 592589403147669395}
+  m_Layer: 0
+  m_Name: MeeleTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &592589403147669395
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5809582275561989896}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.75, y: 2.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1195520582924733685}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6340430044405201933
 GameObject:
   m_ObjectHideFlags: 0
@@ -1009,6 +1039,7 @@ Transform:
   - {fileID: 6725105225877691749}
   - {fileID: 5806459157726572857}
   - {fileID: 9218349829805483097}
+  - {fileID: 592589403147669395}
   m_Father: {fileID: 8148621881683245298}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
@@ -1165,7 +1196,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 93d308e07d1c03347abef37af697a1fc, type: 3}
-  m_Color: {r: 0, g: 1, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.3, b: 0.3, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1468,7 +1499,7 @@ Transform:
   m_GameObject: {fileID: 8817600298576257608}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8588522216767075535}
   - {fileID: 2929641468312244074}
@@ -1476,7 +1507,7 @@ Transform:
   - {fileID: 1195520582924733685}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &3158164557599847688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1530,8 +1561,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
   player_transform: {fileID: 0}
+  chase_transform: {fileID: 0}
   health_remove_speed: 0.5
-  starting_health: 10
+  starting_health: 80
+  damage: 12
   health_bar_transform: {fileID: 9218349829805483097}
   health_bar_pixel_size: {x: 16, y: 1}
 --- !u!114 &1323705643777353973
@@ -1547,16 +1580,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   golem_type: 0
+  meele_transform: {fileID: 592589403147669395}
+  meele_range: 2.5
+  buried_find_range: 10
+  buried_self_time: 7.5
+  wander_strength: 35
+  find_range: 17.5
+  chasing_range: 32.5
   has_golem_in_hands: 0
   closest_golem: {fileID: 0}
-  meele_transform: {fileID: 9219934813834523833}
-  meele_range: 10
-  chasing_range: 20
-  golem_pickup_range: 10
-  throw_range: 15
-  golem_find_range: 20
-  golem_find_range_overide: 20
-  repeating_damage_radius: 2
+  golem_pickup_range: 0
+  throw_range: 0
+  golem_find_range: 0
+  golem_find_range_overide: 0
+  repeating_damage_radius: 2.5
+  is_buried: 1
+  time_since_seen_player: 0
 --- !u!114 &8724186405840053940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1571,21 +1610,77 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tumbling: 0
   destination: {x: 0, y: 0, z: 0}
+  ground_raycast_length: 4
+  ground_raycast_hover: 2
   is_grounded: 1
-  ground_raycast_length: 5
-  enemy_rigidbody: {fileID: 0}
   max_move_speed: 5
-  acceleration: 2.5
-  current_move_speed: 0
-  max_angular_speed: 2.5
-  angular_acceleration: 1.5
-  current_angular_speed: 0
+  movement_acceleration: 2.5
+  acceleration_factor_from_dot:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  max_acceleration_force: 100
+  speed_factor: 1
+  max_acceleration_force_factor: 1
+  force_scale: {x: 1, y: 1, z: 1}
+  max_acceleration_factor_from_dot:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  ride_spring_strenght: 15000
+  ride_spring_damper: 500
+  hover_height: 2.5
+  upright_joint_spring_strength: 5000
+  upright_joint_spring_damper: 1000
   max_slope_rotation: 20
-  angular_drag: 10
-  max_angular_velocity: 1
-  drag: 5
-  max_depenetration_velocity: 1
+  angular_drag: 0.05
+  max_angular_velocity: 2
+  drag: 10
+  max_depenetration_velocity: 20
   mass: 25
+  enemy_rigidbody: {fileID: 0}
+  tumble_time_modifier: 1
+  tripped_tumble_time: 0
 --- !u!135 &8791566247863710781
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1597,8 +1692,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2
-  m_Center: {x: 0, y: 2, z: 0}
+  m_Radius: 1.75
+  m_Center: {x: 0, y: 2.75, z: 0}
 --- !u!114 &8420093585059234348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1686,7 +1781,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 93d308e07d1c03347abef37af697a1fc, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.5320261, b: 0.2980392, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

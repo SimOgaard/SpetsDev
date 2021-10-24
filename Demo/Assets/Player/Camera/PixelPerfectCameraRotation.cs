@@ -173,10 +173,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         RenderTexture.active = null;
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        return;
-
         // Construct plane representing the water level
         Plane plane = new Plane(Vector3.up, -Water.water_level);
 
@@ -229,4 +228,5 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         // Yellow points are now representing the top right and top left corners of our new camera whilst the green points represent bottom right and bottom left corners.
     }
+#endif
 }

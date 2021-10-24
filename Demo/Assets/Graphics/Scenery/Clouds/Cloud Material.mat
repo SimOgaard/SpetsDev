@@ -79,6 +79,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _HorizonAngleFade: 15
+    - _HorizonAngleFadeAmount: 1
     - _HorizonAngleThreshold: 2.5
     - _Metallic: 0
     - _Mode: 0

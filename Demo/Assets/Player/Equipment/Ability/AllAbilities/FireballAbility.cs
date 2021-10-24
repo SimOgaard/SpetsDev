@@ -107,7 +107,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// Calculates roots of a given quadratic equation and returns arctangent of most valid root.
     /// </summary>
-    public static float CalculateQuadraticEquation(float a, float b, float c)
+    public static float CalculateQuadraticEquation(float a, float b, float c, float imaginary = Mathf.PI * 0.25f)
     {
         float disc, deno, x1, x2;
         if (a == 0)
@@ -138,7 +138,7 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
             else
             {
                 // The roots are imaginary
-                return Mathf.PI * 0.25f;
+                return imaginary;
             }
         }
     }

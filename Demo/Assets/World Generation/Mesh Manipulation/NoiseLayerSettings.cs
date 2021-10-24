@@ -109,7 +109,7 @@ public class NoiseLayerSettings : ScriptableObject
     {
         public AnimationCurve light_curve;
         public int resolution;
-        public int col_diff;
+        public float col_diff;
     }
 
     [System.Serializable]

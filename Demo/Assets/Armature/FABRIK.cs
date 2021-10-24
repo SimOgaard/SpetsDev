@@ -226,6 +226,7 @@ public class FABRIK : MonoBehaviour
             current.rotation = Root.rotation * rotation;
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         var current = this.transform;
@@ -246,4 +247,5 @@ public class FABRIK : MonoBehaviour
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(Pole.position, 0.5f);
     }
+#endif
 }

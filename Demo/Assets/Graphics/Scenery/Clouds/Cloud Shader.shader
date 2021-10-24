@@ -139,7 +139,7 @@
 
 		float alpha = GetNoiseValue(i);
 		
-		float curve_value = tex2D(_CurveTexture, alpha).r * angle_opacity;
+		float curve_value = tex2D(_CurveTexture, alpha).r  * angle_opacity;
 
 		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, curve_value);
 		return color;

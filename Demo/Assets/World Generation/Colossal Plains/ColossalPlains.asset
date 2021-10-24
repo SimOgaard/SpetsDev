@@ -206,7 +206,5 @@ MonoBehaviour:
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
   spawn_prefabs:
-  - {fileID: 8817600298576257608, guid: 8b30b2fdd47bd15469b535156ddbea59, type: 3}
-  - {fileID: 2024596662710969881, guid: 1eec095998ae0064b962226be4ab7ab6, type: 3}
   - {fileID: 2656273714191936001, guid: 07b83147b4ffd8541b5c6a1b706dfa70, type: 3}
   - {fileID: 7141246363922379835, guid: ed34c07fbf777144c929fd760f6723c7, type: 3}
