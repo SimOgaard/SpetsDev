@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEditor;
 
 [ExecuteInEditMode]
-public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGeneration
+public class ColossalPlains : MonoBehaviour
 {
+    /*
     private GameObject mesh_game_object;
     private GameObject land_marks_game_object;
     private GameObject rocks_game_object;
@@ -116,4 +117,5 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
             gameObject.SetActive(false);
         }
     }
+    */
 }

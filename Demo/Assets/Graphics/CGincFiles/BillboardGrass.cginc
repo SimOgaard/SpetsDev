@@ -41,7 +41,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 	fixed z_displacement = rand(world_center.xzy) * _XZDisplacementRandom;
 	world_center += fixed3(x_displacement, y_displacement, z_displacement);
 
-	center = mul(unity_WorldToObject, world_center);
+	center = mul(unity_WorldToObject, float4(world_center,1));
 
 	fixed pixelSize = _TilePixelSize / (5.4 * 2);
 	float4 vectors[4];

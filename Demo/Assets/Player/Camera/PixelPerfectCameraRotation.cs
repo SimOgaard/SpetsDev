@@ -66,10 +66,6 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void SetCameraNearClippingPlane()
     {
-        if (Application.isEditor)
-        {
-            return;
-        }
         Vector4 clipPlaneWorldSpace = new Vector4(0f, 0f, 1f, 0f);
         Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(m_camera.cameraToWorldMatrix) * clipPlaneWorldSpace;
         m_camera.projectionMatrix = m_camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
@@ -89,7 +85,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         camera_focus_point = GameObject.Find("camera_focus_point").transform;
         m_camera = GetComponent<Camera>();
         m_camera.orthographicSize = (225f / 216f) * 20f;
-        SetCameraNearClippingPlane();
+        //SetCameraNearClippingPlane();
     }
 
     private void Start()
@@ -109,14 +105,16 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
     }
 
+    /*
     [SerializeField] private Transform fucking_bitch_ass_god_cube;
     private void Update()
     {
         if (Application.isPlaying)
         {
-            //fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
+            fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
         }
     }
+    */
 
     private void LateUpdate()
     {

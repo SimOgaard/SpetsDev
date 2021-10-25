@@ -15,7 +15,7 @@ public class CustomEditorForInspector : Editor
     public override void OnInspectorGUI()
     {
         EditorGUILayout.BeginHorizontal();
-        Texture2D[] noise_images = world.world_generation.GetNoiseTextures();
+        Texture2D[] noise_images = world.GetNoiseTextures();
         for (int i = 0; i < noise_images.Length; i++)
         {
             if (i % 2 == 0)
@@ -33,12 +33,12 @@ public class CustomEditorForInspector : Editor
             base.OnInspectorGUI();
             if (check.changed)
             {
-                world.world_generation.UpdateWorld();
+                world.UpdateWorld();
             }
         }
 
-        NoiseLayerSettings settings = world.world_generation.GetNoiseSettings();
-        DrawSettingsEditor(settings, world.world_generation.UpdateWorld, ref world.foldout, ref editor);
+        NoiseLayerSettings settings = world.GetNoiseSettings();
+        DrawSettingsEditor(settings, world.UpdateWorld, ref world.foldout, ref editor);
     }
 
     private static Texture2D TextureField(string name, Texture2D texture)

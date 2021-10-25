@@ -121,7 +121,7 @@ public class PlaceInWorld : MonoBehaviour
         // Should this Transform spawn?
         if (spawn_instruction.noise_layer.enabled)
         {
-            CreateMesh.Noise noise = new CreateMesh.Noise(spawn_instruction.noise_layer);
+            Noise.NoiseLayer noise = new Noise.NoiseLayer(spawn_instruction.noise_layer);
             float noise_value = noise.GetNoiseValue(transform.position.x, transform.position.z);
 
             if (!(Random.value <= spawn_instruction.spawn_chance || (noise_value > spawn_instruction.spawn_range_noise.x && noise_value < spawn_instruction.spawn_range_noise.y && Random.value <= spawn_instruction.spawn_chance_noise)))

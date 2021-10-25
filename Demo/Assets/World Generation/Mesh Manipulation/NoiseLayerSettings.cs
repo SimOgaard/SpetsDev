@@ -5,10 +5,6 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class NoiseLayerSettings : ScriptableObject
 {
-    [HideInInspector] [Min(0.01f)] public Vector2 unit_size;
-    [HideInInspector] [Min(2)] public Vector2Int resolution;
-    [HideInInspector] public Vector2 offsett;
-
     [Header("Terrain")]
     public NoiseLayer[] terrain_noise_layers;
 

@@ -6,7 +6,7 @@ public class SpawnPrefabs : MonoBehaviour
 {
     public static List<Collider> bounding_boxes = new List<Collider>();
 
-    public void Spawn(GameObject[] prefabs, float object_density, Vector2 area, Vector2 offset, float chunk_load_speed)
+    public void Spawn(GameObject[] prefabs, float object_density, Vector2 area, Vector3 offset, float chunk_load_speed)
     {
         if (!Application.isPlaying)
         {
@@ -29,11 +29,12 @@ public class SpawnPrefabs : MonoBehaviour
             }
         }
 
+        Debug.Log("Tried spawning: " + object_density * area.x * area.y + " Objects");
         bounding_boxes = new List<Collider>();
         for (int i = 0; i < object_density * area.x * area.y; i++)
         {
             float x = Random.Range(-0.5f, 0.5f) * area.x + offset.x;
-            float z = Random.Range(-0.5f, 0.5f) * area.y + offset.y;
+            float z = Random.Range(-0.5f, 0.5f) * area.y + offset.z;
 
             GameObject new_game_object = Instantiate(prefabs[Mathf.RoundToInt(Random.value * (prefabs.Length - 1))]);
             PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
