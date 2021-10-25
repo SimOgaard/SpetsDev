@@ -57,17 +57,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SurfaceDistortion:
         m_Texture: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
-        m_Scale: {x: 10, y: 30}
+        m_Scale: {x: 1000, y: 3000}
         m_Offset: {x: 0, y: 0}
     - _SurfaceNoise:
         m_Texture: {fileID: 2800000, guid: 67f8701164a9bcb4180814af352aa7e0, type: 3}
-        m_Scale: {x: 15, y: 40}
+        m_Scale: {x: 1500, y: 4000}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DepthMaxDistance: 4
+    - _DepthMaxDistance: 0.65
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _FoamMaxDistance: 0.15
@@ -92,8 +92,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DepthGradientDeep: {r: 0.3803922, g: 0.6657238, b: 1, a: 0.6}
-    - _DepthGradientShallow: {r: 0.6179246, g: 0.90274435, b: 1, a: 0.4}
+    - _DepthGradientDeep: {r: 0, g: 0.41666675, b: 1, a: 0.54901963}
+    - _DepthGradientShallow: {r: 0.39999998, g: 1, b: 1, a: 0.34901962}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.01, b: 0, a: 0}

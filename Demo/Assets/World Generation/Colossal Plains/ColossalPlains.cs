@@ -16,6 +16,9 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
     private Texture2D[] noise_textures;
     private SpawnPrefabs spawn_prefabs;
 
+    private float chunk_unload_distance_squared;
+    private Transform player_transform;
+
     public void DestroyAll()
     {
         DestroyImmediate(mesh_game_object);
@@ -50,12 +53,18 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.curve_wood);
     }
 
-    public void Init()
+    public void Init(Vector2 unit_size, Vector2Int resolution, Vector2 offset, float chunk_unload_distance_squared, Transform player_transform, float chunk_load_speed)
     {
         gameObject.layer = Layer.game_world;
         gameObject.isStatic = true;
 
         LoadInNoiseSettings();
+        noise_layer_settings.unit_size = unit_size;
+        noise_layer_settings.resolution = resolution;
+        noise_layer_settings.offsett = offset;
+        this.chunk_unload_distance_squared = chunk_unload_distance_squared;
+        this.player_transform = player_transform;
+
         CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf, noise_layer_settings.curve_leaf);
         CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood, noise_layer_settings.curve_wood);
         WorldGenerationManager.InitNewChild(out mesh_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
@@ -66,6 +75,10 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.land_marks);
         WorldGenerationManager.InitNewChild(out rocks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
         WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
+        GameObject enemies_game_object;
+        WorldGenerationManager.InitNewChild(out enemies_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies, typeof(Enemies));
+        GameObject interact_game_object;
+        WorldGenerationManager.InitNewChild(out interact_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.interact, typeof(Interact));
 
         Mesh ground_mesh = create_mesh.CreateMeshByNoise(GetNoiseSettings());
         create_mesh.CreateGrass(ground_mesh);
@@ -86,11 +99,8 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
             foliage_game_object.transform.position += Vector3.up * 0.1f;
         }
 
-        Water water = new GameObject().AddComponent<Water>();
-        water.Init(noise_layer_settings.water.material, 1000, 1000, noise_layer_settings.water.level, mesh_game_object.transform);
-
         noise_textures = create_mesh.GetNoiseTextures();
-        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution);
+        spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, noise_layer_settings.unit_size * noise_layer_settings.resolution, offset, chunk_load_speed);
     }
 
     private void Start()
@@ -99,10 +109,11 @@ public class ColossalPlains : MonoBehaviour, WorldGenerationManager.WorldGenerat
         join_meshes.SetCollider();
     }
 
-    
     private void Update()
     {
-        float water_level_wave = noise_layer_settings.water.bobing_amplitude * Mathf.Sin(Time.time * noise_layer_settings.water.bobing_frequency);
-        Water.water_level = noise_layer_settings.water.level + water_level_wave;
+        if ((transform.position - player_transform.position).sqrMagnitude > chunk_unload_distance_squared)
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

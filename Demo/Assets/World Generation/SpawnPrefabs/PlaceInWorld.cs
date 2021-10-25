@@ -116,7 +116,7 @@ public class PlaceInWorld : MonoBehaviour
         return false;
     }
 
-    public static List<Collider> Spawn(Transform transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
+    public static List<Collider> Spawn(Transform transform, Transform chunk_transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
     {
         // Should this Transform spawn?
         if (spawn_instruction.noise_layer.enabled)
@@ -183,7 +183,7 @@ public class PlaceInWorld : MonoBehaviour
         // Change parrent on delay so that destroys further in this script can effect them aswell.
         if (!is_parrent && spawn_instruction.parrent_name != SpawnInstruction.PlacableGameObjectsParrent.keep)
         {
-            transform.parent = GameObject.Find(spawn_instruction.parrent_name.ToString()).transform;
+            transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(spawn_instruction.parrent_name));
         }
 
         Physics.SyncTransforms();
@@ -240,19 +240,19 @@ public class PlaceInWorld : MonoBehaviour
         }
     }
 
-    public List<Collider> InitAsChild(ref int child_transform_amount)
+    public List<Collider> InitAsChild(Transform chunk_transform, ref int child_transform_amount)
     {
-        return Spawn(transform, this_instruction, ref child_transform_amount);
+        return Spawn(transform, chunk_transform, this_instruction, ref child_transform_amount);
     }
 
-    public void InitAsParrent(float x, float z)
+    public void InitAsParrent(float x, float z, Transform chunk_transform)
     {
         // Get amount of children of gameobject. Because Destroy() doesnt regrister in transform.childCount.
         int child_transform_amount = transform.childCount;
 
         // Spawn this gameobject.
         transform.position = new Vector3(x, 0f, z);
-        List<Collider> parrent_colliders = Spawn(transform, this_instruction, ref child_transform_amount, true);
+        List<Collider> parrent_colliders = Spawn(transform, chunk_transform, this_instruction, ref child_transform_amount, true);
         if (parrent_colliders != null)
         {
             bounding_boxes.AddRange(parrent_colliders);
@@ -269,7 +269,7 @@ public class PlaceInWorld : MonoBehaviour
         {
             if (child.TryGetComponent(out PlaceInWorld place_in_world))
             {
-                List<Collider> object_colliders = place_in_world.InitAsChild(ref child_transform_amount);
+                List<Collider> object_colliders = place_in_world.InitAsChild(chunk_transform, ref child_transform_amount);
                 if(object_colliders != null)
                 {
                     bounding_boxes.AddRange(object_colliders);
@@ -278,7 +278,7 @@ public class PlaceInWorld : MonoBehaviour
             }
             else if (child_instruction != null)
             {
-                List<Collider> object_colliders = Spawn(child, child_instruction, ref child_transform_amount);
+                List<Collider> object_colliders = Spawn(child, chunk_transform, child_instruction, ref child_transform_amount);
                 if (object_colliders != null)
                 {
                     bounding_boxes.AddRange(object_colliders);
@@ -291,7 +291,7 @@ public class PlaceInWorld : MonoBehaviour
         }
 
         SpawnPrefabs.bounding_boxes.AddRange(bounding_boxes);
-        transform.parent = GameObject.Find(this_instruction.parrent_name.ToString()).transform;
+        transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(this_instruction.parrent_name));
         Destroy(this);
     }
 }

@@ -55,7 +55,7 @@ public class ChestInteractable : MonoBehaviour
     private void OpenChest()
     {
         is_open = true;
-        transform.parent = GameObject.Find("UsedInteractables").transform;
+        transform.parent = transform.parent.parent.Find("UsedInteractables");
 
         if (equipment_type_string == "")
         {
@@ -218,12 +218,14 @@ public class ChestInteractable : MonoBehaviour
     public Equipment InitNewEquipment()
     {
         GameObject equipment_game_object = new GameObject("equipment_game_object");
+        equipment_game_object.transform.parent = transform.parent.parent.Find("Items/ItemsInAir");
         return equipment_game_object.AddComponent<Equipment>();
     }
 
     public Upgrade InitNewUpgrade()
     {
         GameObject upgrade_game_object = new GameObject("upgrade_game_object");
+        upgrade_game_object.transform.parent = transform.parent.parent.Find("Items/ItemsInAir");
         return upgrade_game_object.AddComponent<Upgrade>();
     }
 }

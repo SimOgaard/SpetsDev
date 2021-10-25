@@ -18,7 +18,6 @@ public class DropItem : MonoBehaviour
     private SphereCollider _collider;
 
     private Transform items_in_inventory;
-    private Transform items_in_air;
     private Transform items_on_ground;
 
     private DroppedItemShaderStruct shader_struct;
@@ -121,7 +120,6 @@ public class DropItem : MonoBehaviour
 
         ShadeDroppedItem();
 
-        transform.parent = items_in_air;
         transform.position = position;
     }
 
@@ -141,6 +139,7 @@ public class DropItem : MonoBehaviour
         Vector3 thrust = Quaternion.Euler(-Random.Range(72.5f, 82.5f), Random.Range(-selected_rotation * 0.5f + 180f + start_rotation, selected_rotation * 0.5f + 180f + start_rotation), 0) * Vector3.forward * force;
         _rigidbody.AddForce(thrust, ForceMode.Force);
         _collider = gameObject.AddComponent<SphereCollider>();
+        _collider.center = Vector3.zero;
         _collider.radius = 1f;
         _collider.isTrigger = true;
     }
@@ -259,8 +258,7 @@ public class DropItem : MonoBehaviour
     private void Start()
     {
         items_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
-        items_in_air = GameObject.Find("ItemsInAir").transform;
-        items_on_ground = GameObject.Find("ItemsOnGround").transform;
+        items_on_ground = transform.parent.parent.Find("ItemsOnGround");
 
         not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
     }

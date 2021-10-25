@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Enemies : MonoBehaviour
 {
+    public static readonly string[] enemy_names = { "lGolems", "mGolems", "sGolems" };
+
     /// <summary>
     /// List of all enemies.
     /// </summary>
     public static List<EnemyAI> all_enemy_ais = new List<EnemyAI>();
 
+    /*
     private void AddAllEnemiesInHierarchy(Transform parrent)
     {
         foreach (Transform child in parrent)
@@ -23,10 +26,19 @@ public class Enemies : MonoBehaviour
             }
         }
     }
+    */
+
+    private void AddAllEnemiesInHierarchy()
+    {
+        for (int i = 0; i < enemy_names.Length; i++)
+        {
+            new GameObject(enemy_names[i]).transform.parent = transform;
+        }
+    }
 
     private void Awake()
     {
-        AddAllEnemiesInHierarchy(transform);
+        AddAllEnemiesInHierarchy();
     }
 
     /// <summary>

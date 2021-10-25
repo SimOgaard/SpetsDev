@@ -13,23 +13,17 @@ public class CreateMesh : MonoBehaviour
     private Material grass_material;
     private NoiseLayerSettings.Curve grass_curve;
 
-    private GameObject water_game_object;
-    private MeshFilter water_mesh_filter;
-    private MeshRenderer water_mesh_renderer;
-    private Material water_material;
-
     private Noise[] noise;
 
     public Mesh CreateMeshByNoise(NoiseLayerSettings noise_layer_settings)
     {
         grass_material = noise_layer_settings.material_grass;
         grass_curve = noise_layer_settings.curve_grass;
-        water_material = noise_layer_settings.water.material;
 
         Vector2 unit_size = noise_layer_settings.unit_size;
         Vector2Int resolution = noise_layer_settings.resolution;
 
-        Mesh mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+        Mesh mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt16 };
 
         resolution.x = Mathf.Max(resolution.x + 1, 2);
         resolution.y = Mathf.Max(resolution.y + 1, 2);
@@ -48,12 +42,12 @@ public class CreateMesh : MonoBehaviour
         int triangles_index = 0;
         for (int z = 0; z < resolution.y; z++)
         {
-            reused_point.z = unit_size.y * z - (resolution.y - 1) * unit_size.y * 0.5f;
+            reused_point.z = unit_size.y * z - (resolution.y - 1) * unit_size.y * 0.5f + noise_layer_settings.offsett.y;
 
             for (int x = 0; x < resolution.x; x++)
             {
                 vertices_index = z * resolution.x + x;
-                reused_point.x = unit_size.x * x - (resolution.x - 1) * unit_size.x * 0.5f;
+                reused_point.x = unit_size.x * x - (resolution.x - 1) * unit_size.x * 0.5f + noise_layer_settings.offsett.x;
 
                 vertices[vertices_index] = reused_point;
 

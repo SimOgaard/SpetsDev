@@ -125,6 +125,14 @@ public class Equipment : MonoBehaviour
     /// </summary>
     public void Pickup()
     {
+        void SetInventoryItemToAir(Transform transform)
+        {
+            WorldGenerationManager world_generator = GameObject.Find("WorldGenerator").GetComponent<WorldGenerationManager>();
+            Transform chunk = world_generator.ReturnNearestChunk(player_transform.position);
+            Debug.Log(chunk);
+            transform.parent = chunk.Find("Interact/Items/ItemsInAir");
+        }
+
         // Dropps current equipment and sets variable in PlayerInventoryController
         current_equipment.ObjectPool();
         Vector3 spawn_point = player_transform.position;
@@ -134,6 +142,7 @@ public class Equipment : MonoBehaviour
                 ui_inventory.ChangeWeapon(current_equipment);
                 if (PlayerInventory.weapon_equipment != null)
                 {
+                    SetInventoryItemToAir(PlayerInventory.weapon_equipment.transform);
                     PlayerInventory.weapon_equipment.DropEquipment(spawn_point, 360f);
                 }
                 PlayerInventory.weapon_equipment = this;
@@ -144,6 +153,7 @@ public class Equipment : MonoBehaviour
                 ui_inventory.ChangeAbility(current_equipment);
                 if (PlayerInventory.ability_equipment != null)
                 {
+                    SetInventoryItemToAir(PlayerInventory.ability_equipment.transform);
                     PlayerInventory.ability_equipment.DropEquipment(spawn_point, 360f);
                 }
                 PlayerInventory.ability_equipment = this;
@@ -154,6 +164,7 @@ public class Equipment : MonoBehaviour
                 ui_inventory.ChangeUltimate(current_equipment);
                 if (PlayerInventory.ultimate_equipment != null)
                 {
+                    SetInventoryItemToAir(PlayerInventory.ultimate_equipment.transform);
                     PlayerInventory.ultimate_equipment.DropEquipment(spawn_point, 360f);
                 }
                 PlayerInventory.ultimate_equipment = this;

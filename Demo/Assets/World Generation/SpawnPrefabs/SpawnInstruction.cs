@@ -6,7 +6,8 @@ using UnityEngine;
 public class SpawnInstruction : ScriptableObject
 {
     public enum SharedXYZ { none, xy, xz, yz, xyz }
-    public enum PlacableGameObjectsParrent { keep, ground_mesh, land_marks, rocks, trees, Interactables, UsedInteractables, Enemies, lGolems, mGolems, sGolems }
+    public enum PlacableGameObjectsParrent { keep, ground_mesh, land_marks, rocks, trees, interactables, interact, used_interactables, enemies, l_golems, m_golems, s_golems }
+    public static readonly string[] PlacableGameObjectsParrentString = { "keep", "ground_mesh", "land_marks", "rocks", "trees", "Interact/Interactables", "Interact", "UsedInteractables", "Enemies", "Enemies/lGolems", "Enemies/mGolems", "Enemies/sGolems" };
 
     [Header("Hiearchy")]
     public PlacableGameObjectsParrent parrent_name = PlacableGameObjectsParrent.land_marks;
@@ -43,4 +44,9 @@ public class SpawnInstruction : ScriptableObject
     public SharedXYZ shared_scales = SharedXYZ.none;
     public Vector3 min_scale = new Vector3(1, 1, 1);
     public Vector3 max_scale = new Vector3(1, 1, 1);
+
+    public static string GetHierarchyName(PlacableGameObjectsParrent index)
+    {
+        return PlacableGameObjectsParrentString[(int)index];
+    }
 }

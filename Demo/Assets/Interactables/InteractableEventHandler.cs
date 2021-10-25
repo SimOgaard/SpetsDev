@@ -7,10 +7,9 @@ using UnityEngine;
 /// </summary>
 public class InteractableEventHandler : MonoBehaviour
 {
-    [SerializeField] private Transform player_transform;
-
     [SerializeField] private float player_min_distance = 10f;
     private float player_min_distance_squared;
+    private Transform player_transform;
 
     private Sprite interacting_with_sprite;
     private Sprite not_interacting_with_sprite;
@@ -138,10 +137,11 @@ public class InteractableEventHandler : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        player_transform = GameObject.Find("Player").transform;
         player_min_distance_squared = player_min_distance * player_min_distance;
         interacting_with_sprite = Resources.Load<Sprite>("Interactables/interacting_with_sprite");
         not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
-        items_on_ground = GameObject.Find("ItemsOnGround").transform;
+        items_on_ground = transform.parent.Find("Items/ItemsOnGround");
     }
 
     /// <summary>
