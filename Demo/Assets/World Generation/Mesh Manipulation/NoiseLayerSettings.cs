@@ -21,9 +21,6 @@ public class NoiseLayerSettings : ScriptableObject
     public Material material_wood;
     public Curve curve_wood;
 
-    [Header("Water")]
-    public Water water;
-
     [Header("Other")]
     public Material material_stone;
 

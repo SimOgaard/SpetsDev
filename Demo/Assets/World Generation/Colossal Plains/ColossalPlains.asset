@@ -116,7 +116,7 @@ MonoBehaviour:
       general_noise:
         noise_type: 0
         seed: 0
-        frequency: 0.01
+        frequency: 0.0025
       fractal:
         fractal_type: 1
         octaves: 5
@@ -134,11 +134,11 @@ MonoBehaviour:
         frequency: 0
       domain_warp_fractal:
         fractal_type: 0
-        octaves: 0
+        octaves: 1
         lacunarity: 0
         gain: 0
-    keep_range_noise: {x: 0.8, y: 1}
-    keep_range_random_noise: 0.05
+    keep_range_noise: {x: 0.65, y: 1}
+    keep_range_random_noise: 0.005
     keep_range_random: 0.0005
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   curve_leaf:
@@ -196,7 +196,6 @@ MonoBehaviour:
       m_RotationOrder: 4
     resolution: 255
     col_diff: 0
-  water: {fileID: 0}
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
   spawn_prefabs:

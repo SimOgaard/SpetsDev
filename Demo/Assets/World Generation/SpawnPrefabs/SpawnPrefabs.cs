@@ -29,7 +29,7 @@ public class SpawnPrefabs : MonoBehaviour
             }
         }
 
-        Debug.Log("Tried spawning: " + object_density * area.x * area.y + " Objects");
+        //Debug.Log("Tried spawning: " + object_density * area.x * area.y + " Objects");
         bounding_boxes = new List<Collider>();
         for (int i = 0; i < object_density * area.x * area.y; i++)
         {

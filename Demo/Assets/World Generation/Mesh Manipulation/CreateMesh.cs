@@ -12,10 +12,8 @@ public class CreateMesh : MonoBehaviour
     private Material grass_material;
     private NoiseLayerSettings.Curve grass_curve;
 
-    public static Mesh CreateMeshByNoise(Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
+    public static (Vector3[] vertices, int[] triangles) CreateMeshByNoise(Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
     {
-        Mesh mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt16 };
-
         resolution.x = Mathf.Max(resolution.x + 1, 2);
         resolution.y = Mathf.Max(resolution.y + 1, 2);
 
@@ -71,26 +69,21 @@ public class CreateMesh : MonoBehaviour
             }
         }
 
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-
-        return mesh;
+        return (vertices, triangles);
     }
 
-    public static Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset)
+    public static float RandomNextFloat(System.Random random)
+    {
+        return (float) random.NextDouble();
+    }
+
+    public static (Vector3[] vertices, int[] triangles) DropMeshVertices(Vector3[] vertices_copy, int[] triangles_copy, System.Random random, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset, Vector3 positional_offset)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
 
         Noise.NoiseLayer noise_layer = new Noise.NoiseLayer(settings_noise_layer);
-        Random.InitState(settings_noise_layer.general_noise.seed);
 
-        Vector3[] vertices_copy = reference_mesh.vertices;
-        int[] triangles_copy = reference_mesh.triangles;
         for (int triangle_index = 0; triangle_index < triangles_copy.Length; triangle_index += 3)
         {
             Vector3 vertice_1 = vertices_copy[triangles_copy[triangle_index]];
@@ -100,8 +93,9 @@ public class CreateMesh : MonoBehaviour
             float x = (vertice_1.x + vertice_2.x + vertice_3.x) / 3;
             float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3;
 
-            float noise_value = noise_layer.GetNoiseValue(x, z);
-            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && Random.value <= keep_range_random_noise || Random.value <= keep_range_random)
+            float noise_value = noise_layer.GetNoiseValue(x + positional_offset.x, z + positional_offset.z);
+            float random_value = RandomNextFloat(random);
+            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && random_value <= keep_range_random_noise || random_value <= keep_range_random)
             {
                 int index = vertices.Count;
 
@@ -115,16 +109,7 @@ public class CreateMesh : MonoBehaviour
             }
         }
 
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-
-        mesh.Optimize();
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-
-        return mesh;
+        return (vertices.ToArray(), triangles.ToArray());
     }
 
     public static Mesh CubeMesh()

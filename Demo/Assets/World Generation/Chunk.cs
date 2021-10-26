@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 [ExecuteInEditMode]
 public class Chunk : MonoBehaviour
@@ -8,8 +9,9 @@ public class Chunk : MonoBehaviour
     private float chunk_unload_distance_squared;
     private Transform player_transform;
 
-    public void InitChunk(NoiseLayerSettings noise_layer_settings, Noise.NoiseLayer[] noise_layers, WorldGenerationManager.ChunkDetails chunk_details, Transform player_transform)
+    public async void InitChunk(NoiseLayerSettings noise_layer_settings, Noise.NoiseLayer[] noise_layers, WorldGenerationManager.ChunkDetails chunk_details, Transform player_transform)
     {
+        Debug.Log("start init chunk");
         // initilize variables
         gameObject.layer = Layer.game_world;
         gameObject.isStatic = true;
@@ -17,7 +19,21 @@ public class Chunk : MonoBehaviour
         this.player_transform = player_transform;
 
         // initilizes ground
-        Mesh ground_mesh = CreateMesh.CreateMeshByNoise(noise_layers, chunk_details.unit_size, chunk_details.resolution, transform.position);
+        // Run in second thread
+        Vector3 mesh_position = transform.position;
+        (Vector3[] vertices, int[] triangles) mesh_data = await Task.Run(() =>
+        {
+            return CreateMesh.CreateMeshByNoise(noise_layers, chunk_details.unit_size, chunk_details.resolution, mesh_position);
+        });
+
+        // run in main thread
+        Mesh ground_mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt16 };
+        ground_mesh.vertices = mesh_data.vertices;
+        ground_mesh.triangles = mesh_data.triangles;
+        ground_mesh.Optimize();
+        ground_mesh.RecalculateNormals();
+        ground_mesh.RecalculateTangents();
+        ground_mesh.RecalculateBounds();
         Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
 
         // initilizes flowers
@@ -30,9 +46,23 @@ public class Chunk : MonoBehaviour
                 continue;
             }
 
-            Mesh foliage_mesh = CreateMesh.DropMeshVertices(ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f);
+            System.Random random = new System.Random();
+            mesh_position = transform.position;
+            (Vector3[] vertices, int[] triangles) mesh_data_flowers = await Task.Run(() =>
+            {
+                return CreateMesh.DropMeshVertices(mesh_data.vertices, mesh_data.triangles, random, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f, mesh_position);
+            });
+
+            Mesh flower_mesh = new Mesh();
+            flower_mesh.vertices = mesh_data_flowers.vertices;
+            flower_mesh.triangles = mesh_data_flowers.triangles;
+            flower_mesh.Optimize();
+            flower_mesh.RecalculateNormals();
+            flower_mesh.RecalculateTangents();
+            flower_mesh.RecalculateBounds();
+
             CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
-            GameObject foliage_game_object = CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name, ground_transform);
+            GameObject foliage_game_object = CreateRandomFoliage(flower_mesh, foliage_settings.material, foliage_settings.name, ground_transform);
         }
 
         // initilizes all parrent objects of prefabs
@@ -50,7 +80,10 @@ public class Chunk : MonoBehaviour
         // spawns prefabss
         SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
         spawn_prefabs.Spawn(noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.unit_size * chunk_details.resolution, transform.position, chunk_details.chunk_load_speed);
+
+        Debug.Log("done init chunk");
     }
+
     public void ReloadChunk()
     {
 
