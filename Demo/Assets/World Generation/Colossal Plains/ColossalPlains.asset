@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c60036b307786342b91c190e62121f3, type: 3}
   m_Name: ColossalPlains
   m_EditorClassIdentifier: 
-  unit_size: {x: 1, y: 1}
-  resolution: {x: 250, y: 250}
   terrain_noise_layers:
   - enabled: 1
     general:
@@ -198,13 +196,10 @@ MonoBehaviour:
       m_RotationOrder: 4
     resolution: 255
     col_diff: 0
-  water:
-    material: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
-    level: 7.5
-    bobing_frequency: 0.75
-    bobing_amplitude: 0.25
+  water: {fileID: 0}
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
   spawn_prefabs:
   - {fileID: 2656273714191936001, guid: 07b83147b4ffd8541b5c6a1b706dfa70, type: 3}
   - {fileID: 7141246363922379835, guid: ed34c07fbf777144c929fd760f6723c7, type: 3}
+  - {fileID: 6332176213858284533, guid: c5d8d904c7aa1f742b6ad19d23163375, type: 3}

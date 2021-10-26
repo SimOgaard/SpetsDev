@@ -4,6 +4,9 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1, 1, 1, 1)
+		//_DisplacementConstant("Displacement Constant", Vector) = (0, 1.25, 0, 0)
+		//_BobDisplacement("Bob Displacement", Vector) = (0, 0.2, 0, 0)
+		//_BobFrequency("Bob Frequency", Float) = 100
     }
     SubShader
     {
@@ -37,10 +40,14 @@
             float4 _MainTex_ST;
 			float4 _Color;
 
+			float4 _DisplacementConstant;
+			float4 _BobDisplacement;
+			float _BobFrequency;
+
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = UnityObjectToClipPos(v.vertex + _DisplacementConstant + sin(_Time[0] * _BobFrequency) * _BobDisplacement);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }

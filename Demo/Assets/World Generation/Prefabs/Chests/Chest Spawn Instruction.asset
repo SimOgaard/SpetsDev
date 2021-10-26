@@ -63,7 +63,7 @@ MonoBehaviour:
   rotate_twords_ground_normal: 0
   reset_rotation: 1
   rotation_offset: 0
-  rotation_increment: 45
+  rotation_increment: 22.5
   max_rotation: 180
   shared_scales: 0
   min_scale: {x: 1, y: 1, z: 1}

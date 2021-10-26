@@ -66,7 +66,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void SetCameraNearClippingPlane()
     {
-        Vector4 clipPlaneWorldSpace = new Vector4(0f, 0f, 1f, 0f);
+        Vector3 direction = m_camera.transform.forward;
+        direction.y = 0f;
+        Vector4 clipPlaneWorldSpace = new Vector4(direction.x, direction.y, direction.z, Vector3.Dot(m_camera.transform.position, -direction));
         Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(m_camera.cameraToWorldMatrix) * clipPlaneWorldSpace;
         m_camera.projectionMatrix = m_camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
     }
@@ -115,12 +117,12 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
     }
     */
-
     private void LateUpdate()
     {
         MoveCamera(ref m_camera, camera_focus_point, camera_rotation_init, camera_distance);
         Shader.SetGlobalVector("_CameraOffset", new Vector4(camera_offset.x, camera_offset.y, 0f, 0f));
         camera_offset = PixelSnap(ref m_camera);
+        SetCameraNearClippingPlane();
 
         if (!Application.isPlaying)
         {

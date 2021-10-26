@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
+  m_Name: Hexagon Cluster Spawn Instruction
+  m_EditorClassIdentifier: 
+  parrent_name: 3
+  min_child_amount_required: 1
+  ignore_bounding_boxes: 0
+  spawn_chance: 0.1
+  spawn_range_noise: {x: 0, y: 0}
+  spawn_chance_noise: 1
+  noise_layer:
+    enabled: 1
+    general:
+      amplitude: 0.1
+      offsett: {x: 0, y: 0}
+      min_value: 0
+      smoothing_min: 0
+      max_value: 0
+      smoothing_max: 0
+    general_noise:
+      noise_type: 0
+      seed: 1337
+      frequency: 0.02
+    fractal:
+      fractal_type: 0
+      octaves: 1
+      lacunarity: 2
+      gain: 0.5
+      weighted_strength: 0
+      ping_pong_strength: 2
+    cellular:
+      cellular_distance_function: 0
+      cellular_return_type: 0
+      jitter: 1
+    domain_warp:
+      domain_warp_type: 0
+      amplitude: 30
+      frequency: 0.005
+    domain_warp_fractal:
+      fractal_type: 0
+      octaves: 5
+      lacunarity: 2
+      gain: 0.5
+  ray_layer_mask:
+    serializedVersion: 2
+    m_Bits: 65536
+  shared_ray_position: 0
+  min_ray_position: {x: 0, y: 0, z: 0}
+  max_ray_position: {x: 0, y: 0, z: 0}
+  shared_position: 0
+  min_position: {x: 0, y: 0, z: 0}
+  max_position: {x: 0, y: 0, z: 0}
+  rotate_twords_ground_normal: 1
+  reset_rotation: 1
+  rotation_offset: 0
+  rotation_increment: 22.5
+  max_rotation: 180
+  shared_scales: 2
+  min_scale: {x: 1.5, y: 3, z: 1.5}
+  max_scale: {x: 2, y: 6, z: 2}

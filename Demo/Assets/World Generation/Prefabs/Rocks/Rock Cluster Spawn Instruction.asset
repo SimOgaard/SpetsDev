@@ -15,7 +15,7 @@ MonoBehaviour:
   parrent_name: 3
   min_child_amount_required: 1
   ignore_bounding_boxes: 0
-  spawn_chance: 0.1
+  spawn_chance: 0.125
   spawn_range_noise: {x: 0.75, y: 1}
   spawn_chance_noise: 0.25
   noise_layer:
@@ -63,7 +63,7 @@ MonoBehaviour:
   rotate_twords_ground_normal: 0
   reset_rotation: 1
   rotation_offset: 0
-  rotation_increment: 1
+  rotation_increment: 22.5
   max_rotation: 180
   shared_scales: 0
   min_scale: {x: 1, y: 1, z: 1}
