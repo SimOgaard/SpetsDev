@@ -33,19 +33,14 @@ public class WorldGenerationManager : MonoBehaviour
     }
     [SerializeField] private WaterDetails water_details;
 
-    public Chunk InstanciateChunkGameObject(Vector3 coord)
+    public Transform CreateChunk(Vector3 coord)
     {
         Vector2 coord_2d = ReturnNearestChunkCoord(coord);
-        Debug.Log("created new chunk game object for chunk " + coord_2d);
         GameObject chunk_game_object = new GameObject("chunk " + coord_2d);
         chunk_game_object.transform.parent = transform;
         chunk_game_object.transform.position = new Vector3(coord_2d.x, 0f, coord_2d.y);
-        return chunk_game_object.AddComponent<Chunk>();
-    }
-
-    public void CreateChunk(Chunk chunk)
-    {
-        chunk.InitChunk(noise_layer_settings, noise_layers, chunk_details, player_transform);
+        chunk_game_object.AddComponent<Chunk>().InitChunk(noise_layer_settings, noise_layers, chunk_details, player_transform);
+        return chunk_game_object.transform;
     }
 
     private Transform player_transform;
@@ -66,22 +61,22 @@ public class WorldGenerationManager : MonoBehaviour
         Water water = new GameObject().AddComponent<Water>();
         water.Init(water_details.water_material, 100000, 100000, water_details.level, transform);
 
-        LoadNearestChunk(Vector3.zero);
+        chunks[100, 100] = CreateChunk(Vector3.zero);
     }
 
     private void Update()
     {
         Vector2 offset = chunk_details.chunk_size * chunk_details.chunk_preload_factor;
-        
-        LoadNearestChunk(player_transform.position + new Vector3(offset.x, 0f, offset.y));
-        LoadNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, offset.y));
-        LoadNearestChunk(player_transform.position + new Vector3(offset.x, 0f, -offset.y));
-        LoadNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, -offset.y));
 
-        LoadNearestChunk(player_transform.position + new Vector3(offset.x, 0f, 0f));
-        LoadNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, 0f));
-        LoadNearestChunk(player_transform.position + new Vector3(0f, 0f, offset.y));
-        LoadNearestChunk(player_transform.position + new Vector3(0f, 0f, -offset.y));
+        ReturnNearestChunk(player_transform.position + new Vector3(offset.x, 0f, offset.y));
+        ReturnNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, offset.y));
+        ReturnNearestChunk(player_transform.position + new Vector3(offset.x, 0f, -offset.y));
+        ReturnNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, -offset.y));
+
+        ReturnNearestChunk(player_transform.position + new Vector3(offset.x, 0f, 0f));
+        ReturnNearestChunk(player_transform.position + new Vector3(-offset.x, 0f, 0f));
+        ReturnNearestChunk(player_transform.position + new Vector3(0f, 0f, offset.y));
+        ReturnNearestChunk(player_transform.position + new Vector3(0f, 0f, -offset.y));
 
         float water_level_wave = water_details.bobing_amplitude * Mathf.Sin(Time.time * water_details.bobing_frequency);
         Water.water_level = water_details.level + water_level_wave;
@@ -149,23 +144,13 @@ public class WorldGenerationManager : MonoBehaviour
         Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
         Vector2Int nearest_chunk_index = nearest_chunk + chunk_index_offset;
-        return chunks[nearest_chunk_index.x, nearest_chunk_index.y];
-    }
 
-    public Transform LoadNearestChunk(Vector3 position)
-    {
-        Vector2Int chunk_index_offset = new Vector2Int(100, 100);
-        Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearest_chunk_index = nearest_chunk + chunk_index_offset;
         Transform chunk = chunks[nearest_chunk_index.x, nearest_chunk_index.y];
-
         if (chunk == null)
         {
             // Create chunk
-            Chunk chunk_class = InstanciateChunkGameObject(position);
-            chunk = chunk_class.transform;
+            chunk = CreateChunk(position);
             chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
-            CreateChunk(chunk_class);
         }
         else if (!chunk.gameObject.activeSelf)
         {
