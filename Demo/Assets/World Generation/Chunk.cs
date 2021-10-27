@@ -11,6 +11,7 @@ public class Chunk : MonoBehaviour
 
     public async void InitChunk(NoiseLayerSettings noise_layer_settings, Noise.NoiseLayer[] noise_layers, WorldGenerationManager.ChunkDetails chunk_details, Transform player_transform)
     {
+        Debug.Log(this == null);
         Debug.Log("start init chunk");
         // initilize variables
         gameObject.layer = Layer.game_world;
@@ -20,6 +21,7 @@ public class Chunk : MonoBehaviour
 
         // initilizes ground
         // Run in second thread
+        Debug.Log(this == null);
         Vector3 mesh_position = transform.position;
         (Vector3[] vertices, int[] triangles) mesh_data = await Task.Run(() =>
         {
@@ -27,6 +29,7 @@ public class Chunk : MonoBehaviour
         });
 
         // run in main thread
+        Debug.Log(this == null);
         Mesh ground_mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt16 };
         ground_mesh.vertices = mesh_data.vertices;
         ground_mesh.triangles = mesh_data.triangles;
@@ -34,6 +37,7 @@ public class Chunk : MonoBehaviour
         ground_mesh.RecalculateNormals();
         ground_mesh.RecalculateTangents();
         ground_mesh.RecalculateBounds();
+        Debug.Log(this == null);
         Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
 
         // initilizes flowers
@@ -95,6 +99,7 @@ public class Chunk : MonoBehaviour
     private MeshCollider ground_mesh_collider;
     private Transform CreateGround(Mesh mesh, Material ground_material, NoiseLayerSettings.Curve ground_curve)
     {
+        Debug.Log(this == null);
         WorldGenerationManager.InitNewChild(out ground_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
 
         ground_game_object.transform.localPosition = Vector3.zero;

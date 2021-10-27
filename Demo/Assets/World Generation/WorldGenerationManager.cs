@@ -33,18 +33,19 @@ public class WorldGenerationManager : MonoBehaviour
     }
     [SerializeField] private WaterDetails water_details;
 
-    public Chunk InstanciateChunkGameObject(Vector3 coord)
+    public Chunk InstanciateChunkGameObject(Vector2 chunk_coord)
     {
-        Vector2 coord_2d = ReturnNearestChunkCoord(coord);
-        Debug.Log("created new chunk game object for chunk " + coord_2d);
-        GameObject chunk_game_object = new GameObject("chunk " + coord_2d);
+        Debug.Log("created new chunk game object for chunk " + chunk_coord);
+        GameObject chunk_game_object = new GameObject("chunk " + chunk_coord);
         chunk_game_object.transform.parent = transform;
-        chunk_game_object.transform.position = new Vector3(coord_2d.x, 0f, coord_2d.y);
-        return chunk_game_object.AddComponent<Chunk>();
+        chunk_game_object.transform.position = new Vector3(chunk_coord.x, 0f, chunk_coord.y);
+        Chunk chunk_object = chunk_game_object.AddComponent<Chunk>();
+        return chunk_object;
     }
 
     public void CreateChunk(Chunk chunk)
     {
+        Debug.Log(chunk == null);
         chunk.InitChunk(noise_layer_settings, noise_layers, chunk_details, player_transform);
     }
 
@@ -162,7 +163,7 @@ public class WorldGenerationManager : MonoBehaviour
         if (chunk == null)
         {
             // Create chunk
-            Chunk chunk_class = InstanciateChunkGameObject(position);
+            Chunk chunk_class = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
             chunk = chunk_class.transform;
             chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
             CreateChunk(chunk_class);
