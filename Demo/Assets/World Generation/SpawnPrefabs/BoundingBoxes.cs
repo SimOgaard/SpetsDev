@@ -14,13 +14,6 @@ public class BoundingBoxes : MonoBehaviour
 
     public List<Collider> GetBoundingBoxes()
     {
-        StartCoroutine(DestroyAfterReturn());
         return bounding_boxes;
-    }
-
-    private IEnumerator DestroyAfterReturn()
-    {
-        yield return new WaitForFixedUpdate();
-        Destroy(this);
     }
 }

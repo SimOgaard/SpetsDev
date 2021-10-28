@@ -9,6 +9,13 @@ public class PlaceInWorld : MonoBehaviour
 
     private List<Collider> bounding_boxes = new List<Collider>();
 
+    [SerializeField] private int child_transform_amount = 0;
+
+    private void AddToBoundingBoxesLocal(List<Collider> bounds)
+    {
+        bounding_boxes.AddRange(bounds);
+    }
+
     public static void SetRecursiveToGameWorld(GameObject obj)
     {
         if (Layer.IsInLayer(Layer.Mask.spawned_game_world, obj.layer))
@@ -80,8 +87,6 @@ public class PlaceInWorld : MonoBehaviour
 
     public static Vector3[] PointNormalWithRayCast(Vector3 origin, Vector3 random_vector, Vector3 direction, LayerMask placable_layer_mask)
     {
-        Physics.SyncTransforms();
-
         RaycastHit[] hits = Physics.RaycastAll(origin + Vector3.up * 100f + random_vector, Vector3.down, 400f, placable_layer_mask, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
         for (int i = 0; i < hits.Length; i++)
@@ -94,7 +99,7 @@ public class PlaceInWorld : MonoBehaviour
         return null;
     }
 
-    public static void CountDownChild(ref int child_transform_amount, bool is_parrent)
+    private void CountDownChild(bool is_parrent)
     {
         if (is_parrent)
         {
@@ -116,7 +121,7 @@ public class PlaceInWorld : MonoBehaviour
         return false;
     }
 
-    public static List<Collider> Spawn(Transform transform, Transform chunk_transform, SpawnInstruction spawn_instruction, ref int child_transform_amount, bool is_parrent = false)
+    public static IEnumerator Spawn(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform transform, Transform chunk_transform, SpawnInstruction spawn_instruction, bool is_parrent = false)
     {
         // Should this Transform spawn?
         if (spawn_instruction.noise_layer.enabled)
@@ -127,8 +132,8 @@ public class PlaceInWorld : MonoBehaviour
             if (!(Random.value <= spawn_instruction.spawn_chance || (noise_value > spawn_instruction.spawn_range_noise.x && noise_value < spawn_instruction.spawn_range_noise.y && Random.value <= spawn_instruction.spawn_chance_noise)))
             {
                 Destroy(transform.gameObject);
-                CountDownChild(ref child_transform_amount, is_parrent);
-                return null;
+                CountDownChild(is_parrent);
+                yield break;
             }
         }
         else
@@ -136,12 +141,17 @@ public class PlaceInWorld : MonoBehaviour
             if (!(Random.value <= spawn_instruction.spawn_chance))
             {
                 Destroy(transform.gameObject);
-                CountDownChild(ref child_transform_amount, is_parrent);
-                return null;
+                CountDownChild(is_parrent);
+                yield break;
             }
         }
 
         // Raycast
+        yield return wait;
+        if (transform == null)
+        {
+            yield break;
+        }
         Vector3 normal = Vector3.up;
         Vector3[] hit_data = PointNormalWithRayCast(
             transform.position,
@@ -159,8 +169,8 @@ public class PlaceInWorld : MonoBehaviour
         else if (spawn_instruction.ray_layer_mask.value != 0)
         {
             Destroy(transform.gameObject);
-            CountDownChild(ref child_transform_amount, is_parrent);
-            return null;
+            CountDownChild(is_parrent);
+            yield break;
         }
 
         // Apply rotation, scale and position offsets.
@@ -186,29 +196,33 @@ public class PlaceInWorld : MonoBehaviour
             transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(spawn_instruction.parrent_name));
         }
 
-        Physics.SyncTransforms();
-
-        if (transform.TryGetComponent(out BoundingBoxes bounding_boxes))
+        yield return wait;
+        if (transform == null)
         {
-            List<Collider> bounds = bounding_boxes.GetBoundingBoxes();
+            yield break;
+        }
+
+        if (transform.TryGetComponent(out BoundingBoxes bounding_boxes_object))
+        {
+            List<Collider> bounds = bounding_boxes_object.GetBoundingBoxes();
             List<Collider> bounds_to_be_removed = new List<Collider>();
 
             if (!spawn_instruction.ignore_bounding_boxes)
             {
-                bool destroy_children = bounding_boxes.ShouldDestroyChildren();
+                bool destroy_children = bounding_boxes_object.ShouldDestroyChildren();
 
                 foreach (Collider spawning_collider in bounds)
                 {
-                    foreach (Collider instanciated_colliders in SpawnPrefabs.bounding_boxes)
+                    foreach (Collider instanciated_colliders in GetBoundingBoxes())
                     {
                         if (destroy_children)
                         {
                             //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
                             if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
                             {
-                                Destroy(spawning_collider.gameObject);
+                                CountDownChild(is_parrent);
                                 bounds_to_be_removed.Add(spawning_collider);
-                                break;
+                                Destroy(spawning_collider.gameObject);
                             }
                         }
                         else
@@ -216,9 +230,9 @@ public class PlaceInWorld : MonoBehaviour
                             //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
                             if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
                             {
+                                CountDownChild(is_parrent);
                                 Destroy(transform.gameObject);
-                                CountDownChild(ref child_transform_amount, is_parrent);
-                                return null;
+                                yield break;
                             }
                         }
                     }
@@ -229,39 +243,42 @@ public class PlaceInWorld : MonoBehaviour
                     bounds.Remove(bound);
                 }
 
-                return bounds;
+                AddToBoundingBoxesLocal(bounds);
+                Destroy(bounding_boxes_object);
+                yield break;
             }
 
-            return bounds;
+            AddToBoundingBoxesLocal(bounds);
+            Destroy(bounding_boxes_object);
+            yield break;
         }
         else
         {
-            return null;
+            yield break;
         }
     }
 
-    public List<Collider> InitAsChild(Transform chunk_transform, ref int child_transform_amount)
+    public IEnumerator InitAsChild(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform chunk_transform)
     {
-        return Spawn(transform, chunk_transform, this_instruction, ref child_transform_amount);
+        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction));
     }
 
-    public void InitAsParrent(float x, float z, Transform chunk_transform)
+    public IEnumerator InitAsParrent(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxes, System.Func<List<Collider>> GetBoundingBoxes, float x, float z, Transform chunk_transform)
     {
         // Get amount of children of gameobject. Because Destroy() doesnt regrister in transform.childCount.
-        int child_transform_amount = transform.childCount;
+        child_transform_amount = transform.childCount;
 
         // Spawn this gameobject.
         transform.position = new Vector3(x, 0f, z);
-        List<Collider> parrent_colliders = Spawn(transform, chunk_transform, this_instruction, ref child_transform_amount, true);
-        if (parrent_colliders != null)
+        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction, true));
+        if (this == null)
         {
-            bounding_boxes.AddRange(parrent_colliders);
+            yield break;
         }
 
         if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
         {
-            Destroy(gameObject);
-            return;
+            yield break;
         }
 
         // Spawn children of gameobject.
@@ -269,28 +286,20 @@ public class PlaceInWorld : MonoBehaviour
         {
             if (child.TryGetComponent(out PlaceInWorld place_in_world))
             {
-                List<Collider> object_colliders = place_in_world.InitAsChild(chunk_transform, ref child_transform_amount);
-                if(object_colliders != null)
-                {
-                    bounding_boxes.AddRange(object_colliders);
-                }
+                yield return StartCoroutine(place_in_world.InitAsChild(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, chunk_transform));
                 Destroy(place_in_world);
             }
             else if (child_instruction != null)
             {
-                List<Collider> object_colliders = Spawn(child, chunk_transform, child_instruction, ref child_transform_amount);
-                if (object_colliders != null)
-                {
-                    bounding_boxes.AddRange(object_colliders);
-                }
+                yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, child, chunk_transform, child_instruction));
             }
             if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
             {
-                return;
+                yield break;
             }
         }
 
-        SpawnPrefabs.bounding_boxes.AddRange(bounding_boxes);
+        AddToBoundingBoxes(bounding_boxes);
         transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(this_instruction.parrent_name));
         Destroy(this);
     }

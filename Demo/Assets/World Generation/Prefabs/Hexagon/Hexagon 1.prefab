@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1937398623044086335}
   - component: {fileID: 5234158308548711521}
   - component: {fileID: 4723932226840448529}
+  - component: {fileID: 2259154764091011484}
   m_Layer: 19
   m_Name: Hexagon
   m_TagString: Untagged
@@ -109,6 +110,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.25, y: 1.75, z: 1.25}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2259154764091011484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136226983971392490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounding_boxes:
+  - {fileID: 4723932226840448529}
+  destroy_children: 0
 --- !u!1 &1785817114669658446
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +138,7 @@ GameObject:
   - component: {fileID: 1628335909514788281}
   - component: {fileID: 1905747075955826374}
   - component: {fileID: 632352157291195835}
+  - component: {fileID: 5095135389165503102}
   m_Layer: 19
   m_Name: Hexagon (2)
   m_TagString: Untagged
@@ -218,6 +235,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.25, y: 1.75, z: 1.25}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5095135389165503102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785817114669658446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounding_boxes:
+  - {fileID: 632352157291195835}
+  destroy_children: 0
 --- !u!1 &3280993966047129053
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,6 +263,7 @@ GameObject:
   - component: {fileID: 2361562452128553176}
   - component: {fileID: 5978805594570735605}
   - component: {fileID: 5940099958660180221}
+  - component: {fileID: 2613723246875910446}
   m_Layer: 19
   m_Name: Hexagon (1)
   m_TagString: Untagged
@@ -327,6 +360,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.25, y: 1.75, z: 1.25}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2613723246875910446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3280993966047129053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounding_boxes:
+  - {fileID: 5940099958660180221}
+  destroy_children: 0
 --- !u!1 &6332176213858284533
 GameObject:
   m_ObjectHideFlags: 0
@@ -337,7 +385,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6332176213858284532}
   - component: {fileID: 8158337643560186030}
-  - component: {fileID: 7841737643865008366}
   m_Layer: 19
   m_Name: Hexagon 1
   m_TagString: Untagged
@@ -376,20 +423,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: 56b40c11ea389c547908e93fb33c9d7e, type: 2}
   child_instruction: {fileID: 11400000, guid: 6066f21ef51e36641a7c13fddcf21553, type: 2}
---- !u!114 &7841737643865008366
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6332176213858284533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bounding_boxes:
-  - {fileID: 4723932226840448529}
-  - {fileID: 5940099958660180221}
-  - {fileID: 632352157291195835}
-  destroy_children: 1
+  child_transform_amount: 0

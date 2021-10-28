@@ -4,29 +4,30 @@ using UnityEngine;
 
 public class SpawnPrefabs : MonoBehaviour
 {
-    public static List<Collider> bounding_boxes = new List<Collider>();
+    [SerializeField] private List<Collider> bounding_boxes;
 
-    public void Spawn(GameObject[] prefabs, float object_density, Vector2 area, Vector3 offset, float chunk_load_speed)
+    private void AddToBoundingBoxes(List<Collider> colliders)
+    {
+        bounding_boxes.AddRange(colliders);
+    }
+
+    private List<Collider> GetBoundingBoxes()
+    {
+        return bounding_boxes;
+    }
+
+
+    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area, Vector3 offset, float chunk_load_speed)
     {
         if (!Application.isPlaying)
         {
-            return;
+            yield break;
         }
 
         int prefab_length = prefabs.Length;
         if (prefab_length == 0)
         {
-            return;
-        }
-        else
-        {
-            for (int i = 0; i < prefab_length; i++)
-            {
-                if (prefabs[i] == null)
-                {
-                    return;
-                }
-            }
+            yield break;
         }
 
         Debug.Log("Tried spawning: " + object_density * area.x * area.y + " Objects");
@@ -35,10 +36,15 @@ public class SpawnPrefabs : MonoBehaviour
         {
             float x = Random.Range(-0.5f, 0.5f) * area.x + offset.x;
             float z = Random.Range(-0.5f, 0.5f) * area.y + offset.z;
+            int prefab_index = Mathf.RoundToInt(Random.value * (prefabs.Length - 1));
 
-            GameObject new_game_object = Instantiate(prefabs[Mathf.RoundToInt(Random.value * (prefabs.Length - 1))]);
+            if (prefabs[prefab_index] == null)
+            {
+                continue;
+            }
+            GameObject new_game_object = Instantiate(prefabs[prefab_index]);
             PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
-            place.InitAsParrent(x, z, transform);
+            yield return StartCoroutine(place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform));
         }
 
         foreach (Collider collider in bounding_boxes)

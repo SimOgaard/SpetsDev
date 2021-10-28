@@ -4,17 +4,9 @@ using UnityEngine;
 
 public class CreateMesh : MonoBehaviour
 {
-    private MeshCollider mesh_collider;
-
-    private GameObject grass_game_object;
-    private MeshFilter grass_mesh_filter;
-    private MeshRenderer grass_mesh_renderer;
-    private Material grass_material;
-    private NoiseLayerSettings.Curve grass_curve;
-
-    public static Mesh CreateMeshByNoise(Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
+    public static IEnumerator CreateMeshByNoise(WaitForFixedUpdate wait, Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
     {
-        Mesh mesh = new Mesh() { indexFormat = UnityEngine.Rendering.IndexFormat.UInt16 };
+        Mesh mesh = new Mesh();
 
         resolution.x = Mathf.Max(resolution.x + 1, 2);
         resolution.y = Mathf.Max(resolution.y + 1, 2);
@@ -69,19 +61,21 @@ public class CreateMesh : MonoBehaviour
                     triangles_index += 6;
                 }
             }
+            yield return wait;
         }
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
+        yield return wait;
         mesh.RecalculateTangents();
+        yield return wait;
         mesh.RecalculateBounds();
-
-        return mesh;
+        yield return mesh;
     }
 
-    public static Mesh DropMeshVertices(Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset)
+    public static IEnumerator DropMeshVertices(WaitForFixedUpdate wait, Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -91,6 +85,20 @@ public class CreateMesh : MonoBehaviour
 
         Vector3[] vertices_copy = reference_mesh.vertices;
         int[] triangles_copy = reference_mesh.triangles;
+
+        void AddVertice(Vector3 vertice_1, Vector3 vertice_2, Vector3 vertice_3)
+        {
+            int index = vertices.Count;
+
+            triangles.Add(index);
+            triangles.Add(index + 1);
+            triangles.Add(index + 2);
+
+            vertices.Add(vertice_1 + offset);
+            vertices.Add(vertice_2 + offset);
+            vertices.Add(vertice_3 + offset);
+        }
+
         for (int triangle_index = 0; triangle_index < triangles_copy.Length; triangle_index += 3)
         {
             Vector3 vertice_1 = vertices_copy[triangles_copy[triangle_index]];
@@ -100,18 +108,24 @@ public class CreateMesh : MonoBehaviour
             float x = (vertice_1.x + vertice_2.x + vertice_3.x) / 3;
             float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3;
 
-            float noise_value = noise_layer.GetNoiseValue(x, z);
-            if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && Random.value <= keep_range_random_noise || Random.value <= keep_range_random)
+            float random_value = Random.value;
+            if (random_value <= keep_range_random)
             {
-                int index = vertices.Count;
+                AddVertice(vertice_1, vertice_2, vertice_3);
+            }
+            else if (random_value <= keep_range_random_noise)
+            {
+                float noise_value = noise_layer.GetNoiseValue(x, z);
 
-                triangles.Add(index);
-                triangles.Add(index + 1);
-                triangles.Add(index + 2);
+                if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y)
+                {
+                    AddVertice(vertice_1, vertice_2, vertice_3);
+                }
+            }
 
-                vertices.Add(vertice_1 + offset);
-                vertices.Add(vertice_2 + offset);
-                vertices.Add(vertice_3 + offset);
+            if (triangle_index % 999 == 0)
+            {
+                yield return wait;
             }
         }
 
@@ -120,11 +134,13 @@ public class CreateMesh : MonoBehaviour
         mesh.triangles = triangles.ToArray();
 
         mesh.Optimize();
+        yield return wait;
         mesh.RecalculateNormals();
+        yield return wait;
         mesh.RecalculateTangents();
+        yield return wait;
         mesh.RecalculateBounds();
-
-        return mesh;
+        yield return mesh;
     }
 
     public static Mesh CubeMesh()
