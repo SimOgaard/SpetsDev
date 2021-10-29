@@ -123,6 +123,7 @@ public class PlaceInWorld : MonoBehaviour
 
     public static IEnumerator Spawn(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform transform, Transform chunk_transform, SpawnInstruction spawn_instruction, bool is_parrent = false)
     {
+        //Debug.Log("Spawn");
         // Should this Transform spawn?
         if (spawn_instruction.noise_layer.enabled)
         {
@@ -133,6 +134,7 @@ public class PlaceInWorld : MonoBehaviour
             {
                 Destroy(transform.gameObject);
                 CountDownChild(is_parrent);
+                //Debug.Log("Random destroy noise");
                 yield break;
             }
         }
@@ -142,6 +144,7 @@ public class PlaceInWorld : MonoBehaviour
             {
                 Destroy(transform.gameObject);
                 CountDownChild(is_parrent);
+                //Debug.Log("Random destroy");
                 yield break;
             }
         }
@@ -150,6 +153,7 @@ public class PlaceInWorld : MonoBehaviour
         yield return wait;
         if (transform == null)
         {
+            //Debug.Log("transform == null");
             yield break;
         }
         Vector3 normal = Vector3.up;
@@ -170,6 +174,7 @@ public class PlaceInWorld : MonoBehaviour
         {
             Destroy(transform.gameObject);
             CountDownChild(is_parrent);
+            //Debug.Log("ray didnt hit");
             yield break;
         }
 
@@ -199,25 +204,30 @@ public class PlaceInWorld : MonoBehaviour
         yield return wait;
         if (transform == null)
         {
+            //Debug.Log("transform == null 2");
             yield break;
         }
 
         if (transform.TryGetComponent(out BoundingBoxes bounding_boxes_object))
         {
+            //Debug.Log("BoundingBoxes found");
             List<Collider> bounds = bounding_boxes_object.GetBoundingBoxes();
             List<Collider> bounds_to_be_removed = new List<Collider>();
 
             if (!spawn_instruction.ignore_bounding_boxes)
             {
+                //Debug.Log("Do not ignore bounding boxes");
                 bool destroy_children = bounding_boxes_object.ShouldDestroyChildren();
 
                 foreach (Collider spawning_collider in bounds)
                 {
+                    //Debug.Log(spawning_collider);
+
                     foreach (Collider instanciated_colliders in GetBoundingBoxes())
                     {
                         if (destroy_children)
                         {
-                            //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
+                            ////Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
                             if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
                             {
                                 CountDownChild(is_parrent);
@@ -227,11 +237,13 @@ public class PlaceInWorld : MonoBehaviour
                         }
                         else
                         {
-                            //Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
+                            ////Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
                             if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
                             {
                                 CountDownChild(is_parrent);
                                 Destroy(transform.gameObject);
+                                //Debug.Log("spawning_collider intersects with instanciated_colliders");
+                                //Debug.Log(transform.gameObject, transform.gameObject);
                                 yield break;
                             }
                         }
@@ -245,15 +257,18 @@ public class PlaceInWorld : MonoBehaviour
 
                 AddToBoundingBoxesLocal(bounds);
                 Destroy(bounding_boxes_object);
+                //Debug.Log("added bounds");
                 yield break;
             }
 
             AddToBoundingBoxesLocal(bounds);
             Destroy(bounding_boxes_object);
+            //Debug.Log("added bounds");
             yield break;
         }
         else
         {
+            //Debug.Log("no BoundingBoxes found");
             yield break;
         }
     }
@@ -265,6 +280,8 @@ public class PlaceInWorld : MonoBehaviour
 
     public IEnumerator InitAsParrent(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxes, System.Func<List<Collider>> GetBoundingBoxes, float x, float z, Transform chunk_transform)
     {
+        //Debug.Log("IsInitAsParrent");
+
         // Get amount of children of gameobject. Because Destroy() doesnt regrister in transform.childCount.
         child_transform_amount = transform.childCount;
 
@@ -273,32 +290,45 @@ public class PlaceInWorld : MonoBehaviour
         yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction, true));
         if (this == null)
         {
+            //Debug.Log("IsInitAsParrent == null");
             yield break;
         }
 
         if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
         {
+            //Debug.Log("ChildCount: " + child_transform_amount);
             yield break;
         }
 
-        // Spawn children of gameobject.
+        // this is neccesary since we destroy children
+        List<Transform> children = new List<Transform>();
         foreach (Transform child in transform)
         {
+            children.Add(child);
+        }
+        // Spawn children of gameobject.
+        foreach (Transform child in children)
+        {
+            //Debug.Log(child, child);
             if (child.TryGetComponent(out PlaceInWorld place_in_world))
             {
+                //Debug.Log("place in world found");
                 yield return StartCoroutine(place_in_world.InitAsChild(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, chunk_transform));
                 Destroy(place_in_world);
             }
             else if (child_instruction != null)
             {
+                //Debug.Log("child instruction found");
                 yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, child, chunk_transform, child_instruction));
             }
             if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
             {
+                //Debug.Log("ChildCount: " + child_transform_amount);
                 yield break;
             }
         }
 
+        //Debug.Log("add to global bounding_boxes");
         AddToBoundingBoxes(bounding_boxes);
         transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(this_instruction.parrent_name));
         Destroy(this);

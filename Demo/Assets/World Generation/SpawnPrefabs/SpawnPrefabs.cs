@@ -30,9 +30,13 @@ public class SpawnPrefabs : MonoBehaviour
             yield break;
         }
 
-        Debug.Log("Tried spawning: " + object_density * area.x * area.y + " Objects");
+        List<Task> tasks = new List<Task>();
+
+        float object_amount = object_density * area.x * area.y;
+        float wait_amount = Mathf.Max(object_amount * object_density);
+        Debug.Log("tried spawning: " + object_amount + " objects on: " + transform.name);
         bounding_boxes = new List<Collider>();
-        for (int i = 0; i < object_density * area.x * area.y; i++)
+        for (int i = 0; i < object_amount; i++)
         {
             float x = Random.Range(-0.5f, 0.5f) * area.x + offset.x;
             float z = Random.Range(-0.5f, 0.5f) * area.y + offset.z;
@@ -44,7 +48,28 @@ public class SpawnPrefabs : MonoBehaviour
             }
             GameObject new_game_object = Instantiate(prefabs[prefab_index]);
             PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
-            yield return StartCoroutine(place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform));
+
+            tasks.Add(new Task(place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform)));
+
+            if (i % (wait_amount) == 0)
+            {
+                yield return wait;
+            }
+        }
+
+        bool continue_with_list = true;
+        while (continue_with_list)
+        {
+            continue_with_list = false;
+            yield return wait;
+            foreach (Task task in tasks)
+            {
+                if (task.Running)
+                {
+                    continue_with_list = true;
+                    break;
+                }
+            }
         }
 
         foreach (Collider collider in bounding_boxes)

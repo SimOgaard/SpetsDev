@@ -59,7 +59,11 @@ public class Chunk : MonoBehaviour
         SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
         yield return StartCoroutine(spawn_prefabs.Spawn(wait, noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.unit_size * chunk_details.resolution, transform.position, chunk_details.chunk_load_speed));
 
+        //JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
+        //join_meshes.SetCollider();
+
         is_loaded = true;
+        Debug.Log("done loading: " + transform.name);
     }
     public void ReloadChunk()
     {
