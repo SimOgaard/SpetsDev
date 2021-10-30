@@ -71,7 +71,7 @@ public class WorldGenerationManager : MonoBehaviour
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(water_details.water_material, 300f, 300f, water_details.level, transform);
+        water.Init(water_details.water_material, 200f, 200f, water_details.level, transform);
 
         LoadNearestChunk(Vector3.zero/*, true*/);
         StartCoroutine(LoadProgressively());

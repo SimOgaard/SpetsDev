@@ -18,10 +18,10 @@ public class Water : MonoBehaviour
 
     private void LateUpdate()
     {
-        Vector3 new_pos = Vector3.zero; //camera_focus_point_transform.position;
+        Vector3 new_pos = camera_focus_point_transform.position;
         new_pos.y = water_level;
         transform.position = new_pos;
-        //material.SetVector("_Center", new_pos / 150f);
+        material.SetVector("_Center", new_pos);
     }
 
     private static Mesh BuildQuad(float width, float height)
