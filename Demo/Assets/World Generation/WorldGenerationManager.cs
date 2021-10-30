@@ -20,7 +20,7 @@ public class WorldGenerationManager : MonoBehaviour
         [HideInInspector] public Vector2 chunk_size;
         public float chunk_preload_factor;
         [Range(0.01f, 1f)] public float chunk_load_speed;
-        public Vector2 offset;
+        [HideInInspector] public Vector2 offset;
     }
     [SerializeField] private ChunkDetails chunk_details;
 
@@ -71,10 +71,12 @@ public class WorldGenerationManager : MonoBehaviour
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(water_details.water_material, 100000, 100000, water_details.level, transform);
+        water.Init(water_details.water_material, 300f, 300f, water_details.level, transform);
 
         LoadNearestChunk(Vector3.zero/*, true*/);
         StartCoroutine(LoadProgressively());
+
+        Application.targetFrameRate = -1;
     }
 
     private IEnumerator LoadProgressively()
@@ -105,6 +107,11 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void Update()
     {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
         float water_level_wave = water_details.bobing_amplitude * Mathf.Sin(Time.time * water_details.bobing_frequency);
         Water.water_level = water_details.level + water_level_wave;
     }

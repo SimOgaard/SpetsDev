@@ -75,7 +75,7 @@ public class CreateMesh : MonoBehaviour
         yield return mesh;
     }
 
-    public static IEnumerator DropMeshVertices(WaitForFixedUpdate wait, Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset)
+    public static IEnumerator DropMeshVertices(WaitForFixedUpdate wait, Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset, Vector3 transform_offset)
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -105,8 +105,8 @@ public class CreateMesh : MonoBehaviour
             Vector3 vertice_2 = vertices_copy[triangles_copy[triangle_index + 1]];
             Vector3 vertice_3 = vertices_copy[triangles_copy[triangle_index + 2]];
 
-            float x = (vertice_1.x + vertice_2.x + vertice_3.x) / 3;
-            float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3;
+            float x = (vertice_1.x + vertice_2.x + vertice_3.x) / 3 + transform_offset.x;
+            float z = (vertice_1.z + vertice_2.z + vertice_3.z) / 3 + transform_offset.z;
 
             float random_value = Random.value;
             if (random_value <= keep_range_random)

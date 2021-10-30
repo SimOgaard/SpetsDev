@@ -6,16 +6,22 @@ using UnityEngine;
 public class Water : MonoBehaviour
 {
     public static float water_level = 0f;
-    private float current_water_level = 0f;
     public static float buoyancy_force = 1f;
 
-    private void Update()
+    private Material material;
+    private Transform camera_focus_point_transform;
+
+    private void Start()
     {
-        if (water_level != current_water_level)
-        {
-            current_water_level = water_level;
-            transform.position = Vector3.up * water_level;
-        }
+        camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
+    }
+
+    private void LateUpdate()
+    {
+        Vector3 new_pos = Vector3.zero; //camera_focus_point_transform.position;
+        new_pos.y = water_level;
+        transform.position = new_pos;
+        //material.SetVector("_Center", new_pos / 150f);
     }
 
     private static Mesh BuildQuad(float width, float height)
@@ -69,5 +75,6 @@ public class Water : MonoBehaviour
         mesh_renderer.material = material;
         mesh_renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         mesh_renderer.receiveShadows = false;
+        this.material = material;
     }
 }

@@ -30,10 +30,12 @@ public class CloudShadows : MonoBehaviour
         return render_texture;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         // Reposition directional light to be over player to keep
-        transform.position = camera_focus_point_transform.position;
+        Vector3 new_pos = camera_focus_point_transform.position;
+        new_pos.y = 0f;
+        transform.position = new_pos;
 
         // Calculate the angle between the lights direction and the horizon.
         float angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;

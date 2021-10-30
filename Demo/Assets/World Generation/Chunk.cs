@@ -9,6 +9,22 @@ public class Chunk : MonoBehaviour
     private float chunk_unload_distance_squared;
     private Transform player_transform;
 
+    public static void SetLayer(Transform root, int set_to_layer, int check_layer)
+    {
+        Stack<Transform> children = new Stack<Transform>();
+        children.Push(root);
+        while (children.Count > 0)
+        {
+            Transform currentTransform = children.Pop();
+            if (currentTransform.gameObject.layer == check_layer)
+            {
+                currentTransform.gameObject.layer = set_to_layer;
+            }
+            foreach (Transform child in currentTransform)
+                children.Push(child);
+        }
+    }
+
     public IEnumerator LoadChunk(NoiseLayerSettings noise_layer_settings, Noise.NoiseLayer[] noise_layers, WorldGenerationManager.ChunkDetails chunk_details, Transform player_transform, bool insta_load = false)
     {
         WaitForFixedUpdate wait = new WaitForFixedUpdate();
@@ -35,7 +51,7 @@ public class Chunk : MonoBehaviour
                 continue;
             }
 
-            CoroutineWithData create_foliage_mesh_coroutine = new CoroutineWithData(this, CreateMesh.DropMeshVertices(wait, ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f));
+            CoroutineWithData create_foliage_mesh_coroutine = new CoroutineWithData(this, CreateMesh.DropMeshVertices(wait, ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f, transform.position));
             yield return create_foliage_mesh_coroutine.coroutine;
             Mesh foliage_mesh = create_foliage_mesh_coroutine.result as Mesh;
             CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
@@ -58,6 +74,8 @@ public class Chunk : MonoBehaviour
         // spawns prefabss
         SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
         yield return StartCoroutine(spawn_prefabs.Spawn(wait, noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.unit_size * chunk_details.resolution, transform.position, chunk_details.chunk_load_speed));
+
+        SetLayer(transform, Layer.game_world, Layer.spawned_game_world_no_priority);
 
         //JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
         //join_meshes.SetCollider();
