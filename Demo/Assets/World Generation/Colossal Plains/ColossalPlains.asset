@@ -116,7 +116,7 @@ MonoBehaviour:
       general_noise:
         noise_type: 0
         seed: 0
-        frequency: 0.01
+        frequency: 0.005
       fractal:
         fractal_type: 1
         octaves: 5
@@ -137,8 +137,8 @@ MonoBehaviour:
         octaves: 0
         lacunarity: 0
         gain: 0
-    keep_range_noise: {x: 0.8, y: 1}
-    keep_range_random_noise: 0.05
+    keep_range_noise: {x: 0.75, y: 1}
+    keep_range_random_noise: 0.025
     keep_range_random: 0.0005
   material_leaf: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
   curve_leaf:

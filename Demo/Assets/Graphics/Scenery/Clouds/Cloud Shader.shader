@@ -61,6 +61,8 @@
 
 	float3 _LightPosition;
 	float _CookieSize;
+	
+	float3 _WorldOffset;
 
 	struct appdata_t
 	{
@@ -124,9 +126,9 @@
 		// translate tex pixel coordinates to world local
 		fixed2 worldTexCoord = i.texcoord * _CookieSize;
 
-		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + _LightPosition.x;
+		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + _LightPosition.x - _WorldOffset.x;
 		float y = _Time[0] * _NoiseScroll.y;
-		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + _LightPosition.z;
+		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + _LightPosition.z - _WorldOffset.z;
 
 		fnlDomainWarp3D(warp, x, y, z);
 		return remap01(fnlGetNoise3D(noise, x, y, z));

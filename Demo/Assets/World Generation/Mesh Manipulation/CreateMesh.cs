@@ -113,11 +113,10 @@ public class CreateMesh : MonoBehaviour
             {
                 AddVertice(vertice_1, vertice_2, vertice_3);
             }
-            else if (random_value <= keep_range_random_noise)
+            else
             {
                 float noise_value = noise_layer.GetNoiseValue(x, z);
-
-                if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y)
+                if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && noise_value * random_value <= keep_range_random_noise)
                 {
                     AddVertice(vertice_1, vertice_2, vertice_3);
                 }

@@ -38,7 +38,7 @@ public class WorldGenerationManager : MonoBehaviour
     {
         GameObject chunk_game_object = new GameObject("chunk " + chunk_coord);
         chunk_game_object.transform.parent = transform;
-        chunk_game_object.transform.position = new Vector3(chunk_coord.x, 0f, chunk_coord.y);
+        chunk_game_object.transform.localPosition = new Vector3(chunk_coord.x, 0f, chunk_coord.y);
         Chunk chunk_object = chunk_game_object.AddComponent<Chunk>();
         return chunk_object;
     }
@@ -86,22 +86,22 @@ public class WorldGenerationManager : MonoBehaviour
         while (true)
         {
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(chunk_details.offset.x, 0f, 0f));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, 0f));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(-chunk_details.offset.x, 0f, 0f));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, 0f));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(0f, 0f, chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(0f, 0f, chunk_details.offset.y));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(0f, 0f, -chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(0f, 0f, -chunk_details.offset.y));
 
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(chunk_details.offset.x, 0f, chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, chunk_details.offset.y));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(-chunk_details.offset.x, 0f, chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, chunk_details.offset.y));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(chunk_details.offset.x, 0f, -chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, -chunk_details.offset.y));
             yield return wait;
-            LoadNearestChunk(player_transform.position + new Vector3(-chunk_details.offset.x, 0f, -chunk_details.offset.y));
+            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, -chunk_details.offset.y));
         }
     }
 

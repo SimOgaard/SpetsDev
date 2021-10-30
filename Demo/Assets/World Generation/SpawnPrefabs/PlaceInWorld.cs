@@ -21,7 +21,6 @@ public class PlaceInWorld : MonoBehaviour
         if (Layer.IsInLayer(Layer.Mask.spawned_game_world, obj.layer))
         {
             obj.layer = Layer.game_world;
-            obj.isStatic = true;
         }
 
         foreach (Transform child in obj.transform)
@@ -286,7 +285,7 @@ public class PlaceInWorld : MonoBehaviour
         child_transform_amount = transform.childCount;
 
         // Spawn this gameobject.
-        transform.position = new Vector3(x, 0f, z);
+        transform.position += new Vector3(x, 0f, z);
         yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction, true));
         if (this == null)
         {

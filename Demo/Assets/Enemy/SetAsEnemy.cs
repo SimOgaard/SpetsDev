@@ -23,7 +23,6 @@ public class SetAsEnemy : MonoBehaviour
         }
 
         game_object.layer = Layer.enemy;
-        game_object.isStatic = false;
 
         foreach (Transform child in game_object.transform)
         {

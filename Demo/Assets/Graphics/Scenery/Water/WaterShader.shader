@@ -103,7 +103,7 @@
 			float _WaterReflectionAmount;
 			float4 _WaterReflectionColor;
 		
-			float3 _Center;
+			float3 _WorldOffset;
 
 			float remap01(float v) {
 				return saturate((v + 1) * 0.5);
@@ -189,7 +189,7 @@
 
 
 				// Get all positions neccesary
-				float3 worldPos = i.worldPos * float3(0.4, 1.0, 1.0); - _Center;
+				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.4, 1.0, 1.0);
 				float3 worldPosTime = worldPos + _Time[0] * float3(15.0, 2.5, 7.5);
 				float3 worldPosWarped = GetWarpValue(worldPosTime);
 				float3 worldPosWarpedOffsetOnly = worldPosWarped - worldPosTime;

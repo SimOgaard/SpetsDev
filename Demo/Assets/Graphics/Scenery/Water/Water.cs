@@ -8,7 +8,7 @@ public class Water : MonoBehaviour
     public static float water_level = 0f;
     public static float buoyancy_force = 1f;
 
-    private Material material;
+    //private Material material;
     private Transform camera_focus_point_transform;
 
     private void Start()
@@ -21,7 +21,7 @@ public class Water : MonoBehaviour
         Vector3 new_pos = camera_focus_point_transform.position;
         new_pos.y = water_level;
         transform.position = new_pos;
-        material.SetVector("_Center", new_pos);
+        //material.SetVector("_Center", new_pos);
     }
 
     private static Mesh BuildQuad(float width, float height)
@@ -75,6 +75,6 @@ public class Water : MonoBehaviour
         mesh_renderer.material = material;
         mesh_renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         mesh_renderer.receiveShadows = false;
-        this.material = material;
+        //this.material = material;
     }
 }

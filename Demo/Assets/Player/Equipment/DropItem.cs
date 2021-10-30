@@ -209,22 +209,8 @@ public class DropItem : MonoBehaviour
         on_drop_function();
 
         transform.parent = items_on_ground;
-        MakeStatic(gameObject, true);
 
         Destroy(trail_renderer);
-    }
-
-    /// <summary>
-    /// Makes all childobjects including this object static/not static.
-    /// </summary>
-    private void MakeStatic(GameObject game_object, bool static_state)
-    {
-        game_object.isStatic = static_state;
-
-        foreach (Transform child in game_object.transform)
-        {
-            MakeStatic(child.gameObject, static_state);
-        }
     }
 
     /// <summary>
@@ -247,7 +233,6 @@ public class DropItem : MonoBehaviour
         sprite_initializer.Destroy();
         Destroy(orb_mesh_renderer);
         Destroy(mesh_filter);
-        MakeStatic(gameObject, false);
         transform.localPosition = Vector3.zero;
         Destroy(this);
     }

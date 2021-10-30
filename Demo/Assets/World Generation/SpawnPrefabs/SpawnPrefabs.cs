@@ -17,7 +17,7 @@ public class SpawnPrefabs : MonoBehaviour
     }
 
 
-    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area, Vector3 offset, float chunk_load_speed)
+    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area, float chunk_load_speed)
     {
         if (!Application.isPlaying)
         {
@@ -38,15 +38,15 @@ public class SpawnPrefabs : MonoBehaviour
         bounding_boxes = new List<Collider>();
         for (int i = 0; i < object_amount; i++)
         {
-            float x = Random.Range(-0.5f, 0.5f) * area.x + offset.x;
-            float z = Random.Range(-0.5f, 0.5f) * area.y + offset.z;
+            float x = Random.Range(-0.5f, 0.5f) * area.x;
+            float z = Random.Range(-0.5f, 0.5f) * area.y;
             int prefab_index = Mathf.RoundToInt(Random.value * (prefabs.Length - 1));
 
             if (prefabs[prefab_index] == null)
             {
                 continue;
             }
-            GameObject new_game_object = Instantiate(prefabs[prefab_index]);
+            GameObject new_game_object = Instantiate(prefabs[prefab_index], transform.position, Quaternion.identity, transform.parent.parent);
             PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
 
             tasks.Add(new Task(place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform)));

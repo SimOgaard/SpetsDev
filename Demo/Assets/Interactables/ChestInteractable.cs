@@ -76,7 +76,6 @@ public class ChestInteractable : MonoBehaviour
     private void ChestOpeningAnimation()
     {
         sprite_initializer.Destroy();
-        chest_top.isStatic = false;
         Rigidbody chest_top_rigidbody = chest_top.AddComponent<Rigidbody>();
         chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier);
         chest_top_rigidbody.mass = 5f;
@@ -107,7 +106,6 @@ public class ChestInteractable : MonoBehaviour
     {
         yield return new WaitForSeconds(chest_top_static_after);
         Destroy(chest_top.GetComponent<Rigidbody>());
-        chest_top.isStatic = true;
     }
 
     /// <summary>
