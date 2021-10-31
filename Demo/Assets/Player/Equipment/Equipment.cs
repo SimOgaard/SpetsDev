@@ -80,7 +80,17 @@ public class Equipment : MonoBehaviour
     {
         current_equipment = gameObject.AddComponent<Ultimate>();
         Ultimate cached_type_of_ultimate = gameObject.GetComponent<Ultimate>();
-        cached_type_of_ultimate.current_ultimate = gameObject.AddComponent<EarthbendingUltimate>();
+
+        int rand_ultimate = Mathf.FloorToInt(Random.Range(0f, 1.999f));
+        switch (rand_ultimate)
+        {
+            case 0:
+                cached_type_of_ultimate.current_ultimate = gameObject.AddComponent<EarthbendingUltimate>();
+                break;
+            case 1:
+                cached_type_of_ultimate.current_ultimate = gameObject.AddComponent<TelekinesisUltimate>();
+                break;
+        }
         return cached_type_of_ultimate.current_ultimate;
     }
 
@@ -127,8 +137,7 @@ public class Equipment : MonoBehaviour
     {
         void SetInventoryItemToAir(Transform transform)
         {
-            WorldGenerationManager world_generator = GameObject.Find("WorldGenerator").GetComponent<WorldGenerationManager>();
-            Transform chunk = world_generator.ReturnNearestChunk(player_transform.position);
+            Transform chunk = WorldGenerationManager.ReturnNearestChunk(player_transform.position);
             Debug.Log(chunk);
             transform.parent = chunk.Find("Interact/Items/ItemsInAir");
         }

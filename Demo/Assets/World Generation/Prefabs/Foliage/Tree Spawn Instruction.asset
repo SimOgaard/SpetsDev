@@ -16,8 +16,8 @@ MonoBehaviour:
   min_child_amount_required: 0
   ignore_bounding_boxes: 0
   spawn_chance: 0
-  spawn_range_noise: {x: 0.75, y: 1}
-  spawn_chance_noise: 0.25
+  spawn_range_noise: {x: 0.5, y: 1}
+  spawn_chance_noise: 0.1
   noise_layer:
     enabled: 1
     general:
@@ -30,7 +30,7 @@ MonoBehaviour:
     general_noise:
       noise_type: 0
       seed: 50
-      frequency: 0.0075
+      frequency: 0.005
     fractal:
       fractal_type: 0
       octaves: 1

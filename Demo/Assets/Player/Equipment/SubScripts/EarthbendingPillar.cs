@@ -27,6 +27,13 @@ public class EarthbendingPillar : MonoBehaviour
     public float damage = 0f;
     public float tumble_time;
 
+    private float _move_time;
+    private float move_time
+    {
+        get { return _move_time; }
+        set { _move_time = Mathf.Clamp01(value); }
+    }
+
     List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
 
     /// <summary>
@@ -224,16 +231,15 @@ public class EarthbendingPillar : MonoBehaviour
         switch (move_state)
         {
             case MoveStates.up:
-                Vector3 diff_up = ground_point - transform.position;
-                if (diff_up.sqrMagnitude < 0.01f)
+                if (move_time == 1f)
                 {
                     current_sleep_time = sleep_time;
                     pillar_rigidbody.Sleep();
                     move_state = MoveStates.still;
                     break;
                 }
-
-                pillar_rigidbody.MovePosition(Vector3.MoveTowards(transform.position, ground_point, move_speed * Time.deltaTime));
+                move_time += move_speed * Time.deltaTime;
+                pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
             case MoveStates.still:
                 current_sleep_time -= Time.deltaTime;
@@ -245,8 +251,7 @@ public class EarthbendingPillar : MonoBehaviour
                 }
                 break;
             case MoveStates.down:
-                Vector3 diff_down = under_ground_point - transform.position;
-                if (diff_down.sqrMagnitude < 0.01f)
+                if (move_time == 0f)
                 {
                     move_state = MoveStates.up;
                     if (should_be_deleted)
@@ -260,8 +265,8 @@ public class EarthbendingPillar : MonoBehaviour
                     }
                     break;
                 }
-
-                pillar_rigidbody.MovePosition(Vector3.MoveTowards(transform.position, under_ground_point, move_speed * Time.deltaTime));
+                move_time -= move_speed * Time.deltaTime;
+                pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
         }
     }

@@ -5,10 +5,12 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class WorldGenerationManager : MonoBehaviour
 {
-    private Transform[,] chunks = new Transform[200, 200];
+    public static Transform[,] chunks = new Transform[200, 200];
 
     [SerializeField] private NoiseLayerSettings noise_layer_settings;
     private Noise.NoiseLayer[] noise_layers;
+
+    public static Vector2 static_chunk_size;
 
     [System.Serializable]
     public struct ChunkDetails
@@ -17,7 +19,6 @@ public class WorldGenerationManager : MonoBehaviour
         [Min(2)] public Vector2Int resolution;
         public float chunk_unload_distance;
         [HideInInspector] public float chunk_unload_distance_squared;
-        [HideInInspector] public Vector2 chunk_size;
         public float chunk_preload_factor;
         [Range(0.01f, 1f)] public float chunk_load_speed;
         [HideInInspector] public Vector2 offset;
@@ -65,9 +66,9 @@ public class WorldGenerationManager : MonoBehaviour
         noise_layers = Noise.CreateNoiseLayers(noise_layer_settings);
         LoadNoiseTextures();
 
-        chunk_details.chunk_size = chunk_details.unit_size * chunk_details.resolution;
+        static_chunk_size = chunk_details.unit_size * chunk_details.resolution;
         chunk_details.chunk_unload_distance_squared = chunk_details.chunk_unload_distance * chunk_details.chunk_unload_distance;
-        chunk_details.offset = chunk_details.chunk_size * chunk_details.chunk_preload_factor;
+        chunk_details.offset = static_chunk_size * chunk_details.chunk_preload_factor;
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
@@ -156,24 +157,24 @@ public class WorldGenerationManager : MonoBehaviour
         }
     }
 
-    public Vector2Int ReturnNearestChunkIndex(Vector3 position)
+    public static Vector2Int ReturnNearestChunkIndex(Vector3 position)
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearest_chunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / chunk_details.chunk_size.x),
-            Mathf.RoundToInt(position_2d.y / chunk_details.chunk_size.y)
+            Mathf.RoundToInt(position_2d.x / static_chunk_size.x),
+            Mathf.RoundToInt(position_2d.y / static_chunk_size.y)
         );
         return nearest_chunk;
     }
 
-    public Vector2 ReturnNearestChunkCoord(Vector3 position)
+    public static Vector2 ReturnNearestChunkCoord(Vector3 position)
     {
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2 chunk_coord = nearest_chunk * chunk_details.chunk_size;
+        Vector2 chunk_coord = nearest_chunk * static_chunk_size;
         return chunk_coord;
     }
 
-    public Transform ReturnNearestChunk(Vector3 position)
+    public static Transform ReturnNearestChunk(Vector3 position)
     {
         Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);

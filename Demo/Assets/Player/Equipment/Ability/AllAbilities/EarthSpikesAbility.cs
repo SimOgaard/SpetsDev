@@ -25,7 +25,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     public float pillar_width = 1f;
     public float pillar_width_offset = -0.1f;
 
-    public float pillar_speed = 100f;
+    public float pillar_speed = 10f;
     public float structure_build_time = 0.025f;
     public float pillar_alive_time = 0.1f;
 

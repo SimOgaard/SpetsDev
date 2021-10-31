@@ -29,7 +29,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
     public float earthquake_recursion_time_wait = -0.3f;
 
     public float flow_speed = 0.5f;
-    public float pillar_speed = 5f;
+    public float pillar_speed = 2f;
     public float pillar_alive_time = 0f;
 
     public float ability_cooldown = 1f;

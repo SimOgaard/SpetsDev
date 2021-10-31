@@ -18,7 +18,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ability should behave.
     /// </summary>
-    public float pillar_speed = 20f;
+    public float pillar_speed = 2.0f;
     public float structure_build_time = 0.1f;
     public float pillar_alive_time = 5f;
 

@@ -40,7 +40,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 
 	fixed pixelSize = _TilePixelSize / (5.4 * 2);
 	float4 vectors[4];
-	Get4Vectors(center, pixelSize, vectors);
+	Get4VectorsUp(center, pixelSize, vectors);
 
 	fixed2 wind = GetWind(center);
 

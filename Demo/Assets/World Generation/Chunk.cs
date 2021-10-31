@@ -8,6 +8,7 @@ public class Chunk : MonoBehaviour
     private bool is_loaded = false;
     private float chunk_unload_distance_squared;
     private Transform player_transform;
+    private Enemies enemies;
 
     public IEnumerator LoadChunk(NoiseLayerSettings noise_layer_settings, Noise.NoiseLayer[] noise_layers, WorldGenerationManager.ChunkDetails chunk_details, Transform player_transform, bool insta_load = false)
     {
@@ -50,7 +51,8 @@ public class Chunk : MonoBehaviour
         GameObject trees_game_object;
         WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
         GameObject enemies_game_object;
-        WorldGenerationManager.InitNewChild(out enemies_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies, typeof(Enemies));
+        WorldGenerationManager.InitNewChild(out enemies_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies);
+        enemies = enemies_game_object.AddComponent<Enemies>();
         GameObject interact_game_object;
         WorldGenerationManager.InitNewChild(out interact_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.interact, typeof(Interact));
 
@@ -121,6 +123,7 @@ public class Chunk : MonoBehaviour
     {
         if ((transform.position - player_transform.position).sqrMagnitude > chunk_unload_distance_squared && is_loaded)
         {
+            enemies.MoveParrent();
             gameObject.SetActive(false);
         }
     }

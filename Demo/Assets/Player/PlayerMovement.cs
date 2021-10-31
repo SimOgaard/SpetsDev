@@ -25,9 +25,10 @@ public class PlayerMovement : MonoBehaviour
     public bool is_grounded;
 
     private Vector3 slope_move_direction_normalized;
-    private Vector3 move_direction_normalized;
+    public static Vector3 move_direction_normalized;
     private RaycastHit slope_hit;
     private Transform camera_focus_transform;
+    public static Vector3 movement;
 
     private void Start()
     {
@@ -55,7 +56,8 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        is_grounded = (controller.Move(slope_move_direction_normalized * move_speed * movement_multiplier * (is_grounded ? 1f : air_multiplier) * Time.deltaTime) & CollisionFlags.Below) != 0;
+        movement = slope_move_direction_normalized * move_speed * movement_multiplier * (is_grounded ? 1f : air_multiplier);
+        is_grounded = (controller.Move(movement * Time.deltaTime) & CollisionFlags.Below) != 0;
         if (!is_grounded)
         {
             controller.Move(Vector3.down * gravity * Time.deltaTime);

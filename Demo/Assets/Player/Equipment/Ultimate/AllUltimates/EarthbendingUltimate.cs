@@ -38,7 +38,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     public float alive_time = 5f;
     public float pillar_height = 7f;
     public float pillar_width = 2f;
-    public float pillar_growth_speed = 20f;
+    public float pillar_growth_speed = 2.0f;
 
     private IEnumerator ult_coroutine;
 

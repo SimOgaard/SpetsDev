@@ -56,4 +56,23 @@ public class Enemies : MonoBehaviour
     {
         all_enemy_ais.RemoveAll(enemy_ai => enemy_ai == null);
     }
+
+    public void MoveParrent()
+    {
+        string name;
+        foreach (Transform enemy_parrent in transform)
+        {
+            name = enemy_parrent.name;
+
+            foreach (Transform child in enemy_parrent)
+            {
+                Transform new_transform = WorldGenerationManager.ReturnNearestChunk(child.position);
+
+                if (new_transform != transform.parent)
+                {
+                    child.parent = new_transform.Find("Enemies").Find(name);
+                }
+            }
+        }
+    }
 }

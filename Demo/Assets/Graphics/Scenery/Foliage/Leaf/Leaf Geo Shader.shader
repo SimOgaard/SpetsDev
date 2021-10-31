@@ -43,8 +43,16 @@
 			#pragma require geometry
 
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+			
+			// For Tessellation
+			#pragma hull hull
+			#pragma domain domain
+			#pragma target 4.6
+			#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
 
-			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
+			// For no tesselation
+			//#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
+			
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardLeaf.cginc"
 

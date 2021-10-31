@@ -18,7 +18,7 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ability should behave.
     /// </summary>
-    public float pillar_speed = 85f;
+    public float pillar_speed = 8.5f;
     public float structure_build_time = 0.05f;
     public float pillar_alive_time = 1f;
 
