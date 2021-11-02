@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
   m_Name: sGolem Spawn Instruction
   m_EditorClassIdentifier: 
-  parrent_name: 10
+  parrent_name: 11
   min_child_amount_required: 2
   ignore_bounding_boxes: 0
   spawn_chance: 0.25
@@ -58,8 +58,8 @@ MonoBehaviour:
   min_ray_position: {x: 0, y: 0, z: 0}
   max_ray_position: {x: 0, y: 0, z: 0}
   shared_position: 0
-  min_position: {x: 0, y: -3.7, z: 0}
-  max_position: {x: 0, y: -3.7, z: 0}
+  min_position: {x: 0, y: -3.5, z: 0}
+  max_position: {x: 0, y: -3.5, z: 0}
   rotate_twords_ground_normal: 0
   reset_rotation: 1
   rotation_offset: 0

@@ -30,7 +30,7 @@ public class SetAsEnemy : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void Init()
     {
         JoinMeshes join_meshes = gameObject.AddComponent<JoinMeshes>();
         join_meshes.SetMergeByTags(true);

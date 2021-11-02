@@ -330,6 +330,12 @@ public class PlaceInWorld : MonoBehaviour
         //Debug.Log("add to global bounding_boxes");
         AddToBoundingBoxes(bounding_boxes);
         transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(this_instruction.parrent_name));
+
+        if (gameObject.TryGetComponent<SetAsEnemy>(out SetAsEnemy set_as_enemy))
+        {
+            set_as_enemy.Init();
+        }
+
         Destroy(this);
     }
 }

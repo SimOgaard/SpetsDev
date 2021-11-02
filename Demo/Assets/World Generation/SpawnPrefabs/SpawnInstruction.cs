@@ -6,7 +6,7 @@ using UnityEngine;
 public class SpawnInstruction : ScriptableObject
 {
     public enum SharedXYZ { none, xy, xz, yz, xyz }
-    public enum PlacableGameObjectsParrent { keep, ground_mesh, land_marks, rocks, trees, interactables, interact, used_interactables, enemies, l_golems, m_golems, s_golems }
+    public enum PlacableGameObjectsParrent { keep, ground_mesh, land_marks, rocks, trees, interactables, interact, used_interactables, enemies, lgolems, mgolems, sgolems }
     public static readonly string[] PlacableGameObjectsParrentString = { "keep", "ground_mesh", "land_marks", "rocks", "trees", "Interact/Interactables", "Interact", "UsedInteractables", "Enemies", "Enemies/lGolems", "Enemies/mGolems", "Enemies/sGolems" };
 
     [Header("Hiearchy")]

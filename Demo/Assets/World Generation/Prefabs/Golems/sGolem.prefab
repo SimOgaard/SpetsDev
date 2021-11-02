@@ -177,6 +177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
+  child_transform_amount: 0
 --- !u!1 &1510114380584805132
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,6 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
+  child_transform_amount: 0
 --- !u!1 &1742536277040871751
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,6 +972,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
+  child_transform_amount: 0
 --- !u!1 &5809582275561989896
 GameObject:
   m_ObjectHideFlags: 0
@@ -1522,6 +1525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   this_instruction: {fileID: 11400000, guid: 63e3fe81a207ddf4990ba7f3916eb680, type: 2}
   child_instruction: {fileID: 0}
+  child_transform_amount: 0
 --- !u!65 &3995320892679754474
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1565,7 +1569,7 @@ MonoBehaviour:
   health_remove_speed: 0.5
   starting_health: 80
   damage: 12
-  health_bar_transform: {fileID: 9218349829805483097}
+  health_bar_game_object: {fileID: 3693897617396723407}
   health_bar_pixel_size: {x: 16, y: 1}
 --- !u!114 &1323705643777353973
 MonoBehaviour:
@@ -1603,7 +1607,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8817600298576257608}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c6e083c1fa95b6e49bb6dd02d5f4111e, type: 3}
   m_Name: 

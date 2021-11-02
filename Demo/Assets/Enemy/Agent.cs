@@ -58,6 +58,11 @@ public class Agent : MonoBehaviour
 
     private IEnumerator tumble_coroutine;
 
+    private void OnEnable()
+    {
+        enemy_rigidbody.useGravity = true;
+    }
+
     public void AddRigidBody(Rigidbody rigid_body)
     {
         enemy_rigidbody = rigid_body;
@@ -69,7 +74,7 @@ public class Agent : MonoBehaviour
         enemy_rigidbody.isKinematic = false;
         enemy_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        enemy_rigidbody.useGravity = true;
+        enemy_rigidbody.useGravity = false;
 
         max_slope_rotation_cos = Mathf.Cos(max_slope_rotation * Mathf.Deg2Rad);
 

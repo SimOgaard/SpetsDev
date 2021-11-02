@@ -25,6 +25,13 @@ public class EnemyAI : MonoBehaviour
         get { return _current_health; }
         private set
         {
+
+            if (!health_bar_game_object.activeSelf)
+            {
+                Debug.Log("lamao");
+                health_bar_game_object.SetActive(true);
+            }
+
             if (value <= 0f)
             {
                 _current_health = 0f;
@@ -52,7 +59,7 @@ public class EnemyAI : MonoBehaviour
         chase_transform = new GameObject("enemy chase transform").transform;
         agent = GetComponent<Agent>();
         InitHealthBar();
-        current_health = starting_health;
+        _current_health = starting_health;
     }
 
     private void Update()
@@ -60,7 +67,7 @@ public class EnemyAI : MonoBehaviour
         current_animated_float_value -= Time.deltaTime * health_remove_speed;
     }
 
-    [SerializeField] private Transform health_bar_transform;
+    [SerializeField] private GameObject health_bar_game_object;
     private Material health_material;
     private Material removed_health_material;
     private Material no_health_material;
@@ -77,9 +84,9 @@ public class EnemyAI : MonoBehaviour
         float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
         float parrent_scale_offset = 1f / transform.localScale.x;
 
-        SpriteRenderer health_sprite_renderer = health_bar_transform.GetChild(0).GetComponent<SpriteRenderer>();
-        SpriteRenderer removed_sprite_renderer = health_bar_transform.GetChild(1).GetComponent<SpriteRenderer>();
-        SpriteRenderer no_health_sprite_renderer = health_bar_transform.GetChild(2).GetComponent<SpriteRenderer>();
+        SpriteRenderer health_sprite_renderer = health_bar_game_object.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        SpriteRenderer removed_sprite_renderer = health_bar_game_object.transform.GetChild(1).GetComponent<SpriteRenderer>();
+        SpriteRenderer no_health_sprite_renderer = health_bar_game_object.transform.GetChild(2).GetComponent<SpriteRenderer>();
 
         health_sprite_renderer.material = new Material(Shader.Find("Custom/SpriteBillboardShader"));
         removed_sprite_renderer.material = new Material(Shader.Find("Custom/SpriteBillboardShader"));
@@ -97,7 +104,9 @@ public class EnemyAI : MonoBehaviour
         removed_health_material = removed_sprite_renderer.material;
         no_health_material = no_health_sprite_renderer.material;
 
-        health_bar_transform.localScale = new Vector3(health_bar_pixel_size.x, y_scale * health_bar_pixel_size.y, health_bar_pixel_size.x) * parrent_scale_offset;
+        health_bar_game_object.transform.localScale = new Vector3(health_bar_pixel_size.x, y_scale * health_bar_pixel_size.y, health_bar_pixel_size.x) * parrent_scale_offset;
+
+        health_bar_game_object.SetActive(false);
     }
 
     /// <summary>
@@ -131,7 +140,7 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     public bool Damage(float damage, string damage_id, float invulnerability_time = 0.25f)
     {
-        if (!damage_id_list.Contains(damage_id))
+        if (!damage_id_list.Contains(damage_id) && damage != 0f)
         {
             current_health -= damage;
             damage_id_list.Add(damage_id);
@@ -145,7 +154,10 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     public bool Damage(float damage)
     {
-        current_health -= damage;
+        if (damage != 0f)
+        {
+            current_health -= damage;
+        }
         return true;
     }
 

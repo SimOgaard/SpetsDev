@@ -114,7 +114,7 @@
 				fnl_state warp = fnlCreateState();
 				warp.domain_warp_type = 1; //_Warp_DomainWarpType;
 				warp.rotation_type_3d = 2; //_Warp_RotationType3D;
-				warp.domain_warp_amp = 0.009; //_Warp_DomainWarpAmplitude;
+				warp.domain_warp_amp = 0.01; //_Warp_DomainWarpAmplitude;
 				warp.frequency = 0.5; //_Warp_Frequency;
 
 				warp.fractal_type = 0; //_Warp_FractalType;

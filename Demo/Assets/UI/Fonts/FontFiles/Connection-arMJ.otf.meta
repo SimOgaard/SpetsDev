@@ -1,15 +1,15 @@
 fileFormatVersion: 2
-guid: e64fa49262098f84ea7ca25109382e1f
+guid: 357257e4852d78d438c584299deb9cb0
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
-  fontSize: 8
-  forceTextureCase: -2
+  fontSize: 12
+  forceTextureCase: -1
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Silkscreen Expanded
+  - Connection
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 2
