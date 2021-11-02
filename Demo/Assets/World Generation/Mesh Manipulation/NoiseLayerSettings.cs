@@ -9,8 +9,9 @@ public class NoiseLayerSettings : ScriptableObject
     public NoiseLayer[] terrain_noise_layers;
 
     [Header("Grass")]
+    public Material material_ground;
     public Material material_grass;
-    public Curve curve_grass;
+    public Curve curve_ground_grass;
 
     [Header("Random Foliage")]
     public Foliage[] random_foliage;

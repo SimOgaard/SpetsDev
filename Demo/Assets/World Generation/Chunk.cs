@@ -23,7 +23,8 @@ public class Chunk : MonoBehaviour
         CoroutineWithData create_mesh_coroutine = new CoroutineWithData(this, CreateMesh.CreateMeshByNoise(wait, noise_layers, chunk_details.unit_size, chunk_details.resolution, transform.localPosition));
         yield return create_mesh_coroutine.coroutine;
         Mesh ground_mesh = create_mesh_coroutine.result as Mesh;
-        Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
+        Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_ground, noise_layer_settings.curve_ground_grass);
+        Transform grass_transform = CreateFoliage(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_ground_grass, "grass", ground_transform);
 
         // initilizes flowers
         for (int i = 0; i < noise_layer_settings.random_foliage.Length; i++)
@@ -38,9 +39,7 @@ public class Chunk : MonoBehaviour
             CoroutineWithData create_foliage_mesh_coroutine = new CoroutineWithData(this, CreateMesh.DropMeshVertices(wait, ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f, transform.localPosition));
             yield return create_foliage_mesh_coroutine.coroutine;
             Mesh foliage_mesh = create_foliage_mesh_coroutine.result as Mesh;
-            CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
-            yield return wait;
-            GameObject foliage_game_object = CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name, ground_transform);
+            Transform foliage_transform = CreateFoliage(foliage_mesh, foliage_settings.material, foliage_settings.curve, foliage_settings.name, ground_transform);
         }
 
         // initilizes all parrent objects of prefabs
@@ -97,15 +96,7 @@ public class Chunk : MonoBehaviour
         return ground_game_object.transform;
     }
 
-    private void UpdateGrass(Mesh mesh, Material ground_material, NoiseLayerSettings.Curve ground_curve)
-    {
-        ground_mesh_filter.mesh = mesh;
-        ground_mesh_collider.sharedMesh = mesh;
-        CurveCreator.AddCurveTexture(ref ground_material, ground_curve);
-        ground_mesh_renderer.material = ground_material;
-    }
-
-    private GameObject CreateRandomFoliage(Mesh mesh, Material material, string name, Transform parrent)
+    private Transform CreateFoliage(Mesh mesh, Material material, NoiseLayerSettings.Curve curve, string name, Transform parrent)
     {
         GameObject foliage_game_object = new GameObject(name);
 
@@ -113,10 +104,12 @@ public class Chunk : MonoBehaviour
         foliage_game_object.transform.localPosition = Vector3.up * 0.1f;
         foliage_game_object.layer = Layer.game_world;
 
+        CurveCreator.AddCurveTexture(ref material, curve);
+
         foliage_game_object.AddComponent<MeshFilter>().mesh = mesh;
         foliage_game_object.AddComponent<MeshRenderer>().material = material;
 
-        return foliage_game_object;
+        return foliage_game_object.transform;
     }
 
     private void Update()
