@@ -22,6 +22,8 @@ public class SpriteInitializer : MonoBehaviour
     private SpriteRenderer sprite_renderer;
     private Animator animator;
 
+    public static float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * (-30f));
+
     /// <summary>
     /// Initializes gameobject with scale to offset cameras isometric view
     /// <summary>
@@ -44,7 +46,6 @@ public class SpriteInitializer : MonoBehaviour
         animator = null;
 
         // Applies scale to gameobject to correct camera rotation
-        float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * (rotation.eulerAngles.x - 30f));
         sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
         sprite_game_object.transform.localPosition = new Vector3(0f, y_pos, 0f);
     }
@@ -65,7 +66,6 @@ public class SpriteInitializer : MonoBehaviour
         animator = sprite_game_object.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
 
-        float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * (rotation.eulerAngles.x - 30f));
         sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
         sprite_game_object.transform.localPosition = new Vector3(0f, y_pos, 0f);
     }

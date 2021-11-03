@@ -1,15 +1,15 @@
 fileFormatVersion: 2
-guid: 357257e4852d78d438c584299deb9cb0
+guid: fbf8824e406004b44bd47970e963fb86
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
-  fontSize: 12
+  fontSize: 5
   forceTextureCase: -1
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Connection
+  - CG pixel 4x5
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 2

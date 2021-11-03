@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Holds general functionality that all enemies should inherrent from.
@@ -28,7 +28,6 @@ public class EnemyAI : MonoBehaviour
 
             if (!health_bar_game_object.activeSelf)
             {
-                Debug.Log("lamao");
                 health_bar_game_object.SetActive(true);
             }
 
@@ -53,6 +52,77 @@ public class EnemyAI : MonoBehaviour
 
     public float damage;
 
+    private void ControllActiveCanvas(bool canvas, bool question, bool exclamation)
+    {
+        if (canvas_game_object.activeSelf != canvas)
+        {
+            canvas_game_object.SetActive(canvas);
+        }
+        if (question_mark_game_object.activeSelf != question)
+        {
+            question_mark_game_object.SetActive(question);
+        }
+        if (exclamation_point_game_object.activeSelf != exclamation)
+        {
+            if (exclamation)
+            {
+                _current_attention = max_attentiveness;
+            }
+            exclamation_point_game_object.SetActive(exclamation);
+        }
+    }
+
+    private IEnumerator ControllActiveCanvasEnumerator(bool canvas, bool question, bool exclamation)
+    {
+        yield return new WaitForSeconds(exclamation_point_time);
+        ControllActiveCanvas(canvas, question, exclamation);
+    }
+
+    public bool is_attentive = false;
+    public static float exclamation_point_time = 0.5f;
+    private float _current_attention = 0f;
+    [SerializeField] private float max_attentiveness;
+    public float current_attention
+    {
+        get { return _current_attention; }
+        private set
+        {
+            // from 0 to 0.285 ? is fully white
+            // from 0.8555 to 1 is fully red
+
+            if (value <= 0f)
+            {
+                // canvas is not active
+                ControllActiveCanvas(false, false, false);
+                _current_attention = 0f;
+                is_attentive = false;
+            }
+            else if (value < 0.285f)
+            {
+                // ? is fully white
+                ControllActiveCanvas(true, true, false);
+                _current_attention = value;
+                is_attentive = false;
+            }
+            else if (value < 1f)
+            {
+                // ? starts becomming red
+                ControllActiveCanvas(true, true, false);
+                _current_attention = value;
+                is_attentive = false;
+            }
+            else
+            {
+                _current_attention = value;
+                ControllActiveCanvas(true, false, true);
+                StartCoroutine(ControllActiveCanvasEnumerator(false, false, false));
+                is_attentive = true;
+            }
+
+            question_mark_material.SetFloat("_CutoffY", _current_attention);
+        }
+    }
+
     private void Awake()
     {
         player_transform = GameObject.Find("Player").transform;
@@ -65,8 +135,14 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         current_animated_float_value -= Time.deltaTime * health_remove_speed;
+        current_attention -= Time.deltaTime;
     }
 
+    [SerializeField] private GameObject canvas_game_object;
+    private GameObject question_mark_game_object;
+    private GameObject exclamation_point_game_object;
+    private Material question_mark_material;
+    private Material exclamation_point_material;
     [SerializeField] private GameObject health_bar_game_object;
     private Material health_material;
     private Material removed_health_material;
@@ -81,7 +157,6 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     private void InitHealthBar()
     {
-        float y_scale = 1f / Mathf.Cos(Mathf.Deg2Rad * 30f);
         float parrent_scale_offset = 1f / transform.localScale.x;
 
         SpriteRenderer health_sprite_renderer = health_bar_game_object.transform.GetChild(0).GetComponent<SpriteRenderer>();
@@ -104,9 +179,34 @@ public class EnemyAI : MonoBehaviour
         removed_health_material = removed_sprite_renderer.material;
         no_health_material = no_health_sprite_renderer.material;
 
-        health_bar_game_object.transform.localScale = new Vector3(health_bar_pixel_size.x, y_scale * health_bar_pixel_size.y, health_bar_pixel_size.x) * parrent_scale_offset;
+        health_bar_game_object.transform.localScale = new Vector3(health_bar_pixel_size.x, SpriteInitializer.y_scale * health_bar_pixel_size.y, health_bar_pixel_size.x) * parrent_scale_offset;
 
         health_bar_game_object.SetActive(false);
+
+        question_mark_game_object = canvas_game_object.transform.GetChild(0).gameObject;
+        exclamation_point_game_object = canvas_game_object.transform.GetChild(1).gameObject;
+
+        TextMeshProUGUI question_mark_text = question_mark_game_object.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI exclamation_point_text = exclamation_point_game_object.GetComponent<TextMeshProUGUI>();
+
+        var font = question_mark_text.fontMaterial.GetTexture("_MainTex");
+
+        question_mark_text.fontMaterial = new Material(Shader.Find("Custom/Font Color Shader"));
+        exclamation_point_text.fontMaterial = new Material(Shader.Find("Custom/Font Color Shader"));
+
+        question_mark_text.fontMaterial.SetColor("_Color1", health_sprite_renderer.color);
+        exclamation_point_text.fontMaterial.SetColor("_Color2", removed_sprite_renderer.color);
+
+        question_mark_text.fontMaterial.renderQueue = 4500;
+        exclamation_point_text.fontMaterial.renderQueue = 4500;
+
+        question_mark_text.fontMaterial.SetTexture("_MainTex", font);
+        exclamation_point_text.fontMaterial.SetTexture("_MainTex", font);
+
+        question_mark_material = question_mark_text.fontMaterial;
+        exclamation_point_material = exclamation_point_text.fontMaterial;
+
+        canvas_game_object.SetActive(false);
     }
 
     /// <summary>
