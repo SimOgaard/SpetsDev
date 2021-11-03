@@ -1954,8 +1954,10 @@ MonoBehaviour:
   health_remove_speed: 0.5
   starting_health: 80
   damage: 12
-  is_attentive: 0
-  max_attentiveness: 10
+  hearing_amplification: 1
+  hearing_threshold: 0.0001
+  attention_decrease_factor: 0.2
+  max_attentiveness: 2
   canvas_game_object: {fileID: 8753429037676097398}
   health_bar_game_object: {fileID: 3693897617396723407}
   health_bar_pixel_size: {x: 16, y: 1}

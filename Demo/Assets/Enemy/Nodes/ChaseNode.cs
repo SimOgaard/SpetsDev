@@ -19,6 +19,11 @@ public class ChaseNode : Node
 
     public override NodeState Evaluate()
     {
+        if(target == null)
+        {
+            return NodeState.failure;
+        }
+
         ai.SetColor(Color.yellow);
         float distance = (target.position - transform.position).sqrMagnitude;
         if (distance > 1f)

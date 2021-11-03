@@ -38,6 +38,8 @@ public class SetAsEnemy : MonoBehaviour
         Rigidbody enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
         GetComponent<Agent>().AddRigidBody(enemy_rigidbody);
 
+        Enemies.AddEnemyToList(GetComponent<EnemyAI>());
+
         RecursiveEnemy(gameObject);
         Destroy(this);
     }

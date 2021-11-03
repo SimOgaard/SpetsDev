@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public CharacterController controller;
 
     [Header("Movement")]
+    [SerializeField] private float crouched_speed = 2f;
     [SerializeField] private float walk_speed = 4f;
     [SerializeField] private float sprint_speed = 6f;
     [SerializeField] private float acceleration = 10f;
@@ -30,6 +31,11 @@ public class PlayerMovement : MonoBehaviour
     private Transform camera_focus_transform;
     public static Vector3 movement;
 
+    [Header("Sound")]
+    [SerializeField] private float base_sound = 1f;
+    [SerializeField] private float sound_amplifier = 1f;
+    [SerializeField] private float max_sound = 1f;
+
     private void Start()
     {
         camera_focus_transform = GameObject.Find("camera_focus_point").transform;
@@ -46,7 +52,19 @@ public class PlayerMovement : MonoBehaviour
         move_direction_normalized = (camera_focus_transform.right * PlayerInput.horizontal + camera_focus_transform.forward * PlayerInput.vertical).normalized;
         Physics.Raycast(transform.position, Vector3.down, out slope_hit, player_height / 2f);
         slope_move_direction_normalized = Vector3.ProjectOnPlane(move_direction_normalized, slope_hit.normal).normalized;
-        move_speed = Mathf.Lerp(move_speed, Input.GetKey(PlayerInput.sprint_key) ? sprint_speed : walk_speed, acceleration * Time.deltaTime);
+        move_speed = Mathf.Lerp(move_speed, Input.GetKey(PlayerInput.sprint_key) ? sprint_speed : Input.GetKey(PlayerInput.crouch_key) ? crouched_speed : walk_speed, acceleration * Time.deltaTime);
+        movement = slope_move_direction_normalized * move_speed * movement_multiplier;
+
+        MakeSound();
+    }
+
+    private void MakeSound()
+    {
+        if (move_speed > (crouched_speed + 0.1f))
+        {
+            float sound = movement.magnitude * sound_amplifier * base_sound * Time.deltaTime;
+            Enemies.Sound(transform, sound, max_sound * Time.deltaTime, Time.deltaTime);
+        }
     }
 
     /// <summary>
@@ -56,11 +74,15 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        movement = slope_move_direction_normalized * move_speed * movement_multiplier * (is_grounded ? 1f : air_multiplier);
-        is_grounded = (controller.Move(movement * Time.deltaTime) & CollisionFlags.Below) != 0;
-        if (!is_grounded)
+        is_grounded = (controller.Move(movement * (is_grounded ? 1f : air_multiplier) * Time.fixedDeltaTime) & CollisionFlags.Below) != 0;
+        controller.Move(Vector3.down * gravity * Time.fixedDeltaTime);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (Layer.IsInLayer(Layer.enemy, hit.gameObject.layer))
         {
-            controller.Move(Vector3.down * gravity * Time.deltaTime);
+            hit.gameObject.GetComponent<EnemyAI>().AttendToSound(transform, Mathf.Infinity);
         }
     }
 }

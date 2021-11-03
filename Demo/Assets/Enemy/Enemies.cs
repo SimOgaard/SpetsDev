@@ -75,4 +75,19 @@ public class Enemies : MonoBehaviour
             }
         }
     }
+
+
+    public static void Sound(Transform sound_origin, float sound, float max_sound = Mathf.Infinity, float hearing_threshold_change = 1f)
+    {
+        foreach (EnemyAI enemy_ai in all_enemy_ais)
+        {
+            if (enemy_ai.gameObject.activeInHierarchy)
+            {
+                float distance_value = (enemy_ai.transform.position - sound_origin.position).sqrMagnitude + 0.0001f;
+                float sound_level = (sound * enemy_ai.hearing_amplification) / distance_value;
+                float filtered_sound_level = Mathf.Min(max_sound, sound_level);
+                enemy_ai.AttendToSound(sound_origin, filtered_sound_level, hearing_threshold_change);
+            }
+        }
+    }
 }

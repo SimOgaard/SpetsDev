@@ -64,10 +64,6 @@ public class EnemyAI : MonoBehaviour
         }
         if (exclamation_point_game_object.activeSelf != exclamation)
         {
-            if (exclamation)
-            {
-                _current_attention = max_attentiveness;
-            }
             exclamation_point_game_object.SetActive(exclamation);
         }
     }
@@ -78,8 +74,10 @@ public class EnemyAI : MonoBehaviour
         ControllActiveCanvas(canvas, question, exclamation);
     }
 
-    public bool is_attentive = false;
-    public static float exclamation_point_time = 0.5f;
+    public float hearing_amplification = 1f;
+    [SerializeField] private float hearing_threshold = 0.0001f;
+    [SerializeField] private float attention_decrease_factor = 0.1f;
+    public static float exclamation_point_time = 2f;
     private float _current_attention = 0f;
     [SerializeField] private float max_attentiveness;
     public float current_attention
@@ -95,38 +93,56 @@ public class EnemyAI : MonoBehaviour
                 // canvas is not active
                 ControllActiveCanvas(false, false, false);
                 _current_attention = 0f;
-                is_attentive = false;
             }
             else if (value < 0.285f)
             {
                 // ? is fully white
                 ControllActiveCanvas(true, true, false);
                 _current_attention = value;
-                is_attentive = false;
             }
             else if (value < 1f)
             {
                 // ? starts becomming red
                 ControllActiveCanvas(true, true, false);
                 _current_attention = value;
-                is_attentive = false;
             }
             else
             {
-                _current_attention = value;
-                ControllActiveCanvas(true, false, true);
-                StartCoroutine(ControllActiveCanvasEnumerator(false, false, false));
-                is_attentive = true;
+                if (_current_attention < 1f)
+                {
+                    ControllActiveCanvas(true, false, true);
+                    StartCoroutine(ControllActiveCanvasEnumerator(false, false, false));
+                }
+                if (value >= _current_attention)
+                {
+                    _current_attention = max_attentiveness;
+                }
+                else
+                {
+                    _current_attention = value;
+                }
             }
 
             question_mark_material.SetFloat("_CutoffY", _current_attention);
         }
     }
 
+    public void AttendToSound(Transform sound_origin, float sound_level, float hearing_threshold_change = 1f)
+    {
+        if (sound_level >= hearing_threshold * hearing_threshold_change)
+        {
+            current_attention += sound_level;
+
+            if(current_attention == max_attentiveness && chase_transform != sound_origin && chase_transform != player_transform)
+            {
+                chase_transform = sound_origin;
+            }
+        }
+    }
+
     private void Awake()
     {
         player_transform = GameObject.Find("Player").transform;
-        chase_transform = new GameObject("enemy chase transform").transform;
         agent = GetComponent<Agent>();
         InitHealthBar();
         _current_health = starting_health;
@@ -135,7 +151,7 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         current_animated_float_value -= Time.deltaTime * health_remove_speed;
-        current_attention -= Time.deltaTime;
+        current_attention -= Time.deltaTime * attention_decrease_factor;
     }
 
     [SerializeField] private GameObject canvas_game_object;

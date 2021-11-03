@@ -84,9 +84,17 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         RunFunctionNode bury_self = new RunFunctionNode(BurySelf);
 
         // Patroll
-        ProceduralWalkNode procedural_walk = new ProceduralWalkNode(enemy_ai.chase_transform, wander_strength);
+
+        ///
+        /// If chase_transform != player_transform act curious
+        /// 
+        ///
+        /// Else try to kill the player
+        /// 
+
+        //ProceduralWalkNode procedural_walk = new ProceduralWalkNode(enemy_ai.chase_transform, wander_strength);
         ChaseNode chase = new ChaseNode(enemy_ai.chase_transform, enemy_ai.agent, enemy_ai, meele_transform);
-        Sequence patroll = new Sequence(new List<Node> { procedural_walk, chase });
+        Sequence patroll = new Sequence(new List<Node> { /*procedural_walk, */chase });
 
 
         // Controlls spawned enemy in ground
@@ -309,7 +317,6 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
     {
         is_buried = false;
         time_since_seen_player = 0f;
-        enemy_ai.chase_transform.position = enemy_ai.player_transform.position;
         return NodeState.running;
     }
 }

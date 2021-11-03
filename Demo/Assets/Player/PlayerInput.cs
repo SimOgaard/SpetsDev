@@ -9,6 +9,8 @@ public class PlayerInput : MonoBehaviour
 {
     public static KeyCode sprint_key { get; set; } = KeyCode.LeftShift;
 
+    public static KeyCode crouch_key { get; set; } = KeyCode.LeftControl;
+
     public static KeyCode interact_key { get; set; } = KeyCode.F;
 
     public static KeyCode use_weapon { get; set; } = KeyCode.Mouse0;

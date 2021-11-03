@@ -15,6 +15,10 @@ public class ProceduralWalkNode : Node
 
     public override NodeState Evaluate()
     {
+        if (target == null)
+        {
+            return NodeState.failure;
+        }
         Vector2 random_point = Random.insideUnitCircle * wander_strength * Time.deltaTime;
         target.position += new Vector3(random_point.x, 0f, random_point.y);
         return NodeState.success;
