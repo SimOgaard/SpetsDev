@@ -93,6 +93,11 @@ public class EnemyAI : MonoBehaviour
                 // canvas is not active
                 ControllActiveCanvas(false, false, false);
                 _current_attention = 0f;
+
+                if (chase_transform != null)
+                {
+                    chase_transform = null;
+                }
             }
             else if (value < 0.285f)
             {
@@ -129,7 +134,7 @@ public class EnemyAI : MonoBehaviour
 
     public void AttendToSound(Transform sound_origin, float sound_level, float hearing_threshold_change = 1f)
     {
-        if (sound_level >= hearing_threshold * hearing_threshold_change)
+        if (Mathf.Abs(sound_level) >= hearing_threshold * hearing_threshold_change)
         {
             current_attention += sound_level;
 

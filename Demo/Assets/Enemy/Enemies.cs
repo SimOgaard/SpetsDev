@@ -56,6 +56,16 @@ public class Enemies : MonoBehaviour
     {
         all_enemy_ais.RemoveAll(enemy_ai => enemy_ai == null);
     }
+    
+    public static void RemoveEnemyFromList(EnemyAI enemy_to_remove)
+    {
+        all_enemy_ais.Remove(enemy_to_remove);
+    }
+
+    public static void RemoveEnemyFromList(List<EnemyAI> enemies_to_remove)
+    {
+        all_enemy_ais.RemoveAll(enemy => enemies_to_remove.Contains(enemy));
+    }
 
     public void MoveParrent()
     {
@@ -72,10 +82,26 @@ public class Enemies : MonoBehaviour
                 {
                     child.parent = new_transform.Find("Enemies").Find(name);
                 }
+                else
+                {
+                    EnemyAI enemy_ai = child.GetComponent<EnemyAI>();
+                    enemy_ai.AttendToSound(null, -Mathf.Infinity);
+                    Enemies.RemoveEnemyFromList(enemy_ai);
+                }
             }
         }
     }
 
+    private void OnEnable()
+    {
+        foreach (Transform enemy_parrent in transform)
+        {
+            foreach (Transform child in enemy_parrent)
+            {
+                Enemies.AddEnemyToList(child.GetComponent<EnemyAI>());
+            }
+        }
+    }
 
     public static void Sound(Transform sound_origin, float sound, float max_sound = Mathf.Infinity, float hearing_threshold_change = 1f)
     {

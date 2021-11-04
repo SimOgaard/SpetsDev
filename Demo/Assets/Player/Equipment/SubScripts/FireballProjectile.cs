@@ -19,6 +19,9 @@ public class FireballProjectile : MonoBehaviour
 
     private bool has_exploded = false;
 
+    private float explosion_sound = 500f;
+    private float friction_sound = 10f;
+
     /// <summary>
     /// Returns ability on hit damage.
     /// </summary>
@@ -104,6 +107,8 @@ public class FireballProjectile : MonoBehaviour
     {
         if (!is_burned_out && !has_exploded && fireball_ability.explode_on_first_hit)
         {
+            Enemies.Sound(transform, explosion_sound);
+
             Vector3 fireball_pos = transform.position;
             Collider[] all_collisions = Physics.OverlapSphere(fireball_pos, fireball_ability.explosion_radius);
             foreach (Collider collider in all_collisions)
@@ -182,6 +187,9 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void OnCollisionStay(Collision collision)
     {
+        float sound = rigid_body.velocity.magnitude * friction_sound * Time.deltaTime;
+        Enemies.Sound(transform, sound);
+
         if (is_burned_out || !Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer))
         {
             return;
