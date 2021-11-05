@@ -42,6 +42,10 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
     public float structure_angle = 180f;
     public float pillar_recursive_angle = 15f;
 
+    public float sound_amplifier = 750f;
+    public float max_sound = 1.5f;
+    public float hearing_threshold_change = 1f;
+
     /// <summary>
     /// Destroys itself.
     /// </summary>
@@ -156,6 +160,7 @@ public class EarthShieldAbility : MonoBehaviour, Ability.IAbility
             merged_circle_pillars.should_be_deleted = true;
 
             merged_circle_pillars.SetSharedValues(pillar_alive_time - structure_build_time * itter, pillar_speed, pillar_height + pillar_height_offset * itter, material);
+            merged_circle_pillars.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
 
             // smootly rotates cubes instead of restricting/snapping it to 45 degrees
             // Quaternion rotation_left = Quaternion.LookRotation((shield_point_left - player_pos), Vector3.up);

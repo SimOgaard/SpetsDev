@@ -36,6 +36,17 @@ public class EarthbendingPillar : MonoBehaviour
 
     List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
 
+    private float sound_amplifier = 0f;
+    private float max_sound = Mathf.Infinity;
+    private float hearing_threshold_change = 1f;
+
+    public void SetSound(float sound_amplifier, float max_sound = Mathf.Infinity, float hearing_threshold_change = 1f)
+    {
+        this.sound_amplifier = sound_amplifier;
+        this.max_sound = max_sound;
+        this.hearing_threshold_change = hearing_threshold_change;
+    }
+
     /// <summary>
     /// Changes the pillar this script controls.
     /// </summary>
@@ -226,8 +237,9 @@ public class EarthbendingPillar : MonoBehaviour
     /// Controlls all three stages a pillar goes through.
     /// Moving up and down and standing still. States can be changed outside of script.
     /// </summary>
-    private void Update()
+    private void FixedUpdate()
     {
+        float move_diff;
         switch (move_state)
         {
             case MoveStates.up:
@@ -238,7 +250,9 @@ public class EarthbendingPillar : MonoBehaviour
                     move_state = MoveStates.still;
                     break;
                 }
-                move_time += move_speed * Time.deltaTime;
+                move_diff = move_speed * Time.fixedDeltaTime;
+                Enemies.Sound(transform, move_diff * sound_amplifier, max_sound, hearing_threshold_change);
+                move_time += move_diff;
                 pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
             case MoveStates.still:
@@ -265,7 +279,9 @@ public class EarthbendingPillar : MonoBehaviour
                     }
                     break;
                 }
-                move_time -= move_speed * Time.deltaTime;
+                move_diff = move_speed * Time.fixedDeltaTime;
+                Enemies.Sound(transform, move_diff * sound_amplifier, max_sound, hearing_threshold_change);
+                move_time -= move_diff;
                 pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
         }

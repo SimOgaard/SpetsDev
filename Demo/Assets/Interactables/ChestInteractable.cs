@@ -24,7 +24,6 @@ public class ChestInteractable : MonoBehaviour
     [SerializeField] private float power = 5750;
     [SerializeField] private float upwards_modifier = 5f;
     [SerializeField] private float explosion_offset = 5f;
-    [SerializeField] private float chest_top_static_after = 5f;
 
     /// <summary>
     /// Handles InteractWith function call that is received from InteractableEventHandler.
@@ -76,11 +75,13 @@ public class ChestInteractable : MonoBehaviour
     private void ChestOpeningAnimation()
     {
         sprite_initializer.Destroy();
-        Rigidbody chest_top_rigidbody = chest_top.AddComponent<Rigidbody>();
+        SoundCollider sound_collider = chest_top.AddComponent<SoundCollider>();
+        StartCoroutine(sound_collider.DelaySound(0.25f));
+        sound_collider.sound_amplifier = 10f;
+        Enemies.Sound(transform, 150f);
+        Rigidbody chest_top_rigidbody = sound_collider.AddRigidbody();
         chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier);
         chest_top_rigidbody.mass = 5f;
-        // optinally makes chest lid static after given time to minimize compute.
-        // StartCoroutine(StaticTop());
     }
 
     /// <summary>
@@ -97,15 +98,6 @@ public class ChestInteractable : MonoBehaviour
         Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
         sprite_initializer.Initialize(not_interacting_with_sprite, Quaternion.identity, 5f);
-    }
-
-    /// <summary>
-    /// Makes chest lid static after given time period to minimize compute.
-    /// </summary>
-    private IEnumerator StaticTop()
-    {
-        yield return new WaitForSeconds(chest_top_static_after);
-        Destroy(chest_top.GetComponent<Rigidbody>());
     }
 
     /// <summary>

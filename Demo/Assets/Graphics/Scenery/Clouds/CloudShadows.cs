@@ -6,7 +6,7 @@ using UnityEngine;
 public class CloudShadows : MonoBehaviour
 {
     [SerializeField] private bool invert;
-    [SerializeField] private Light light;
+    [SerializeField] private Light _light;
     [SerializeField] private RenderTexture shadow_render_texture;
     [SerializeField] private Material cloud_shadow_material;
     [SerializeField] private NoiseLayerSettings.Curve curve;
@@ -15,7 +15,7 @@ public class CloudShadows : MonoBehaviour
     private void Start()
     {
         camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
-        light = GetComponent<Light>();
+        _light = GetComponent<Light>();
         shadow_render_texture = CreateShadowRenderTexture(1024);
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
         UpdateLightProperties(200);
@@ -53,7 +53,7 @@ public class CloudShadows : MonoBehaviour
 
         #if UNITY_EDITOR
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
-        UpdateLightProperties(light.cookieSize);
+        UpdateLightProperties(_light.cookieSize);
         #endif
 
         // Blit using material.
@@ -62,8 +62,8 @@ public class CloudShadows : MonoBehaviour
 
     private void UpdateLightProperties(float cookieSize)
     {
-        light.cookie = shadow_render_texture;
-        light.cookieSize = cookieSize;
-        cloud_shadow_material.SetFloat("_CookieSize", light.cookieSize);
+        _light.cookie = shadow_render_texture;
+        _light.cookieSize = cookieSize;
+        cloud_shadow_material.SetFloat("_CookieSize", _light.cookieSize);
     }
 }

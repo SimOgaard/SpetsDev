@@ -79,7 +79,7 @@ public class CameraMovement : MonoBehaviour
     
     private float C = 0f;
     private float old_direction_heading = 0f;
-    private float old_direction = 0f;
+    //private float old_direction = 0f;
     private IEnumerator RotateCamera(float direction)
     {
         /*

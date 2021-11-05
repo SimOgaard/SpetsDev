@@ -80,6 +80,13 @@ public class EnemyAI : MonoBehaviour
     public static float exclamation_point_time = 2f;
     private float _current_attention = 0f;
     [SerializeField] private float max_attentiveness;
+
+    public bool eyes_open = false;
+    public float fov = 1f;
+    public float vision_distance = 1750f;
+    [SerializeField] private float vision_amplification = 1f;
+    [SerializeField] private float vision_threshold = 0.0001f;
+
     public float current_attention
     {
         get { return _current_attention; }
@@ -141,6 +148,23 @@ public class EnemyAI : MonoBehaviour
             if(current_attention == max_attentiveness && chase_transform != sound_origin && chase_transform != player_transform)
             {
                 chase_transform = sound_origin;
+            }
+        }
+    }
+
+    public void AttendToVision(Transform vision_origin, float visibility, float dot, float distance, float max_vision = Mathf.Infinity, float min_vision = 0f, float vision_threshold_change = 1f)
+    {
+        float vision_level = Mathf.Max(Mathf.Min((dot * visibility * vision_amplification) / distance, max_vision), min_vision);
+        Debug.Log("vision_level: " + vision_level);
+
+        if (vision_level >= vision_threshold * vision_threshold_change)
+        {
+            Debug.Log("vision_level: " + (vision_threshold * vision_threshold_change));
+            current_attention += vision_level;
+
+            if (current_attention == max_attentiveness && chase_transform != vision_origin && chase_transform != player_transform)
+            {
+                chase_transform = vision_origin;
             }
         }
     }

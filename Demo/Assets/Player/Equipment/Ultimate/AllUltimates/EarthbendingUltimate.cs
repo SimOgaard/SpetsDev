@@ -23,8 +23,8 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     public int current_pillar_amount = 10;
 
     public float traverse_time = 0.1f;
-    public float distance_between = 3.25f;
-    public float extra_distance_first_spawn = 3.25f;
+    public float distance_between = 3f;
+    public float extra_distance_first_spawn = 3f;
 
     public float ultimate_cooldown = 2f;
     public float _current_cooldown = 0f;
@@ -36,9 +36,13 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
     public float alive_time = 5f;
-    public float pillar_height = 7f;
-    public float pillar_width = 2f;
+    public float pillar_height = 6.5f;
+    public float pillar_width = 1.75f;
     public float pillar_growth_speed = 2.0f;
+
+    public float sound_amplifier = 75f;
+    public float max_sound = 1.5f;
+    public float hearing_threshold_change = 1f;
 
     private IEnumerator ult_coroutine;
 
@@ -259,6 +263,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
         GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "eart_object");
         EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
         earthbending_pillar.InitEarthbendingPillar(pillar_height, pillar_width, Quaternion.Euler(0f, 45f, 0f), alive_time, pillar_growth_speed);
+        earthbending_pillar.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
         pillar_game_object.SetActive(false);
         return earthbending_pillar;
     }

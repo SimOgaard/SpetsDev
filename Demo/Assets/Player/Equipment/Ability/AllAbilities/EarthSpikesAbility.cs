@@ -45,6 +45,10 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     public float pillar_recursive_angle = 10f;
     public float tumble_time = 3f;
 
+    public float sound_amplifier = 12.5f;
+    public float max_sound = 1.5f;
+    public float hearing_threshold_change = 1f;
+
     /// <summary>
     /// Destroys itself.
     /// </summary>
@@ -208,6 +212,8 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
             earthbending_pillar.SetDamageId(guid.ToString());
             earthbending_pillar.DealDamageByTrigger(tumble_time);
+            earthbending_pillar.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
+
             earthbending_pillar_array[i] = earthbending_pillar;
             pillar_game_object.SetActive(false);
         }

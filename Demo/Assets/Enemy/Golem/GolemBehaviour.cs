@@ -251,10 +251,8 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
                 return null;
             case GolemType.Medium:
                 return GameObject.Find("sGolems").transform;
-                break;
             case GolemType.Large:
                 return GameObject.Find("mGolems").transform;
-                break;
         }
         return null;
     }

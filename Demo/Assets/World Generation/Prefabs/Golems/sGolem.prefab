@@ -1958,6 +1958,11 @@ MonoBehaviour:
   hearing_threshold: 0.0001
   attention_decrease_factor: 0.2
   max_attentiveness: 2
+  eyes_open: 0
+  fov: 1
+  vision_distance: 1750
+  vision_amplification: 1
+  vision_threshold: 0.0001
   canvas_game_object: {fileID: 8753429037676097398}
   health_bar_game_object: {fileID: 3693897617396723407}
   health_bar_pixel_size: {x: 16, y: 1}

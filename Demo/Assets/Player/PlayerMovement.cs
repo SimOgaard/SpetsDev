@@ -36,6 +36,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float sound_amplifier = 1f;
     [SerializeField] private float max_sound = 1f;
 
+    [Header("Vision")]
+    [SerializeField] private float base_vision = 1f;
+    [SerializeField] private float vision_amplifier = 1f;
+    [SerializeField] private float max_vision = 1f;
+    [SerializeField] private float min_vision = 0.001f;
+
     private void Start()
     {
         camera_focus_transform = GameObject.Find("camera_focus_point").transform;
@@ -76,6 +82,14 @@ public class PlayerMovement : MonoBehaviour
     {
         is_grounded = (controller.Move(movement * (is_grounded ? 1f : air_multiplier) * Time.fixedDeltaTime) & CollisionFlags.Below) != 0;
         controller.Move(Vector3.down * gravity * Time.fixedDeltaTime);
+        CheckEnemyVision();
+    }
+
+    private void CheckEnemyVision()
+    {
+        float min = min_vision * Time.fixedDeltaTime;
+        float vision = Mathf.Max(movement.magnitude * vision_amplifier * base_vision * Time.fixedDeltaTime, min);
+        Enemies.Vision(transform, vision, max_vision * Time.fixedDeltaTime, min, Time.fixedDeltaTime);
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
