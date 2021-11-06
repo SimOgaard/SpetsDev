@@ -201,6 +201,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     public void ObjectPool()
     {
         System.Guid guid = System.Guid.NewGuid();
+        string guid_str = guid.ToString();
 
         DeleteObjectPool();
         pillar_amount = Mathf.FloorToInt(structure_angle / pillar_recursive_angle);
@@ -210,7 +211,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
         {
             GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_spike_object");
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
-            earthbending_pillar.SetDamageId(guid.ToString());
+            earthbending_pillar.SetDamageId(guid_str);
             earthbending_pillar.DealDamageByTrigger(tumble_time);
             earthbending_pillar.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
 

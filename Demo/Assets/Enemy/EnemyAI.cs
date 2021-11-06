@@ -52,26 +52,13 @@ public class EnemyAI : MonoBehaviour
 
     public float damage;
 
-    private void ControllActiveCanvas(bool canvas, bool question, bool exclamation)
+    private bool coroutine_is_started = false;
+    private IEnumerator ActivateExclamationMark()
     {
-        if (canvas_game_object.activeSelf != canvas)
-        {
-            canvas_game_object.SetActive(canvas);
-        }
-        if (question_mark_game_object.activeSelf != question)
-        {
-            question_mark_game_object.SetActive(question);
-        }
-        if (exclamation_point_game_object.activeSelf != exclamation)
-        {
-            exclamation_point_game_object.SetActive(exclamation);
-        }
-    }
-
-    private IEnumerator ControllActiveCanvasEnumerator(bool canvas, bool question, bool exclamation)
-    {
+        coroutine_is_started = true;
+        exclamation_point_material.SetFloat("_Show", 1f);
         yield return new WaitForSeconds(exclamation_point_time);
-        ControllActiveCanvas(canvas, question, exclamation);
+        exclamation_point_material.SetFloat("_Show", 0f);
     }
 
     public float hearing_amplification = 1f;
@@ -97,8 +84,8 @@ public class EnemyAI : MonoBehaviour
 
             if (value <= 0f)
             {
-                // canvas is not active
-                ControllActiveCanvas(false, false, false);
+                coroutine_is_started = false;
+                question_mark_material.SetFloat("_Show", 0f);
                 _current_attention = 0f;
 
                 if (chase_transform != null)
@@ -106,25 +93,20 @@ public class EnemyAI : MonoBehaviour
                     chase_transform = null;
                 }
             }
-            else if (value < 0.285f)
-            {
-                // ? is fully white
-                ControllActiveCanvas(true, true, false);
-                _current_attention = value;
-            }
             else if (value < 1f)
             {
-                // ? starts becomming red
-                ControllActiveCanvas(true, true, false);
+                coroutine_is_started = false;
+                question_mark_material.SetFloat("_Show", 1f);
+                question_mark_material.SetFloat("_CutoffY", _current_attention);
                 _current_attention = value;
             }
             else
             {
-                if (_current_attention < 1f)
+                if (!coroutine_is_started)
                 {
-                    ControllActiveCanvas(true, false, true);
-                    StartCoroutine(ControllActiveCanvasEnumerator(false, false, false));
+                    StartCoroutine(ActivateExclamationMark());
                 }
+                question_mark_material.SetFloat("_Show", 0f);
                 if (value >= _current_attention)
                 {
                     _current_attention = max_attentiveness;
@@ -134,8 +116,6 @@ public class EnemyAI : MonoBehaviour
                     _current_attention = value;
                 }
             }
-
-            question_mark_material.SetFloat("_CutoffY", _current_attention);
         }
     }
 
@@ -180,7 +160,11 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         current_animated_float_value -= Time.deltaTime * health_remove_speed;
-        current_attention -= Time.deltaTime * attention_decrease_factor;
+    }
+
+    private void FixedUpdate()
+    {
+        current_attention -= Time.fixedDeltaTime * attention_decrease_factor;
     }
 
     [SerializeField] private GameObject canvas_game_object;
@@ -251,7 +235,7 @@ public class EnemyAI : MonoBehaviour
         question_mark_material = question_mark_text.fontMaterial;
         exclamation_point_material = exclamation_point_text.fontMaterial;
 
-        canvas_game_object.SetActive(false);
+        //canvas_game_object.SetActive(false);
     }
 
     /// <summary>

@@ -223,9 +223,9 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
     private void LateUpdate()
     {
-#if UNITY_EDITOR
-        top_node = ConstructBehaviourTree(golem_type);
-#endif
+//#if UNITY_EDITOR
+//        top_node = ConstructBehaviourTree(golem_type);
+//#endif
         top_node.Evaluate();
         if (top_node.node_state == NodeState.failure)
         {

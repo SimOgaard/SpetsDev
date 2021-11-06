@@ -66,7 +66,7 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private Vector3 SmoothMovementToPoint(Vector3 focus_point)
     {
-        Vector3 smoothed_position = Vector3.Lerp(transform.position, (player_transform.position + focus_point), smooth_speed * Time.fixedDeltaTime);
+        Vector3 smoothed_position = Vector3.Lerp(transform.position, (player_transform.position + focus_point), smooth_speed * Time.deltaTime);
         return smoothed_position;
     }
 
@@ -234,10 +234,7 @@ public class CameraMovement : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Rotate With input float
-    /// </summary>
-    private void FixedUpdate()
+    public void SmoothPosition()
     {
         smoothed_position = SmoothMovementToPoint(GetLookPoint());
         transform.position = smoothed_position;

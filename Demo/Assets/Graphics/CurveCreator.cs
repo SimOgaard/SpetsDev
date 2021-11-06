@@ -12,11 +12,14 @@ public class CurveCreator : MonoBehaviour
     private void Start()
     {
         material = GetComponent<MeshRenderer>().sharedMaterial;
+        AddCurveTexture(ref material, curve);
     }
 
     private void Update()
     {
+        #if UNITY_EDITOR
         AddCurveTexture(ref material, curve);
+        #endif
     }
 
     public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve)

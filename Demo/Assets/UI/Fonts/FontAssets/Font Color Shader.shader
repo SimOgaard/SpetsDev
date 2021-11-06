@@ -86,9 +86,11 @@ Shader "Custom/Font Color Shader"
 				uniform float		_MaskSoftnessX;
 				uniform float		_MaskSoftnessY;
 
-				float4 _Color1;
-				float4 _Color2;
-				float _CutoffY;
+				uniform float4		_Color1;
+				uniform float4		_Color2;
+				uniform float		_CutoffY;
+
+				uniform float _Show;
 
 				float2 UnpackUV(float uv)
 				{
@@ -130,7 +132,12 @@ Shader "Custom/Font Color Shader"
 				fixed4 frag(v2f IN) : SV_Target
 				{
 					float4 tex_color;
-					if (IN.texcoord1.y <= _CutoffY)
+
+					if (_Show < 0.5)
+					{
+						discard;
+					}
+					else if (IN.texcoord1.y <= _CutoffY)
 					{
 						tex_color = _Color1;
 					}
@@ -138,7 +145,6 @@ Shader "Custom/Font Color Shader"
 					{
 						tex_color = _Color2;
 					}
-
 
 					fixed4 color = tex2D(_MainTex, IN.texcoord0);
 					color = fixed4(tex2D(_FaceTex, IN.texcoord1).rgb * tex_color.rgb, tex_color.a * color.a);

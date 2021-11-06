@@ -42,15 +42,8 @@ public class CloudShadows : MonoBehaviour
 
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
-        if (invert)
-        {
-            cloud_shadow_material.SetVector("_LightPosition", -transform.position);
-        }
-        else
-        {
-            cloud_shadow_material.SetVector("_LightPosition", transform.position);
-        }
-
+        cloud_shadow_material.SetVector("_LightPosition", transform.position * (invert ? -1f : 1f));
+        
         #if UNITY_EDITOR
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
         UpdateLightProperties(_light.cookieSize);

@@ -18,6 +18,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     private Vector3 offset;
 
     [SerializeField] private Transform camera_focus_point;
+    private CameraMovement camera_focus_point_script;
     private Camera m_camera;
     private RenderTexture rt;
 
@@ -85,6 +86,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     private void Awake()
     {
         camera_focus_point = GameObject.Find("camera_focus_point").transform;
+        camera_focus_point_script = camera_focus_point.GetComponent<CameraMovement>();
         m_camera = GetComponent<Camera>();
         m_camera.orthographicSize = (225f / 216f) * 20f;
         //SetCameraNearClippingPlane();
@@ -119,6 +121,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     */
     private void LateUpdate()
     {
+        camera_focus_point_script.SmoothPosition();
+
         MoveCamera(ref m_camera, camera_focus_point, camera_rotation_init, camera_distance);
         Shader.SetGlobalVector("_CameraOffset", new Vector4(camera_offset.x, camera_offset.y, 0f, 0f));
         camera_offset = PixelSnap(ref m_camera);

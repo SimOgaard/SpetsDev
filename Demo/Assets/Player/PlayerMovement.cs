@@ -60,16 +60,14 @@ public class PlayerMovement : MonoBehaviour
         slope_move_direction_normalized = Vector3.ProjectOnPlane(move_direction_normalized, slope_hit.normal).normalized;
         move_speed = Mathf.Lerp(move_speed, Input.GetKey(PlayerInput.sprint_key) ? sprint_speed : Input.GetKey(PlayerInput.crouch_key) ? crouched_speed : walk_speed, acceleration * Time.deltaTime);
         movement = slope_move_direction_normalized * move_speed * movement_multiplier;
-
-        MakeSound();
     }
 
     private void MakeSound()
     {
         if (move_speed > (crouched_speed + 0.1f))
         {
-            float sound = movement.magnitude * sound_amplifier * base_sound * Time.deltaTime;
-            Enemies.Sound(transform, sound, max_sound * Time.deltaTime, Time.deltaTime);
+            float sound = movement.magnitude * sound_amplifier * base_sound * Time.fixedDeltaTime;
+            Enemies.Sound(transform, sound, max_sound * Time.fixedDeltaTime, Time.fixedDeltaTime);
         }
     }
 
@@ -82,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
     {
         is_grounded = (controller.Move(movement * (is_grounded ? 1f : air_multiplier) * Time.fixedDeltaTime) & CollisionFlags.Below) != 0;
         controller.Move(Vector3.down * gravity * Time.fixedDeltaTime);
+        MakeSound();
         CheckEnemyVision();
     }
 
