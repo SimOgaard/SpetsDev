@@ -108,10 +108,12 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
         if (!Application.isPlaying)
         {
             return;
         }
+#endif
 
         float water_level_wave = water_details.bobing_amplitude * Mathf.Sin(Time.time * water_details.bobing_frequency);
         Water.water_level = water_details.level + water_level_wave;

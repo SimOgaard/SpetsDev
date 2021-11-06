@@ -236,6 +236,12 @@ public class CameraMovement : MonoBehaviour
 
     public void SmoothPosition()
     {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+#endif
         smoothed_position = SmoothMovementToPoint(GetLookPoint());
         transform.position = smoothed_position;
     }

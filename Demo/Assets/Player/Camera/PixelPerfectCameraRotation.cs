@@ -94,31 +94,15 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private void Start()
     {
-        if (Application.isPlaying)
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
         {
-            planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
-
-            /*
-            GameObject fucking_bitch_ass_god_cube_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            fucking_bitch_ass_god_cube_game_object.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Nature/Terrain/Diffuse"));
-            fucking_bitch_ass_god_cube_game_object.name = "fucking bitch ass god cube";
-            Destroy(fucking_bitch_ass_god_cube_game_object.GetComponent<BoxCollider>());
-            fucking_bitch_ass_god_cube = fucking_bitch_ass_god_cube_game_object.transform;
-            fucking_bitch_ass_god_cube.localScale = Vector3.zero;
-            */
+            return;
         }
+#endif
+        planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
     }
 
-    /*
-    [SerializeField] private Transform fucking_bitch_ass_god_cube;
-    private void Update()
-    {
-        if (Application.isPlaying)
-        {
-            fucking_bitch_ass_god_cube.transform.position = m_camera.transform.position + m_camera.transform.forward * 25f;
-        }
-    }
-    */
     private void LateUpdate()
     {
         camera_focus_point_script.SmoothPosition();
@@ -128,10 +112,12 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         camera_offset = PixelSnap(ref m_camera);
         SetCameraNearClippingPlane();
 
+#if UNITY_EDITOR
         if (!Application.isPlaying)
         {
             return;
         }
+#endif
 
         // Create rays for bottom corners of the camera
         Ray bot_right_ray = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));

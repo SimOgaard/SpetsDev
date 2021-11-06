@@ -19,10 +19,12 @@ public class SpawnPrefabs : MonoBehaviour
 
     public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area, float chunk_load_speed)
     {
+#if UNITY_EDITOR
         if (!Application.isPlaying)
         {
             yield break;
         }
+#endif
 
         int prefab_length = prefabs.Length;
         if (prefab_length == 0)
