@@ -28,6 +28,9 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     public float shield_cooldown_refund_coefficient = 0.75f;
     public bool allow_pull_down_shield = true;
 
+    public float sound_amplifier = 750f;
+    public float max_sound = 750f;
+
     /// <summary>
     /// All variables that when changed need to clear half_of_shield and re run ObjectPool().
     /// </summary>
@@ -40,10 +43,6 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
     public float structure_radius = 8f;
     public float structure_angle = 45f;
     public float pillar_recursive_angle = 9f;
-
-    public float sound_amplifier = 750f;
-    public float max_sound = 1.5f;
-    public float hearing_threshold_change = 1f;
 
     [Header("Time that gets refunded")]
     [SerializeField] private float _time_left_for_shield;
@@ -150,14 +149,18 @@ public class EarthOnCommandShieldAbility : MonoBehaviour, Ability.IAbility
             Vector3 shield_point_left = player_pos + Quaternion.Euler(0f, -angle + pillar_recursive_angle * 0.5f, 0f) * mouse_direction * structure_radius;
             Vector3 shield_point_right = player_pos + Quaternion.Euler(0f, angle - pillar_recursive_angle * 0.5f, 0f) * mouse_direction * structure_radius;
 
-            half_of_shield[itter].PlacePillar(shield_point_left);
+            Vector3 ground_point_left = half_of_shield[itter].GetRayHitdata(shield_point_left).point;
+            Vector3 ground_point_right = half_of_shield[itter].GetRayHitdata(shield_point_right).point;
+            merged_circle_pillars_game_object.transform.position = (ground_point_left + ground_point_right) * 0.5f;
+
+            half_of_shield[itter].PlacePillarPoint(ground_point_left);
             merged_circle_pillars.InitEarthbendingPillar(half_of_shield[itter].gameObject);
-            half_of_shield[itter].PlacePillar(shield_point_right);
+            half_of_shield[itter].PlacePillarPoint(ground_point_right);
             merged_circle_pillars.InitEarthbendingPillar(half_of_shield[itter].gameObject);
             merged_circle_pillars.should_be_deleted = true;
 
             merged_circle_pillars.SetSharedValues(Mathf.Infinity, pillar_speed, pillar_height + pillar_height_offset * itter, material);
-            merged_circle_pillars.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
+            merged_circle_pillars.SetSound(sound_amplifier, max_sound);
 
             // smootly rotates cubes instead of restricting/snapping it to 45 degrees
             // Quaternion rotation_left = Quaternion.LookRotation((shield_point_left - player_pos), Vector3.up);

@@ -1257,7 +1257,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2419037490013663550}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1.925, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2789435838338563001}
@@ -1349,7 +1349,7 @@ MonoBehaviour:
       target: {fileID: 1241766241175047959}
       lerp_speed: 1
       path_creator: {fileID: 6845647162069650792}
-      end_of_path_instruction: 2
+      end_of_path_instruction: 0
     pole_target:
       target: {fileID: 4862893066234593843}
       lerp_speed: 1
@@ -1391,7 +1391,7 @@ MonoBehaviour:
       target: {fileID: 3019944808316803843}
       lerp_speed: 1
       path_creator: {fileID: 6826356205991921303}
-      end_of_path_instruction: 2
+      end_of_path_instruction: 0
     pole_target:
       target: {fileID: 6812283786687543168}
       lerp_speed: 1
@@ -2037,13 +2037,13 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -2, y: 0, z: 0}
-      - {x: -1, y: 0.5, z: 0}
-      - {x: 1, y: -0.5, z: 0}
-      - {x: 2, y: 0, z: 0}
+      - {x: -0.6207862, y: 0.010370851, z: -0.04245758}
+      - {x: -0.58431816, y: 0.9055098, z: -0.0073981285}
+      - {x: -0.6437135, y: 0.78988385, z: 0.6520786}
+      - {x: -0.5575414, y: 0.267967, z: 0.6129656}
       isClosed: 0
       space: 0
-      controlMode: 0
+      controlMode: 1
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
@@ -2132,7 +2132,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5253000915529984105}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1.925, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 9065980007268883115}
@@ -2375,7 +2375,7 @@ Transform:
   m_GameObject: {fileID: 5545877736568992080}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: -15, y: 9.15, z: -15}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4255320647974697844}
   - {fileID: 8782763072162072123}
@@ -2732,10 +2732,10 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -2, y: 0, z: 0}
-      - {x: -1, y: 0.5, z: 0}
-      - {x: 1, y: -0.5, z: 0}
-      - {x: 2, y: 0, z: 0}
+      - {x: -3.6006863, y: 2.7052164, z: 0.6937747}
+      - {x: -2.5081134, y: 3.3664284, z: 0.1470027}
+      - {x: -1.7280045, y: 2.3800726, z: 0.42389154}
+      - {x: -1.2125473, y: 2.347632, z: 2.0441964}
       isClosed: 0
       space: 0
       controlMode: 0

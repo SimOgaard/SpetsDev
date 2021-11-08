@@ -19,9 +19,6 @@ public class FireballProjectile : MonoBehaviour
 
     private bool has_exploded = false;
 
-    private float explosion_sound = 500f;
-    private float friction_sound = 10f;
-
     /// <summary>
     /// Returns ability on hit damage.
     /// </summary>
@@ -46,6 +43,7 @@ public class FireballProjectile : MonoBehaviour
     public void UpgradeVar()
     {
         gameObject.layer = fireball_ability.penetrate_enemies ? Layer.ignore_enemy_collision : Layer.ignore_player_collision;
+        rigid_body.drag = fireball_ability.rigidbody_drag;
         rigid_body.angularDrag = fireball_ability.rigidbody_angular_drag;
         rigid_body.mass = fireball_ability.rigidbody_mass;
     }
@@ -93,7 +91,7 @@ public class FireballProjectile : MonoBehaviour
             is_burned_out = true;
             StopAllCoroutines();
             StartCoroutine(BurnOut(0f));
-            StartCoroutine(BurnedOut(fireball_ability.fireball_fire_time_min));
+            StartCoroutine(BurnedOut(fireball_ability.fireball_active_time));
         }
 
         mesh_renderer.material.SetVector("_FireBallCentre", transform.position);
@@ -107,7 +105,7 @@ public class FireballProjectile : MonoBehaviour
     {
         if (!is_burned_out && !has_exploded && fireball_ability.explode_on_first_hit)
         {
-            Enemies.Sound(transform, explosion_sound);
+            Enemies.Sound(transform, fireball_ability.explosion_sound);
 
             Vector3 fireball_pos = transform.position;
             Collider[] all_collisions = Physics.OverlapSphere(fireball_pos, fireball_ability.explosion_radius);
@@ -120,11 +118,11 @@ public class FireballProjectile : MonoBehaviour
                 if (Layer.IsInLayer(Layer.enemy, collider.gameObject.layer))
                 {
                     collider.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage);
-                    collider.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse, fireball_ability.tumble_time);
+                    collider.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
                 }
                 else if (collider.TryGetComponent(out Rigidbody rigid_body))
                 {
-                    rigid_body.AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
+                    rigid_body.AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, fireball_ability.explosion_upwards_modifier, ForceMode.Impulse);
                 }
             }
             fireball_ability.explosion_prefab.transform.position = transform.position;
@@ -187,8 +185,8 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void OnCollisionStay(Collision collision)
     {
-        float sound = rigid_body.velocity.magnitude * friction_sound * Time.deltaTime;
-        Enemies.Sound(transform, sound);
+        float sound = rigid_body.velocity.magnitude * fireball_ability.friction_sound;
+        Enemies.Sound(transform, sound, Time.fixedDeltaTime);
 
         if (is_burned_out || !Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer))
         {
@@ -220,7 +218,7 @@ public class FireballProjectile : MonoBehaviour
         yield return new WaitForSeconds(time);
         is_burned_out = true;
         mesh_renderer.material = fireball_ability.fireball_burned_out_material;
-        StartCoroutine(BurnedOut(fireball_ability.fireball_fire_time_min));
+        StartCoroutine(BurnedOut(fireball_ability.fireball_active_time));
     }
 
     /// <summary>

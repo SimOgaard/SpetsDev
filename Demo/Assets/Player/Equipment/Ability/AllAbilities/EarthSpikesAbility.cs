@@ -43,11 +43,9 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
     public float structure_angle = 75f;
     public float pillar_recursive_angle = 10f;
-    public float tumble_time = 3f;
 
-    public float sound_amplifier = 12.5f;
-    public float max_sound = 1.5f;
-    public float hearing_threshold_change = 1f;
+    public float sound_amplifier = 40f;
+    public float max_sound = 10000f;
 
     /// <summary>
     /// Destroys itself.
@@ -212,8 +210,8 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
             GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_spike_object");
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
             earthbending_pillar.SetDamageId(guid_str);
-            earthbending_pillar.DealDamageByTrigger(tumble_time);
-            earthbending_pillar.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
+            earthbending_pillar.DealDamageByTrigger();
+            earthbending_pillar.SetSound(sound_amplifier, max_sound);
 
             earthbending_pillar_array[i] = earthbending_pillar;
             pillar_game_object.SetActive(false);

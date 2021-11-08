@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     [HideInInspector] public Agent agent;
     [HideInInspector] public Transform player_transform;
     public Transform chase_transform;
+    public Vector3 old_chase_position = Vector3.zero;
 
     [SerializeField] private float health_remove_speed = 0.5f;
     [SerializeField] private float starting_health;
@@ -56,96 +57,89 @@ public class EnemyAI : MonoBehaviour
     private IEnumerator ActivateExclamationMark()
     {
         coroutine_is_started = true;
+        question_mark_material.SetFloat("_Show", 0f);
         exclamation_point_material.SetFloat("_Show", 1f);
         yield return new WaitForSeconds(exclamation_point_time);
         exclamation_point_material.SetFloat("_Show", 0f);
     }
 
     public float hearing_amplification = 1f;
-    [SerializeField] private float hearing_threshold = 0.0001f;
+    [SerializeField] private float hearing_threshold = 0.001f;
     [SerializeField] private float attention_decrease_factor = 0.1f;
     public static float exclamation_point_time = 2f;
-    private float _current_attention = 0f;
     [SerializeField] private float max_attentiveness;
 
     public bool eyes_open = false;
     public float fov = 1f;
     public float vision_distance = 1750f;
-    [SerializeField] private float vision_amplification = 1f;
-    [SerializeField] private float vision_threshold = 0.0001f;
+    public float vision_amplification = 1f;
+    [SerializeField] private float vision_threshold = 0.001f;
 
-    public float current_attention
+    [SerializeField] private float change_chase_transform_threshold = 0.01f;
+
+    public float current_attention = 0f;
+
+    private void UpdateAttention(Transform origin, float attention_level_change)
     {
-        get { return _current_attention; }
-        private set
+        current_attention += attention_level_change;
+        if (current_attention <= 0f)
         {
-            // from 0 to 0.285 ? is fully white
-            // from 0.8555 to 1 is fully red
+            coroutine_is_started = false;
+            question_mark_material.SetFloat("_Show", 0f);
+            current_attention = 0f;
 
-            if (value <= 0f)
+            if (chase_transform != null)
             {
-                coroutine_is_started = false;
-                question_mark_material.SetFloat("_Show", 0f);
-                _current_attention = 0f;
-
-                if (chase_transform != null)
-                {
-                    chase_transform = null;
-                }
+                chase_transform = null;
             }
-            else if (value < 1f)
+        }
+        else if (current_attention < 1f)
+        {
+            coroutine_is_started = false;
+            question_mark_material.SetFloat("_Show", 1f);
+            question_mark_material.SetFloat("_CutoffY", current_attention);
+
+            if (chase_transform != null)
             {
-                coroutine_is_started = false;
+                old_chase_position = chase_transform.position;
+                chase_transform = null;
+            }
+        }
+        else
+        {
+            if (!coroutine_is_started && origin == player_transform)
+            {
+                chase_transform = origin;
+                StartCoroutine(ActivateExclamationMark());
+            }
+            else if (chase_transform != player_transform && attention_level_change >= change_chase_transform_threshold)
+            {
                 question_mark_material.SetFloat("_Show", 1f);
-                question_mark_material.SetFloat("_CutoffY", _current_attention);
-                _current_attention = value;
+                question_mark_material.SetFloat("_CutoffY", 1f);
+                chase_transform = origin;
             }
-            else
+            if (attention_level_change >= 0)
             {
-                if (!coroutine_is_started)
-                {
-                    StartCoroutine(ActivateExclamationMark());
-                }
-                question_mark_material.SetFloat("_Show", 0f);
-                if (value >= _current_attention)
-                {
-                    _current_attention = max_attentiveness;
-                }
-                else
-                {
-                    _current_attention = value;
-                }
+                current_attention = max_attentiveness;
             }
         }
     }
 
-    public void AttendToSound(Transform sound_origin, float sound_level, float hearing_threshold_change = 1f)
+    public void AttendToSound(Transform sound_origin, float sound_level, float time_span = 1f)
     {
-        if (Mathf.Abs(sound_level) >= hearing_threshold * hearing_threshold_change)
+        sound_level *= time_span;
+        if (Mathf.Abs(sound_level) >= hearing_threshold)
         {
-            current_attention += sound_level;
-
-            if(current_attention == max_attentiveness && chase_transform != sound_origin && chase_transform != player_transform)
-            {
-                chase_transform = sound_origin;
-            }
+            UpdateAttention(sound_origin, sound_level);
         }
     }
 
-    public void AttendToVision(Transform vision_origin, float visibility, float dot, float distance, float max_vision = Mathf.Infinity, float min_vision = 0f, float vision_threshold_change = 1f)
+    public void AttendToVision(Transform vision_origin, float vision_level, float time_span = 1f)
     {
-        float vision_level = Mathf.Max(Mathf.Min((dot * visibility * vision_amplification) / distance, max_vision), min_vision);
-        Debug.Log("vision_level: " + vision_level);
-
-        if (vision_level >= vision_threshold * vision_threshold_change)
+        vision_level *= time_span;
+        if (vision_level >= vision_threshold)
         {
-            Debug.Log("vision_level: " + (vision_threshold * vision_threshold_change));
-            current_attention += vision_level;
-
-            if (current_attention == max_attentiveness && chase_transform != vision_origin && chase_transform != player_transform)
-            {
-                chase_transform = vision_origin;
-            }
+            UpdateAttention(vision_origin, vision_level);
         }
     }
 
@@ -164,7 +158,7 @@ public class EnemyAI : MonoBehaviour
 
     private void FixedUpdate()
     {
-        current_attention -= Time.fixedDeltaTime * attention_decrease_factor;
+        UpdateAttention(null, -Time.fixedDeltaTime * attention_decrease_factor);
     }
 
     [SerializeField] private GameObject canvas_game_object;

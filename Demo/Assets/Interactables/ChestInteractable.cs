@@ -76,12 +76,13 @@ public class ChestInteractable : MonoBehaviour
     {
         sprite_initializer.Destroy();
         SoundCollider sound_collider = chest_top.AddComponent<SoundCollider>();
-        StartCoroutine(sound_collider.DelaySound(0.25f));
+        StartCoroutine(sound_collider.DelaySound(0.1f));
         sound_collider.sound_amplifier = 10f;
-        Enemies.Sound(transform, 150f);
+        sound_collider.min_sound = 50f;
+        Enemies.Sound(transform, 200f);
         Rigidbody chest_top_rigidbody = sound_collider.AddRigidbody();
         chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier);
-        chest_top_rigidbody.mass = 5f;
+        chest_top_rigidbody.mass = 50f;
     }
 
     /// <summary>

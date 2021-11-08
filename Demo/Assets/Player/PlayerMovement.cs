@@ -66,8 +66,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (move_speed > (crouched_speed + 0.1f))
         {
-            float sound = movement.magnitude * sound_amplifier * base_sound * Time.fixedDeltaTime;
-            Enemies.Sound(transform, sound, max_sound * Time.fixedDeltaTime, Time.fixedDeltaTime);
+            float sound = Mathf.Max(movement.magnitude * sound_amplifier * base_sound, max_sound);
+            Enemies.Sound(transform, sound, Time.fixedDeltaTime);
         }
     }
 
@@ -86,9 +86,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckEnemyVision()
     {
-        float min = min_vision * Time.fixedDeltaTime;
-        float vision = Mathf.Max(movement.magnitude * vision_amplifier * base_vision * Time.fixedDeltaTime, min);
-        Enemies.Vision(transform, vision, max_vision * Time.fixedDeltaTime, min, Time.fixedDeltaTime);
+        float min = min_vision;
+        float max = max_vision;
+        float vision = Mathf.Min(Mathf.Max(movement.magnitude * vision_amplifier * base_vision, min), max);
+        Enemies.Vision(transform, vision, Time.fixedDeltaTime);
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)

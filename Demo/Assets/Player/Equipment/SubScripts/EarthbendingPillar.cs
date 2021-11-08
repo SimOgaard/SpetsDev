@@ -25,7 +25,6 @@ public class EarthbendingPillar : MonoBehaviour
     public bool deal_damage_by_collision = false;
     public bool deal_damage_by_trigger = false;
     public float damage = 0f;
-    public float tumble_time;
 
     private float _move_time;
     private float move_time
@@ -38,13 +37,11 @@ public class EarthbendingPillar : MonoBehaviour
 
     private float sound_amplifier = 0f;
     private float max_sound = Mathf.Infinity;
-    private float hearing_threshold_change = 1f;
 
-    public void SetSound(float sound_amplifier, float max_sound = Mathf.Infinity, float hearing_threshold_change = 1f)
+    public void SetSound(float sound_amplifier, float max_sound = Mathf.Infinity)
     {
         this.sound_amplifier = sound_amplifier;
         this.max_sound = max_sound;
-        this.hearing_threshold_change = hearing_threshold_change;
     }
 
     /// <summary>
@@ -63,7 +60,7 @@ public class EarthbendingPillar : MonoBehaviour
         MeshFilter mesh_filter = pillar_game_object_to_merge.GetComponent<MeshFilter>();
         CombineInstance combine = new CombineInstance();
         combine.mesh = mesh_filter.sharedMesh;
-        combine.transform = mesh_filter.transform.localToWorldMatrix;
+        combine.transform = transform.worldToLocalMatrix * mesh_filter.transform.localToWorldMatrix;
         combined_mesh_instance.Add(combine);
     }
 
@@ -75,9 +72,10 @@ public class EarthbendingPillar : MonoBehaviour
         this.sleep_time = sleep_time;
         current_sleep_time = sleep_time;
         this.move_speed = move_speed;
-        transform.position = Vector3.zero;
-        this.ground_point = new Vector3(0f, height, 0f);
+
         this.under_ground_point = transform.position;
+        this.ground_point = transform.position + transform.rotation * new Vector3(0f, height, 0f);
+
         Mesh combined_mesh = new Mesh();
         combined_mesh.CombineMeshes(combined_mesh_instance.ToArray());
         gameObject.AddComponent<MeshFilter>().mesh = combined_mesh;
@@ -121,6 +119,15 @@ public class EarthbendingPillar : MonoBehaviour
         {
             PlacePillarPoint(point);
         }
+    }
+
+    /// <summary>
+    /// Places pillar at ground given a point.
+    /// </summary>
+    public RaycastHit GetRayHitdata(Vector3 point)
+    {
+        Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground);
+        return hit_data;
     }
 
     /// <summary>
@@ -207,9 +214,8 @@ public class EarthbendingPillar : MonoBehaviour
         deal_damage_by_collision = true;
     }
 
-    public void DealDamageByTrigger(Vector3 center, float radius, float tumble_time)
+    public void DealDamageByTrigger(Vector3 center, float radius)
     {
-        this.tumble_time = tumble_time;
         deal_damage_by_trigger = true;
         SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
         damage_collider_trigger.isTrigger = true;
@@ -217,9 +223,8 @@ public class EarthbendingPillar : MonoBehaviour
         damage_collider_trigger.radius = radius;
     }
 
-    public void DealDamageByTrigger(float tumble_time)
+    public void DealDamageByTrigger()
     {
-        this.tumble_time = tumble_time;
         deal_damage_by_trigger = true;
         SphereCollider damage_collider_trigger = gameObject.AddComponent<SphereCollider>();
         damage_collider_trigger.isTrigger = true;
@@ -240,6 +245,7 @@ public class EarthbendingPillar : MonoBehaviour
     private void FixedUpdate()
     {
         float move_diff;
+        float sound;
         switch (move_state)
         {
             case MoveStates.up:
@@ -251,7 +257,8 @@ public class EarthbendingPillar : MonoBehaviour
                     break;
                 }
                 move_diff = move_speed * Time.fixedDeltaTime;
-                Enemies.Sound(transform, move_diff * sound_amplifier, max_sound, hearing_threshold_change);
+                sound = Mathf.Min(move_speed * sound_amplifier, max_sound);
+                Enemies.Sound(transform, sound, Time.fixedDeltaTime);
                 move_time += move_diff;
                 pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
@@ -280,7 +287,8 @@ public class EarthbendingPillar : MonoBehaviour
                     break;
                 }
                 move_diff = move_speed * Time.fixedDeltaTime;
-                Enemies.Sound(transform, move_diff * sound_amplifier, max_sound, hearing_threshold_change);
+                sound = Mathf.Min(move_speed * sound_amplifier, max_sound);
+                Enemies.Sound(transform, sound, Time.fixedDeltaTime);
                 move_time -= move_diff;
                 pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
                 break;
@@ -301,7 +309,7 @@ public class EarthbendingPillar : MonoBehaviour
         {
             if (other.gameObject.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
             {
-                other.gameObject.GetComponent<Agent>().AddForce(750f * transform.up, ForceMode.Impulse, tumble_time);
+                other.gameObject.GetComponent<Agent>().AddForce(750f * transform.up, ForceMode.Impulse);
             }
         }
     }

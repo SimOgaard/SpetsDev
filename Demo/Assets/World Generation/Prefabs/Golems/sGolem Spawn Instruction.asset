@@ -58,8 +58,8 @@ MonoBehaviour:
   min_ray_position: {x: 0, y: 0, z: 0}
   max_ray_position: {x: 0, y: 0, z: 0}
   shared_position: 0
-  min_position: {x: 0, y: -3.5, z: 0}
-  max_position: {x: 0, y: -3.5, z: 0}
+  min_position: {x: 0, y: -1.5, z: 0}
+  max_position: {x: 0, y: -1.5, z: 0}
   rotate_twords_ground_normal: 0
   reset_rotation: 1
   rotation_offset: 0

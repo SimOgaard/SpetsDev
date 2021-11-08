@@ -40,9 +40,8 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
     public float pillar_width = 1.75f;
     public float pillar_growth_speed = 2.0f;
 
-    public float sound_amplifier = 75f;
-    public float max_sound = 1.5f;
-    public float hearing_threshold_change = 1f;
+    public float sound_amplifier = 100f;
+    public float max_sound = 10000f;
 
     private IEnumerator ult_coroutine;
 
@@ -263,7 +262,7 @@ public class EarthbendingUltimate : MonoBehaviour, Ultimate.IUltimate
         GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "eart_object");
         EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
         earthbending_pillar.InitEarthbendingPillar(pillar_height, pillar_width, Quaternion.Euler(0f, 45f, 0f), alive_time, pillar_growth_speed);
-        earthbending_pillar.SetSound(sound_amplifier, max_sound, hearing_threshold_change);
+        earthbending_pillar.SetSound(sound_amplifier, max_sound);
         pillar_game_object.SetActive(false);
         return earthbending_pillar;
     }

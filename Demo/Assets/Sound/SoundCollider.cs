@@ -6,6 +6,7 @@ public class SoundCollider : MonoBehaviour
 {
     private Rigidbody _rigidbody;
     public float max_sound = Mathf.Infinity;
+    public float min_sound = 0f;
     public float sound_amplifier;
     public bool time_dependent = false;
     private bool can_make_sound = true;
@@ -37,13 +38,13 @@ public class SoundCollider : MonoBehaviour
 
         if (time_dependent)
         {
-            float sound = _rigidbody.velocity.magnitude * sound_amplifier * Time.deltaTime;
-            Enemies.Sound(transform, sound, max_sound * Time.deltaTime, Time.deltaTime);
+            float sound = Mathf.Max(Mathf.Min(_rigidbody.velocity.magnitude * sound_amplifier, max_sound), min_sound);
+            Enemies.Sound(transform, sound);
         }
         else
         {
-            float sound = _rigidbody.velocity.magnitude * sound_amplifier;
-            Enemies.Sound(transform, sound, max_sound);
+            float sound = Mathf.Max(Mathf.Min(_rigidbody.velocity.magnitude * sound_amplifier, max_sound), min_sound);
+            Enemies.Sound(transform, sound);
         }
     }
 }

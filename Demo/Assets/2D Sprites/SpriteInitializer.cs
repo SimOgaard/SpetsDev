@@ -115,11 +115,11 @@ public class SpriteInitializer : MonoBehaviour
     {
         if (sprite_to_render != null)
         {
-            Initialize(sprite_to_render, Quaternion.identity);
+            Initialize(sprite_to_render, Quaternion.identity, 0f);
         }
         else if (animation_to_render != null)
         {
-            Initialize(animation_to_render, Quaternion.identity);
+            Initialize(animation_to_render, Quaternion.identity, 0f);
         }
     }
 }

@@ -169,6 +169,14 @@ public static class Layer
         {
             get { return (1 << game_world) | (1 << spawned_game_world_higher_priority) | (1 << spawned_game_world_no_priority); }
         }
+
+        /// <summary>
+        /// Layer Mask of what is concidered ground for player.
+        /// </summary>
+        public static LayerMask player_and_enemy
+        {
+            get { return (1 << enemy) | (1 << player); }
+        }
     }
 
     /// <summary>

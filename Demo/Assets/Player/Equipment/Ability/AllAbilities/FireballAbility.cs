@@ -33,13 +33,17 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     public float ground_none_flammable_time_decreesement = 5f;
     public float on_collision_damage = 4f;
     public float on_collision_damage_burned_out = 1f;
+    public float fireball_active_time = 60f;
 
     public bool explode_on_first_hit = true;
 
     public float explosion_radius = 10f;
     public float explosion_damage = 10f;
-    public float explosion_force = 250f;
-    public float tumble_time = 2f;
+    public float explosion_force = 3500f;
+    public float explosion_upwards_modifier = 10f;
+
+    public float explosion_sound = 1250f;
+    public float friction_sound = 25f;
 
     /// <summary>
     /// All variables that when changed need to delete all fireballs in all fireball lists so they are reinstanciated.
@@ -47,8 +51,9 @@ public class FireballAbility : MonoBehaviour, Ability.IAbility
     [Header("Variables underneath need to check 'Upgrade' for effects to work. Note console log to see if it worked")]
     public bool penetrate_enemies = true;
 
-    public float rigidbody_angular_drag = 1000f;
-    public float rigidbody_mass = 5f;
+    public float rigidbody_drag = 0.001f;
+    public float rigidbody_angular_drag = 10f;
+    public float rigidbody_mass = 50f;
 
     public float ground_fire_radius = 1f;
     public float fire_damage = 1f;

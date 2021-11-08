@@ -41,6 +41,9 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
 
     public bool ignore_player = true;
 
+    public float sound_amplifier = 85f;
+    public float max_sound = 10000f;
+
     /// <summary>
     /// All variables that when changed need to clear earthbending_pillars_for_each_ring and re run ObjectPool().
     /// </summary>
@@ -142,6 +145,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
             float radian_recursive = (angle_const_recursive / diameter) * Mathf.Deg2Rad;
 
             GameObject merged_circle_pillars_game_object = new GameObject();
+            merged_circle_pillars_game_object.transform.position = start_point;
             EarthbendingPillar merged_circle_pillars = merged_circle_pillars_game_object.AddComponent<EarthbendingPillar>();
             if (ignore_player)
             {
@@ -155,12 +159,15 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
                 if (Random.Range(0f, 1f) < (1 - (distance_remap01 * density_loss_magnitude)))
                 {
                     Vector3 pillar_point = new Vector3(start_point.x + Mathf.Cos(radian) * current_radius, start_point.y, start_point.z + Mathf.Sin(radian) * current_radius);
-                    earthbending_pillars_for_each_ring[circle_index].PlacePillar(pillar_point);
+                    Vector3 ground_point = earthbending_pillars_for_each_ring[circle_index].GetRayHitdata(pillar_point).point;
+
+                    earthbending_pillars_for_each_ring[circle_index].PlacePillarPoint(ground_point);
                     merged_circle_pillars.InitEarthbendingPillar(earthbending_pillars_for_each_ring[circle_index].gameObject);
                     merged_circle_pillars.should_be_deleted = 1 == wave_recursion;
                 }
             }
             merged_circle_pillars.SetSharedValues(pillar_alive_time, pillar_speed, pillar_height + max_pillar_height_offset * distance_remap01, material);
+            merged_circle_pillars.SetSound(sound_amplifier, max_sound);
             StartCoroutine(
                 SpawnPillarShared(
                     merged_circle_pillars,
@@ -282,6 +289,7 @@ public class EarthquakeAbility : MonoBehaviour, Ability.IAbility
             float diameter = 2f * current_radius * Mathf.PI;
 
             GameObject pillar_game_object = CreateMesh.CreatePrimitive(CreateMesh.CubeMesh(), material, "earth_quake_object");
+            pillar_game_object.SetActive(false);
             EarthbendingPillar earthbending_pillar = pillar_game_object.AddComponent<EarthbendingPillar>();
 
             earthbending_pillar.InitEarthbendingPillar(pillar_height + max_pillar_height_offset * distance_remap01, pillar_width + max_pillar_width_offset * distance_remap01, Quaternion.Euler(0f, 45f, 0f), pillar_alive_time, pillar_speed);

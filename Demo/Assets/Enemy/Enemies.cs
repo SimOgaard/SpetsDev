@@ -103,7 +103,7 @@ public class Enemies : MonoBehaviour
         }
     }
 
-    public static void Sound(Transform sound_origin, float sound, float max_sound = Mathf.Infinity, float hearing_threshold_change = 1f)
+    public static void Sound(Transform sound_origin, float sound, float time_span = 1f)
     {
         if (sound == 0f)
         {
@@ -115,13 +115,12 @@ public class Enemies : MonoBehaviour
             {
                 float distance_value = (enemy_ai.transform.position - sound_origin.position).sqrMagnitude + 0.0001f;
                 float sound_level = (sound * enemy_ai.hearing_amplification) / distance_value;
-                float filtered_sound_level = Mathf.Min(max_sound, sound_level);
-                enemy_ai.AttendToSound(sound_origin, filtered_sound_level, hearing_threshold_change);
+                enemy_ai.AttendToSound(sound_origin, sound_level, time_span);
             }
         }
     }
 
-    public static void Vision(Transform vision_origin, float visibility, float max_vision = Mathf.Infinity, float min_vision = 0f, float vision_threshold_change = 1f)
+    public static void Vision(Transform vision_origin, float visibility, float time_span = 1f)
     {
         if (visibility == 0f)
         {
@@ -133,24 +132,32 @@ public class Enemies : MonoBehaviour
             {
                 Transform enemy_transform = enemy_ai.transform;
                 Vector3 vector_to_origin = vision_origin.position - enemy_transform.position;
-                Debug.Log("vector_to_origin: " + vector_to_origin);
                 float dot = Vector3.Dot(enemy_transform.forward, vector_to_origin.normalized);
-                Debug.Log("dot: " + dot);
                 if (dot < enemy_ai.fov - 1f)
                 {
                     continue;
                 }
                 float distance = vector_to_origin.sqrMagnitude;
-                Debug.Log("distance: " + distance);
                 if (distance > enemy_ai.vision_distance)
                 {
                     continue;
                 }
-                if (!Physics.Linecast(enemy_transform.position, vision_origin.position, ~Layer.player))
+                if (!Physics.Linecast(enemy_transform.position, vision_origin.position, ~Layer.Mask.player_and_enemy))
                 {
-                    enemy_ai.AttendToVision(vision_origin, visibility, dot, distance, max_vision, min_vision, vision_threshold_change);
+                    float vision_level = ((visibility * dot * enemy_ai.vision_amplification) / distance);
+                    enemy_ai.AttendToVision(vision_origin, visibility, time_span);
                 }
             }
         }
     }
+
+    /*
+    private void OnDrawGizmos()
+    {
+        foreach (EnemyAI enemy_ai in all_enemy_ais)
+        {
+            Gizmos.DrawLine(enemy_ai.transform.position, GameObject.Find("Player").transform.position);
+        }
+    }
+    */
 }

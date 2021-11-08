@@ -15,7 +15,7 @@ MonoBehaviour:
   parrent_name: 0
   min_child_amount_required: 0
   ignore_bounding_boxes: 1
-  spawn_chance: 0.3
+  spawn_chance: 0.75
   spawn_range_noise: {x: 0, y: 0}
   spawn_chance_noise: 1
   noise_layer:
@@ -55,8 +55,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 262144
   shared_ray_position: 0
-  min_ray_position: {x: -0.5, y: 0, z: -0.5}
-  max_ray_position: {x: 0.5, y: 0, z: 0.5}
+  min_ray_position: {x: -0.25, y: 0, z: -0.25}
+  max_ray_position: {x: 0.25, y: 0, z: 0.25}
   shared_position: 0
   min_position: {x: 0, y: 0, z: 0}
   max_position: {x: 0, y: 0, z: 0}
@@ -66,5 +66,5 @@ MonoBehaviour:
   rotation_increment: 90
   max_rotation: 180
   shared_scales: 2
-  min_scale: {x: 0.8, y: 1.25, z: 0.8}
-  max_scale: {x: 1.3, y: 2.5, z: 1.3}
+  min_scale: {x: 1, y: 1, z: 1}
+  max_scale: {x: 1.3, y: 1.75, z: 1.3}
