@@ -149,7 +149,7 @@ public class Agent : MonoBehaviour
             tumbling = false;
             // hover
             Vector3 velocity = enemy_rigidbody.velocity;
-            Vector3 ray_direction = transform.TransformDirection(Vector3.down);
+            Vector3 ray_direction = Vector3.down;
 
             Vector3 other_velocity = Vector3.zero;
             Rigidbody hit_rigid_body = ground_raycast_hit.rigidbody;
@@ -185,7 +185,7 @@ public class Agent : MonoBehaviour
             Vector3 rotation_axis;
             float rotation_degrees;
             to_goal.ToAngleAxis(out rotation_degrees, out rotation_axis);
-            Debug.Log(rotation_axis);
+            Debug.Log(rotation_degrees);
             float rotation_radians = rotation_degrees * Mathf.Deg2Rad;
             enemy_rigidbody.AddTorque((rotation_axis * (rotation_radians * upright_joint_spring_strength)) - (enemy_rigidbody.angularVelocity * upright_joint_spring_damper));
 

@@ -45,7 +45,7 @@ public class EarthSpikesAbility : MonoBehaviour, Ability.IAbility
     public float pillar_recursive_angle = 10f;
 
     public float sound_amplifier = 40f;
-    public float max_sound = 10000f;
+    public float max_sound = 400f;
 
     /// <summary>
     /// Destroys itself.

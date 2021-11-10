@@ -334,6 +334,7 @@ GameObject:
   - component: {fileID: 5317768450611475409}
   - component: {fileID: 8105170973923908727}
   - component: {fileID: 5738447050053082624}
+  - component: {fileID: 1307761397180186379}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Merge
@@ -419,6 +420,19 @@ MonoBehaviour:
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
   child_transform_amount: 0
+--- !u!65 &1307761397180186379
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402407584509647175}
+  m_Material: {fileID: 13400000, guid: 3910f6fb5ed2b0444a3cc48e2d91a8e3, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1497397142369165965
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,6 +475,7 @@ GameObject:
   - component: {fileID: 1914680457078102845}
   - component: {fileID: 6480749581328064740}
   - component: {fileID: 2395527786691688621}
+  - component: {fileID: 7356843328584790670}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Merge
@@ -546,6 +561,19 @@ MonoBehaviour:
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
   child_transform_amount: 0
+--- !u!65 &7356843328584790670
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1546335556909789648}
+  m_Material: {fileID: 13400000, guid: 3910f6fb5ed2b0444a3cc48e2d91a8e3, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1800906856941303964
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,6 +1804,7 @@ GameObject:
   - component: {fileID: 3616492702055395384}
   - component: {fileID: 6115286019411141287}
   - component: {fileID: 1057403439685027005}
+  - component: {fileID: 7041509659564448015}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Merge
@@ -1861,6 +1890,19 @@ MonoBehaviour:
   this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
   child_instruction: {fileID: 0}
   child_transform_amount: 0
+--- !u!65 &7041509659564448015
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5525195692369485526}
+  m_Material: {fileID: 13400000, guid: 3910f6fb5ed2b0444a3cc48e2d91a8e3, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5809582275561989896
 GameObject:
   m_ObjectHideFlags: 0
@@ -1900,6 +1942,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4504602944340793883}
+  - component: {fileID: 2248612181869964610}
   m_Layer: 0
   m_Name: Golem
   m_TagString: Untagged
@@ -1926,6 +1969,19 @@ Transform:
   m_Father: {fileID: 8148621881683245298}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &2248612181869964610
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5884022097795026845}
+  m_Material: {fileID: 13400000, guid: 3910f6fb5ed2b0444a3cc48e2d91a8e3, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.65
+  m_Center: {x: 0, y: 2.625, z: 0}
 --- !u!1 &6324543535228399620
 GameObject:
   m_ObjectHideFlags: 0
@@ -3165,7 +3221,6 @@ GameObject:
   - component: {fileID: 8369667345754850663}
   - component: {fileID: 1323705643777353973}
   - component: {fileID: 8724186405840053940}
-  - component: {fileID: 8791566247863710781}
   - component: {fileID: 8420093585059234348}
   m_Layer: 0
   m_Name: sGolem
@@ -3360,34 +3415,21 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  ride_spring_strenght: 50000
+  ride_spring_strenght: 25000
   ride_spring_damper: 2500
-  hover_height: 3.5
-  upright_joint_spring_strength: 100000
-  upright_joint_spring_damper: 50000
+  hover_height: 2.75
+  upright_joint_spring_strength: 7500
+  upright_joint_spring_damper: 1000
   max_slope_rotation: 20
   angular_drag: 0.5
   max_angular_velocity: 2
-  drag: 0.1
+  drag: 0.25
   max_depenetration_velocity: 1
   mass: 75
   explosion_up_modifier_agent: 2.5
   enemy_rigidbody: {fileID: 0}
-  tumble_velocity_magnitude: 5
-  tumble_angular_velocity_magnitude: 5
---- !u!135 &8791566247863710781
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8817600298576257608}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.75
-  m_Center: {x: 0, y: 0.5, z: 0}
+  tumble_velocity_magnitude: 7.5
+  tumble_angular_velocity_magnitude: 7.5
 --- !u!114 &8420093585059234348
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class FireballProjectile : MonoBehaviour
 {
+    private string damage_id = System.Guid.NewGuid().ToString();
+
     private FireballAbility fireball_ability;
     private Rigidbody rigid_body;
     private MeshRenderer mesh_renderer;
@@ -117,8 +119,11 @@ public class FireballProjectile : MonoBehaviour
                 }
                 if (Layer.IsInLayer(Layer.enemy, collider.gameObject.layer))
                 {
-                    collider.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage);
-                    collider.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
+                    Transform parent = collider.transform.parent;
+                    if(parent.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage, damage_id, 0.1f))
+                    {
+                        parent.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
+                    }
                 }
                 else if (collider.TryGetComponent(out Rigidbody rigid_body))
                 {

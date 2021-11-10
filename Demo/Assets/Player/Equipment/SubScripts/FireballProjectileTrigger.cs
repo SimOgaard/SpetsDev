@@ -19,7 +19,7 @@ public class FireballProjectileTrigger : MonoBehaviour
     {
         if (Layer.IsInLayer(Layer.enemy, other.gameObject.layer))
         {
-            other.gameObject.GetComponent<EnemyAI>().Damage(fireball_projectile.OnHitDamage(), damage_id, 0.25f);
+            other.transform.parent.GetComponent<EnemyAI>().Damage(fireball_projectile.OnHitDamage(), damage_id, 0.25f);
             fireball_projectile.Explode();
             return;
         }

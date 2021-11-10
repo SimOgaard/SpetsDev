@@ -96,7 +96,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Layer.IsInLayer(Layer.enemy, hit.gameObject.layer))
         {
-            hit.gameObject.GetComponent<EnemyAI>().AttendToSound(transform, Mathf.Infinity);
+            hit.transform.parent.GetComponent<EnemyAI>().AttendToSound(transform, Mathf.Infinity);
         }
     }
 }

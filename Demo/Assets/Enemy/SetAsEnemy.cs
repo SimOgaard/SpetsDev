@@ -32,10 +32,16 @@ public class SetAsEnemy : MonoBehaviour
 
     public void Init()
     {
+        /*
         JoinMeshes join_meshes = gameObject.AddComponent<JoinMeshes>();
+        join_meshes.SetCollider();
         join_meshes.SetMergeByTags(true);
+        */
 
-        Rigidbody enemy_rigidbody = gameObject.AddComponent<Rigidbody>();
+        SoundCollider sound_collider = gameObject.AddComponent<SoundCollider>();
+        sound_collider.sound_amplifier = 7.5f;
+        sound_collider.min_sound = 50f;
+        Rigidbody enemy_rigidbody = sound_collider.AddRigidbody();
         GetComponent<Agent>().AddRigidBody(enemy_rigidbody);
 
         Enemies.AddEnemyToList(GetComponent<EnemyAI>());

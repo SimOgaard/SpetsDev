@@ -299,7 +299,7 @@ public class EarthbendingPillar : MonoBehaviour
     {
         if (deal_damage_by_collision && Layer.IsInLayer(Layer.enemy, collision.gameObject.layer) && move_state == MoveStates.up)
         {
-            collision.gameObject.GetComponent<EnemyAI>().Damage(damage);
+            collision.transform.parent.GetComponent<EnemyAI>().Damage(damage);
         }
     }
 
@@ -307,9 +307,10 @@ public class EarthbendingPillar : MonoBehaviour
     {
         if (deal_damage_by_trigger && Layer.IsInLayer(Layer.enemy, other.gameObject.layer) && move_state == MoveStates.up)
         {
-            if (other.gameObject.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
+            Transform parent = other.transform.parent;
+            if (parent.GetComponent<EnemyAI>().Damage(damage, damage_id, 0.25f))
             {
-                other.gameObject.GetComponent<Agent>().AddForce(750f * transform.up, ForceMode.Impulse);
+                parent.GetComponent<Agent>().AddForce(750f * transform.up, ForceMode.Impulse);
             }
         }
     }
