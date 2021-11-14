@@ -127,7 +127,7 @@ public class MousePoint : MonoBehaviour
         transform.LookAt(MousePosition2D());
     }
 
-    public GameObject GetGameObjectWithRigidbody()
+    public Rigidbody GetRigidbody()
     {
         ray = cam.ScreenPointToRay(GetInputMousePosition());
         hits = Physics.RaycastAll(ray, 250f);
@@ -135,20 +135,28 @@ public class MousePoint : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].rigidbody != null && !hits[i].rigidbody.isKinematic && !Layer.IsInLayer(Layer.ignore_external_forces, hits[i].transform.gameObject.layer))
+            if (!Layer.IsInLayer(Layer.Mask.ignore_forces, hits[i].transform.gameObject.layer))
             {
-                return hits[i].collider.gameObject;
+                Debug.Log(hits[i].transform.gameObject.layer);
+                if (hits[i].rigidbody != null)
+                {
+                    return hits[i].rigidbody;
+                }
+                else
+                {
+                    return RigidbodySetup.AddRigidbody(hits[i].transform.gameObject);
+                }
             }
         }
         return null;
     }
 
-    public GameObject GetGameObjectWithRigidbody(float sphere_cast_radius)
+    public Rigidbody GetRigidbody(float sphere_cast_radius)
     {
-        GameObject exact_game_object = GetGameObjectWithRigidbody();
-        if (exact_game_object != null)
+        Rigidbody exact_rigidbody = GetRigidbody();
+        if (exact_rigidbody != null)
         {
-            return exact_game_object;
+            return exact_rigidbody;
         }
 
         ray = cam.ScreenPointToRay(GetInputMousePosition());
@@ -157,9 +165,17 @@ public class MousePoint : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].rigidbody != null && !hits[i].rigidbody.isKinematic && !Layer.IsInLayer(Layer.ignore_external_forces, hits[i].transform.gameObject.layer))
+            if (!Layer.IsInLayer(Layer.Mask.ignore_forces, hits[i].transform.gameObject.layer))
             {
-                return hits[i].collider.gameObject;
+                Debug.Log(hits[i].transform.gameObject.layer);
+                if (hits[i].rigidbody != null)
+                {
+                    return hits[i].rigidbody;
+                }
+                else
+                {
+                    return RigidbodySetup.AddRigidbody(hits[i].transform.gameObject);
+                }
             }
         }
         return null;

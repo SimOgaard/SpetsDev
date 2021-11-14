@@ -335,6 +335,7 @@ GameObject:
   - component: {fileID: 8105170973923908727}
   - component: {fileID: 5738447050053082624}
   - component: {fileID: 1307761397180186379}
+  - component: {fileID: 4573005079968172297}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Merge
@@ -433,6 +434,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4573005079968172297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402407584509647175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d646ec007c0acee4587df43ce1288066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 1600
 --- !u!1 &1497397142369165965
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,6 +490,7 @@ GameObject:
   - component: {fileID: 6480749581328064740}
   - component: {fileID: 2395527786691688621}
   - component: {fileID: 7356843328584790670}
+  - component: {fileID: 8657842904865709900}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Merge
@@ -574,6 +589,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8657842904865709900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1546335556909789648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d646ec007c0acee4587df43ce1288066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 1600
 --- !u!1 &1800906856941303964
 GameObject:
   m_ObjectHideFlags: 0
@@ -1805,6 +1833,7 @@ GameObject:
   - component: {fileID: 6115286019411141287}
   - component: {fileID: 1057403439685027005}
   - component: {fileID: 7041509659564448015}
+  - component: {fileID: 3398237515189359231}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Merge
@@ -1903,6 +1932,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3398237515189359231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5525195692369485526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d646ec007c0acee4587df43ce1288066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  density: 1600
 --- !u!1 &5809582275561989896
 GameObject:
   m_ObjectHideFlags: 0
@@ -1942,7 +1984,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4504602944340793883}
-  - component: {fileID: 2248612181869964610}
+  - component: {fileID: 8351622767443106370}
   m_Layer: 0
   m_Name: Golem
   m_TagString: Untagged
@@ -1969,7 +2011,7 @@ Transform:
   m_Father: {fileID: 8148621881683245298}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &2248612181869964610
+--- !u!135 &8351622767443106370
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1981,7 +2023,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1.65
-  m_Center: {x: 0, y: 2.625, z: 0}
+  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!1 &6324543535228399620
 GameObject:
   m_ObjectHideFlags: 0

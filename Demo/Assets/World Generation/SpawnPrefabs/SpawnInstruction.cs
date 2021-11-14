@@ -28,10 +28,15 @@ public class SpawnInstruction : ScriptableObject
     public Vector3 min_ray_position = new Vector3(0, 0, 0);
     public Vector3 max_ray_position = new Vector3(0, 0, 0);
 
-    [Header("Spawning Location")]
-    public SharedXYZ shared_position = SharedXYZ.none;
+    [Header("Global Spawning Location")]
+    public SharedXYZ global_shared_position = SharedXYZ.none;
     public Vector3 min_position = new Vector3(0, 0, 0);
     public Vector3 max_position = new Vector3(0, 0, 0);
+
+    [Header("Local Spawning Location")]
+    public SharedXYZ local_shared_position = SharedXYZ.none;
+    public Vector3 min_position_local = new Vector3(0, 0, 0);
+    public Vector3 max_position_local = new Vector3(0, 0, 0);
 
     [Header("Spawning Rotation")]
     public bool rotate_twords_ground_normal = false;
@@ -44,6 +49,9 @@ public class SpawnInstruction : ScriptableObject
     public SharedXYZ shared_scales = SharedXYZ.none;
     public Vector3 min_scale = new Vector3(1, 1, 1);
     public Vector3 max_scale = new Vector3(1, 1, 1);
+
+    [Header("Density")]
+    public Density.DensityValues density = Density.DensityValues.ignore;
 
     public static string GetHierarchyName(PlacableGameObjectsParrent index)
     {

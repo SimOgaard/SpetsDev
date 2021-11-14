@@ -40,7 +40,7 @@ public static class Tag
 public static class Layer
 {
     /// <summary>
-    /// Layer index of all objects that should not render to camera.
+    /// Default layer index.
     /// </summary>
     public static int default_
     {
@@ -56,7 +56,7 @@ public static class Layer
     }
 
     /// <summary>
-    /// Layer index of all static game world objects.
+    /// Layer index of all game world objects.
     /// </summary>
     public static int game_world
     {
@@ -64,12 +64,20 @@ public static class Layer
     }
 
     /// <summary>
-    /// Layer index of all game world objects that are not/should not be marked static.
+    /// Layer index of all game world objects that are moving.
     /// </summary>
     public static int game_world_moving
     {
         get { return LayerMask.NameToLayer("GameWorldMoving"); }
     }
+
+    /// <summary>
+    /// Layer index of all static game world objects.
+    /// </summary>
+    public static int game_world_static
+    {
+        get { return LayerMask.NameToLayer("GameWorldStatic"); }
+    }    
 
     /// <summary>
     /// Layer index of all objects that should not collide with player.
@@ -137,7 +145,7 @@ public static class Layer
         /// </summary>
         public static LayerMask ground
         {
-            get { return (1 << default_) | (1 << game_world) | (1 << game_world_moving); }
+            get { return (1 << default_) | (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
         }
 
         /// <summary>
@@ -145,7 +153,7 @@ public static class Layer
         /// </summary>
         public static LayerMask static_ground
         {
-            get { return (1 << game_world); }
+            get { return (1 << game_world) | (1 << game_world_static); }
         }
 
         /// <summary>
@@ -153,7 +161,7 @@ public static class Layer
         /// </summary>
         public static LayerMask ground_player
         {
-            get { return (1 << game_world) | (1 << game_world_moving); }
+            get { return (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
         }
 
         /// <summary>
@@ -161,7 +169,7 @@ public static class Layer
         /// </summary>
         public static LayerMask ground_enemy
         {
-            get { return (1 << game_world) | (1 << game_world_moving); }
+            get { return (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
         }
 
         /// <summary>
@@ -178,6 +186,14 @@ public static class Layer
         public static LayerMask player_and_enemy
         {
             get { return (1 << enemy) | (1 << player); }
+        }
+        
+        /// <summary>
+        /// Layer Mask of what should ignore forces.
+        /// </summary>
+        public static LayerMask ignore_forces
+        {
+            get { return (1 << game_world_static) | (1 << ignore_external_forces) | (1 << player); }
         }
     }
 

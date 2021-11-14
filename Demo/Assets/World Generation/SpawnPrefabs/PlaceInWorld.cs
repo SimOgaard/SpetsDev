@@ -159,7 +159,7 @@ public class PlaceInWorld : MonoBehaviour
         Vector3[] hit_data = PointNormalWithRayCast(
             transform.position,
             RandomVector(spawn_instruction.min_ray_position, spawn_instruction.max_ray_position, spawn_instruction.shared_ray_position, transform.localScale),
-            Vector3.down,
+            -transform.up,
             spawn_instruction.ray_layer_mask
         );
 
@@ -192,7 +192,8 @@ public class PlaceInWorld : MonoBehaviour
             transform.rotation = RandomRotationObject(spawn_instruction.rotation_offset, spawn_instruction.rotation_increment);
         }
         transform.localScale = RandomVector(spawn_instruction.min_scale, spawn_instruction.max_scale, spawn_instruction.shared_scales, transform.localScale);
-        transform.localPosition += RandomVector(spawn_instruction.min_position, spawn_instruction.max_position, spawn_instruction.shared_position, transform.localScale);
+        transform.localPosition += transform.rotation * RandomVector(spawn_instruction.min_position_local, spawn_instruction.max_position_local, spawn_instruction.local_shared_position, transform.localScale);
+        transform.localPosition += RandomVector(spawn_instruction.min_position, spawn_instruction.max_position, spawn_instruction.global_shared_position, transform.localScale);
 
         // Change parrent on delay so that destroys further in this script can effect them aswell.
         if (!is_parrent && spawn_instruction.parrent_name != SpawnInstruction.PlacableGameObjectsParrent.keep)
@@ -205,6 +206,12 @@ public class PlaceInWorld : MonoBehaviour
         {
             //Debug.Log("transform == null 2");
             yield break;
+        }
+
+        if (spawn_instruction.density != Density.DensityValues.ignore)
+        {
+            Density density = JoinMeshes.GetAddComponent(transform.gameObject, typeof(Density)) as Density;
+            density.density = spawn_instruction.density;
         }
 
         if (transform.TryGetComponent(out BoundingBoxes bounding_boxes_object))

@@ -6,6 +6,7 @@ using UnityEngine;
 public class WorldGenerationManager : MonoBehaviour
 {
     public static Transform[,] chunks = new Transform[200, 200];
+    public static List<Chunk> chunks_in_loading = new List<Chunk>();
 
     [SerializeField] private NoiseLayerSettings noise_layer_settings;
     private Noise.NoiseLayer[] noise_layers;
@@ -17,10 +18,13 @@ public class WorldGenerationManager : MonoBehaviour
     {
         [Min(0.01f)] public Vector2 unit_size;
         [Min(2)] public Vector2Int resolution;
-        public float chunk_unload_distance;
-        [HideInInspector] public float chunk_unload_distance_squared;
-        public float chunk_preload_factor;
+        public float chunk_disable_distance;
+        [HideInInspector] public float chunk_disable_distance_squared;
+        public float chunk_enable_distance;
+        [HideInInspector] public float chunk_enable_distance_squared;
+        public int chunk_load_dist;
         [Range(0.01f, 1f)] public float chunk_load_speed;
+        public int max_chunk_load_at_a_time;
         [HideInInspector] public Vector2 offset;
     }
     [SerializeField] private ChunkDetails chunk_details;
@@ -67,8 +71,9 @@ public class WorldGenerationManager : MonoBehaviour
         LoadNoiseTextures();
 
         static_chunk_size = chunk_details.unit_size * chunk_details.resolution;
-        chunk_details.chunk_unload_distance_squared = chunk_details.chunk_unload_distance * chunk_details.chunk_unload_distance;
-        chunk_details.offset = static_chunk_size * chunk_details.chunk_preload_factor;
+        chunk_details.chunk_disable_distance_squared = chunk_details.chunk_disable_distance * chunk_details.chunk_disable_distance;
+        chunk_details.chunk_enable_distance_squared = chunk_details.chunk_enable_distance * chunk_details.chunk_enable_distance;
+        chunk_details.offset = static_chunk_size * 0.5f;
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
@@ -86,23 +91,14 @@ public class WorldGenerationManager : MonoBehaviour
 
         while (true)
         {
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, 0f));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, 0f));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(0f, 0f, chunk_details.offset.y));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(0f, 0f, -chunk_details.offset.y));
-
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, chunk_details.offset.y));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, chunk_details.offset.y));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(chunk_details.offset.x, 0f, -chunk_details.offset.y));
-            yield return wait;
-            LoadNearestChunk(player_transform.localPosition + new Vector3(-chunk_details.offset.x, 0f, -chunk_details.offset.y));
+            for (int x = -chunk_details.chunk_load_dist; x <= chunk_details.chunk_load_dist; x++)
+            {
+                for (int z = -chunk_details.chunk_load_dist; z <= chunk_details.chunk_load_dist; z++)
+                {
+                    yield return wait;
+                    LoadNearestChunk(player_transform.localPosition + new Vector3((float) x * chunk_details.offset.x, 0f, (float) z * chunk_details.offset.y));
+                }
+            }
         }
     }
 
@@ -193,21 +189,25 @@ public class WorldGenerationManager : MonoBehaviour
 
         if (chunk == null)
         {
-            // Create chunk
-            Chunk chunk_class = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
-            chunk = chunk_class.transform;
-            chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
-            Debug.Log("started loading: " + chunk.name);
-            if (insta_load)
+            if (chunks_in_loading.Count < chunk_details.max_chunk_load_at_a_time)
             {
-                InstaLoadChunk(chunk_class);
-            }
-            else
-            {
-                StartLoadingChunk(chunk_class);
+                // Create chunk
+                Chunk chunk_class = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
+                chunks_in_loading.Add(chunk_class);
+                chunk = chunk_class.transform;
+                chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
+                Debug.Log("started loading: " + chunk.name);
+                if (insta_load)
+                {
+                    InstaLoadChunk(chunk_class);
+                }
+                else
+                {
+                    StartLoadingChunk(chunk_class);
+                }
             }
         }
-        else if (!chunk.gameObject.activeSelf)
+        else if (!chunk.gameObject.activeSelf && (chunk.position - player_transform.position).sqrMagnitude < chunk_details.chunk_enable_distance_squared)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

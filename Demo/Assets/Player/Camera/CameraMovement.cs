@@ -66,7 +66,7 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private Vector3 SmoothMovementToPoint(Vector3 focus_point)
     {
-        Vector3 smoothed_position = Vector3.Lerp(transform.position, (player_transform.position + focus_point), smooth_speed);
+        Vector3 smoothed_position = Vector3.Lerp(transform.position, (player_transform.position + focus_point), smooth_speed * Time.deltaTime);
         return smoothed_position;
     }
 

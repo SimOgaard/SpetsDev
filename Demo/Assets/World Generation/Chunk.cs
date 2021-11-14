@@ -6,7 +6,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
     private bool is_loaded = false;
-    private float chunk_unload_distance_squared;
+    private float chunk_disable_distance_squared;
     private Transform player_transform;
     private Enemies enemies;
 
@@ -16,7 +16,7 @@ public class Chunk : MonoBehaviour
 
         // initilize variables
         gameObject.layer = Layer.game_world;
-        this.chunk_unload_distance_squared = chunk_details.chunk_unload_distance_squared;
+        this.chunk_disable_distance_squared = chunk_details.chunk_disable_distance_squared;
         this.player_transform = player_transform;
 
         // initilizes ground
@@ -65,7 +65,9 @@ public class Chunk : MonoBehaviour
         //JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
         //join_meshes.SetCollider();
 
+        ground_game_object.layer = Layer.game_world_static;
         is_loaded = true;
+        WorldGenerationManager.chunks_in_loading.Remove(this);
         Debug.Log("done loading: " + transform.name);
     }
     public void ReloadChunk()
@@ -121,7 +123,7 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if ((transform.position - player_transform.position).sqrMagnitude > chunk_unload_distance_squared && is_loaded)
+        if ((transform.position - player_transform.position).sqrMagnitude > chunk_disable_distance_squared && is_loaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

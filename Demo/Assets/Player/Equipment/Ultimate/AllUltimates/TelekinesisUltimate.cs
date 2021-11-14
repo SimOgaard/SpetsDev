@@ -11,7 +11,8 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
     public bool upgrade = false;
 
     private MousePoint mouse_point;
-    private GameObject held_object = null;
+    private Rigidbody held_object_rigidbody;
+    private Transform held_object_transform;
 
     /// <summary>
     /// All variables that can be changed on runtime to effect how this ultimate should behave.
@@ -19,8 +20,8 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
     public float attraction_speed = 5f;
     public float attraction_point_y_offset = 3f;
 
-    public float max_throwing_force = 500f;
-    public float throwing_force_time_multiplier = 500f;
+    public float max_throwing_force = 1000f;
+    public float throwing_force_time_multiplier = 1000f;
 
     public float max_rotation_velocity = 3f;
     public float rotation_acceleration = 3f;
@@ -45,7 +46,14 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void OnGround()
     {
-        held_object = null;
+        if (held_object_rigidbody != null)
+        {
+            held_object_rigidbody.useGravity = true;
+            //ApplyForwardForce(rigid_body);
+            ApplyMousePointForce(held_object_rigidbody);
+            held_object_rigidbody = null;
+            held_object_time = 0f;
+        }
         transform.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.cyan);
     }
 
@@ -62,12 +70,15 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
         }
 
         current_cooldown -= Time.deltaTime;
+    }
 
-        if (held_object != null)
+    private void FixedUpdate()
+    {
+        if (held_object_rigidbody != null)
         {
             RotateObject();
             MoveObjectToPosition();
-            held_object_time += Time.deltaTime;
+            held_object_time += Time.fixedDeltaTime;
             //MoveObjectToMouse();
         }
     }
@@ -80,15 +91,15 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
 
         Vector3 rotate_vector = new Vector3(x, y, z) * Mathf.Min(max_rotation_velocity, held_object_time * rotation_acceleration);
 
-        held_object.transform.Rotate(rotate_vector);
+        held_object_transform.Rotate(rotate_vector);
     }
 
     private void MoveObjectToPosition()
     {
-        Vector3 held_object_position = held_object.transform.position;
+        Vector3 held_object_position = held_object_transform.position;
         Vector3 hold_position = transform.position + Vector3.up * attraction_point_y_offset + (mouse_point.MousePosition2D() - transform.position).normalized * 10f;
 
-        held_object.transform.position = Vector3.Lerp(held_object_position, hold_position, attraction_speed * Time.deltaTime);
+        held_object_transform.position = Vector3.Lerp(held_object_position, hold_position, attraction_speed * Time.deltaTime);
     }
 
     /// <summary>
@@ -98,12 +109,12 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
     {
         if (current_cooldown <= 0f)
         {
-            held_object = mouse_point.GetGameObjectWithRigidbody(sphere_cast_radius);
-            if (held_object != null)
+            held_object_rigidbody = mouse_point.GetRigidbody(sphere_cast_radius);
+            if (held_object_rigidbody != null)
             {
                 current_cooldown = ultimate_cooldown;
-                held_object.GetComponent<Rigidbody>().useGravity = false;
-                Debug.Log(held_object);
+                held_object_rigidbody.useGravity = false;
+                held_object_transform = held_object_rigidbody.transform;
             }
         }
     }
@@ -113,13 +124,12 @@ public class TelekinesisUltimate : MonoBehaviour, Ultimate.IUltimate
     /// </summary>
     public void StopPrimary()
     {
-        if (held_object != null)
+        if (held_object_rigidbody != null)
         {
-            Rigidbody rigid_body = held_object.GetComponent<Rigidbody>();
-            rigid_body.useGravity = true;
+            held_object_rigidbody.useGravity = true;
             //ApplyForwardForce(rigid_body);
-            ApplyMousePointForce(rigid_body);
-            held_object = null;
+            ApplyMousePointForce(held_object_rigidbody);
+            held_object_rigidbody = null;
             held_object_time = 0f;
         }
     }

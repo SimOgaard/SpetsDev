@@ -18,10 +18,9 @@ public class ChestInteractable : MonoBehaviour
     private Upgrade upgrade;
 
     private GameObject chest_top;
-    private GameObject chest_bot;
 
     [SerializeField] private float radius = 0f;
-    [SerializeField] private float power = 5750;
+    [SerializeField] private float power = 25f;
     [SerializeField] private float upwards_modifier = 5f;
     [SerializeField] private float explosion_offset = 5f;
 
@@ -74,15 +73,15 @@ public class ChestInteractable : MonoBehaviour
     /// </summary>
     private void ChestOpeningAnimation()
     {
+        gameObject.layer = Layer.game_world;
+        chest_top.layer = Layer.game_world_moving;
+
         sprite_initializer.Destroy();
-        SoundCollider sound_collider = chest_top.AddComponent<SoundCollider>();
-        StartCoroutine(sound_collider.DelaySound(0.1f));
-        sound_collider.sound_amplifier = 10f;
-        sound_collider.min_sound = 50f;
+
         Enemies.Sound(transform, 200f);
-        Rigidbody chest_top_rigidbody = sound_collider.AddRigidbody();
-        chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier);
-        chest_top_rigidbody.mass = 50f;
+
+        Rigidbody chest_top_rigidbody = RigidbodySetup.AddRigidbody(chest_top);
+        chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier, ForceMode.VelocityChange);
     }
 
     /// <summary>
@@ -93,8 +92,7 @@ public class ChestInteractable : MonoBehaviour
     {
         is_open = false;
 
-        chest_top = transform.GetChild(1).gameObject;
-        chest_bot = transform.GetChild(0).gameObject;
+        chest_top = transform.GetChild(0).gameObject;
 
         Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
         sprite_initializer = gameObject.AddComponent<SpriteInitializer>();
