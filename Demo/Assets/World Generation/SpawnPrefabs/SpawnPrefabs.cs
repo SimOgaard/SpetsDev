@@ -36,7 +36,7 @@ public class SpawnPrefabs : MonoBehaviour
 
         float object_amount = object_density * area.x * area.y;
         float wait_amount = Mathf.Max(object_amount * object_density);
-        Debug.Log("tried spawning: " + object_amount + " objects on: " + transform.name);
+        //Debug.Log("tried spawning: " + object_amount + " objects on: " + transform.name);
         bounding_boxes = new List<Collider>();
         for (int i = 0; i < object_amount; i++)
         {

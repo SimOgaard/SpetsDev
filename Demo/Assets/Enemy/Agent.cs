@@ -62,11 +62,13 @@ public class Agent : MonoBehaviour
     {
         ground_dot = 1f;
         enemy_rigidbody.isKinematic = false;
+        enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
     private void OnDisable()
     {
         enemy_rigidbody.isKinematic = true;
+        enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
     }
 
     public void AddRigidBody(Rigidbody rigid_body)
@@ -79,7 +81,7 @@ public class Agent : MonoBehaviour
         enemy_rigidbody.maxDepenetrationVelocity = max_depenetration_velocity;
         enemy_rigidbody.isKinematic = true;
         enemy_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-        enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        enemy_rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
         enemy_rigidbody.useGravity = true;
 
         max_slope_rotation_cos = Mathf.Cos(max_slope_rotation * Mathf.Deg2Rad);
@@ -185,7 +187,7 @@ public class Agent : MonoBehaviour
             Vector3 rotation_axis;
             float rotation_degrees;
             to_goal.ToAngleAxis(out rotation_degrees, out rotation_axis);
-            Debug.Log(rotation_degrees);
+            //Debug.Log(rotation_degrees);
             float rotation_radians = rotation_degrees * Mathf.Deg2Rad;
             enemy_rigidbody.AddTorque((rotation_axis * (rotation_radians * upright_joint_spring_strength)) - (enemy_rigidbody.angularVelocity * upright_joint_spring_damper));
 

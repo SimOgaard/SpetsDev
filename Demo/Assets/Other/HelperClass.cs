@@ -287,3 +287,12 @@ public static class Copy
         return go.AddComponent<T>().GetCopyOf(toAdd) as T;
     }
 }
+
+public static class Global
+{
+    public static Sprite interacting_with_sprite = Resources.Load<Sprite>("Interactables/interacting_with_sprite");
+    public static Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
+
+    public static Transform player_transform = GameObject.Find("Player").transform;
+    public static Transform equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
+}

@@ -14,50 +14,20 @@ using UnityEngine;
 public class PlayerInventory : MonoBehaviour
 {
     /// <summary>
-    /// Call to execute functions which encompasses all Equipments no matter Equipment.IEquipment type.
-    /// <para>Is reference to Equipment component in inventory that is parrent of weapon_equipment.</para>
-    /// </summary>
-    public static Equipment weapon_equipment;
-    /// <summary>
     /// Call to execute functions which encompasses all Weapons no matter Weapon.IWeapon type.
     /// <para>Is reference to Weapon component in inventory that is parrent of weapon.</para>
     /// </summary>
-    public static Weapon weapon_parrent;
-    /// <summary>
-    /// Current weapon in Inventory.
-    /// <para>Is of type Weapon.IWeapon. Example: SledgeHammer, Sword, Bow.</para>
-    /// </summary>
-    public static Weapon.IWeapon weapon;
+    public static Equipment.IEquipment weapon;
 
-    /// <summary>
-    /// Call to execute functions which encompasses all Equipments no matter Equipment.IEquipment type.
-    /// <para>Is reference to Equipment component in inventory that is parrent of ability_equipment.</para>
-    /// </summary>
-    public static Equipment ability_equipment;
     /// <summary>
     /// Call to execute functions which encompasses all Abilities no matter Ability.IAbility type.
     /// <para>Is reference to Ability component in inventory that is parrent of ability.</para>
     /// </summary>
-    public static Ability ability_parrent;
-    /// <summary>
-    /// Current ability in Inventory.
-    /// <para>Is of type Ability.IAbility. Example: Fireball, Lightening, Teleport.</para>
-    /// </summary>
-    public static Ability.IAbility ability;
+    public static Equipment.IEquipment ability;
 
-    /// <summary>
-    /// Call to execute functions which encompasses all Equipments no matter Equipment.IEquipment type.
-    /// <para>Is reference to Equipment component in inventory that is parrent of ultimate_equipment.</para>
-    /// </summary>
-    public static Equipment ultimate_equipment;
     /// <summary>
     /// Call to execute functions which encompasses all Ultimates no matter Ultimate.IUltimate type.
     /// <para>Is reference to Ultimate component in inventory that is parrent of ultimate.</para>
     /// </summary>
-    public static Ultimate ultimate_parrent;
-    /// <summary>
-    /// Current ultimate in Inventory.
-    /// <para>Is of type Ultimate.IUltimate. Example: Earth bender, Vats, Telekinesis.</para>
-    /// </summary>
-    public static Ultimate.IUltimate ultimate;
+    public static Equipment.IEquipment ultimate;
 }

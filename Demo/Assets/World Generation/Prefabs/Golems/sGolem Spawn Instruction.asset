@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
   m_Name: sGolem Spawn Instruction
   m_EditorClassIdentifier: 
-  parrent_name: 11
+  parrent_name: 9
   min_child_amount_required: 2
   ignore_bounding_boxes: 0
   spawn_chance: 0.25
@@ -71,3 +71,4 @@ MonoBehaviour:
   shared_scales: 0
   min_scale: {x: 1, y: 1, z: 1}
   max_scale: {x: 1, y: 1, z: 1}
+  density: 0

@@ -50,11 +50,11 @@ public class Chunk : MonoBehaviour
         WorldGenerationManager.InitNewChild(out rocks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
         GameObject trees_game_object;
         WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
+        GameObject chests_game_object;
+        WorldGenerationManager.InitNewChild(out chests_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.chests);
         GameObject enemies_game_object;
         WorldGenerationManager.InitNewChild(out enemies_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies);
         enemies = enemies_game_object.AddComponent<Enemies>();
-        GameObject interact_game_object;
-        WorldGenerationManager.InitNewChild(out interact_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.interact, typeof(Interact));
 
         // spawns prefabss
         SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
@@ -68,7 +68,7 @@ public class Chunk : MonoBehaviour
         ground_game_object.layer = Layer.game_world_static;
         is_loaded = true;
         WorldGenerationManager.chunks_in_loading.Remove(this);
-        Debug.Log("done loading: " + transform.name);
+        //Debug.Log("done loading: " + transform.name);
     }
     public void ReloadChunk()
     {

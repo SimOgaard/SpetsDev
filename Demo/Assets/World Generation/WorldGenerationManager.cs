@@ -196,7 +196,7 @@ public class WorldGenerationManager : MonoBehaviour
                 chunks_in_loading.Add(chunk_class);
                 chunk = chunk_class.transform;
                 chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
-                Debug.Log("started loading: " + chunk.name);
+                //Debug.Log("started loading: " + chunk.name);
                 if (insta_load)
                 {
                     InstaLoadChunk(chunk_class);

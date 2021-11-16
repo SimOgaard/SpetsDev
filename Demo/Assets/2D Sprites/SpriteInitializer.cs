@@ -46,8 +46,8 @@ public class SpriteInitializer : MonoBehaviour
         animator = null;
 
         // Applies scale to gameobject to correct camera rotation
-        sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        sprite_game_object.transform.localPosition = new Vector3(0f, y_pos, 0f);
+        sprite_game_object.transform.localScale = new Vector3(1f / transform.lossyScale.x, y_scale / transform.lossyScale.y, 1f / transform.lossyScale.z);
+        sprite_game_object.transform.localPosition = new Vector3(0f, y_pos / transform.lossyScale.y, 0f);
     }
     public void Initialize(RuntimeAnimatorController animation, Quaternion rotation, float y_pos = 3.5f, int render_order = 1)
     {
@@ -66,8 +66,8 @@ public class SpriteInitializer : MonoBehaviour
         animator = sprite_game_object.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
 
-        sprite_game_object.transform.localScale = new Vector3(1f, y_scale, 1f);
-        sprite_game_object.transform.localPosition = new Vector3(0f, y_pos, 0f);
+        sprite_game_object.transform.localScale = new Vector3(1f / transform.lossyScale.x, y_scale / transform.lossyScale.y, 1f / transform.lossyScale.z);
+        sprite_game_object.transform.localPosition = new Vector3(0f, y_pos / transform.lossyScale.y, 0f);
     }
 
     /// <summary>
@@ -101,6 +101,24 @@ public class SpriteInitializer : MonoBehaviour
     {
         Destroy(sprite_game_object);
         Destroy(this);
+    }
+
+    /// <summary>
+    /// Disable all initializations stemming from this component.
+    /// <summary>
+    public void Active()
+    {
+        bool state = !this.enabled;
+        sprite_game_object.SetActive(state);
+        this.enabled = state;
+    }
+    public void Active(bool state)
+    {
+        if (state != this.enabled)
+        {
+            sprite_game_object.SetActive(state);
+            this.enabled = state;
+        }
     }
 
     private void Awake()
