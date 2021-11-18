@@ -10,7 +10,22 @@ public class TelekinesisUltimate : Ultimate
 {
     public override void UsePrimary()
     {
-        base.UsePrimary();
         Debug.Log("TelekinesisUltimate.UsePrimary");
+    }
+    public override void StopPrimary()
+    {
+        Debug.Log("TelekinesisUltimate.StopPrimary");
+    }
+
+    public override void UpdateUI()
+    {
+        base.UpdateUI();
+        UIInventory.current_ultimate_UI_image.sprite = icon_sprite;
+    }
+
+    public override void Awake()
+    {
+        base.Awake();
+        icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
     }
 }

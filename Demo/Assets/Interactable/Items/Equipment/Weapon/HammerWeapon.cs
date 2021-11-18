@@ -25,6 +25,7 @@ public class HammerWeapon : Weapon, Equipment.IEquipment
 
     public override void Awake()
     {
+        base.Awake();
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/hammer");
     }
 }

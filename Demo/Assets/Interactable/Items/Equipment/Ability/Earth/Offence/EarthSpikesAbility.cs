@@ -4,17 +4,17 @@ using UnityEngine;
 
 /// <summary>
 /// This script is child component of the Equipment hierarchy.
-/// Holds specific functionallity and uppgrades for FireballAbility Equipment.
+/// Holds specific functionallity and uppgrades for EarthSpikesAbility Equipment.
 /// </summary>
-public class FireballAbility : Ability, Equipment.IEquipment
+public class EarthSpikesAbility : Ability
 {
     public override void UsePrimary()
     {
-        Debug.Log("FireballAbility.UsePrimary");
+        Debug.Log("EarthSpikesAbility.UsePrimary");
     }
     public override void StopPrimary()
     {
-        Debug.Log("FireballAbility.StopPrimary");
+        Debug.Log("EarthSpikesAbility.StopPrimary");
     }
 
     public override void UpdateUI()
@@ -25,6 +25,7 @@ public class FireballAbility : Ability, Equipment.IEquipment
 
     public override void Awake()
     {
+        base.Awake();
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
     }
 }

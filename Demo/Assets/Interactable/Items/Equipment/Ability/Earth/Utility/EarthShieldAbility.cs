@@ -4,17 +4,17 @@ using UnityEngine;
 
 /// <summary>
 /// This script is child component of the Equipment hierarchy.
-/// Holds specific functionallity and uppgrades for EarthSpikesAbility Equipment.
+/// Holds specific functionallity and uppgrades for EarthShieldAbility Equipment.
 /// </summary>
-public class EarthSpikesAbility : Ability
+public class EarthShieldAbility : Ability
 {
     public override void UsePrimary()
     {
-        Debug.Log("EarthSpikesAbility.UsePrimary");
+        Debug.Log("EarthShieldAbility.UsePrimary");
     }
     public override void StopPrimary()
     {
-        Debug.Log("EarthSpikesAbility.StopPrimary");
+        Debug.Log("EarthShieldAbility.StopPrimary");
     }
 
     public override void UpdateUI()
@@ -25,6 +25,7 @@ public class EarthSpikesAbility : Ability
 
     public override void Awake()
     {
-        icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
+        base.Awake();
+        icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
     }
 }

@@ -26,7 +26,7 @@ public class Ultimate : Equipment
         UIInventory.current_ultimate_UI_image.color = Color.white;
     }
 
-    public new static System.Type[] equipment_types = { typeof(EarthbendingUltimate) };
+    public new static System.Type[] equipment_types = { typeof(TelekinesisUltimate) };
     public new static System.Type RandomEquipment()
     {
         return equipment_types[Random.Range(0, equipment_types.Length)];
