@@ -10,11 +10,27 @@ public class EarthbendingAbility : Ability, Equipment.IEquipment
 {
     public override void UsePrimary()
     {
-        Debug.Log("EarthbendingAbility.UsePrimary");
+        if ((ready_pillars >= max_pillars) && current_cooldown == 0f || bufferable && !casting)
+        {
+            casting = true;
+            pillar_spawn_coroutine = FollowMouse();
+            StartCoroutine(pillar_spawn_coroutine);
+        }
     }
     public override void StopPrimary()
     {
         Debug.Log("EarthbendingAbility.StopPrimary");
+    }
+
+    private void Update()
+    {
+        current_cooldown -= Time.deltaTime;
+
+        if (current_cooldown == 0f || ready_pillars < max_pillars && !casting)
+        {
+            ready_pillars++;
+            current_cooldown = cooldown;
+        }
     }
 
     /*
