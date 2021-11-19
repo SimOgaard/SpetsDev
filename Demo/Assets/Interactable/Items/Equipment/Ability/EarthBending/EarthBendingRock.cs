@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// This script initilizes and controlls pillar game object that all Earthbending Equipments utilizes.
+/// This script initilizes and controlls rock game object that all Earthbending Equipments utilizes.
 /// </summary>
-public class EarthbendingPillar : MonoBehaviour
+public class EarthBendingRock : MonoBehaviour
 {
     public enum MoveStates { up, still, down };
     public MoveStates move_state = MoveStates.up;
 
-    private Rigidbody pillar_rigidbody;
+    public Rigidbody rock_rigidbody;
 
-    public Vector3 ground_point;       // position you should move twords in the beginning, then sleep for some time.
-    public Vector3 under_ground_point; // position you should spawn object in and move twords in the end then delete.
-    private float sleep_time;           // time in seconds pillar should be still for.
-    private float move_speed;           // how quickly pillar should move.
+    public float sleep_time;            // time in seconds rock should be still for.
+    public float growth_speed;          // how quickly rock should move.
     public float current_sleep_time;
 
-    private RaycastHit hit_data;
+    public RaycastHit hit_data;
+    private const float ray_clearance = 50f;
 
     public bool should_be_deleted = false;
 
@@ -26,17 +25,17 @@ public class EarthbendingPillar : MonoBehaviour
     public bool deal_damage_by_trigger = false;
     public float damage = 0f;
 
-    private float _move_time;
-    private float move_time
+    private float _growth_time;
+    public float growth_time
     {
-        get { return _move_time; }
-        set { _move_time = Mathf.Clamp01(value); }
+        get { return _growth_time; }
+        set { _growth_time = Mathf.Clamp01(value); }
     }
+    
+    //private List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
 
-    List<CombineInstance> combined_mesh_instance = new List<CombineInstance>();
-
-    private float sound_amplifier = 0f;
-    private float max_sound = Mathf.Infinity;
+    public float sound_amplifier = 0f;
+    public float max_sound = Mathf.Infinity;
 
     public void SetSound(float sound_amplifier, float max_sound = Mathf.Infinity)
     {
@@ -44,28 +43,22 @@ public class EarthbendingPillar : MonoBehaviour
         this.max_sound = max_sound;
     }
 
-    /// <summary>
-    /// Changes the pillar this script controls.
-    /// </summary>
-    public void InitEarthbendingPillar(float height, float width, Quaternion rotation, float sleep_time, float move_speed)
-    {
-        ChangePillar(height, width, rotation, sleep_time, move_speed);
-    }
 
     /// <summary>
-    /// Merges theese pillars which this script ultimately controls.
+    /// Merges theese rocks which this script ultimately controls.
     /// </summary>
-    public void InitEarthbendingPillar(GameObject pillar_game_object_to_merge)
+    /*
+    public void InitEarthbendingPillar(GameObject rock_game_object_to_merge)
     {
-        MeshFilter mesh_filter = pillar_game_object_to_merge.GetComponent<MeshFilter>();
+        MeshFilter mesh_filter = rock_game_object_to_merge.GetComponent<MeshFilter>();
         CombineInstance combine = new CombineInstance();
         combine.mesh = mesh_filter.sharedMesh;
         combine.transform = transform.worldToLocalMatrix * mesh_filter.transform.localToWorldMatrix;
         combined_mesh_instance.Add(combine);
     }
-
+    
     /// <summary>
-    /// Merges meshes and sets values for merged pillar this script controls.
+    /// Merges meshes and sets values for merged rock this script controls.
     /// </summary>
     public void SetSharedValues(float sleep_time, float move_speed, float height, Material material)
     {
@@ -82,57 +75,72 @@ public class EarthbendingPillar : MonoBehaviour
         gameObject.AddComponent<MeshCollider>().sharedMesh = combined_mesh;
         gameObject.AddComponent<MeshRenderer>().material = material;
     }
+    */
 
     /// <summary>
     /// Initilizes a kinematic rigidbody.
     /// </summary>
     private void Awake()
     {
-        pillar_rigidbody = gameObject.AddComponent<Rigidbody>();
-        pillar_rigidbody.isKinematic = true;
+        GameObject rock = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        rock.transform.parent = transform;
+        rock.transform.localPosition = Vector3.up * 0.5f;
+        rock.GetComponent<MeshRenderer>().material = Global.stone_material;
+
+        Density density = rock.AddComponent<Density>();
+        rock_rigidbody = rock.AddComponent<Rigidbody>();
+        rock_rigidbody.isKinematic = true;
     }
 
     /// <summary>
-    /// Changes scale, rotation, move speed and sleep time of this pillar.
+    /// Places rock at ground given a point.
     /// </summary>
-    public void ChangePillar(float height, float width, Quaternion rotation, float sleep_time, float move_speed)
+    public virtual void PlacePillar(Vector3 point, Quaternion rotation, Vector3 scale)
     {
-        transform.localScale = new Vector3(width, height * 2f, width);
         transform.rotation = rotation;
-        this.sleep_time = sleep_time;
-        current_sleep_time = sleep_time;
-        this.move_speed = move_speed;
+        transform.localScale = scale;
+        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale, out hit_data);
+        transform.position = place_point;
+        gameObject.SetActive(true);
     }
 
     /// <summary>
-    /// Places pillar at ground given a point.
+    /// Returns ground point given a point and rotation and scale.
     /// </summary>
-    public void PlacePillar(Vector3 point)
+    public (Vector3 point, Vector3 normal) GetRayHitData(Vector3 point, Quaternion rotation, Vector3 scale, out RaycastHit hit_data)
     {
-        if (Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground))
+        Vector3 lowest_point = Vector3.positiveInfinity;
+        Vector3 norm_sum = Vector3.zero;
+        hit_data = new RaycastHit();
+        for (float x = -scale.x * 0.5f; x < scale.x * 0.5f; x += scale.x)
         {
-            transform.position = hit_data.point - transform.rotation * new Vector3(0f, transform.localScale.y * 0.5f, 0f);
-            this.ground_point = hit_data.point;
-            this.under_ground_point = transform.position;
+            for (float z = -scale.z * 0.5f; z < scale.z * 0.5f; z += scale.z)
+            {
+                Vector3 offset = rotation * new Vector3(x, 0f, z);
+                GetRayHitData(point + offset, rotation, out hit_data);
+                norm_sum += hit_data.normal;
+                if (hit_data.point.y < lowest_point.y)
+                {
+                    lowest_point = hit_data.point;
+                }
+            }
         }
-        else
-        {
-            PlacePillarPoint(point);
-        }
+        return (lowest_point, norm_sum.normalized);
     }
 
     /// <summary>
-    /// Places pillar at ground given a point.
+    /// Return ground point given a point and rotation.
     /// </summary>
-    public RaycastHit GetRayHitdata(Vector3 point)
+    public void GetRayHitData(Vector3 point, Quaternion rotation, out RaycastHit hit_data)
     {
-        Physics.Raycast(point + new Vector3(0f, 20f, 0f), Vector3.down, out hit_data, 40f, Layer.Mask.static_ground);
-        return hit_data;
+        Vector3 up = rotation * Vector3.up;
+        Physics.Raycast(point + up * ray_clearance, -up, out hit_data, ray_clearance * 2f, Layer.Mask.static_ground);
     }
 
+    /*
     /// <summary>
-    /// Places pillar at ground if ground position in y axis is in range of starting point.
-    /// Otherwise places pillar at given point.
+    /// Places rock at ground if ground position in y axis is in range of starting point.
+    /// Otherwise places rock at given point.
     /// </summary>
     public void PlacePillar(Vector3 point, float y_max_diff, bool ignore)
     {
@@ -153,9 +161,10 @@ public class EarthbendingPillar : MonoBehaviour
             PlacePillarPoint(point);
         }
     }
-
+    */
+    /*
     /// <summary>
-    /// Places pillar at given point.
+    /// Places rock at given point.
     /// </summary>
     public void PlacePillarPoint(Vector3 point)
     {
@@ -163,17 +172,18 @@ public class EarthbendingPillar : MonoBehaviour
         this.ground_point = point;
         this.under_ground_point = transform.position;
     }
-
+    */
     /// <summary>
-    /// Calculates point where pillar is hidden nomatter its rotation.
+    /// Calculates point where rock is hidden nomatter its rotation.
     /// </summary>
+    /*
     public void PlacePillarHidden(Vector3 point, int solve_itteration = 10)
     {
         float height = transform.localScale.y;
         float width = transform.localScale.x;
         Quaternion rotation = transform.rotation;
 
-        Vector3 pillar_down_direction = rotation * Vector3.down;
+        Vector3 rock_down_direction = rotation * Vector3.down;
         float height_by_itteration = height / solve_itteration;
 
         Vector3 ground_point_middle = GetGroundPoint(point);
@@ -181,7 +191,7 @@ public class EarthbendingPillar : MonoBehaviour
         float max_y_displacement = 0f;
         for (int i = 1; i < solve_itteration; i++)
         {
-            Vector3 test_point = point + pillar_down_direction * height_by_itteration * i;
+            Vector3 test_point = point + rock_down_direction * height_by_itteration * i;
             Vector3 ground_point_current = GetGroundPoint(test_point);
             float y_diff = ground_point_current.y - test_point.y;
             if (y_diff < max_y_displacement)
@@ -193,6 +203,8 @@ public class EarthbendingPillar : MonoBehaviour
 
         PlacePillarPoint(ground_point_middle);
     }
+    */
+    /*
 
     public Vector3 GetGroundPoint(Vector3 point, float height_offset = 20f, float ray_max_distance = 40f)
     {
@@ -202,16 +214,11 @@ public class EarthbendingPillar : MonoBehaviour
         }
         return point;
     }
-
+    */
     private string damage_id = "";
     public void SetDamageId(string damage_id)
     {
         this.damage_id = damage_id;
-    }
-
-    public void DealDamageByCollision()
-    {
-        deal_damage_by_collision = true;
     }
 
     public void DealDamageByTrigger(Vector3 center, float radius)
@@ -238,62 +245,6 @@ public class EarthbendingPillar : MonoBehaviour
         GetComponent<BoxCollider>().isTrigger = true;
     }
 
-    /// <summary>
-    /// Controlls all three stages a pillar goes through.
-    /// Moving up and down and standing still. States can be changed outside of script.
-    /// </summary>
-    private void FixedUpdate()
-    {
-        float move_diff;
-        float sound;
-        switch (move_state)
-        {
-            case MoveStates.up:
-                if (move_time == 1f)
-                {
-                    current_sleep_time = sleep_time;
-                    pillar_rigidbody.Sleep();
-                    move_state = MoveStates.still;
-                    break;
-                }
-                move_diff = move_speed * Time.fixedDeltaTime;
-                sound = Mathf.Min(move_speed * sound_amplifier, max_sound);
-                Enemies.Sound(transform, sound, Time.fixedDeltaTime);
-                move_time += move_diff;
-                pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
-                break;
-            case MoveStates.still:
-                current_sleep_time -= Time.deltaTime;
-                if (current_sleep_time < 0f)
-                {
-                    pillar_rigidbody.WakeUp();
-                    move_state = MoveStates.down;
-                    break;
-                }
-                break;
-            case MoveStates.down:
-                if (move_time == 0f)
-                {
-                    move_state = MoveStates.up;
-                    if (should_be_deleted)
-                    {
-                        Destroy(gameObject);
-                    }
-                    else
-                    {
-                        pillar_rigidbody.Sleep();
-                        gameObject.SetActive(false);
-                    }
-                    break;
-                }
-                move_diff = move_speed * Time.fixedDeltaTime;
-                sound = Mathf.Min(move_speed * sound_amplifier, max_sound);
-                Enemies.Sound(transform, sound, Time.fixedDeltaTime);
-                move_time -= move_diff;
-                pillar_rigidbody.MovePosition(Vector3.Lerp(under_ground_point, ground_point, move_time));
-                break;
-        }
-    }
 
     private void OnCollisionEnter(Collision collision)
     {

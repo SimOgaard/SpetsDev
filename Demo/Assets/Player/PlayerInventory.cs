@@ -30,4 +30,10 @@ public class PlayerInventory : MonoBehaviour
     /// <para>Is reference to Ultimate component in inventory that is parrent of ultimate.</para>
     /// </summary>
     public static Equipment.IEquipment ultimate;
+
+    private void Awake()
+    {
+        GameObject gm;
+        (gm, ability) = Equipment.CreateRandomEquipment(Ability.RandomEquipment());
+    }
 }

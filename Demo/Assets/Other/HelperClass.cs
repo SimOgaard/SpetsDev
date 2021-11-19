@@ -290,6 +290,8 @@ public static class Copy
 
 public static class Global
 {
+    public static Material stone_material = Resources.Load<Material>("Materials/Stone Material");
+
     public static Sprite interacting_with_sprite = Resources.Load<Sprite>("Interactables/interacting_with_sprite");
     public static Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
 

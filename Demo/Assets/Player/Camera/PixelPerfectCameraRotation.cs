@@ -13,6 +13,15 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     [SerializeField] private Vector3 camera_rotation_init = new Vector3(30f, 0f, 0f);
     [SerializeField] private float camera_distance = 100f;
 
+    public static Vector2 resolution
+    {
+        get { return new Vector2(384f, 216f); }
+    }
+    public static Vector2 resolution_extended
+    {
+        get { return new Vector2(400f, 225f); }
+    }
+
     public const float units_per_pixel_world = 40f / 216f;
     public const float units_per_pixel_camera = 40f / 225f;
     private Vector3 offset;
@@ -88,7 +97,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         camera_focus_point = GameObject.Find("camera_focus_point").transform;
         camera_focus_point_script = camera_focus_point.GetComponent<CameraMovement>();
         m_camera = GetComponent<Camera>();
-        m_camera.orthographicSize = (225f / 216f) * 20f;
+        m_camera.orthographicSize = (resolution_extended.y / resolution.y) * 20f;
         //SetCameraNearClippingPlane();
     }
 
@@ -133,9 +142,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void OnPreRender()
     {
-        const int width = 400;
-        const int height = 225;
-        rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        rt = RenderTexture.GetTemporary((int) resolution_extended.x, (int) resolution_extended.y, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
         m_camera.targetTexture = rt;
     }
 
@@ -146,7 +153,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     {
         src.filterMode = FilterMode.Point;
 
-        Vector2 camera_scale = new Vector2(384f / 400f, 216f / 225f);
+        Vector2 camera_scale = new Vector2(resolution.x / resolution_extended.x, resolution.y / resolution_extended.y);
 
         Graphics.Blit(src, dest, camera_scale, camera_offset);
         //Graphics.Blit(src, dest, camera_scale, Vector2.zero);

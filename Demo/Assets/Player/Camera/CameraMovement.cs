@@ -7,7 +7,6 @@ using UnityEngine;
 /// </summary>
 public class CameraMovement : MonoBehaviour
 {
-    private MousePoint mouse_point;
     private PlayerMovement player_movement;
     private Transform player_transform;
     private Vector3 smoothed_position;
@@ -37,7 +36,6 @@ public class CameraMovement : MonoBehaviour
     
     private void Start()
     {
-        mouse_point = GameObject.Find("MouseRot").GetComponent<MousePoint>();
         player_transform = GameObject.Find("Player").transform;
         player_movement = player_transform.GetComponent<PlayerMovement>();
         transform.position = player_transform.position;
@@ -55,8 +53,8 @@ public class CameraMovement : MonoBehaviour
         //Vector3 player_heading = Vector3.Scale(player_movement.controller.velocity, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
         //Vector3 player_heading = Vector3.Scale(diff, new Vector3(-player_heading_xz_amplitude, -player_heading_y_amplitude, -player_heading_xz_amplitude));
         Vector3 player_heading = Vector3.Scale(PlayerMovement.movement, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
-        Vector3 player_looking_plane = (mouse_point.MousePosition2D() - player_transform.position) * player_looking_plane_amplitude;
-        Vector3 player_looking_3d = (mouse_point.GetWorldPoint() - player_transform.position) * player_looking_3d_amplitude;
+        Vector3 player_looking_plane = (MousePoint.MousePositionPlayerPlane() - player_transform.position) * player_looking_plane_amplitude;
+        Vector3 player_looking_3d = (MousePoint.MousePositionWorld() - player_transform.position) * player_looking_3d_amplitude;
 
         return Vector3.ClampMagnitude(player_position_diff + player_heading + player_looking_plane + player_looking_3d, max_distance) + new Vector3(0f, player_y_offset, 0f);
     }

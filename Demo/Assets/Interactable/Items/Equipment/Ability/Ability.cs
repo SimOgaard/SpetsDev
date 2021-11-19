@@ -26,7 +26,7 @@ public class Ability : Equipment
         UIInventory.current_ability_UI_image.color = Color.white;
     }
 
-    public new static System.Type[] equipment_types = { typeof(FireballAbility) };
+    public new static System.Type[] equipment_types = { typeof(EarthBendingPillarBase) };
     public new static System.Type RandomEquipment()
     {
         return equipment_types[Random.Range(0, equipment_types.Length)];
