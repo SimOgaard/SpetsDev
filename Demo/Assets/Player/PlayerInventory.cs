@@ -34,6 +34,6 @@ public class PlayerInventory : MonoBehaviour
     private void Awake()
     {
         GameObject gm;
-        (gm, ability) = Equipment.CreateRandomEquipment(Ability.RandomEquipment());
+        (gm, ability) = Equipment.CreateRandomEquipment(typeof(EarthBendingPillarControllable));
     }
 }

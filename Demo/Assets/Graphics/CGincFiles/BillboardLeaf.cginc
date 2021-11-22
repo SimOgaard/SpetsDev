@@ -38,7 +38,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 	fixed4 uniform_displacement = fixed4(rand(center), rand(center.yzx), rand(center.xzy), 0) * fixed4(_UniformDisplacementRandom, 0);
 	center += uniform_displacement + flatNormal * _ExtrudeDistance;
 
-	fixed pixelSize = _TilePixelSize / (5.4 * 2);
+	fixed pixelSize = _TilePixelSize / (pixels_per_unit * 2);
 	float4 vectors[4];
 	Get4VectorsUp(center, pixelSize, vectors);
 
@@ -79,7 +79,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 
 	center = mul(unity_WorldToObject, world_center);
 
-	fixed pixelSize = _TilePixelSize / (5.4 * 2);
+	fixed pixelSize = _TilePixelSize / (pixels_per_unit * 2);
 	float4 vectors[4];
 	Get4Vectors(center, pixelSize, vectors);
 

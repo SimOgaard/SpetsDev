@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EarthBendingRockScale : EarthBendingRock
 {
-    private const float start_scale = 0.01f;
     public float end_scale;
 
     /// <summary>
@@ -14,10 +13,10 @@ public class EarthBendingRockScale : EarthBendingRock
     {
         transform.rotation = rotation;
         end_scale = scale.y;
-        scale.y = start_scale;
+        scale.y = under_ground_height;
         transform.localScale = scale;
-        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale, out hit_data);
-        transform.position = place_point;
+        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale);
+        transform.position = place_point + rotation * Vector3.down * under_ground_height;
         gameObject.SetActive(true);
     }
 
@@ -43,7 +42,7 @@ public class EarthBendingRockScale : EarthBendingRock
                 sound = Mathf.Min(growth_speed * sound_amplifier, max_sound);
                 Enemies.Sound(transform, sound, Time.fixedDeltaTime);
                 growth_time += move_diff;
-                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(start_scale, end_scale, growth_time), transform.localScale.z);
+                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(under_ground_height, end_scale, growth_time), transform.localScale.z);
                 break;
             case MoveStates.still:
                 current_sleep_time -= Time.deltaTime;
@@ -73,7 +72,7 @@ public class EarthBendingRockScale : EarthBendingRock
                 sound = Mathf.Min(growth_speed * sound_amplifier, max_sound);
                 Enemies.Sound(transform, sound, Time.fixedDeltaTime);
                 growth_time -= move_diff;
-                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(start_scale, end_scale, growth_time), transform.localScale.z);
+                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(under_ground_height, end_scale, growth_time), transform.localScale.z);
                 break;
         }
     }

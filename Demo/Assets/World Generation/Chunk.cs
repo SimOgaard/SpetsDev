@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Chunk : MonoBehaviour
 {
-    private bool is_loaded = false;
+    public bool is_loaded = false;
     private float chunk_disable_distance_squared;
     private Transform player_transform;
     private Enemies enemies;
@@ -58,7 +58,7 @@ public class Chunk : MonoBehaviour
 
         // spawns prefabss
         SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
-        yield return StartCoroutine(spawn_prefabs.Spawn(wait, noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.unit_size * chunk_details.resolution, chunk_details.chunk_load_speed));
+        yield return StartCoroutine(spawn_prefabs.Spawn(wait, noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.offset, chunk_details.chunk_load_speed));
 
         PlaceInWorld.SetRecursiveToGameWorld(gameObject);
 

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2928251993541528439}
   - component: {fileID: 6046158562844501448}
   - component: {fileID: 3148800182560475555}
+  - component: {fileID: 3707868435795544976}
   m_Layer: 22
   m_Name: Default
   m_TagString: Untagged
@@ -191,7 +192,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7553557381128860186}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!135 &2928251993541528439
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -233,3 +234,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d02d28b61b0343409c61bfd5103b86e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3707868435795544976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7553557381128860186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b76c87d04516db45acb4bc1ec32ba95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh_type: 2

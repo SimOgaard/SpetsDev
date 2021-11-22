@@ -13,6 +13,7 @@
         Tags
 		{
 			"RenderType"="Opaque"
+			"Queue"="Geometry+2"
 		}
         LOD 100
 

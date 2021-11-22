@@ -79,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         is_grounded = (controller.Move(movement * (is_grounded ? 1f : air_multiplier) * Time.fixedDeltaTime) & CollisionFlags.Below) != 0;
-        controller.Move(Vector3.down * gravity * Time.fixedDeltaTime);
+        controller.Move(Vector3.down * gravity * Time.fixedDeltaTime * (GameTime.is_paused ? 0f : 1f));
         MakeSound();
         CheckEnemyVision();
     }

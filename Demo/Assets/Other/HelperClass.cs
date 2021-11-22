@@ -298,3 +298,18 @@ public static class Global
     public static Transform player_transform = GameObject.Find("Player").transform;
     public static Transform equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
 }
+
+public static class GameTime
+{
+    public static bool is_paused = false;
+
+    public static void PauseGame(float time_scale = 0f)
+    {
+        Time.timeScale = time_scale;
+    }
+
+    public static void ResumeGame(float time_scale = 1f)
+    {
+        Time.timeScale = time_scale;
+    }
+}

@@ -24,7 +24,7 @@ public class RigidbodySetup : MonoBehaviour
     public Rigidbody AddRigidbody(Density.DensityValues density)
     {
         gameObject.layer = Layer.game_world_moving;
-        transform.parent = WorldGenerationManager.ReturnNearestChunk(transform.position);
+        transform.parent = WorldGenerationManager.ReturnNearestChunk(transform.position).transform;
         weight = MeshDensity.WeightOfMesh(gameObject.GetComponent<MeshFilter>().mesh, transform.lossyScale, density);
         this._rigidbody = gameObject.AddComponent<Rigidbody>();
         this._rigidbody.mass = weight;

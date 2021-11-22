@@ -6,8 +6,8 @@ public class PlanarReflectionInit : MonoBehaviour
 {
     private void Awake()
     {
-        Camera this_camera = GetComponent<Camera>();
-        RenderTexture render_texture_target = new RenderTexture(400, 225, 32, RenderTextureFormat.Default);
+        PixelPerfectCameraRotation this_camera = GetComponent<PixelPerfectCameraRotation>();
+        RenderTexture render_texture_target = new RenderTexture((int) PixelPerfectCameraRotation.resolution_extended.x,(int) PixelPerfectCameraRotation.resolution_extended.y, 32, RenderTextureFormat.Default);
         render_texture_target.filterMode = FilterMode.Point;
 
         Shader.SetGlobalTexture("_WaterReflectionTexture", render_texture_target);
@@ -19,5 +19,6 @@ public class PlanarReflectionInit : MonoBehaviour
         reflection_camera.nearClipPlane = 0f;
 
         reflection_camera.gameObject.AddComponent<PlanarReflectionManager>();
+        this_camera.r_camera = reflection_camera;
     }
 }

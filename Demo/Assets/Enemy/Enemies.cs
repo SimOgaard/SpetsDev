@@ -76,7 +76,7 @@ public class Enemies : MonoBehaviour
 
             foreach (Transform child in enemy_parrent)
             {
-                Transform new_transform = WorldGenerationManager.ReturnNearestChunk(child.position);
+                Transform new_transform = WorldGenerationManager.ReturnNearestChunk(child.position).transform;
 
                 if (new_transform != transform.parent)
                 {

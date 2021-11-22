@@ -17,14 +17,36 @@ public class CurveCreator : MonoBehaviour
 
     private void Update()
     {
+        /*
         #if UNITY_EDITOR
         AddCurveTexture(ref material, curve);
         #endif
+        */
     }
 
-    public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve)
+    private static Texture2D Texture(Vector2Int resolution)
     {
-        Texture2D curve_texture = new Texture2D(curve.resolution, 1, TextureFormat.R8, false);
+        Texture2D curve_texture = new Texture2D(resolution.x, resolution.y, TextureFormat.R8, false);
+        curve_texture.filterMode = FilterMode.Point;
+        curve_texture.wrapMode = TextureWrapMode.Clamp;
+        return curve_texture;
+    }
+
+    public static Texture2D CreateCurveTexture(NoiseLayerSettings.Curve curve)
+    {
+        Texture2D curve_texture = Texture(new Vector2Int(curve.resolution, 1));
+        for (int x = 0; x < curve.resolution; x++)
+        {
+            float curve_value = Mathf.Clamp01(curve.light_curve.Evaluate((float) x / (float) curve.resolution));
+            curve_texture.SetPixel(x, 0, new Color(curve_value, curve_value, curve_value));
+        }
+        curve_texture.Apply();
+        return curve_texture;
+    }
+
+    public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve, string texture_name = "_CurveTexture")
+    {
+        Texture2D curve_texture = Texture(new Vector2Int(curve.resolution, 1));
         curve_texture.filterMode = FilterMode.Point;
 
         float one_div = 1f / curve.resolution;
@@ -34,7 +56,7 @@ public class CurveCreator : MonoBehaviour
         // find maximum and minimum to know how you should devide into x discrete points
         float min = float.MaxValue;
         float max = float.MinValue;
-        for (int x = 0; x < curve.resolution; x++)
+        for (int x = 0; x <= curve.resolution; x++)
         {
             float curve_value = Mathf.Clamp01(curve.light_curve.Evaluate(((float)x + one_div_half) * one_div));
             min = Mathf.Min(min, curve_value);
@@ -42,7 +64,7 @@ public class CurveCreator : MonoBehaviour
         }
         float steps = (max - min) * one_div;
 
-        for (int x = 0; x < curve.resolution; x++)
+        for (int x = 0; x <= curve.resolution; x++)
         {
             float curve_value = Mathf.Clamp01(curve.light_curve.Evaluate(((float) x + one_div_half) * one_div));
             //float curve_value_discrete = Mathf.Floor(curve_value / steps) * steps; // is 0.05, 0.15 0.25 ... 0.95
@@ -53,6 +75,6 @@ public class CurveCreator : MonoBehaviour
         }
         curve_texture.Apply();
 
-        material.SetTexture("_CurveTexture", curve_texture);
+        material.SetTexture(texture_name, curve_texture);
     }
 }

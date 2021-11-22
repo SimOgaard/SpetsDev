@@ -35,8 +35,8 @@ public class CreateMesh : MonoBehaviour
                 reused_point.x = unit_size.x * x - (resolution.x - 1) * unit_size.x * 0.5f;
                 reused_point.y = 0f;
 
-                float x_value = x + offset.x;
-                float z_value = z + offset.z;
+                float x_value = reused_point.x + offset.x;
+                float z_value = reused_point.z + offset.z;
                 for (int q = 0; q < noise_length; q++)
                 {
                     if (noise_layers[q].enabled)
@@ -199,7 +199,7 @@ public class CreateMesh : MonoBehaviour
         return mesh;
     }
 
-    public static Mesh LowPolySphereMesh()
+    public static Mesh IcosahedronMesh()
     {
         /// <summary>
         /// Global struct of all vertices for icosahedron.
@@ -281,5 +281,28 @@ public class CreateMesh : MonoBehaviour
         mesh_renderer.material = material;
         return game_object;
         */
+    }
+
+    private enum MeshType { Cube, Quad, Icosahedron }
+    [SerializeField] private MeshType mesh_type = MeshType.Icosahedron;
+    private void Awake()
+    {
+        MeshFilter mesh_filter = gameObject.GetComponent<MeshFilter>();
+
+        switch (mesh_type)
+        {
+            case MeshType.Cube:
+                mesh_filter.mesh = CubeMesh();
+                break;
+            case MeshType.Quad:
+                mesh_filter.mesh = QuadMesh();
+                break;
+            case MeshType.Icosahedron:
+                mesh_filter.mesh = IcosahedronMesh();
+                break;
+            default:
+                break;
+        }
+        Destroy(this);
     }
 }

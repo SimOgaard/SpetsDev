@@ -71,7 +71,7 @@ public class InteractableEventHandler : MonoBehaviour
 
         if (nearest_interactable != null)
         {
-            if (Input.GetKeyDown(PlayerInput.interact_key))
+            if (PlayerInput.GetKeyDown(PlayerInput.interact_key))
             {
                 if (nearest_interactable.CanInteractWith())
                 {

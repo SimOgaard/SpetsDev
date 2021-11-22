@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class WorldGenerationManager : MonoBehaviour
 {
-    public static Transform[,] chunks = new Transform[200, 200];
+    public static Chunk[,] chunks = new Chunk[200, 200];
     public static List<Chunk> chunks_in_loading = new List<Chunk>();
 
     [SerializeField] private NoiseLayerSettings noise_layer_settings;
@@ -33,6 +33,8 @@ public class WorldGenerationManager : MonoBehaviour
     public struct WaterDetails
     {
         public Material water_material;
+        public NoiseLayerSettings.Curve water_curve_color;
+        public NoiseLayerSettings.Curve water_curve_alpha;
         public float level;
         public float bobing_frequency;
         public float bobing_amplitude;
@@ -50,7 +52,7 @@ public class WorldGenerationManager : MonoBehaviour
 
     public void StartLoadingChunk(Chunk chunk)
     {
-         StartCoroutine(chunk.LoadChunk(noise_layer_settings, noise_layers, chunk_details, player_transform));
+        StartCoroutine(chunk.LoadChunk(noise_layer_settings, noise_layers, chunk_details, player_transform));
     }
 
     public void InstaLoadChunk(Chunk chunk)
@@ -70,16 +72,16 @@ public class WorldGenerationManager : MonoBehaviour
         noise_layers = Noise.CreateNoiseLayers(noise_layer_settings);
         LoadNoiseTextures();
 
-        static_chunk_size = chunk_details.unit_size * chunk_details.resolution;
+        chunk_details.offset = chunk_details.unit_size * chunk_details.resolution;
+        static_chunk_size = chunk_details.offset;
         chunk_details.chunk_disable_distance_squared = chunk_details.chunk_disable_distance * chunk_details.chunk_disable_distance;
         chunk_details.chunk_enable_distance_squared = chunk_details.chunk_enable_distance * chunk_details.chunk_enable_distance;
-        chunk_details.offset = static_chunk_size * 0.5f;
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(water_details.water_material, 200f, 200f, water_details.level, transform);
+        water.Init(water_details.water_material, water_details.water_curve_color, water_details.water_curve_alpha, 350f, 350f, water_details.level, transform);
 
-        LoadNearestChunk(Vector3.zero/*, true*/);
+        //LoadNearestChunk(Vector3.zero/*, true*/);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
@@ -91,12 +93,18 @@ public class WorldGenerationManager : MonoBehaviour
 
         while (true)
         {
-            for (int x = -chunk_details.chunk_load_dist; x <= chunk_details.chunk_load_dist; x++)
+            for (int ring = 0; ring < chunk_details.chunk_load_dist; ring++)
             {
-                for (int z = -chunk_details.chunk_load_dist; z <= chunk_details.chunk_load_dist; z++)
+                int x_start = -ring;
+                int z_start = -ring;
+
+                for (int x = 0; x <= 2 * ring; x++)
                 {
-                    yield return wait;
-                    LoadNearestChunk(player_transform.localPosition + new Vector3((float) x * chunk_details.offset.x, 0f, (float) z * chunk_details.offset.y));
+                    for (int z = 0; z <= 2 * ring; z++)
+                    {
+                        yield return wait;
+                        LoadNearestChunk(player_transform.localPosition + new Vector3((float)(x_start + x) * chunk_details.offset.x, 0f, (float)(z_start + z) * chunk_details.offset.y));
+                    }
                 }
             }
         }
@@ -172,7 +180,7 @@ public class WorldGenerationManager : MonoBehaviour
         return chunk_coord;
     }
 
-    public static Transform ReturnNearestChunk(Vector3 position)
+    public static Chunk ReturnNearestChunk(Vector3 position)
     {
         Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
@@ -180,34 +188,33 @@ public class WorldGenerationManager : MonoBehaviour
         return chunks[nearest_chunk_index.x, nearest_chunk_index.y];
     }
 
-    public Transform LoadNearestChunk(Vector3 position, bool insta_load = false)
+    public Chunk LoadNearestChunk(Vector3 position, bool insta_load = false)
     {
         Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
         Vector2Int nearest_chunk_index = nearest_chunk + chunk_index_offset;
-        Transform chunk = chunks[nearest_chunk_index.x, nearest_chunk_index.y];
+        Chunk chunk = chunks[nearest_chunk_index.x, nearest_chunk_index.y];
 
         if (chunk == null)
         {
             if (chunks_in_loading.Count < chunk_details.max_chunk_load_at_a_time)
             {
                 // Create chunk
-                Chunk chunk_class = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
-                chunks_in_loading.Add(chunk_class);
-                chunk = chunk_class.transform;
+                chunk = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
+                chunks_in_loading.Add(chunk);
                 chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
                 //Debug.Log("started loading: " + chunk.name);
                 if (insta_load)
                 {
-                    InstaLoadChunk(chunk_class);
+                    InstaLoadChunk(chunk);
                 }
                 else
                 {
-                    StartLoadingChunk(chunk_class);
+                    StartLoadingChunk(chunk);
                 }
             }
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.position - player_transform.position).sqrMagnitude < chunk_details.chunk_enable_distance_squared)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - player_transform.position).sqrMagnitude < chunk_details.chunk_enable_distance_squared)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

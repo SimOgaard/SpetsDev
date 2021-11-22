@@ -142,7 +142,7 @@ Transform:
   m_GameObject: {fileID: 7141246363922379835}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
   m_Children:
   - {fileID: 7243168768685133629}
   m_Father: {fileID: 0}
@@ -188,9 +188,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b639cca58d1d6b941b63b4aef8d12543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equipment_type_string: 
-  chest_type: 3
-  can_open: 1
+  is_in_interactables: 0
+  interacting_sprite: {fileID: 0}
+  chest_equipment_game_object: {fileID: 0}
+  chest_upgrade_game_object: {fileID: 0}
   radius: 0
   power: 65
   upwards_modifier: 5

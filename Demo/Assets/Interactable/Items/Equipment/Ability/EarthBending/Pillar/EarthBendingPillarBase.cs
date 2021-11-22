@@ -14,14 +14,16 @@ public class EarthBendingPillarBase : Ability, Equipment.IEquipment
         set { _current_cooldown = Mathf.Max(0f, value); }
     }
 
-    public float traverse_time = 0.1f;
+    public float pillar_traverse_time = 0.2f;
+    public float pillar_growth_speed = 1.25f;
+    public float pillar_sleep_time = 3.5f;
     public float pillar_gap = 3f;
 
-    public int max_pillars = 5;
-    public int ready_pillars = 5;
-    public Vector3 scale = new Vector3(1.5f, 6f, 1.5f);
+    public int max_pillars = 6;
+    public int ready_pillars = 6;
+    public Vector3 scale = new Vector3(1.75f, 8f, 1.75f);
 
-    [SerializeField] private float pillar_distance_from_player = 5f;
+    [SerializeField] private float pillar_distance_from_player = 7f;
 
     public override void UsePrimary()
     {
@@ -51,32 +53,31 @@ public class EarthBendingPillarBase : Ability, Equipment.IEquipment
                 ready_pillars++;
                 current_cooldown = cooldown;
             }
-            Debug.Log(current_cooldown);
-            Debug.Log(ready_pillars);
+            //Debug.Log(current_cooldown);
+            //Debug.Log(ready_pillars);
         }
     }
 
     public IEnumerator SpawnStraight(Vector3 start_point, Vector3 direction)
     {
-        WaitForSeconds wait = new WaitForSeconds(traverse_time);
+        WaitForSeconds wait = new WaitForSeconds(pillar_traverse_time);
 
         while (ready_pillars > 0)
         {
-            Vector3 new_point = start_point + direction * pillar_gap;
+            Vector3 new_point = start_point + direction * pillar_gap * (max_pillars - ready_pillars);
             SpawnRock(new_point);
 
-            start_point = new_point;
             ready_pillars--;
             yield return wait;
         }
     }
 
-    public EarthBendingRock SpawnRock(Vector3 position)
+    public EarthBendingRockScale SpawnRock(Vector3 position)
     {
         GameObject earth_bending_rock_game_object = new GameObject("pillar");
-        EarthBendingRock earth_bending_rock_script = earth_bending_rock_game_object.AddComponent<EarthBendingRockScale>();
-        earth_bending_rock_script.growth_speed = 3f;
-        earth_bending_rock_script.sleep_time = 2f;
+        EarthBendingRockScale earth_bending_rock_script = earth_bending_rock_game_object.AddComponent<EarthBendingRockScale>();
+        earth_bending_rock_script.growth_speed = pillar_growth_speed;
+        earth_bending_rock_script.sleep_time = pillar_sleep_time;
         earth_bending_rock_script.PlacePillar(position, Quaternion.identity, scale);
         return earth_bending_rock_script;
     }

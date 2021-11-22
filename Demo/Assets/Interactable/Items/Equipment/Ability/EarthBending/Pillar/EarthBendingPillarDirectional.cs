@@ -6,38 +6,36 @@ public class EarthBendingPillarDirectional : EarthBendingPillarBase , Equipment.
 {
     private Vector3 start_point;
 
-    // 
     public override void UsePrimary()
     {
-        start_point = MousePoint.MousePositionWorldAndEnemy();
-        /*
-        if ((ready_pillars >= max_pillars) && current_cooldown == 0f || bufferable && !casting)
+        if (ready_pillars >= max_pillars)
         {
-            casting = true;
-            pillar_spawn_coroutine = FollowMouse();
-            StartCoroutine(pillar_spawn_coroutine);
+            start_point = MousePoint.MousePositionWorldAndEnemy();
         }
-        */
     }
 
     public override void StopPrimary()
     {
-        // make mousepoint script static or inherrented from equipment
         Vector3 end_point = MousePoint.MousePositionPlane(start_point);
         Vector3 direction = (end_point - start_point);
         direction.y = 0f;
-        StartCoroutine(SpawnStraight(start_point, direction.normalized));
-        Debug.Log("EarthbendingAbility.StopPrimary");
+        direction = direction.normalized;
+        StartCoroutine(SpawnStraight(start_point, direction));
     }
 
-    public override void Update()
+    /*
+    public override void StopPrimary()
     {
-        base.Update();
-        /*
-        if (Time has gone since use primary and hasnt stopped primary)
-        {
-            StopPrimary();
-        }
-        */
+        Vector3 end_point = MousePoint.MousePositionPlane(start_point);
+
+        Vector3 mid_point = Vector3.Lerp(start_point, end_point, 0.5f);
+
+        Vector3 direction = (end_point - start_point);
+        direction.y = 0f;
+        direction = direction.normalized;
+
+        StartCoroutine(SpawnStraight(mid_point + direction * 0.5f, -direction));
+        StartCoroutine(SpawnStraight(mid_point - direction * 0.5f, direction));
     }
+    */
 }

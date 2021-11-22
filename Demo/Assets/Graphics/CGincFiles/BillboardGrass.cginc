@@ -43,7 +43,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 
 	center = mul(unity_WorldToObject, float4(world_center,1));
 
-	fixed pixelSize = _TilePixelSize / (5.4 * 2);
+	fixed pixelSize = _TilePixelSize / (pixels_per_unit * 2);
 	float4 vectors[4];
 	Get4VectorsUp(center, pixelSize, vectors);
 

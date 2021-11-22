@@ -44,10 +44,12 @@ public class CloudShadows : MonoBehaviour
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
         cloud_shadow_material.SetVector("_LightPosition", transform.position * (invert ? -1f : 1f));
         
+        /*
         #if UNITY_EDITOR
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
         UpdateLightProperties(_light.cookieSize);
         #endif
+        */
 
         // Blit using material.
         Graphics.Blit(null, shadow_render_texture, cloud_shadow_material);

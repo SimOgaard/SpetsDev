@@ -1,4 +1,5 @@
-#define y_scale 1. / cos(3.14159265 / 6.)
+fixed y_scale;
+fixed pixels_per_unit;
 
 fixed3 GetLookVector()
 {

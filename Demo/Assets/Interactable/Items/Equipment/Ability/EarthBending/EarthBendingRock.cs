@@ -16,7 +16,6 @@ public class EarthBendingRock : MonoBehaviour
     public float growth_speed;          // how quickly rock should move.
     public float current_sleep_time;
 
-    public RaycastHit hit_data;
     private const float ray_clearance = 50f;
 
     public bool should_be_deleted = false;
@@ -43,6 +42,7 @@ public class EarthBendingRock : MonoBehaviour
         this.max_sound = max_sound;
     }
 
+    public float under_ground_height = 1f;
 
     /// <summary>
     /// Merges theese rocks which this script ultimately controls.
@@ -87,6 +87,9 @@ public class EarthBendingRock : MonoBehaviour
         rock.transform.localPosition = Vector3.up * 0.5f;
         rock.GetComponent<MeshRenderer>().material = Global.stone_material;
 
+        gameObject.layer = Layer.game_world_moving;
+        rock.layer = Layer.game_world_moving;
+
         Density density = rock.AddComponent<Density>();
         rock_rigidbody = rock.AddComponent<Rigidbody>();
         rock_rigidbody.isKinematic = true;
@@ -99,7 +102,7 @@ public class EarthBendingRock : MonoBehaviour
     {
         transform.rotation = rotation;
         transform.localScale = scale;
-        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale, out hit_data);
+        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale);
         transform.position = place_point;
         gameObject.SetActive(true);
     }
@@ -107,25 +110,27 @@ public class EarthBendingRock : MonoBehaviour
     /// <summary>
     /// Returns ground point given a point and rotation and scale.
     /// </summary>
-    public (Vector3 point, Vector3 normal) GetRayHitData(Vector3 point, Quaternion rotation, Vector3 scale, out RaycastHit hit_data)
+    public (Vector3 point, Vector3 normal) GetRayHitData(Vector3 point, Quaternion rotation, Vector3 scale)
     {
-        Vector3 lowest_point = Vector3.positiveInfinity;
+        float longest_dist = Mathf.NegativeInfinity;
         Vector3 norm_sum = Vector3.zero;
-        hit_data = new RaycastHit();
-        for (float x = -scale.x * 0.5f; x < scale.x * 0.5f; x += scale.x)
+        RaycastHit hit_data;
+        for (float x = -scale.x * 0.5f; x <= scale.x * 0.5f; x += scale.x)
         {
-            for (float z = -scale.z * 0.5f; z < scale.z * 0.5f; z += scale.z)
+            for (float z = -scale.z * 0.5f; z <= scale.z * 0.5f; z += scale.z)
             {
                 Vector3 offset = rotation * new Vector3(x, 0f, z);
                 GetRayHitData(point + offset, rotation, out hit_data);
                 norm_sum += hit_data.normal;
-                if (hit_data.point.y < lowest_point.y)
+                if (hit_data.distance > longest_dist)
                 {
-                    lowest_point = hit_data.point;
+                    longest_dist = hit_data.distance;
                 }
             }
         }
-        return (lowest_point, norm_sum.normalized);
+        Debug.Log(longest_dist);
+        Vector3 spawn_point = point + rotation * Vector3.down * (longest_dist - ray_clearance);
+        return (spawn_point, norm_sum.normalized);
     }
 
     /// <summary>

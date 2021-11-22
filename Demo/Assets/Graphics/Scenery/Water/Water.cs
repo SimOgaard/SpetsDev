@@ -63,8 +63,12 @@ public class Water : MonoBehaviour
         return mesh;
     }
 
-    public void Init(Material material, float width, float height, float water_level, Transform parrent)
+    public void Init(Material material, NoiseLayerSettings.Curve curve_color, NoiseLayerSettings.Curve curve_alpha, float width, float height, float water_level, Transform parrent)
     {
+        CurveCreator.AddCurveTexture(ref material, curve_color, "_WaterCurveTexture");
+        Texture2D alpha_texture = CurveCreator.CreateCurveTexture(curve_alpha);
+        material.SetTexture("_WaterCurveAlpha", alpha_texture);
+
         gameObject.name = "water";
         transform.parent = parrent;
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);

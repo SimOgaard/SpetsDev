@@ -130,8 +130,8 @@ public class CameraMovement : MonoBehaviour
                 float x_time = (direction_heading * (C - B) / y_axis_rotation) + 0.5f;
                 float curve_rotation_value = rotation_curve.Evaluate(x_time);
 
-                bool left = Input.GetKey(PlayerInput.left_rotation);
-                bool right = Input.GetKey(PlayerInput.right_rotation);
+                bool left = PlayerInput.GetKey(PlayerInput.left_rotation);
+                bool right = PlayerInput.GetKey(PlayerInput.right_rotation);
                 if (left && !right)
                 {
                     current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
@@ -220,12 +220,12 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if(Input.GetKeyDown(PlayerInput.left_rotation) || (Input.GetKeyUp(PlayerInput.right_rotation) && Input.GetKey(PlayerInput.left_rotation)))
+        if(PlayerInput.GetKeyDown(PlayerInput.left_rotation) || (PlayerInput.GetKeyUp(PlayerInput.right_rotation) && PlayerInput.GetKey(PlayerInput.left_rotation)))
         {
             StopAllCoroutines();
             StartCoroutine(RotateCamera(1));
         }
-        else if (Input.GetKeyDown(PlayerInput.right_rotation) || (Input.GetKeyUp(PlayerInput.left_rotation) && Input.GetKey(PlayerInput.right_rotation)))
+        else if (PlayerInput.GetKeyDown(PlayerInput.right_rotation) || (PlayerInput.GetKeyUp(PlayerInput.left_rotation) && PlayerInput.GetKey(PlayerInput.right_rotation)))
         {
             StopAllCoroutines();
             StartCoroutine(RotateCamera(-1));

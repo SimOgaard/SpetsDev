@@ -14,11 +14,11 @@ public class PlayerAttack : MonoBehaviour
     {
         if (PlayerInventory.weapon != null)
         {
-            if (Input.GetKeyDown(PlayerInput.use_weapon))
+            if (PlayerInput.GetKeyDown(PlayerInput.use_weapon))
             {
                 PlayerInventory.weapon.UsePrimary();
             }
-            else if (Input.GetKeyUp(PlayerInput.use_weapon))
+            else if (PlayerInput.GetKeyUp(PlayerInput.use_weapon))
             {
                 PlayerInventory.weapon.StopPrimary();
             }
@@ -26,11 +26,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (PlayerInventory.ability != null)
         {
-            if (Input.GetKeyDown(PlayerInput.use_ability))
+            if (PlayerInput.GetKeyDown(PlayerInput.use_ability))
             {
                 PlayerInventory.ability.UsePrimary();
             }
-            else if (Input.GetKeyUp(PlayerInput.use_ability))
+            else if (PlayerInput.GetKeyUp(PlayerInput.use_ability))
             {
                 PlayerInventory.ability.StopPrimary();
             }
@@ -38,11 +38,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (PlayerInventory.ultimate != null)
         {
-            if (Input.GetKeyDown(PlayerInput.use_ultimate))
+            if (PlayerInput.GetKeyDown(PlayerInput.use_ultimate))
             {
                 PlayerInventory.ultimate.UsePrimary();
             }
-            else if (Input.GetKeyUp(PlayerInput.use_ultimate))
+            else if (PlayerInput.GetKeyUp(PlayerInput.use_ultimate))
             {
                 PlayerInventory.ultimate.StopPrimary();
             }

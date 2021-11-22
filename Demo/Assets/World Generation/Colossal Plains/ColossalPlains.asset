@@ -18,9 +18,9 @@ MonoBehaviour:
       amplitude: 10
       offsett: {x: 0, y: 0}
       min_value: 0
-      smoothing_min: 1.75
+      smoothing_min: 0.75
       max_value: 1
-      smoothing_max: 0
+      smoothing_max: 0.5
     general_noise:
       noise_type: 0
       seed: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    resolution: 255
+    resolution: 256
     col_diff: 0
   random_foliage:
   - name: flowers blue
@@ -102,7 +102,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      resolution: 255
+      resolution: 256
       col_diff: 0
     noise_layer:
       enabled: 1
@@ -166,7 +166,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    resolution: 255
+    resolution: 256
     col_diff: 0
   material_wood: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
   curve_wood:
@@ -194,7 +194,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    resolution: 255
+    resolution: 256
     col_diff: 0
   material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
   object_density: 0.01
