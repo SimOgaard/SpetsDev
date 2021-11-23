@@ -61,6 +61,7 @@
 
 	float3 _LightPosition;
 	float _CookieSize;
+	float _Zoom;
 	
 	float3 _WorldOffset;
 
@@ -97,7 +98,7 @@
 	{
 		fnl_state noise = fnlCreateState();
 		noise.seed = 1337; //_Noise_Seed;
-		noise.frequency = 5.0 / _CookieSize; //_Noise_Frequency;
+		noise.frequency = 5.0 / (_CookieSize); //_Noise_Frequency;
 		noise.noise_type = 1; //_Noise_NoiseType;
 		noise.rotation_type_3d = 2; //_Noise_RotationType3D;
 
@@ -116,7 +117,7 @@
 		warp.domain_warp_type = 0; //_Warp_DomainWarpType;
 		warp.rotation_type_3d = 0; //_Warp_RotationType3D;
 		warp.domain_warp_amp = 30.0; //_Warp_DomainWarpAmplitude;
-		warp.frequency = 0.005 / _CookieSize; //_Warp_Frequency;
+		warp.frequency = 0.005 / (_CookieSize); //_Warp_Frequency;
 
 		warp.fractal_type = 0; //_Warp_FractalType;
 		warp.octaves = 5; //_Warp_FractalOctaves;
@@ -124,11 +125,14 @@
 		warp.gain = 2.0; //_Warp_FractalGain;
 
 		// translate tex pixel coordinates to world local
-		fixed2 worldTexCoord = i.texcoord * _CookieSize;
+		fixed length = 1. / (2. * _Zoom);
+		fixed2 worldTexCoord = ((i.texcoord * length) + ((1. - length) / 2.)) * _CookieSize;
 
-		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + _LightPosition.x - _WorldOffset.x;
+		//fixed2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
+
+		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + (_LightPosition.x * 0.5) - _WorldOffset.x;
 		float y = _Time[0] * _NoiseScroll.y;
-		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + _LightPosition.z - _WorldOffset.z;
+		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + (_LightPosition.z * 0.5) - _WorldOffset.z;
 
 		fnlDomainWarp3D(warp, x, y, z);
 		return remap01(fnlGetNoise3D(noise, x, y, z));

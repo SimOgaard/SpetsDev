@@ -25,7 +25,7 @@ public class UIInventory : MonoBehaviour
     /// Retrieves each Image component for each equipment.
     /// Initializes ui images to init state.
     /// </summary>
-    private void Start()
+    private void Awake()
     {
         current_weapon_UI_image = current_weapon_UI_game_object.GetComponent<Image>();
         current_ability_UI_image = current_ability_UI_game_object.GetComponent<Image>();

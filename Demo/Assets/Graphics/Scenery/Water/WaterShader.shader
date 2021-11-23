@@ -114,7 +114,7 @@
 				warp.domain_warp_type = 1; //_Warp_DomainWarpType;
 				warp.rotation_type_3d = 2; //_Warp_RotationType3D;
 				warp.domain_warp_amp = 0.01; //_Warp_DomainWarpAmplitude;
-				warp.frequency = 0.5; //_Warp_Frequency;
+				warp.frequency = 0.4; //_Warp_Frequency;
 
 				warp.fractal_type = 0; //_Warp_FractalType;
 				warp.octaves = 0; //_Warp_FractalOctaves;
@@ -129,7 +129,7 @@
 			{
 				fnl_state noise = fnlCreateState();
 				noise.seed = 1337; //_Noise_Seed;
-				noise.frequency = 0.2; //_Noise_Frequency;
+				noise.frequency = 0.15; //_Noise_Frequency;
 				noise.noise_type = 1; //_Noise_NoiseType;
 				noise.rotation_type_3d = 2; //_Noise_RotationType3D;
 

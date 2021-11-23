@@ -43,7 +43,10 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private PlanarReflectionManager planar_reflection_manager;
 
-    private static float _zoom = 1f;
+    [SerializeField] private CloudShadows sun_cloud_shadows;
+    [SerializeField] private CloudShadows moon_cloud_shadows;
+
+    private static float _zoom = 0.5f;
     public static float zoom
     {
         get { return _zoom; }
@@ -111,21 +114,26 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private void Awake()
     {
+#if UNITY_EDITOR
+        if (GameObject.Find("DEBUG"))
+        {
+            Debug.Log("Debug mode");
+        }
+#endif
+
         Shader.SetGlobalFloat("pixels_per_unit", pixels_per_unit);
         Shader.SetGlobalFloat("y_scale", SpriteInitializer.y_scale);
 
         camera_focus_point = GameObject.Find("camera_focus_point").transform;
         camera_focus_point_script = camera_focus_point.GetComponent<CameraMovement>();
         m_camera = GetComponent<Camera>();
-
-        UpdateZoomValues();
-        ZoomCamera(ref m_camera);
-
-        //SetCameraNearClippingPlane();
     }
 
     private void Start()
     {
+        UpdateZoomValues(Mathf.NegativeInfinity);
+        ZoomCamera(ref m_camera);
+
 #if UNITY_EDITOR
         if (!Application.isPlaying)
         {
@@ -135,18 +143,31 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
     }
 
-    private void UpdateZoomValues()
+    private void UpdateZoomValues(float scroll_offset = 0f)
     {
-        float scroll = PlayerInput.mouse_scroll_value;
+        float scroll = PlayerInput.mouse_scroll_value - scroll_offset;
+        if (scroll == 0f)
+        {
+            return;
+        }
+
         zoom += scroll;
+        if (sun_cloud_shadows != null)
+        {
+            sun_cloud_shadows.UpdateLightProperties(zoom);
+        }
+        if (moon_cloud_shadows != null)
+        {
+            moon_cloud_shadows.UpdateLightProperties(zoom);
+        }
         _camera_distance = camera_distance / zoom;
         _camera_far_clipping_plane = camera_far_clipping_plane / zoom;
         QualitySettings.shadowDistance = shadow_distance / zoom;
     }
-    private void ZoomCamera(ref Camera camera)
+    private void ZoomCamera(ref Camera camera, float far_clip_plane_factor = 1f)
     {
         camera.orthographicSize = (resolution_extended.y / (5f * 2f)) / zoom;
-        camera.farClipPlane = _camera_far_clipping_plane;
+        camera.farClipPlane = _camera_far_clipping_plane * far_clip_plane_factor;
     }
 
     private void Update()
@@ -170,7 +191,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         ZoomCamera(ref m_camera);
         ZoomCamera(ref n_camera);
-        ZoomCamera(ref r_camera);
+        ZoomCamera(ref r_camera, 0.75f);
 
         // Check if camera sees an unloaded chunk
         GameTime.is_paused = SeesUnloaded();
@@ -197,6 +218,12 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private bool SeesUnloaded()
     {
+#if UNITY_EDITOR
+        if (GameObject.Find("DEBUG"))
+        {
+            return false;
+        }
+#endif
         Plane plane = new Plane(Vector3.up, -Water.water_level);
 
         for (float x = -0.25f; x < 2f; x += 1.5f)

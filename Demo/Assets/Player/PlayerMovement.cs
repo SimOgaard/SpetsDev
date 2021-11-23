@@ -6,7 +6,7 @@ using UnityEngine;
 /// Controlls player movement.
 /// Movement should be ordinary 3D movement, does not need to be translated to 2D isometric movement.
 /// </summary>
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : FloatingCapsule
 {
     [Header("Player")]
     [SerializeField] private float player_height;

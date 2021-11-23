@@ -19,10 +19,9 @@ public class WorldGenerationManager : MonoBehaviour
         [Min(0.01f)] public Vector2 unit_size;
         [Min(2)] public Vector2Int resolution;
         public float chunk_disable_distance;
-        [HideInInspector] public float chunk_disable_distance_squared;
         public float chunk_enable_distance;
-        [HideInInspector] public float chunk_enable_distance_squared;
         public int chunk_load_dist;
+        public int max_chunk_load_dist;
         [Range(0.01f, 1f)] public float chunk_load_speed;
         public int max_chunk_load_at_a_time;
         [HideInInspector] public Vector2 offset;
@@ -74,8 +73,6 @@ public class WorldGenerationManager : MonoBehaviour
 
         chunk_details.offset = chunk_details.unit_size * chunk_details.resolution;
         static_chunk_size = chunk_details.offset;
-        chunk_details.chunk_disable_distance_squared = chunk_details.chunk_disable_distance * chunk_details.chunk_disable_distance;
-        chunk_details.chunk_enable_distance_squared = chunk_details.chunk_enable_distance * chunk_details.chunk_enable_distance;
         player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
@@ -93,7 +90,7 @@ public class WorldGenerationManager : MonoBehaviour
 
         while (true)
         {
-            for (int ring = 0; ring < chunk_details.chunk_load_dist; ring++)
+            for (int ring = 0; ring < Mathf.Min(chunk_details.chunk_load_dist / PixelPerfectCameraRotation.zoom, chunk_details.max_chunk_load_dist); ring++)
             {
                 int x_start = -ring;
                 int z_start = -ring;
@@ -214,7 +211,7 @@ public class WorldGenerationManager : MonoBehaviour
                 }
             }
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - player_transform.position).sqrMagnitude < chunk_details.chunk_enable_distance_squared)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - player_transform.position).magnitude < chunk_details.chunk_enable_distance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

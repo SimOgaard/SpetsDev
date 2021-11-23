@@ -6,7 +6,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
     public bool is_loaded = false;
-    private float chunk_disable_distance_squared;
+    private float chunk_disable_distance;
     private Transform player_transform;
     private Enemies enemies;
 
@@ -16,7 +16,7 @@ public class Chunk : MonoBehaviour
 
         // initilize variables
         gameObject.layer = Layer.game_world;
-        this.chunk_disable_distance_squared = chunk_details.chunk_disable_distance_squared;
+        this.chunk_disable_distance = chunk_details.chunk_disable_distance;
         this.player_transform = player_transform;
 
         // initilizes ground
@@ -123,7 +123,7 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if ((transform.position - player_transform.position).sqrMagnitude > chunk_disable_distance_squared && is_loaded)
+        if ((transform.position - player_transform.position).magnitude > chunk_disable_distance / PixelPerfectCameraRotation.zoom && is_loaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

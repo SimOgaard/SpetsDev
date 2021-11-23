@@ -11,14 +11,17 @@ public class CloudShadows : MonoBehaviour
     [SerializeField] private Material cloud_shadow_material;
     [SerializeField] private NoiseLayerSettings.Curve curve;
     private Transform camera_focus_point_transform;
+    private float cookie_size = 175;
 
-    private void Start()
+    private void Awake()
     {
         camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
         _light = GetComponent<Light>();
-        shadow_render_texture = CreateShadowRenderTexture(1024);
+        shadow_render_texture = CreateShadowRenderTexture(896);
+        _light.cookie = shadow_render_texture;
         CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
-        UpdateLightProperties(200);
+        cloud_shadow_material.SetFloat("_CookieSize", cookie_size);
+        UpdateLightProperties(1f);
     }
 
     private RenderTexture CreateShadowRenderTexture(int resolution)
@@ -55,10 +58,9 @@ public class CloudShadows : MonoBehaviour
         Graphics.Blit(null, shadow_render_texture, cloud_shadow_material);
     }
 
-    private void UpdateLightProperties(float cookieSize)
+    public void UpdateLightProperties(float zoom)
     {
-        _light.cookie = shadow_render_texture;
-        _light.cookieSize = cookieSize;
-        cloud_shadow_material.SetFloat("_CookieSize", _light.cookieSize);
+        _light.cookieSize = cookie_size / zoom;
+        cloud_shadow_material.SetFloat("_Zoom", zoom);
     }
 }

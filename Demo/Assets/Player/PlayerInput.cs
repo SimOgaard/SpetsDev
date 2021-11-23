@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Holds all universal player inputs
 /// </summary>
-public class PlayerInput : MonoBehaviour
+public class PlayerInput
 {
     public static KeyCode sprint_key { get; set; } = KeyCode.LeftShift;
 

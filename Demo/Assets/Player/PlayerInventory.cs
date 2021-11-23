@@ -31,9 +31,16 @@ public class PlayerInventory : MonoBehaviour
     /// </summary>
     public static Equipment.IEquipment ultimate;
 
-    private void Awake()
+    private void Start()
+    {
+        StartWith(typeof(EarthBendingPillarControllable));
+    }
+
+    private void StartWith(System.Type equipment_type)
     {
         GameObject gm;
-        (gm, ability) = Equipment.CreateRandomEquipment(typeof(EarthBendingPillarControllable));
+        Equipment.IEquipment eq;
+        (gm, eq) = Equipment.CreateRandomEquipment(equipment_type);
+        eq.InteractWith();
     }
 }
