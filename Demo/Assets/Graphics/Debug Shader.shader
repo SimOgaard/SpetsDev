@@ -5,8 +5,9 @@ Shader "Custom/Debug Shader"
         _ColorLight ("Color Light", Color) = (1,1,1,1)
         _ColorDark ("Color Dark", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        _Scale("Scale", Float) = 0.0025
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
-        _Metallic ("Metallic", Range(0,1)) = 0.0
+        _Metallic("Metallic", Range(0,1)) = 0.0            
     }
     SubShader
     {
@@ -25,8 +26,10 @@ Shader "Custom/Debug Shader"
         struct Input
         {
             float2 uv_MainTex;
+            float3 worldPos;
         };
 
+        float _Scale;
         half _Glossiness;
         half _Metallic;
         fixed4 _ColorLight;
@@ -41,7 +44,7 @@ Shader "Custom/Debug Shader"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            fixed mask = tex2D (_MainTex, IN.uv_MainTex).a;
+            fixed mask = tex2D (_MainTex, IN.worldPos.xz * _Scale).a;
             
 			float4 color;
 			if (mask == 0)
@@ -53,7 +56,7 @@ Shader "Custom/Debug Shader"
 				 color = _ColorLight;
 			}
 			
-			o.Albedo = color.rgb;
+            o.Albedo = color.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
