@@ -177,7 +177,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return;
         }
 
-        UpdateZoomValues();
+        UpdateZoomValues(Mathf.NegativeInfinity);
     }
 
     private void LateUpdate()

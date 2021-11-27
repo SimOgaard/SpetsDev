@@ -3,6 +3,9 @@
     Properties
     {
 		_Size("Size", Float) = 1
+		_YDisplacement("Y Displacement", Float) = 1
+		_XZDisplacementRandom("XZ Displacement Random", Float) = 1
+
 		_Cutoff("Cutoff", Range(0, 1)) = 0.5
 		_Speed("Speed", Float) = 1.5
 

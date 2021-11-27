@@ -88,8 +88,10 @@ public class CreateMesh : MonoBehaviour
         int vertices_length = resolution.x * resolution.y;
         int triangles_length = (resolution.x - 1) * (resolution.y - 1) * 2 * 3;
 
-        Vector3[] vertices = new Vector3[vertices_length];
+        Vector3[] vertices = new Vector3[vertices_length + 1];
         int[] triangles = new int[triangles_length];
+
+        vertices[vertices_length] = new Vector3(0f, -5f, 0f);
 
         Vector3 reused_point = Vector3.zero;
         int vertices_index = 0;

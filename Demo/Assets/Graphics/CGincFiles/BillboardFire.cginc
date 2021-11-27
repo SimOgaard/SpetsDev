@@ -1,6 +1,8 @@
 #include "/Assets/Graphics/CGincFiles/BillboardSetup.cginc"
 
 float _Size;
+float _YDisplacement;
+float _XZDisplacementRandom;
 
 struct g2f
 {
@@ -18,14 +20,27 @@ g2f VertexOutput(float3 pos, float2 uv, float3 center)
 	return o;
 }
 
+fixed rand(float3 co)
+{
+	return sin(dot(co.xyz, float3(12.9898, 78.233, 53.539)));
+}
+
 [maxvertexcount(3)]
 void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 {
 	float3 flatNormal = normalize(cross(IN[1].vertex - IN[0].vertex, IN[2].vertex - IN[0].vertex));
-	float3 center = (IN[0].vertex + IN[1].vertex + IN[1].vertex) / 3;
+	float4 center = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
+	float3 world_center = mul(unity_ObjectToWorld, center).xyz;
+
+	fixed x_displacement = rand(world_center.xyz) * _XZDisplacementRandom;
+	fixed y_displacement = _YDisplacement;
+	fixed z_displacement = rand(world_center.xzy) * _XZDisplacementRandom;
+	world_center += fixed3(x_displacement, y_displacement, z_displacement);
+
+	center = mul(unity_WorldToObject, float4(world_center,1));
 
 	float4 vectors[3];
-	Get3VectorsUp(center + float3(0, _Size * 1.25, 0), _Size, vectors);
+	Get3VectorsUp(center, _Size, vectors);
 
 	outStream.Append(VertexOutput(vectors[0], float2(1, 0), center));
 	outStream.Append(VertexOutput(vectors[1], float2(1, 1), center));

@@ -93,6 +93,8 @@ Material:
     - _Threshold2: 0.2
     - _Threshold3: 0.3
     - _UVSec: 0
+    - _XZDisplacementRandom: 0.5
+    - _YDisplacement: 1.5
     - _ZWrite: 1
     m_Colors:
     - _AshColor: {r: 0.3019608, g: 0.33333334, b: 0.23137257, a: 1}

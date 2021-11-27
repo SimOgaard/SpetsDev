@@ -43,11 +43,12 @@ public class GrassTesting : MonoBehaviour
     int[] triangles;
     private void Awake()
     {
-        int triangles_length = (resolution.x - 1) * (resolution.y - 1) * 2 * 3;
+        int triangles_length = (resolution.x) * (resolution.y) * 2 * 3;
+        int vertices_length = (resolution.x + 1) * (resolution.y + 1);
         triangles = new int[triangles_length];
         for (int i = 0; i < triangles_length; i++)
         {
-            triangles[i] = 0;
+            triangles[i] = vertices_length;
         }
 
         noise_layers = Noise.CreateNoiseLayers(noise_layer_settings);
