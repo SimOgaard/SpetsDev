@@ -1,0 +1,13 @@
+#pragma kernel CSMain
+
+StructuredBuffer<float3> vectors;
+RWStructuredBuffer<float> heights;
+StructuredBuffer<float> heightsFirstValue;
+
+#include "GrassTestingFunction.cginc"
+
+[numthreads(200, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}

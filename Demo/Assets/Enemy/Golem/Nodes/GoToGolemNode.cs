@@ -7,12 +7,14 @@ public class GoToGolemNode : Node
     private Agent agent;
     private EnemyAI ai;
     private GolemBehaviour golem_behaviour;
+    private float speed;
 
-    public GoToGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golem_behaviour)
+    public GoToGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golem_behaviour, float speed)
     {
         this.agent = agent;
         this.ai = ai;
         this.golem_behaviour = golem_behaviour;
+        this.speed = speed;
     }
 
     public override NodeState Evaluate()
@@ -24,16 +26,17 @@ public class GoToGolemNode : Node
         }
 
         ai.SetColor(Color.blue);
-        float distance = (golem.position - agent.transform.position).sqrMagnitude;
+        Vector3 heading = (golem.position - agent.transform.position);
+        float distance = heading.sqrMagnitude;
         if (distance > 1f)
         {
-            agent.StartMoving();
-            agent.destination = golem.position;
+            agent.desired_speed = speed;
+            agent.desired_heading = heading.normalized;
             return NodeState.running;
         }
         else
         {
-            agent.StopMoving();
+            agent.desired_speed = 0;
             return NodeState.success;
         }
     }

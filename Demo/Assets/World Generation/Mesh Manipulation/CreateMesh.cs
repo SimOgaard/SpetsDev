@@ -75,6 +75,75 @@ public class CreateMesh : MonoBehaviour
         yield return mesh;
     }
 
+    public static Mesh CreateMeshByNoise(ref Mesh mesh, Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
+    {
+        mesh = new Mesh();
+
+        resolution.x = Mathf.Max(resolution.x + 1, 2);
+        resolution.y = Mathf.Max(resolution.y + 1, 2);
+
+        unit_size.x = Mathf.Max(unit_size.x, 0.01f);
+        unit_size.y = Mathf.Max(unit_size.y, 0.01f);
+
+        int vertices_length = resolution.x * resolution.y;
+        int triangles_length = (resolution.x - 1) * (resolution.y - 1) * 2 * 3;
+
+        Vector3[] vertices = new Vector3[vertices_length];
+        int[] triangles = new int[triangles_length];
+
+        Vector3 reused_point = Vector3.zero;
+        int vertices_index = 0;
+        int triangles_index = 0;
+
+        int noise_length = noise_layers.Length;
+        for (int z = 0; z < resolution.y; z++)
+        {
+            reused_point.z = unit_size.y * z - (resolution.y - 1) * unit_size.y * 0.5f;
+
+            for (int x = 0; x < resolution.x; x++)
+            {
+                vertices_index = z * resolution.x + x;
+                reused_point.x = unit_size.x * x - (resolution.x - 1) * unit_size.x * 0.5f;
+                reused_point.y = 0f;
+
+                float x_value = reused_point.x + offset.x;
+                float z_value = reused_point.z + offset.z;
+                for (int q = 0; q < noise_length; q++)
+                {
+                    if (noise_layers[q].enabled)
+                    {
+                        // CAN GIVE ERRORS WITH WRONG VALUES, TRY EXCEPT OR MAX/MIN/RANGE VALUE
+                        reused_point.y += noise_layers[q].GetNoiseValue(x_value, z_value);
+                    }
+                }
+
+                vertices[vertices_index] = reused_point;
+
+                if (x != resolution.x - 1 && z != 0)
+                {
+                    triangles[triangles_index] = vertices_index;
+                    triangles[triangles_index + 1] = vertices_index - resolution.x + 1;
+                    triangles[triangles_index + 2] = vertices_index - resolution.x;
+
+                    triangles[triangles_index + 3] = vertices_index;
+                    triangles[triangles_index + 4] = vertices_index + 1;
+                    triangles[triangles_index + 5] = vertices_index - resolution.x + 1;
+
+                    triangles_index += 6;
+                }
+            }
+        }
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
+        return mesh;
+    }
+
     public static IEnumerator DropMeshVertices(WaitForFixedUpdate wait, Mesh reference_mesh, NoiseLayerSettings.NoiseLayer settings_noise_layer, Vector2 keep_range_noise, float keep_range_random_noise, float keep_range_random, Vector3 offset, Vector3 transform_offset)
     {
         List<Vector3> vertices = new List<Vector3>();

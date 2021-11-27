@@ -62,12 +62,12 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         // Buries self
         RunFunctionNode bury_self = new RunFunctionNode(BurySelf);
 
-        ChaseNode chase = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform);
+        ChaseNode chase = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
         Sequence chase_sequence = new Sequence(new List<Node> { not_null, chase });
 
         // Patroll
         RandomWalkNode random_walk = new RandomWalkNode(enemy_ai, wander_strength);
-        ChaseVectorNode chase_vector = new ChaseVectorNode(enemy_ai, enemy_ai.agent, meele_transform);
+        ChaseVectorNode chase_vector = new ChaseVectorNode(enemy_ai, enemy_ai.agent, meele_transform, enemy_ai.agent.walk_speed);
         Sequence patroll_sequence = new Sequence(new List<Node> { not_null, chase });
 
         ///
@@ -125,7 +125,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
 
         GolemRangeNode golem_go_to_range_node = new GolemRangeNode(golem_find_range, this);
-        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this);
+        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this, enemy_ai.agent.walk_speed);
         Sequence go_to_golem_sequence = new Sequence(new List<Node> { golem_go_to_range_node, go_to_golem_node });
 
         GolemRangeNode golem_pickup_range_node = new GolemRangeNode(golem_pickup_range, this);
@@ -143,7 +143,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         // Chases player
         float chasing_range = 0f;
         RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform);
+        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
         // Searches for player
@@ -178,7 +178,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
 
         GolemRangeNode golem_go_to_range_node = new GolemRangeNode(golem_find_range, this);
-        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this);
+        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this, enemy_ai.agent.walk_speed);
         Sequence go_to_golem_sequence = new Sequence(new List<Node> { golem_go_to_range_node, go_to_golem_node });
 
         GolemRangeNode golem_pickup_range_node = new GolemRangeNode(golem_pickup_range, this);
@@ -196,7 +196,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         // Chases player
         float chasing_range = 0f;
         RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform);
+        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
         // Searches for player

@@ -15,7 +15,7 @@ public class MeeleNode : Node
 
     public override NodeState Evaluate()
     {
-        agent.StopMoving();
+        agent.desired_speed = 0f;
         ai.SetColor(Color.red);
         return NodeState.running;
     }

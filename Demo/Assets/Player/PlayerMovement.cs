@@ -70,11 +70,6 @@ public class PlayerMovement : FloatingCapsule
         }
     }
 
-    /// <summary>
-    /// Moves controller in slope_move_direction_normalized direction dependent on move_speed.
-    /// Applies gravity and checks for ground.
-    /// Is in FixedUpdate because it is physics based.
-    /// </summary>
     public override void FixedUpdate()
     {
         base.FixedUpdate();

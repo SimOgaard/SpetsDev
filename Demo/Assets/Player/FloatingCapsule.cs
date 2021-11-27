@@ -25,7 +25,7 @@ public class FloatingCapsule : MonoBehaviour
     [SerializeField] private float xy_rotation_scale;
 
     [Header("Movement")]
-    public Vector3 desired_heading;
+    public Vector3 desired_heading = Vector3.forward;
     public float desired_speed;
 
     [SerializeField] private float speed_factor;
@@ -64,21 +64,51 @@ public class FloatingCapsule : MonoBehaviour
 
     public virtual void FixedUpdate()
     {
+        if (Tumbling())
+        {
+            return;
+        }
+        Upright();
+        Vector3 ground_velocity = Hover();
+        Move(ground_velocity);
+    }
+
+    public virtual bool Tumbling()
+    {
         bool hit = Physics.Raycast(transform.position + ground_raycast_offset, Vector3.down, out ground_raycast_hit, Layer.Mask.ground_enemy);
 
         if (!hit)
         {
-            return;
+            return true;
         }
 
         float ground_dot = Vector3.Dot(ground_raycast_hit.normal, transform.up);
         grounded = ground_raycast_hit.distance < ground_distance && ground_dot >= max_slope_angle_cos;
-        
+
         if (_rigidbody.velocity.magnitude > max_velocity || _rigidbody.angularVelocity.magnitude > max_angular_velocity || !grounded)
         {
-            return;
+            return true;
         }
+        return false;
+    }
 
+    public virtual void Upright()
+    {
+        // upright
+        Quaternion character_current = transform.rotation;
+        Quaternion to_goal = ShortestRotation(Quaternion.LookRotation(desired_heading, Vector3.up), character_current);
+
+        Vector3 rotation_axis;
+        float rotation_degrees;
+
+        to_goal.ToAngleAxis(out rotation_degrees, out rotation_axis);
+        float rotation_radians = rotation_degrees * Mathf.Deg2Rad;
+
+        _rigidbody.AddTorque((Vector3.Scale(rotation_axis, Vector3.one + transform.up * xy_rotation_scale) * (rotation_radians * upright_joint_spring_strength)) - (_rigidbody.angularVelocity * upright_joint_spring_damper));
+    }
+
+    public virtual Vector3 Hover()
+    {
         // hover
         Vector3 velocity = _rigidbody.velocity; // unit_velocity
         Vector3 ray_direction = Vector3.down;
@@ -106,19 +136,13 @@ public class FloatingCapsule : MonoBehaviour
             ground_velocity = hit_rigid_body.velocity;
         }
 
-        // upright
-        Quaternion character_current = transform.rotation;
-        Quaternion to_goal = ShortestRotation(Quaternion.LookRotation(desired_heading, Vector3.up), character_current);
+        return ground_velocity;
+    }
 
-        Vector3 rotation_axis;
-        float rotation_degrees;
-
-        to_goal.ToAngleAxis(out rotation_degrees, out rotation_axis);
-        float rotation_radians = rotation_degrees * Mathf.Deg2Rad;
-
-        _rigidbody.AddTorque((Vector3.Scale(rotation_axis, Vector3.one + transform.up * xy_rotation_scale) * (rotation_radians * upright_joint_spring_strength)) - (_rigidbody.angularVelocity * upright_joint_spring_damper));
-
+    public virtual void Move(Vector3 ground_velocity)
+    {
         // move
+        Vector3 velocity = _rigidbody.velocity;
         velocity.y = 0f;
         float velocity_dot = Vector3.Dot(desired_heading, velocity.normalized);
         float accel = acceleration * acceleration_factor_from_dot.Evaluate(velocity_dot);
@@ -133,7 +157,6 @@ public class FloatingCapsule : MonoBehaviour
 
         _rigidbody.AddForce(Vector3.Scale(needed_acceleration * _rigidbody.mass, force_scale));
     }
-
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
