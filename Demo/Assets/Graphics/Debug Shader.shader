@@ -30,10 +30,10 @@ Shader "Custom/Debug Shader"
         };
 
         float _Scale;
-        half _Glossiness;
-        half _Metallic;
-        fixed4 _ColorLight;
-        fixed4 _ColorDark;
+        float _Glossiness;
+        float _Metallic;
+        float4 _ColorLight;
+        float4 _ColorDark;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -44,7 +44,7 @@ Shader "Custom/Debug Shader"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            fixed mask = tex2D (_MainTex, IN.worldPos.xz * _Scale).a;
+            float mask = tex2D (_MainTex, IN.worldPos.xz * _Scale).a;
             
 			float4 color;
 			if (mask == 0)

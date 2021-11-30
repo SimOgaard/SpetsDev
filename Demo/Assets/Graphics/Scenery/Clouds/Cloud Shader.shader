@@ -125,10 +125,10 @@
 		warp.gain = 2.0; //_Warp_FractalGain;
 
 		// translate tex pixel coordinates to world local
-		fixed length = 1. / (2. * _Zoom);
-		fixed2 worldTexCoord = ((i.texcoord * length) + ((1. - length) / 2.)) * _CookieSize;
+		float length = 1. / (2. * _Zoom);
+		float2 worldTexCoord = ((i.texcoord * length) + ((1. - length) / 2.)) * _CookieSize;
 
-		//fixed2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
+		//float2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
 
 		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + (_LightPosition.x * 0.5) - _WorldOffset.x;
 		float y = _Time[0] * _NoiseScroll.y;
@@ -138,7 +138,7 @@
 		return remap01(fnlGetNoise3D(noise, x, y, z));
 	}
 
-	fixed4 Frag (VertexOut i) : SV_Target
+	float4 Frag (VertexOut i) : SV_Target
 	{
 		float angle = _AngleToHorizon - _HorizonAngleThreshold;
 		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
@@ -147,7 +147,7 @@
 		
 		float curve_value = tex2D(_CurveTexture, alpha).r  * angle_opacity;
 
-		fixed4 color = float4(tex2D(_MainTex, i.texcoord).rgb, curve_value);
+		float4 color = curve_value;
 		return color;
 	}
 

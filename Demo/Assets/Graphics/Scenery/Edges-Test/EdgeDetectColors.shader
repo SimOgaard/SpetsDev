@@ -22,16 +22,16 @@ Shader "Hidden/EdgeDetectColors" {
 	};
 
 	sampler2D _MainTex;
-	uniform half4 _Color;
+	uniform float4 _Color;
 	uniform float4 _MainTex_TexelSize;
 
 	sampler2D _CameraDepthNormalsTexture;
 	sampler2D_float _CameraDepthTexture;
 
-	uniform half4 _Sensitivity; 
-	uniform half4 _BgColor;
-	uniform half _BgFade;
-	uniform half _SampleDistance;
+	uniform float4 _Sensitivity; 
+	uniform float4 _BgColor;
+	uniform float _BgFade;
+	uniform float _SampleDistance;
 	uniform float _Exponent;
 
 	uniform float _Threshold;
@@ -53,18 +53,18 @@ Shader "Hidden/EdgeDetectColors" {
 	}
 
 
-	fixed4 fragLum (v2flum i) : SV_Target
+	float4 fragLum (v2flum i) : SV_Target
 	{
-		fixed4 original = tex2D(_MainTex, i.uv[0]);
+		float4 original = tex2D(_MainTex, i.uv[0]);
 
 		// a very simple cross gradient filter
 
-		half3 p1 = original.rgb;
-		half3 p2 = tex2D(_MainTex, i.uv[1]).rgb;
-		half3 p3 = tex2D(_MainTex, i.uv[2]).rgb;
+		float3 p1 = original.rgb;
+		float3 p2 = tex2D(_MainTex, i.uv[1]).rgb;
+		float3 p3 = tex2D(_MainTex, i.uv[2]).rgb;
 		
-		half3 diff = p1 * 2 - p2 - p3;
-		half len = dot(diff, diff);
+		float3 diff = p1 * 2 - p2 - p3;
+		float len = dot(diff, diff);
 		len = step(len, _Threshold);
 		//if(len >= _Threshold)
 		//	original.rgb = 0;
@@ -72,17 +72,17 @@ Shader "Hidden/EdgeDetectColors" {
 		return len * lerp(original*2, _BgColor, _BgFade);			
 	}	
 	
-	inline half CheckSame (half2 centerNormal, float centerDepth, half4 theSample)
+	inline float CheckSame (float2 centerNormal, float centerDepth, float4 theSample)
 	{
 		// difference in normals
 		// do not bother decoding normals - there's no need here
-		half2 diff = abs(centerNormal - theSample.xy) * _Sensitivity.y;
-		half isSameNormal = (diff.x + diff.y) * _Sensitivity.y < 0.1;
+		float2 diff = abs(centerNormal - theSample.xy) * _Sensitivity.y;
+		float isSameNormal = (diff.x + diff.y) * _Sensitivity.y < 0.1;
 		// difference in depth
 		float sampleDepth = DecodeFloatRG (theSample.zw);
 		float zdiff = abs(centerDepth-sampleDepth);
 		// scale the required threshold by the distance
-		half isSameDepth = zdiff * _Sensitivity.x < 0.09 * centerDepth;
+		float isSameDepth = zdiff * _Sensitivity.x < 0.09 * centerDepth;
 	
 		// return:
 		// 1 - if normals and depth are similar enough
@@ -107,10 +107,10 @@ Shader "Hidden/EdgeDetectColors" {
 		// maybe nicer TODO for the future: 'rotated triangles'
 		
 		//colours not in here?
-		o.uv[1] = uv + _MainTex_TexelSize.xy * half2(1,1) * _SampleDistance;
-		o.uv[2] = uv + _MainTex_TexelSize.xy * half2(-1,-1) * _SampleDistance;
-		o.uv[3] = uv + _MainTex_TexelSize.xy * half2(-1,1) * _SampleDistance;
-		o.uv[4] = uv + _MainTex_TexelSize.xy * half2(1,-1) * _SampleDistance;
+		o.uv[1] = uv + _MainTex_TexelSize.xy * float2(1,1) * _SampleDistance;
+		o.uv[2] = uv + _MainTex_TexelSize.xy * float2(-1,-1) * _SampleDistance;
+		o.uv[3] = uv + _MainTex_TexelSize.xy * float2(-1,1) * _SampleDistance;
+		o.uv[4] = uv + _MainTex_TexelSize.xy * float2(1,-1) * _SampleDistance;
 		return o;
 	} 
 	
@@ -240,13 +240,13 @@ Shader "Hidden/EdgeDetectColors" {
 		return Sobel * lerp(tex2D(_MainTex, i.uv[0].xy), _BgColor, _BgFade);
 	}
 
-	half4 fragRobert(v2f i) : SV_Target {				
-		half4 sample1 = tex2D(_CameraDepthNormalsTexture, i.uv[1].xy);
-		half4 sample2 = tex2D(_CameraDepthNormalsTexture, i.uv[2].xy);
-		half4 sample3 = tex2D(_CameraDepthNormalsTexture, i.uv[3].xy);
-		half4 sample4 = tex2D(_CameraDepthNormalsTexture, i.uv[4].xy);
+	float4 fragRobert(v2f i) : SV_Target {				
+		float4 sample1 = tex2D(_CameraDepthNormalsTexture, i.uv[1].xy);
+		float4 sample2 = tex2D(_CameraDepthNormalsTexture, i.uv[2].xy);
+		float4 sample3 = tex2D(_CameraDepthNormalsTexture, i.uv[3].xy);
+		float4 sample4 = tex2D(_CameraDepthNormalsTexture, i.uv[4].xy);
 
-		half edge = 1.0;
+		float edge = 1.0;
 		
 		edge *= CheckSame(sample1.xy, DecodeFloatRG(sample1.zw), sample2);
 		edge *= CheckSame(sample3.xy, DecodeFloatRG(sample3.zw), sample4);
@@ -258,20 +258,20 @@ Shader "Hidden/EdgeDetectColors" {
     		 return _Color;
 	}
 	
-	half4 fragThin (v2f i) : SV_Target
+	float4 fragThin (v2f i) : SV_Target
 	{
-		half4 original = tex2D(_MainTex, i.uv[0]);
+		float4 original = tex2D(_MainTex, i.uv[0]);
 		
-		half4 center = tex2D (_CameraDepthNormalsTexture, i.uv[1]);
-		half4 sample1 = tex2D (_CameraDepthNormalsTexture, i.uv[2]);
-		half4 sample2 = tex2D (_CameraDepthNormalsTexture, i.uv[3]);
+		float4 center = tex2D (_CameraDepthNormalsTexture, i.uv[1]);
+		float4 sample1 = tex2D (_CameraDepthNormalsTexture, i.uv[2]);
+		float4 sample2 = tex2D (_CameraDepthNormalsTexture, i.uv[3]);
 		
 		// encoded normal
-		half2 centerNormal = center.xy;
+		float2 centerNormal = center.xy;
 		// decoded depth
 		float centerDepth = DecodeFloatRG (center.zw);
 		
-		half edge = 1.0;
+		float edge = 1.0;
 		
 		edge *= CheckSame(centerNormal, centerDepth, sample1);
 		edge *= CheckSame(centerNormal, centerDepth, sample2);

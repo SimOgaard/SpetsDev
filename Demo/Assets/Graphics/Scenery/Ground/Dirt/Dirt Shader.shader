@@ -120,14 +120,14 @@
 				float y = i.worldPos.y;
 				float z = i.worldPos.z;
 				fnlDomainWarp3D(warp, x, y, z);
-				fixed noise_value = saturate(fnlGetNoise3D(noise, x, y, z) + 1);
+				float noise_value = saturate(fnlGetNoise3D(noise, x, y, z) + 1);
 
-				fixed light = CalculateLight(i);
+				float light = CalculateLight(i);
 
-				fixed curve_value = tex2D(_CurveTexture, noise_value).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, noise_value).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
 			}
             ENDCG
         }

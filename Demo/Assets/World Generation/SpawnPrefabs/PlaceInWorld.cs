@@ -84,18 +84,15 @@ public class PlaceInWorld : MonoBehaviour
         return rotation * GetVectorBySharedXYZ(x, y, z, sharedXYZ);
     }
 
-    public static Vector3[] PointNormalWithRayCast(Vector3 origin, Vector3 random_vector, Vector3 direction, LayerMask placable_layer_mask)
+    public static (Vector3 point, Vector3 normal, bool ray_hit) PointNormalWithRayCast(Vector3 origin, Vector3 random_vector, Vector3 direction, LayerMask placable_layer_mask)
     {
-        RaycastHit[] hits = Physics.RaycastAll(origin + Vector3.up * 100f + random_vector, Vector3.down, 400f, placable_layer_mask, QueryTriggerInteraction.Ignore);
+        RaycastHit[] hits = Physics.RaycastAll(origin + Vector3.up * 100f + random_vector, direction, 400f, placable_layer_mask, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
         for (int i = 0; i < hits.Length; i++)
         {
-            if (Layer.IsInLayer(placable_layer_mask, hits[i].transform.gameObject.layer))
-            {
-                return new Vector3[] { hits[i].point, hits[i].normal };
-            }
+            return (hits[i].point, hits[i].normal, true);
         }
-        return null;
+        return (Vector3.zero, Vector3.zero, false);
     }
 
     private void CountDownChild(bool is_parrent)
@@ -155,8 +152,7 @@ public class PlaceInWorld : MonoBehaviour
             //Debug.Log("transform == null");
             yield break;
         }
-        Vector3 normal = Vector3.up;
-        Vector3[] hit_data = PointNormalWithRayCast(
+        (Vector3 point, Vector3 normal, bool ray_hit) = PointNormalWithRayCast(
             transform.position,
             RandomVector(spawn_instruction.min_ray_position, spawn_instruction.max_ray_position, spawn_instruction.shared_ray_position, transform.localScale),
             -transform.up,
@@ -164,12 +160,11 @@ public class PlaceInWorld : MonoBehaviour
         );
 
         // Place transform.
-        if (hit_data != null && Vector3.Dot(hit_data[1], Vector3.up) >= Mathf.Cos(spawn_instruction.max_rotation * Mathf.Deg2Rad))
+        if (ray_hit && Vector3.Dot(normal, Vector3.up) >= Mathf.Cos(spawn_instruction.max_rotation * Mathf.Deg2Rad))
         {
-            transform.position = hit_data[0];
-            normal = hit_data[1];
+            transform.position = point;
         }
-        else if (spawn_instruction.ray_layer_mask.value != 0)
+        else // if (spawn_instruction.ray_layer_mask.value != 0)
         {
             Destroy(transform.gameObject);
             CountDownChild(is_parrent);
@@ -312,6 +307,7 @@ public class PlaceInWorld : MonoBehaviour
         {
             children.Add(child);
         }
+
         // Spawn children of gameobject.
         foreach (Transform child in children)
         {

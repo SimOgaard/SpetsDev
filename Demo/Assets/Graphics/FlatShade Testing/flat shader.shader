@@ -36,7 +36,7 @@ Shader "Custom/flat shader"
 			struct Vertex
 			{
 				float4 position : POSITION;
-				fixed4 color : COLOR;
+				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -45,7 +45,7 @@ Shader "Custom/flat shader"
 			{
 				float4 position : SV_POSITION;
 				float4 worldPosition : TEXCOORD0;
-				half4 color : TEXCOORD1;
+				float4 color : TEXCOORD1;
 			};
 
 			// Vertex Shader
@@ -67,10 +67,10 @@ Shader "Custom/flat shader"
 			}
 
 			void ProcessFragment(FragmentInput input,
-				out half4 outGBuffer0 : SV_Target0,
-				out half4 outGBuffer1 : SV_Target1,
-				out half4 outGBuffer2 : SV_Target2,
-				out half4 outEmission : SV_Target3)
+				out float4 outGBuffer0 : SV_Target0,
+				out float4 outGBuffer1 : SV_Target1,
+				out float4 outGBuffer2 : SV_Target2,
+				out float4 outEmission : SV_Target3)
 			{
 				// Calculate surface values.
 				SurfaceOutput surfaceOutput;
@@ -79,7 +79,7 @@ Shader "Custom/flat shader"
 				surfaceOutput.Normal = normalize(cross(ddy(input.worldPosition),
 					ddx(input.worldPosition)));
 
-				surfaceOutput.Albedo = (half4)input.color;
+				surfaceOutput.Albedo = (float4)input.color;
 				surfaceOutput.Emission = 0.0;
 				surfaceOutput.Specular = 0.0;
 				surfaceOutput.Alpha = 0.0;
@@ -91,7 +91,7 @@ Shader "Custom/flat shader"
 				gi.indirect.diffuse = 0;
 				gi.indirect.specular = 0;
 				gi.light.color = 0;
-				gi.light.dir = half3(0, 1, 0);
+				gi.light.dir = float3(0, 1, 0);
 
 				// Note: The following adds roughly 40 shader instructions. Verify that it
 				// is needed and possibly add an optimized variant for lower-end hardware.
@@ -145,7 +145,7 @@ Shader "Custom/flat shader"
 			struct Vertex
 			{
 				float4 position : POSITION;
-				fixed4 color : COLOR;
+				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -154,7 +154,7 @@ Shader "Custom/flat shader"
 			{
 				float4 position : SV_POSITION;
 				float4 worldPosition : TEXCOORD0;
-				fixed4 color : TEXCOORD1;
+				float4 color : TEXCOORD1;
 			};
 
 			// Vertex Shader
@@ -174,16 +174,16 @@ Shader "Custom/flat shader"
 			}
 
 			// Fragment Shader
-			fixed4 ProcessFragment(FragmentInput input) : SV_Target
+			float4 ProcessFragment(FragmentInput input) : SV_Target
 			{
 				// Compute the normal from the interpolated world position.
-				half3 normal = normalize(cross(ddy(input.worldPosition),
+				float3 normal = normalize(cross(ddy(input.worldPosition),
 					ddx(input.worldPosition)));
 
 				// Calculate lighting and final color.
-				half nl = saturate(dot(normal, _WorldSpaceLightPos0.xyz));
-				return fixed4(input.color.rgb * (_LightColor0.rgb * nl + // Diffuse
-					ShadeSH9(half4(normal.xyz, 1))), 1); // Ambient
+				float nl = saturate(dot(normal, _WorldSpaceLightPos0.xyz));
+				return float4(input.color.rgb * (_LightColor0.rgb * nl + // Diffuse
+					ShadeSH9(float4(normal.xyz, 1))), 1); // Ambient
 			}
 			ENDCG
 		}

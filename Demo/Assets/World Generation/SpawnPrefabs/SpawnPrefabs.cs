@@ -17,7 +17,7 @@ public class SpawnPrefabs : MonoBehaviour
     }
 
 
-    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area, float chunk_load_speed)
+    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area)
     {
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -35,8 +35,6 @@ public class SpawnPrefabs : MonoBehaviour
         List<Task> tasks = new List<Task>();
 
         float object_amount = object_density * area.x * area.y;
-        float wait_amount = Mathf.Max(object_amount * object_density);
-        //Debug.Log("tried spawning: " + object_amount + " objects on: " + transform.name);
         bounding_boxes = new List<Collider>();
         for (int i = 0; i < object_amount; i++)
         {
@@ -51,27 +49,7 @@ public class SpawnPrefabs : MonoBehaviour
             GameObject new_game_object = Instantiate(prefabs[prefab_index], transform.position, Quaternion.identity, transform.parent.parent);
             PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
 
-            tasks.Add(new Task(place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform)));
-
-            if (i % (wait_amount) == 0)
-            {
-                yield return wait;
-            }
-        }
-
-        bool continue_with_list = true;
-        while (continue_with_list)
-        {
-            continue_with_list = false;
-            yield return wait;
-            foreach (Task task in tasks)
-            {
-                if (task.Running)
-                {
-                    continue_with_list = true;
-                    break;
-                }
-            }
+            yield return place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform);
         }
 
         foreach (Collider collider in bounding_boxes)

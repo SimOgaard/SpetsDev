@@ -173,9 +173,9 @@
 				// Recast surface 01-linear depth value to unity units.
 				float orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
 				// Water depth for current pixel in unity units.
-				fixed depthDifference = (orthoEyeDepth - orthoPlainDepth);
+				float depthDifference = (orthoEyeDepth - orthoPlainDepth);
 				// Depth scaled to our need
-				fixed depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
+				float depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
 				
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
 				rawDepth = tex2D(_CameraDepthTexture, screen_uv_distort).r;
@@ -184,7 +184,7 @@
 				// Recast surface 01-linear depth value to unity units.
 				orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
 				// Water depth for current pixel in unity units.
-				fixed depthDifferenceDistort = (orthoEyeDepth - orthoPlainDepth);
+				float depthDifferenceDistort = (orthoEyeDepth - orthoPlainDepth);
 				// Depth scaled to our need
 				float depthDifferenceDistort01 = saturate(depthDifferenceDistort / _DepthMaximumDistance);
 
@@ -204,8 +204,8 @@
 				*/
 
 				// Calculate the color of the water based on the depth using our two gradient colors.
-				fixed curve_value = tex2D(_WaterCurveTexture, depthDifferenceDistort01).r;
-				fixed alpha = tex2D(_WaterCurveAlpha, depthDifferenceDistort01).r;
+				float curve_value = tex2D(_WaterCurveTexture, depthDifferenceDistort01).r;
+				float alpha = tex2D(_WaterCurveAlpha, depthDifferenceDistort01).r;
 				float4 waterColor = float4(tex2D(_WaterColors, curve_value).rgb, alpha);
 
 				// Retrieve the view-space normal of the surface behind the
@@ -216,7 +216,7 @@
 				// between the normals of our water surface and the object behind it.
 				// Larger differences allow for extra foam to attempt to keep the overall
 				// amount consistent.
-				fixed3 WTF = fixed3(0.0, 0.866, 0.5); // 0 cos 30 sin 30
+				float3 WTF = float3(0.0, 0.866, 0.5); // 0 cos 30 sin 30
 
 				float3 normalDot = saturate(dot(existingNormal, WTF));
 

@@ -1,9 +1,391 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
+
+public struct MeshData
+{
+    public NativeArray<Vector3> vertices;
+    public NativeArray<int> triangles;
+    public NativeArray<Vector3> normals;
+    public NativeArray<Vector2> uv;
+}
+
+public struct MeshDataList
+{
+    public NativeList<Vector3> vertices;
+    public NativeList<int> triangles;
+    public NativeList<Vector3> normals;
+    public NativeList<Vector2> uv;
+}
+
+public struct MeshChunkData
+{
+    public NativeSlice<Vector3> vertices;
+    public NativeSlice<int> triangles;
+    public NativeSlice<Vector3> normals;
+    public NativeSlice<Vector2> uv;
+}
+
+public static class MeshDataExtensions
+{
+    public static void Dispose(this MeshData meshData)
+    {
+        meshData.vertices.Cleanup();
+        meshData.triangles.Cleanup();
+        meshData.normals.Cleanup();
+        meshData.uv.Cleanup();
+    }
+    public static void Dispose(this MeshDataList meshData)
+    {
+        meshData.vertices.Dispose();
+        meshData.triangles.Dispose();
+        meshData.normals.Dispose();
+        meshData.uv.Dispose();
+    }
+}
+
+public static class NativeArrayExtensions
+{
+    public static void Cleanup<T>(this NativeArray<T> array)
+        where T : struct
+    {
+        if (array.IsCreated)
+            array.Dispose();
+    }
+}
 
 public class CreateMesh : MonoBehaviour
 {
+    public static MeshData CreateMeshData(Vector2 unit_size, Vector2Int resolution, Vector3 offset)
+    {
+        resolution.x = Mathf.Max(resolution.x + 1, 2);
+        resolution.y = Mathf.Max(resolution.y + 1, 2);
+
+        unit_size.x = Mathf.Max(unit_size.x, 0.01f);
+        unit_size.y = Mathf.Max(unit_size.y, 0.01f);
+
+        int vertices_length = resolution.x * resolution.y;
+        int triangles_length = (resolution.x - 1) * (resolution.y - 1) * 2 * 3;
+
+        MeshData meshData = new MeshData();
+
+        meshData.vertices = new NativeArray<Vector3>(vertices_length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        meshData.triangles = new NativeArray<int>(triangles_length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        meshData.normals = new NativeArray<Vector3>(vertices_length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        meshData.uv = new NativeArray<Vector2>(vertices_length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+        return meshData;
+    }
+
+    public struct CreatePlaneJob : IJob
+    {
+        [ReadOnly] public Vector2Int planeSize;
+        [ReadOnly] public Vector2 quadSize;
+        [ReadOnly] public int quadCount;
+        [ReadOnly] public int vertexCount;
+        [ReadOnly] public int triangleCount;
+
+        [WriteOnly] public MeshData meshData;
+
+        public void Execute()
+        {
+            var halfWidth = (planeSize.x * quadSize.x) * .5f;
+            var halfLength = (planeSize.y * quadSize.y) * .5f;
+
+            for (int i = 0; i < quadCount; i++)
+            {
+                var x = i % planeSize.x;
+                var z = i / planeSize.x;
+
+                var left = (x * quadSize.x) - halfWidth;
+                var right = (left + quadSize.x);
+
+                var bottom = (z * quadSize.y) - halfLength;
+                var top = (bottom + quadSize.y);
+
+                var v = i * 4;
+
+                meshData.vertices[v + 0] = new Vector3(left, 0, bottom);
+                meshData.vertices[v + 1] = new Vector3(left, 0, top);
+                meshData.vertices[v + 2] = new Vector3(right, 0, top);
+                meshData.vertices[v + 3] = new Vector3(right, 0, bottom);
+
+                var t = i * 6;
+
+                meshData.triangles[t + 0] = v + 0;
+                meshData.triangles[t + 1] = v + 1;
+                meshData.triangles[t + 2] = v + 2;
+                meshData.triangles[t + 3] = v + 2;
+                meshData.triangles[t + 4] = v + 3;
+                meshData.triangles[t + 5] = v + 0;
+
+                meshData.normals[v + 0] = Vector3.up;
+                meshData.normals[v + 1] = Vector3.up;
+                meshData.normals[v + 2] = Vector3.up;
+                meshData.normals[v + 3] = Vector3.up;
+
+                meshData.uv[v + 0] = new Vector2(0, 0);
+                meshData.uv[v + 1] = new Vector2(0, 1);
+                meshData.uv[v + 2] = new Vector2(1, 1);
+                meshData.uv[v + 3] = new Vector2(1, 0);
+            }
+        }
+    }
+
+    public struct ParallelNoiseJob : IJobParallelFor
+    {
+        public NativeArray<Vector3> vertices;
+        [ReadOnly] public NativeArray<Vector2> octaveOffsets;
+        [ReadOnly] public Vector3 offset;
+        [ReadOnly] public Vector2 scroll;
+        [ReadOnly] public float time;
+        [ReadOnly] public float scale;
+        [ReadOnly] public int octaves;
+        [ReadOnly] public float persistance;
+        [ReadOnly] public float lacunarity;
+        [ReadOnly] public float maxPossibleHeight;
+        [ReadOnly] public float meshScale;
+
+        public void Execute(int index)
+        {
+            var vertex = vertices[index];
+
+            var amplitude = 1f;
+            var frequency = 1f;
+            var noiseHeight = 0f;
+
+            for (int i = 0; i < octaves; i++)
+            {
+                var sampleX = (vertex.x + octaveOffsets[i].x) / scale * frequency;
+                var sampleY = (vertex.z + octaveOffsets[i].y) / scale * frequency;
+
+                var perlinValue = Mathf.PerlinNoise(sampleX + scroll.x * time, sampleY + scroll.y * time) * 2 - 1;
+                noiseHeight += perlinValue * amplitude;
+
+                amplitude *= persistance;
+                frequency *= lacunarity;
+            }
+
+            var normalizedHeight = (noiseHeight + 1) / maxPossibleHeight;
+            var y = Mathf.Clamp(normalizedHeight, 0f, int.MaxValue - vertex.y);
+
+            vertices[index] = new Vector3(vertex.x, y * meshScale, vertex.z);
+        }
+    }
+
+    public struct NoiseJob : IJob
+    {
+        public NativeArray<Vector3> vertices;
+        [ReadOnly] public NativeArray<Vector2> octaveOffsets;
+        [ReadOnly] public Vector2 offset;
+        [ReadOnly] public Vector2 scroll;
+        [ReadOnly] public float time;
+        [ReadOnly] public float scale;
+        [ReadOnly] public int octaves;
+        [ReadOnly] public float persistance;
+        [ReadOnly] public float lacunarity;
+        [ReadOnly] public float maxPossibleHeight;
+        [ReadOnly] public float meshScale;
+
+        public void Execute()
+        {
+            var vertexCount = vertices.Length;
+            for (var index = 0; index < vertexCount; index++)
+            {
+                var vertex = vertices[index];
+
+                var amplitude = 1f;
+                var frequency = 1f;
+                var noiseHeight = 0f;
+
+                for (int i = 0; i < octaves; i++)
+                {
+                    var sampleX = (vertex.x + octaveOffsets[i].x) / scale * frequency;
+                    var sampleY = (vertex.z + octaveOffsets[i].y) / scale * frequency;
+
+                    var perlinValue = Mathf.PerlinNoise(sampleX + scroll.x * time, sampleY + scroll.y * time) * 2 - 1;
+                    noiseHeight += perlinValue * amplitude;
+
+                    amplitude *= persistance;
+                    frequency *= lacunarity;
+                }
+
+                var normalizedHeight = (noiseHeight + 1) / maxPossibleHeight;
+                var y = Mathf.Clamp(normalizedHeight, 0f, int.MaxValue - vertex.y);
+
+                vertices[index] = new Vector3(vertex.x, y * meshScale, vertex.z);
+            }
+        }
+    }
+
+    public struct NormalizeJob : IJob
+    {
+        [ReadOnly] public int quadCount;
+        public MeshData meshData;
+
+        public void Execute()
+        {
+            for (int i = 0; i < quadCount; i++)
+            {
+                var v = i * 4;
+                var a = meshData.vertices[v + 0];
+                var b = meshData.vertices[v + 1];
+                var c = meshData.vertices[v + 2];
+                var p = Vector3.Cross((b - a), (c - a));
+                var l = p.magnitude;
+                var r = p / l;
+
+                meshData.normals[v + 0] = r;
+                meshData.normals[v + 1] = r;
+                meshData.normals[v + 2] = r;
+
+                a = meshData.vertices[v + 2];
+                b = meshData.vertices[v + 3];
+                c = meshData.vertices[v + 0];
+                p = Vector3.Cross((b - a), (c - a));
+                l = p.magnitude;
+                r = p / l;
+
+                meshData.normals[v + 2] = r;
+                meshData.normals[v + 3] = r;
+                meshData.normals[v + 0] = r;
+            }
+        }
+    }
+
+    // the triangles are the same list for each mesh no?
+    // just reuse it in chunk.loadchunk
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct CreateMeshByNoiseJob : IJob
+    {
+        public NativeArray<Vector3> vertices;
+
+        [ReadOnly] public NativeArray<Noise.NoiseLayer> noise_layers;
+        [ReadOnly] public Vector3 offset;
+
+        public void Execute()
+        {
+            int noise_length = noise_layers.Length;
+            for (int q = 0; q < noise_length; q++)
+            {
+                if (noise_layers[q].enabled)
+                {
+                    for (int i = 0; i < vertices.Length; i++)
+                    {
+                        vertices[i] = new Vector3(vertices[i].x, vertices[i].y + noise_layers[q].GetNoiseValue(vertices[i].x + offset.x, vertices[i].z + offset.z), vertices[i].z);
+                    }
+                }
+            }
+        }
+    }
+
+    public struct DropMeshVerticesJob : IJob
+    {
+        public MeshDataList mesh_data_list; // copy over the already created mesh to this as a list instead
+        [ReadOnly] public MeshData original_mesh_data; // copy over the already created mesh to this as a list instead
+
+        [ReadOnly] public Noise.NoiseLayer noise_layer; // = new Noise.NoiseLayer(settings_noise_layer);
+        //Random.InitState(settings_noise_layer.general_noise.seed);
+
+        [ReadOnly] public Vector2 keep_range_noise;
+        [ReadOnly] public float keep_range_random_noise;
+        [ReadOnly] public float keep_range_random;
+        [ReadOnly] public Vector3 offset;
+        [ReadOnly] public Vector3 transform_offset;
+
+        private void AddTriangle(int vert_index_1, int vert_index_2, int vert_index_3)
+        {
+            mesh_data_list.triangles.Add(mesh_data_list.vertices.Length);
+            mesh_data_list.triangles.Add(mesh_data_list.vertices.Length + 1);
+            mesh_data_list.triangles.Add(mesh_data_list.vertices.Length + 2);
+
+            mesh_data_list.vertices.Add(original_mesh_data.vertices[vert_index_1] + offset);
+            mesh_data_list.vertices.Add(original_mesh_data.vertices[vert_index_2] + offset);
+            mesh_data_list.vertices.Add(original_mesh_data.vertices[vert_index_3] + offset);
+
+            mesh_data_list.normals.Add(original_mesh_data.normals[vert_index_1]);
+            mesh_data_list.normals.Add(original_mesh_data.normals[vert_index_2]);
+            mesh_data_list.normals.Add(original_mesh_data.normals[vert_index_3]);
+
+            mesh_data_list.uv.Add(original_mesh_data.uv[vert_index_1]);
+            mesh_data_list.uv.Add(original_mesh_data.uv[vert_index_2]);
+            mesh_data_list.uv.Add(original_mesh_data.uv[vert_index_3]);
+        }
+
+        public void Execute()
+        {
+            System.Random rand = new System.Random();
+
+            for (int triangle_index = 0; triangle_index < original_mesh_data.triangles.Length; triangle_index += 3)
+            {
+                int vert_index_1 = original_mesh_data.triangles[triangle_index];
+                int vert_index_2 = original_mesh_data.triangles[triangle_index + 1];
+                int vert_index_3 = original_mesh_data.triangles[triangle_index + 2];
+
+                float random_value = (float) rand.NextDouble();
+                if (random_value <= keep_range_random)
+                {
+                    AddTriangle(vert_index_1, vert_index_2, vert_index_3);
+                }
+                else
+                {
+                    float x = ((original_mesh_data.vertices[vert_index_1].x + original_mesh_data.vertices[vert_index_2].x + original_mesh_data.vertices[vert_index_3].x) / 3f) + transform_offset.x;
+                    float z = ((original_mesh_data.vertices[vert_index_1].z + original_mesh_data.vertices[vert_index_2].z + original_mesh_data.vertices[vert_index_3].z) / 3f) + transform_offset.z;
+
+                    float noise_value = noise_layer.GetNoiseValue(x, z);
+                    if (noise_value > keep_range_noise.x && noise_value < keep_range_noise.y && noise_value * random_value <= keep_range_random_noise)
+                    {
+                        AddTriangle(vert_index_1, vert_index_2, vert_index_3);
+                    }
+                }
+            }
+        }
+    }
+
+    public static int[] CreateTrianglesForMesh(Vector2Int resolution)
+    {
+        int triangles_length = (resolution.x - 1) * (resolution.y - 1) * 2 * 3;
+        int[] triangles = new int[triangles_length];
+
+        int vertices_index = 0;
+        int triangles_index = 0;
+        for (int z = 0; z < resolution.y; z++)
+        {
+            for (int x = 0; x < resolution.x; x++)
+            {
+                vertices_index = z * resolution.x + x;
+                if (x != resolution.x - 1 && z != 0)
+                {
+                    triangles[triangles_index] = vertices_index;
+                    triangles[triangles_index + 1] = vertices_index - resolution.x + 1;
+                    triangles[triangles_index + 2] = vertices_index - resolution.x;
+
+                    triangles[triangles_index + 3] = vertices_index;
+                    triangles[triangles_index + 4] = vertices_index + 1;
+                    triangles[triangles_index + 5] = vertices_index - resolution.x + 1;
+
+                    triangles_index += 6;
+                }
+            }
+        }
+        return triangles;
+    }
+
+    /*
+    public static void CreateMeshByNoiseOnThread()
+    {
+        Vector3[] vertices = new Vector3[vertices_length];
+        Vector3[] normals = new Vector3[triangles_length / 3];
+
+
+    }
+    */
+
     public static IEnumerator CreateMeshByNoise(WaitForFixedUpdate wait, Noise.NoiseLayer[] noise_layers, Vector2 unit_size, Vector2Int resolution, Vector3 offset)
     {
         Mesh mesh = new Mesh();
@@ -91,7 +473,7 @@ public class CreateMesh : MonoBehaviour
         Vector3[] vertices = new Vector3[vertices_length + 1];
         int[] triangles = new int[triangles_length];
 
-        vertices[vertices_length] = new Vector3(0f, -5f, 0f);
+        vertices[vertices_length] = new Vector3(0f, -5f, 0f); // value that wont overblow bounding box of mesh so culling still works, yet low enough to be behind opaque material
 
         Vector3 reused_point = Vector3.zero;
         int vertices_index = 0;
@@ -304,26 +686,26 @@ public class CreateMesh : MonoBehaviour
         {
             return new int[]
             {
-             0, 11,  5,
-             0,  5,  1,
-             0,  1,  7,
-             0,  7, 10,
-             0, 10, 11,
-             1,  5,  9,
-             5, 11,  4,
+                0, 11,  5,
+                0,  5,  1,
+                0,  1,  7,
+                0,  7, 10,
+                0, 10, 11,
+                1,  5,  9,
+                5, 11,  4,
             11, 10,  2,
             10,  7,  6,
-             7,  1,  8,
-             3,  9,  4,
-             3,  4,  2,
-             3,  2,  6,
-             3,  6,  8,
-             3,  8,  9,
-             4,  9,  5,
-             2,  4, 11,
-             6,  2, 10,
-             8,  6,  7,
-             9,  8,  1
+                7,  1,  8,
+                3,  9,  4,
+                3,  4,  2,
+                3,  2,  6,
+                3,  6,  8,
+                3,  8,  9,
+                4,  9,  5,
+                2,  4, 11,
+                6,  2, 10,
+                8,  6,  7,
+                9,  8,  1
             };
         }
 
@@ -338,12 +720,12 @@ public class CreateMesh : MonoBehaviour
 
     public static GameObject CreatePrimitive(Mesh mesh, Material material, string name = "Primitive")
     {
-        
+
         GameObject game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
         MeshRenderer mesh_renderer = game_object.GetComponent<MeshRenderer>();
         mesh_renderer.material = material;
         return game_object;
-        
+
         /*
         GameObject game_object = new GameObject(name);
         MeshFilter mesh_filter = game_object.AddComponent<MeshFilter>();

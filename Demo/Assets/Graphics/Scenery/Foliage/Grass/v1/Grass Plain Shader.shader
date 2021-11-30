@@ -36,8 +36,8 @@
             {
                 float2 uv : TEXCOORD0;
 				SHADOW_COORDS(1)
-				fixed3 diff : COLOR0;
-                fixed3 ambient : COLOR1;
+				float3 diff : COLOR0;
+                float3 ambient : COLOR1;
                 float4 pos : SV_POSITION;
                 float3 worldPos : TEXCOORD2;
             };
@@ -45,10 +45,10 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
-	        fixed4 _ColorLight;
-			fixed4 _ColorMedium;
-			fixed4 _ColorDark;
-			fixed4 _ColorReallyDark;
+	        float4 _ColorLight;
+			float4 _ColorMedium;
+			float4 _ColorDark;
+			float4 _ColorReallyDark;
 
 			float _FirstThreshold;
 			float _SecondThreshold;
@@ -63,20 +63,20 @@
 				o.worldPos = mul (unity_ObjectToWorld, v.vertex);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.texcoord;
-				half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
+				float3 worldNormal = UnityObjectToWorldNormal(v.normal);
+                float nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
                 o.diff = nl * _LightColor0.rgb;
-                o.ambient = ShadeSH9(half4(worldNormal,1));
+                o.ambient = ShadeSH9(float4(worldNormal,1));
                 TRANSFER_SHADOW(o)
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
-				fixed shadow = SHADOW_ATTENUATION(i);
+				float shadow = SHADOW_ATTENUATION(i);
 				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 				float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
+                float3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				float4 col = _ColorLight;
 				if (lighting.x < _FirstThreshold)

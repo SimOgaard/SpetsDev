@@ -113,7 +113,7 @@ Shader "Custom/shadow testing shader 2"
 				outStream.Append(idealVertexOutput);
 			}
 
-			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
+			float4 frag(g2f i, float facing : VFACE) : SV_Target
 			{
 				return i.light;
 			}

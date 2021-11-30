@@ -53,9 +53,9 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
-                return fixed4(_Color.rgb, 1);
+                return float4(_Color.rgb, 1);
             }
             ENDCG
         }

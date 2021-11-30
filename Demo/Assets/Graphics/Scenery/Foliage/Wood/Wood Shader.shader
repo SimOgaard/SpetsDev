@@ -37,14 +37,14 @@
 			sampler2D _Colors;
 			float4 _Colors_ST;
 
-			fixed4 frag(v2f i) : SV_Target
+			float4 frag(v2f i) : SV_Target
 			{
-				fixed light = CalculateLight(i);
+				float light = CalculateLight(i);
 
-				fixed curve_value = tex2D(_CurveTexture, light).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, light).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
 			}
 			ENDCG
 		}

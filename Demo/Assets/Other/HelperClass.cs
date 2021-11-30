@@ -297,11 +297,24 @@ public static class Global
 
     public static Transform player_transform = GameObject.Find("Player").transform;
     public static Transform equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
+
+    public static Vector3 normal_gravity = Physics.gravity;
+    public static Vector3 current_gravity = Physics.gravity;
 }
 
 public static class GameTime
 {
-    public static bool is_paused = false;
+    private static bool _is_paused = false;
+    public static bool is_paused
+    {
+        get { return _is_paused; }
+        set {
+            if (value != _is_paused)
+            {
+                _is_paused = value;
+            }
+        }
+    }
 
     public static void PauseGame(float time_scale = 0f)
     {

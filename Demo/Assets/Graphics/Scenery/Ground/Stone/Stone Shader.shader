@@ -29,11 +29,11 @@
 
 			float4 _Color;
 
-			fixed4 frag(v2f i) : SV_Target
+			float4 frag(v2f i) : SV_Target
 			{
-				fixed light = CalculateLight(i);
-				fixed4 light_color = _LightColor0.rgba * light;
-				return fixed4(_Color.rgb * light_color.rgb, 1);
+				float light = CalculateLight(i);
+				float4 light_color = _LightColor0.rgba * light;
+				return float4(_Color.rgb * light_color.rgb, 1);
 			}
 			ENDCG
 		}

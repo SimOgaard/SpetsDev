@@ -42,7 +42,7 @@
 			float _Cutoff;
 			float _Speed;
 
-			float4 frag (g2f i, fixed facing : VFACE) : SV_Target
+			float4 frag (g2f i, float facing : VFACE) : SV_Target
             {
 				fnl_state noise = fnlCreateState();
 				noise.rotation_type_3d = 2;
@@ -72,10 +72,10 @@
 					discard;
 				}
 
-				fixed curve_value = tex2D(_CurveTexture, noise_value).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, noise_value).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
             }
             ENDCG
         }

@@ -48,26 +48,26 @@
 			float _Radius;
 
 			float circle(in float2 _st, in float _radius){
-				fixed2 dist = _st-fixed2(0.5, 0.5);
+				float2 dist = _st-float2(0.5, 0.5);
 				return 1.-smoothstep(_radius-(_radius*0.01), _radius+(_radius*0.01), dot(dist,dist)*4.0);
 			}
 
-			fixed4 frag(v2f i) : SV_Target
+			float4 frag(v2f i) : SV_Target
 			{
-				fixed light = CalculateLight(i);
+				float light = CalculateLight(i);
 				
-				fixed2 distortSample = (tex2D(_Distort, i.uv).xy * 2 - 1) * _DistortionAmount;
-				fixed value = circle(i.uv + distortSample, _Radius);
+				float2 distortSample = (tex2D(_Distort, i.uv).xy * 2 - 1) * _DistortionAmount;
+				float value = circle(i.uv + distortSample, _Radius);
 
 				if (value < 0.5){
-					fixed4 light_color = _LightColor0.rgba * light;
+					float4 light_color = _LightColor0.rgba * light;
 					return _Color * light_color;
 				}
 
-				fixed curve_value = tex2D(_CurveTexture, light).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, light).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
 			}
 			ENDCG
 		}

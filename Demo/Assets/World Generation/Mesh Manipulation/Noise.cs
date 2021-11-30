@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Noise : MonoBehaviour
 {
-    public class NoiseLayer
+    public struct NoiseLayer
     {
         private FastNoiseLite warp;
         private FastNoiseLite noise;
@@ -34,7 +34,8 @@ public class Noise : MonoBehaviour
         public NoiseLayer(NoiseLayerSettings.NoiseLayer noise_layer)
         {
             // sets noise
-            noise = new FastNoiseLite(noise_layer.general_noise.seed);
+            noise = new FastNoiseLite();
+            noise.SetSeed(noise_layer.general_noise.seed);
             noise.SetFrequency(noise_layer.general_noise.frequency);
             noise.SetNoiseType(noise_layer.general_noise.noise_type);
 
@@ -50,7 +51,8 @@ public class Noise : MonoBehaviour
             noise.SetCellularJitter(noise_layer.cellular.jitter);
 
             // domain warp
-            warp = new FastNoiseLite(noise_layer.general_noise.seed);
+            warp = new FastNoiseLite();
+            warp.SetSeed(noise_layer.general_noise.seed);
             warp.SetDomainWarpType(noise_layer.domain_warp.domain_warp_type);
             warp.SetDomainWarpAmp(noise_layer.domain_warp.amplitude);
             warp.SetFrequency(noise_layer.domain_warp.frequency);

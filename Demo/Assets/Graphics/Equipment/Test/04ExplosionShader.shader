@@ -80,16 +80,16 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
-				fixed2 distort = tex2D(_DistortionNormalMap, i.uv + float2(_Time.x * _JiggleSpeed, _Time.x * _JiggleSpeed)).rg * _JiggleStrength;
-				fixed2 uv = i.uv + distort + float2(_Time.x * _VortexSpeed, 0);
-				fixed4 texture_col = tex2D(_MainTex, uv);
+				float2 distort = tex2D(_DistortionNormalMap, i.uv + float2(_Time.x * _JiggleSpeed, _Time.x * _JiggleSpeed)).rg * _JiggleStrength;
+				float2 uv = i.uv + distort + float2(_Time.x * _VortexSpeed, 0);
+				float4 texture_col = tex2D(_MainTex, uv);
 				
 				float alpha = saturate(texture_col.b * _AlphaClipPower) - i.test.y;
 				clip(alpha);
 
-				fixed4 smoke = _ColorSmoke * texture_col.r;				
+				float4 smoke = _ColorSmoke * texture_col.r;				
 
 				float4 fire = _ColorFire3;
 				if (texture_col.g < _Threshold1)

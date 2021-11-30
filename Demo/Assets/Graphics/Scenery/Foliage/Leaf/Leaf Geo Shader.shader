@@ -67,7 +67,7 @@
 
 			float _DiscardValue;
 
-			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
+			float4 frag(g2f i, float facing : VFACE) : SV_Target
 			{
 				float uv_remap = 1 / _TileAmount;
 				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
@@ -77,10 +77,10 @@
 					discard;
 				}
 
-				fixed curve_value = tex2D(_CurveTexture, i.light).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, i.light).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
 			}
 			ENDCG
 		}

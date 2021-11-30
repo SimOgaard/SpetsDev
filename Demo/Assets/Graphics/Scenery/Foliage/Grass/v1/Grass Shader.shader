@@ -34,10 +34,10 @@
 	float _BladeWidth;
 	float _BladeWidthRandom;
 
-	fixed4 _ColorLight;
-	fixed4 _ColorMedium;
-	fixed4 _ColorDark;
-	fixed4 _ColorReallyDark;
+	float4 _ColorLight;
+	float4 _ColorMedium;
+	float4 _ColorDark;
+	float4 _ColorReallyDark;
 
 	float _FirstThreshold;
 	float _SecondThreshold;
@@ -49,8 +49,8 @@
         float3 worldPos : TEXCOORD3;
 		float2 uv : TEXCOORD0;
 		SHADOW_COORDS(1)
-		fixed3 diff : COLOR0;
-		fixed3 ambient : COLOR1;
+		float3 diff : COLOR0;
+		float3 ambient : COLOR1;
 		float rand : TEXCOORD2;
 	};
 
@@ -60,10 +60,10 @@
 		o.pos = UnityObjectToClipPos(pos);
 		o.worldPos = mul (unity_ObjectToWorld, pos);
 		o.uv = uv;
-		half3 worldNormal = UnityObjectToWorldNormal(norm);
-        half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
+		float3 worldNormal = UnityObjectToWorldNormal(norm);
+        float nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
         o.diff = nl * _LightColor0.rgb;
-        o.ambient = ShadeSH9(half4(worldNormal,1));
+        o.ambient = ShadeSH9(float4(worldNormal,1));
 		o.rand = rand;
         // compute shadows data
         TRANSFER_SHADOW(o)
@@ -156,12 +156,12 @@
 			sampler2D _LightTexture0;
 			float4x4 unity_WorldToLight;
 
-			float4 frag (geometryOutput i, fixed facing : VFACE) : SV_Target
+			float4 frag (geometryOutput i, float facing : VFACE) : SV_Target
             {	
-				fixed shadow = SHADOW_ATTENUATION(i);
+				float shadow = SHADOW_ATTENUATION(i);
 				float2 uvCookie = mul(unity_WorldToLight, float4(i.worldPos, 1)).xy;
 				float attenuation = tex2D(_LightTexture0, uvCookie).w;
-                fixed3 lighting = i.diff * shadow * attenuation + i.ambient;
+                float3 lighting = i.diff * shadow * attenuation + i.ambient;
 
 				float4 col = _ColorLight;
 				if (lighting.x < _FirstThreshold)

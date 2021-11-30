@@ -10,14 +10,14 @@ float _ShadowSoftness;
 float _DarkestValue;
 float _DayNightTime;
 
-fixed LightCalculation(float4 center, float3 normal)
+float LightCalculation(float4 center, float3 normal)
 {
-	fixed4 world_center = fixed4(mul (unity_ObjectToWorld, center).xyz, 1);
+	float4 world_center = float4(mul (unity_ObjectToWorld, center).xyz, 1);
 
-	fixed2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
-	fixed lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
-	fixed3 worldNormal = UnityObjectToWorldNormal(normal);
-	fixed directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
+	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
+	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
+	float3 worldNormal = UnityObjectToWorldNormal(normal);
+	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
 
 	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
     float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);
@@ -38,14 +38,14 @@ fixed LightCalculation(float4 center, float3 normal)
 	return max(directionalLightValue * shadow, _DarkestValue * _DayNightTime);
 }
 
-fixed LightCalculation(float3 center, float3 normal)
+float LightCalculation(float3 center, float3 normal)
 {
-	fixed4 world_center = fixed4(center, 1);
+	float4 world_center = float4(center, 1);
 
-	fixed2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
-	fixed lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
-	fixed3 worldNormal = UnityObjectToWorldNormal(normal);
-	fixed directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
+	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
+	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
+	float3 worldNormal = UnityObjectToWorldNormal(normal);
+	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
 
 	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
     float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);

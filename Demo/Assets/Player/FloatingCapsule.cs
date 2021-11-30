@@ -64,7 +64,7 @@ public class FloatingCapsule : MonoBehaviour
 
     public virtual void FixedUpdate()
     {
-        if (Tumbling())
+        if (Tumbling() || GameTime.is_paused)
         {
             return;
         }

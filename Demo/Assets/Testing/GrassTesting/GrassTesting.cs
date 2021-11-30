@@ -86,6 +86,13 @@ public class GrassTesting : MonoBehaviour
     [SerializeField] private Collider test_collider;
     private void FixedUpdate()
     {
+        // precalculate middle of triangle and store it in array
+        // check if middle of triangle is inside collider
+
+        // this whole thing should be able to be done on another thread
+        // you should be able to create mesh using compute shader instead of on cpu
+        // you should be able to convert couroutines to async/await https://www.youtube.com/watch?v=WY-mk-ZGAq8&ab_channel=Tarodev 
+
         Vector2 mesh_size = Vector2.Scale(unit_size, resolution);
         Vector3 mesh_size_half = new Vector3(mesh_size.x * 0.5f, 0f, mesh_size.y * 0.5f);
 
@@ -114,22 +121,25 @@ public class GrassTesting : MonoBehaviour
             for (int x = bounds_min_to_mesh_index.x * 6; x < bounds_max_to_mesh_index.x * 6; x += 6)
             {
                 int triangle_index = z + x;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
 
-                triangle_index++;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
 
-                triangle_index++;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
+                if (true)
+                {
+                    triangles[triangle_index] = full_mesh_triangles[triangle_index];
 
-                triangle_index++;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
+                    triangles[triangle_index + 1] = full_mesh_triangles[triangle_index];
 
-                triangle_index++;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
+                    triangles[triangle_index + 2] = full_mesh_triangles[triangle_index];
+                }
 
-                triangle_index++;
-                triangles[triangle_index] = full_mesh_triangles[triangle_index];
+                if (true)
+                {
+                    triangles[triangle_index + 3] = full_mesh_triangles[triangle_index];
+
+                    triangles[triangle_index + 4] = full_mesh_triangles[triangle_index];
+
+                    triangles[triangle_index + 5] = full_mesh_triangles[triangle_index];
+                }
             }
         }
 

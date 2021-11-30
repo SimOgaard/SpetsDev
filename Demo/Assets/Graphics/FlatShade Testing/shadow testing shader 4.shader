@@ -22,9 +22,9 @@ Shader "Custom/shadow testing shader 4"
 
 			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
 			
-			fixed4 frag(v2f i) : SV_Target
+			float4 frag(v2f i) : SV_Target
 			{
-				fixed light = CalculateLight(i);
+				float light = CalculateLight(i);
 
 				return light;
 			}

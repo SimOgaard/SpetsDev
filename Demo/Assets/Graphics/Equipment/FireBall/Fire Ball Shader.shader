@@ -35,7 +35,7 @@
 				return saturate(0.5+v);
 			}
 
-			fixed4 frag(v2f i) : SV_Target
+			float4 frag(v2f i) : SV_Target
 			{
 				fnl_state noise = fnlCreateState();
 				noise.rotation_type_3d = 2;
@@ -53,12 +53,12 @@
 				noise_pos += _FireDirection.xyz * _Time[0];
 
 				fnlDomainWarp3D(noise, noise_pos.x, noise_pos.y, noise_pos.z);
-				fixed noise_value = remap01(fnlGetNoise3D(noise, noise_pos.x, noise_pos.y, noise_pos.z));
+				float noise_value = remap01(fnlGetNoise3D(noise, noise_pos.x, noise_pos.y, noise_pos.z));
 
-				fixed curve_value = tex2D(_CurveTexture, noise_value).r;
-				fixed4 color = tex2D(_Colors, curve_value);
+				float curve_value = tex2D(_CurveTexture, noise_value).r;
+				float4 color = tex2D(_Colors, curve_value);
 
-				return fixed4(color.rgb, 1);
+				return float4(color.rgb, 1);
 			}
 			ENDCG
 		}

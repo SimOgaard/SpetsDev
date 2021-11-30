@@ -78,7 +78,14 @@ public class Enemies : MonoBehaviour
             {
                 Transform new_transform = WorldGenerationManager.ReturnNearestChunk(child.position).transform;
 
-                if (new_transform != transform.parent)
+                if (new_transform == null)
+                {
+                    Debug.Log("thismofo got shot to infinity");
+                    EnemyAI enemy_ai = child.GetComponent<EnemyAI>();
+                    Enemies.RemoveEnemyFromList(enemy_ai);
+                    Destroy(child);
+                }
+                else if (new_transform != transform.parent)
                 {
                     child.parent = new_transform.Find("Enemies").Find(name);
                 }

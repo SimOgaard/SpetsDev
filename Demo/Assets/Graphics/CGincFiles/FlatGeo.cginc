@@ -18,7 +18,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 	float3 flatNormal = normalize(cross(IN[1].vertex - IN[0].vertex, IN[2].vertex - IN[0].vertex));
 	float4 center = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
 
-	fixed lightValue = LightCalculation(center, flatNormal);
+	float lightValue = LightCalculation(center, flatNormal);
 
 	g2f idealVertexOutput = VertexOutput(center, lightValue);
 

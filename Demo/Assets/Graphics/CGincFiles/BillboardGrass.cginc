@@ -22,7 +22,7 @@ g2f VertexOutput(float3 pos, float directionalLightValue, float2 wind)
 	return o;
 }
 
-fixed rand(float3 co)
+float rand(float3 co)
 {
 	return sin(dot(co.xyz, float3(12.9898, 78.233, 53.539)));
 }
@@ -34,20 +34,20 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 	float4 center = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
 	float3 world_center = mul(unity_ObjectToWorld, center).xyz;
 
-	fixed lightValue = LightCalculation(world_center, flatNormal);
+	float lightValue = LightCalculation(world_center, flatNormal);
 	
-	fixed x_displacement = rand(world_center.xyz) * _XZDisplacementRandom;
-	fixed y_displacement = _YDisplacement;
-	fixed z_displacement = rand(world_center.xzy) * _XZDisplacementRandom;
-	world_center += fixed3(x_displacement, y_displacement, z_displacement);
+	float x_displacement = rand(world_center.xyz) * _XZDisplacementRandom;
+	float y_displacement = _YDisplacement;
+	float z_displacement = rand(world_center.xzy) * _XZDisplacementRandom;
+	world_center += float3(x_displacement, y_displacement, z_displacement);
 
 	center = mul(unity_WorldToObject, float4(world_center,1));
 
-	fixed pixelSize = _TilePixelSize / (pixels_per_unit * 2);
+	float pixelSize = _TilePixelSize / (pixels_per_unit * 2);
 	float4 vectors[4];
 	Get4VectorsUp(center, pixelSize, vectors);
 
-	fixed2 wind = GetWind(center);
+	float2 wind = GetWind(center);
 
 	g2f idealVertexOutput = VertexOutput(center, lightValue, wind);
 

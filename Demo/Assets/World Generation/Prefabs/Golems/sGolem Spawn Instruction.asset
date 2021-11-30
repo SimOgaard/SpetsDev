@@ -67,7 +67,7 @@ MonoBehaviour:
   reset_rotation: 1
   rotation_offset: 0
   rotation_increment: 1
-  max_rotation: 180
+  max_rotation: 90
   shared_scales: 0
   min_scale: {x: 1, y: 1, z: 1}
   max_scale: {x: 1, y: 1, z: 1}

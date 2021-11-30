@@ -55,17 +55,17 @@ Shader "Custom/per vertex shader"
 		float3 worldNorm = UnityObjectToWorldNormal (v.normal);
  
         TRANSFER_SHADOW(o);
-        fixed shadow = SHADOW_ATTENUATION (o);
+        float shadow = SHADOW_ATTENUATION (o);
  
-        half diff = smoothstep (0, 0.5, dot (worldNorm, _WorldSpaceLightPos0.xyz));
-        o.lighting = _LightColor0.rgb * diff * shadow + ShadeSH9 (half4 (worldNorm, 1));
+        float diff = smoothstep (0, 0.5, dot (worldNorm, _WorldSpaceLightPos0.xyz));
+        o.lighting = _LightColor0.rgb * diff * shadow + ShadeSH9 (float4 (worldNorm, 1));
  
         return o;
     }
  
-    half4 frag (v2f i) : SV_Target
+    float4 frag (v2f i) : SV_Target
     {
-        return half4 (i.lighting * i.attenuation , 1);
+        return float4 (i.lighting * i.attenuation , 1);
     }
  
     ENDCG

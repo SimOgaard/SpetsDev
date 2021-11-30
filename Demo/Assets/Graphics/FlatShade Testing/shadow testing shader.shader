@@ -98,7 +98,7 @@ Shader "Custom/shadow testing shader"
 				outStream.Append(idealVertexOutput);
 			}
 
-			fixed4 frag(g2f i, fixed facing : VFACE) : SV_Target
+			float4 frag(g2f i, float facing : VFACE) : SV_Target
 			{
 				float shadow = SHADOW_ATTENUATION(i);
 				shadow = saturate(shadow + _ShadowSoftness);

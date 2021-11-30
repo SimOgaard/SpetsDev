@@ -68,12 +68,12 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
-				fixed2 uv = i.uv + float2(_Time.x * _VortexSpeed, 0);
-				fixed4 texture_col = tex2D(_MainTex, uv);
+				float2 uv = i.uv + float2(_Time.x * _VortexSpeed, 0);
+				float4 texture_col = tex2D(_MainTex, uv);
 
-				fixed4 smoke = _ColorSmoke * texture_col.r;				
+				float4 smoke = _ColorSmoke * texture_col.r;				
 
 				float4 fire = _ColorFire3;
 				if (texture_col.g < _Threshold1)
