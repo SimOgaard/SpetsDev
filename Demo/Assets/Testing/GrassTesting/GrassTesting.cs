@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#region old summary
 /// <summary>
 /// en compute shader ska ta in en funktion som representerar en 3d area. 
 ///         villkor som måste mötas för att ändra state v triangeln
@@ -22,6 +23,32 @@ using UnityEngine;
 ///         by using the fact that each triangles index is evenly spaced in x, y
 /// check if point is inside volume
 /// change point enum state
+/// </summary>
+#endregion 
+
+/// <summary>
+/// Given:
+///     master mesh with:
+///                     one set of vertices that are fixed
+///                     submeshes for every material state (grass/fire/none)
+///                     for every submesh keep a triangle dictionary in array of Dictionary
+///                     update submesh using SetTriangles(List<int> triangles, int submesh, bool calculateBounds = false, int baseVertex = 0);
+///                     
+///     
+///     how to do this?:
+///         given triangle index that is the length of 1/3 of all triangles[]
+///         index into the right submesh and its list<int> to find the triangle and delete it
+/// 
+/// 
+///     array of lists containing triangles
+///     
+/// 
+///     vector3 of every point in ground mesh
+///     int of every triangle in mesh
+///     enum/int of every triangles material state (grass/fire/none) that links to its submesh
+///     
+///     
+///     list for every 
 /// </summary>
 public class GrassTesting : MonoBehaviour
 {
