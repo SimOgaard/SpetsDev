@@ -18,6 +18,8 @@ public class GrassTestingWithArray : MonoBehaviour
     private List<int>[] triangles_list_temporary;
     private bool[] triangles_types_changed; // what submesh that needs to be updated
 
+    private Vector2 min_max_y_mesh;
+
     private Mesh ground_mesh;
 
     private void Awake()
@@ -122,19 +124,36 @@ public class GrassTestingWithArray : MonoBehaviour
 
         // set triangle type and midpoint for each triangle
         triangles_mid = new Vector3[triangle_amount];
+
+        min_max_y_mesh = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
+
         Vector3[] vertices = ground_mesh.vertices;
         for (int i = 0; i < triangle_amount; i++)
         {
             int triangle_point_index = i * 3;
             triangles_mid[i] = (vertices[triangles[triangle_point_index]] + vertices[triangles[triangle_point_index + 1]] + vertices[triangles[triangle_point_index + 2]]) / 3.0f;
+
+            if (triangles_mid[i].y < min_max_y_mesh.x)
+            {
+                min_max_y_mesh.x = triangles_mid[i].y;
+            }
+            if (triangles_mid[i].y > min_max_y_mesh.y)
+            {
+                min_max_y_mesh.x = triangles_mid[i].y;
+            }
         }
+        min_max_y_mesh += Vector2.up * transform.position.y;
     }
 
-    [SerializeField] private Collider test_collider;
+    public List<Collider> test_colliders;
+    // switches traingles that are in this collider:
     // goes really quickly
     private void FixedUpdate()
     {
-        SwitchTrainglesInCollider(test_collider, (int)GroundType.flower);
+        foreach (Collider test_collider in test_colliders)
+        {
+            SwitchTrainglesInCollider(test_collider, (int)GroundType.flower);
+        }
     }
 
     // takes a long time
@@ -186,35 +205,39 @@ public class GrassTestingWithArray : MonoBehaviour
 
     public void SwitchTrainglesInCollider(Collider collider, int ground_type)
     {
-        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index) = ColliderBounds(collider.bounds, unit_size, resolution);
+        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
 
-        int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
-        int add_z = resolution.y * 2;
-
-        int max_x = bounds_max_to_mesh_index.x * 2;
-        for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
+        // if collider is inbetween
+        if (min_max_y_mesh.x > min_max_y.x && min_max_y_mesh.y < min_max_y.x || min_max_y_mesh.x > min_max_y.y && min_max_y_mesh.y < min_max_y.y)
         {
-            for (int x = bounds_min_to_mesh_index.x * 2; x < max_x; x++)
+            int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
+            int add_z = resolution.y * 2;
+
+            int max_x = bounds_max_to_mesh_index.x * 2;
+            for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
             {
-                int triangle_index = z + x;
-
-                if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+                for (int x = bounds_min_to_mesh_index.x * 2; x < max_x; x++)
                 {
-                    // signal that that both triangles has been changed
-                    triangles_types_changed[triangles_types[triangle_index]] = true;
-                    if (ground_type != (int)GroundType.none)
-                    {
-                        triangles_types_changed[ground_type] = true;
-                    }
+                    int triangle_index = z + x;
 
-                    // switch the triangle
-                    triangles_types[triangle_index] = ground_type;
+                    if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+                    {
+                        // signal that that both triangles has been changed
+                        triangles_types_changed[triangles_types[triangle_index]] = true;
+                        if (ground_type != (int)GroundType.none)
+                        {
+                            triangles_types_changed[ground_type] = true;
+                        }
+
+                        // switch the triangle
+                        triangles_types[triangle_index] = ground_type;
+                    }
                 }
             }
         }
     }
 
-    private (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index) ColliderBounds(Bounds bounds, Vector2 unit_size, Vector2Int resolution)
+    private (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) ColliderBounds(Bounds bounds, Vector2 unit_size, Vector2Int resolution)
     {
         Vector2 mesh_size = Vector2.Scale(unit_size, resolution);
         Vector3 mesh_size_half = new Vector3(mesh_size.x * 0.5f, 0f, mesh_size.y * 0.5f);
@@ -237,6 +260,6 @@ public class GrassTestingWithArray : MonoBehaviour
             Mathf.Clamp(Mathf.RoundToInt(bounds_max.z / unit_size.y), 0, resolution.y)
         );
 
-        return (bounds_min_to_mesh_index, bounds_max_to_mesh_index);
+        return (bounds_min_to_mesh_index, bounds_max_to_mesh_index, new Vector2(bounds_min.y, bounds_max.y));
     }
 }

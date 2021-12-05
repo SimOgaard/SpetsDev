@@ -16,6 +16,8 @@ public class GrassTestingWithDictionary : MonoBehaviour
     private int[] triangles_types; // holds every triangle state
     private Vector3[] triangles_mid;
 
+    private Vector2 min_max_y_mesh;
+
     private Dictionary<int, int>[] ground_subtypes; // holds one dictionary for each groundtype. holds triangles
     private bool[] ground_subtypes_changed; // what submesh that needs to be updated
 
@@ -124,12 +126,25 @@ public class GrassTestingWithDictionary : MonoBehaviour
 
         // set triangle type and midpoint for each triangle
         triangles_mid = new Vector3[triangles.Length / 3];
+
+        min_max_y_mesh = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
+
         Vector3[] vertices = ground_mesh.vertices;
         for (int i = 0; i < triangle_amount; i++)
         {
             int triangle_point_index = i * 3;
             triangles_mid[i] = (vertices[triangles[triangle_point_index]] + vertices[triangles[triangle_point_index + 1]] + vertices[triangles[triangle_point_index + 2]]) / 3.0f;
+
+            if (triangles_mid[i].y < min_max_y_mesh.x)
+            {
+                min_max_y_mesh.x = triangles_mid[i].y;
+            }
+            if (triangles_mid[i].y > min_max_y_mesh.y)
+            {
+                min_max_y_mesh.x = triangles_mid[i].y;
+            }
         }
+        min_max_y_mesh += Vector2.up * transform.position.y;
 
         for (int i = 0; i < triangle_corner_amount; i++)
         {
@@ -137,12 +152,15 @@ public class GrassTestingWithDictionary : MonoBehaviour
         }
     }
 
-    [SerializeField] private Collider test_collider;
+    public List<Collider> test_colliders;
     // switches traingles that are in this collider:
     // takes some time
     private void FixedUpdate()
     {
-        SwitchTrainglesInCollider(test_collider, (int)GroundType.flower);
+        foreach (Collider test_collider in test_colliders)
+        {
+            SwitchTrainglesInCollider(test_collider, (int)GroundType.flower);
+        }
     }
 
     // set triangles for each affected submesh:
@@ -174,35 +192,39 @@ public class GrassTestingWithDictionary : MonoBehaviour
 
     public void SwitchTrainglesInCollider(Collider collider, int ground_type)
     {
-        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index) = ColliderBounds(collider.bounds, unit_size, resolution);
+        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
 
-        int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
-        int add_z = resolution.y * 2;
-
-        int max_x = bounds_max_to_mesh_index.x * 2;
-        for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
+        // if collider is inbetween
+        if (min_max_y_mesh.x > min_max_y.x && min_max_y_mesh.y < min_max_y.x || min_max_y_mesh.x > min_max_y.y && min_max_y_mesh.y < min_max_y.y)
         {
-            for (int x = bounds_min_to_mesh_index.x * 2; x < max_x; x++)
-            {
-                /*
-                int triangle_index = z + x;
-                int single_triangle_index = triangle_index / 3;
-                SwitchTraingle(ground_type, triangle_index, single_triangle_index);
+            int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
+            int add_z = resolution.y * 2;
 
-                single_triangle_index++;
-                triangle_index += 3;
-                SwitchTraingle(ground_type, triangle_index, single_triangle_index);
-                */
-                int triangle_index = z + x;
-                if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+            int max_x = bounds_max_to_mesh_index.x * 2;
+            for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
+            {
+                for (int x = bounds_min_to_mesh_index.x * 2; x < max_x; x++)
                 {
-                    SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
+                    /*
+                    int triangle_index = z + x;
+                    int single_triangle_index = triangle_index / 3;
+                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
+
+                    single_triangle_index++;
+                    triangle_index += 3;
+                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
+                    */
+                    int triangle_index = z + x;
+                    if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+                    {
+                        SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
+                    }
                 }
             }
         }
     }
 
-    private (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index) ColliderBounds(Bounds bounds, Vector2 unit_size, Vector2Int resolution)
+    private (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) ColliderBounds(Bounds bounds, Vector2 unit_size, Vector2Int resolution)
     {
         Vector2 mesh_size = Vector2.Scale(unit_size, resolution);
         Vector3 mesh_size_half = new Vector3(mesh_size.x * 0.5f, 0f, mesh_size.y * 0.5f);
@@ -225,7 +247,7 @@ public class GrassTestingWithDictionary : MonoBehaviour
             Mathf.Clamp(Mathf.RoundToInt(bounds_max.z / unit_size.y), 0, resolution.y)
         );
 
-        return (bounds_min_to_mesh_index, bounds_max_to_mesh_index);
+        return (bounds_min_to_mesh_index, bounds_max_to_mesh_index, new Vector2(bounds_min.y, bounds_max.y));
     }
 
     private void SwitchTraingle(int ground_type, int triangle_corner_index, int triangle_index)
