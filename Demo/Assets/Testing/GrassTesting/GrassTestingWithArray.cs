@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 
-public class GrassTestingWithDictionary : MonoBehaviour
+public class GrassTestingWithArray : MonoBehaviour
 {
     public enum GroundType { none = -1, grass, flower, fire };
     private int ground_subtypes_length;
@@ -14,10 +14,9 @@ public class GrassTestingWithDictionary : MonoBehaviour
 
     private int[] triangles; // holds every triangle for ground mesh
     private int[] triangles_types; // holds every triangle state
-    private Vector3[] triangles_mid;
-
-    private Dictionary<int, int>[] ground_subtypes; // holds one dictionary for each groundtype. holds triangles
-    private bool[] ground_subtypes_changed; // what submesh that needs to be updated
+    private Vector3[] triangles_mid; // mid point for each triangle
+    private List<int>[] triangles_list_temporary;
+    private bool[] triangles_types_changed; // what submesh that needs to be updated
 
     private Mesh ground_mesh;
 
@@ -27,12 +26,12 @@ public class GrassTestingWithDictionary : MonoBehaviour
         triangle_corner_amount = triangle_amount * 3;
         ground_subtypes_length = GroundType.GetNames(typeof(GroundType)).Length - 1;
 
-        ground_subtypes = new Dictionary<int, int>[ground_subtypes_length];
-        ground_subtypes_changed = new bool[ground_subtypes_length];
+        triangles_types_changed = new bool[ground_subtypes_length];
+        triangles_list_temporary = new List<int>[ground_subtypes_length];
         for (int i = 0; i < ground_subtypes_length; i++)
         {
-            ground_subtypes[i] = new Dictionary<int, int>(triangle_corner_amount);
-            ground_subtypes_changed[i] = false;
+            triangles_types_changed[i] = false;
+            triangles_list_temporary[i] = new List<int>(triangle_corner_amount);
         }
         triangles_types = new int[triangle_amount];
         for (int i = 0; i < triangle_amount; i++)
@@ -84,7 +83,6 @@ public class GrassTestingWithDictionary : MonoBehaviour
         jobHandle = noiseJob.Schedule();
         jobHandle.Complete();
 
-
         CreateMesh.NormalizeJob normalizeJob = new CreateMesh.NormalizeJob
         {
             quadCount = quadCount,
@@ -123,41 +121,55 @@ public class GrassTestingWithDictionary : MonoBehaviour
         mesh_renderer.sharedMaterials = materials;
 
         // set triangle type and midpoint for each triangle
-        triangles_mid = new Vector3[triangles.Length / 3];
+        triangles_mid = new Vector3[triangle_amount];
         Vector3[] vertices = ground_mesh.vertices;
         for (int i = 0; i < triangle_amount; i++)
         {
             int triangle_point_index = i * 3;
             triangles_mid[i] = (vertices[triangles[triangle_point_index]] + vertices[triangles[triangle_point_index + 1]] + vertices[triangles[triangle_point_index + 2]]) / 3.0f;
         }
-
-        for (int i = 0; i < triangle_corner_amount; i++)
-        {
-            ground_subtypes[(int)GroundType.grass][i] = triangles[i];
-        }
     }
 
     [SerializeField] private Collider test_collider;
-    // switches traingles that are in this collider:
-    // takes some time
+    // goes really quickly
     private void FixedUpdate()
     {
         SwitchTrainglesInCollider(test_collider, (int)GroundType.flower);
     }
 
-    // set triangles for each affected submesh:
-    // goes quickly
+    // takes a long time
     private void LateUpdate()
     {
+        // set triangles for each affected submesh:
+        // minimize the use of this operation. O(m*n) n = triangle amount, m = different triangles states
+        for (int i = 0; i < triangle_amount; i++)
+        {
+            if (triangles_types[i] == (int)GroundType.none)
+            {
+                continue;
+            }
+
+            // if this one has changed
+            if (triangles_types_changed[triangles_types[i]])
+            {
+                // add this triangle to right temporary list
+                int triangle_index = i * 3;
+                triangles_list_temporary[triangles_types[i]].Add(triangles[triangle_index]);
+                triangles_list_temporary[triangles_types[i]].Add(triangles[triangle_index + 1]);
+                triangles_list_temporary[triangles_types[i]].Add(triangles[triangle_index + 2]);
+            }
+        }
+
         for (int i = 0; i < ground_subtypes_length; i++)
         {
-            if (ground_subtypes_changed[i])
+            if (triangles_types_changed[i])
             {
-                ground_subtypes_changed[i] = false;
-
-                int[] triangles_dict_copy = new int[ground_subtypes[i].Count];
-                ground_subtypes[i].Values.CopyTo(triangles_dict_copy, 0);
-                ground_mesh.SetTriangles(triangles_dict_copy, i, false);
+                // convert list to array and set triangles
+                ground_mesh.SetTriangles(triangles_list_temporary[i].ToArray(), i);
+                // remove all items in list
+                triangles_list_temporary[i].Clear();
+                // set to has changed
+                triangles_types_changed[i] = false;
             }
         }
     }
@@ -184,19 +196,19 @@ public class GrassTestingWithDictionary : MonoBehaviour
         {
             for (int x = bounds_min_to_mesh_index.x * 2; x < max_x; x++)
             {
-                /*
                 int triangle_index = z + x;
-                int single_triangle_index = triangle_index / 3;
-                SwitchTraingle(ground_type, triangle_index, single_triangle_index);
 
-                single_triangle_index++;
-                triangle_index += 3;
-                SwitchTraingle(ground_type, triangle_index, single_triangle_index);
-                */
-                int triangle_index = z + x;
                 if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
                 {
-                    SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
+                    // signal that that both triangles has been changed
+                    triangles_types_changed[triangles_types[triangle_index]] = true;
+                    if (ground_type != (int)GroundType.none)
+                    {
+                        triangles_types_changed[ground_type] = true;
+                    }
+
+                    // switch the triangle
+                    triangles_types[triangle_index] = ground_type;
                 }
             }
         }
@@ -226,50 +238,5 @@ public class GrassTestingWithDictionary : MonoBehaviour
         );
 
         return (bounds_min_to_mesh_index, bounds_max_to_mesh_index);
-    }
-
-    private void SwitchTraingle(int ground_type, int triangle_corner_index, int triangle_index)
-    {
-        void RemoveTriangle()
-        {
-            // show that this mesh was updated
-            ground_subtypes_changed[triangles_types[triangle_index]] = true;
-
-            // remove triangle from last dict/submesh
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 1);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 2);
-        }
-
-        void AddTriangle()
-        {
-            // change triangle type to new
-            triangles_types[triangle_index] = ground_type;
-
-            // show that this mesh was updated
-            ground_subtypes_changed[ground_type] = true;
-
-            // place new triangle in new submesh
-            ground_subtypes[ground_type][triangle_corner_index] = triangles[triangle_corner_index];
-            ground_subtypes[ground_type][triangle_corner_index + 1] = triangles[triangle_corner_index + 1];
-            ground_subtypes[ground_type][triangle_corner_index + 2] = triangles[triangle_corner_index + 2];
-        }
-
-        // if triangle is not allready in the wanted submesh
-        if (ground_type == (int)GroundType.none)
-        {
-            // we should only remove triangle
-            RemoveTriangle();
-        }
-        else if (triangles_types[triangle_index] == (int)GroundType.none)
-        {
-            // we should only add triangle
-            AddTriangle();
-        }
-        else
-        {
-            RemoveTriangle();
-            AddTriangle();
-        }
     }
 }
