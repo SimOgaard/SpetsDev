@@ -8,18 +8,15 @@ public class NoiseLayerSettings : ScriptableObject
     [Header("Terrain")]
     public NoiseLayer[] terrain_noise_layers;
 
-    [Header("Grass")]
-    public Material material_grass;
-    public Curve curve_grass;
+    [Header("Ground Material")]
+    public MaterialWithCurve material_static;
 
-    [Header("Random Foliage")]
+    [Header("Foliage")]
     public Foliage[] random_foliage;
 
     [Header("Tree")]
-    public Material material_leaf;
-    public Curve curve_leaf;
-    public Material material_wood;
-    public Curve curve_wood;
+    public MaterialWithCurve material_leaf;
+    public MaterialWithCurve material_wood;
 
     [Header("Other")]
     public Material material_stone;
@@ -110,11 +107,17 @@ public class NoiseLayerSettings : ScriptableObject
     {
         public string name;
         public bool enabled = true;
-        public Material material;
-        public Curve curve;
+        public MaterialWithCurve material;
         public NoiseLayer noise_layer;
         public Vector2 keep_range_noise;
         public float keep_range_random_noise;
         public float keep_range_random;
+    }
+
+    [System.Serializable]
+    public class MaterialWithCurve
+    {
+        public Material material;
+        public Curve curve;
     }
 }

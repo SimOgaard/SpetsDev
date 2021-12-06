@@ -23,7 +23,7 @@ public class SpawnInstruction : ScriptableObject
     public NoiseLayerSettings.NoiseLayer noise_layer;
 
     [Header("Spawning Ray")]
-    public LayerMask ray_layer_mask = (1 << 12);
+    public LayerMask ray_layer_mask = (1 << 16) | (1 << 20);
     public SharedXYZ shared_ray_position = SharedXYZ.none;
     public Vector3 min_ray_position = new Vector3(0, 0, 0);
     public Vector3 max_ray_position = new Vector3(0, 0, 0);

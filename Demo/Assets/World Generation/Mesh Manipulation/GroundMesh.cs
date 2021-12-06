@@ -4,9 +4,8 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 
-public class GrassTestingWithDictionary : MonoBehaviour
+public class GroundMesh : MonoBehaviour
 {
-    public enum GroundType { none = -1, grass, flower };
     private int ground_subtypes_length;
 
     private int triangle_amount;
@@ -14,54 +13,69 @@ public class GrassTestingWithDictionary : MonoBehaviour
 
     private int[] triangles; // holds every triangle for ground mesh
     private int[] triangles_types; // holds every triangle state
-    private Vector3[] triangles_mid;
 
-    private Vector2 min_max_y_mesh;
+    private float min_y;
+    private float max_y;
+    private Vector3[] triangles_mid;
 
     private Dictionary<int, int>[] ground_subtypes; // holds one dictionary for each groundtype. holds triangles
     private bool[] ground_subtypes_changed; // what submesh that needs to be updated
 
     private Mesh ground_mesh;
+    private Vector2 unit_size;
+    private Vector2Int resolution;
 
-    private void Awake()
+    public void Init()
     {
+        // TESTING
+        test_colliders.Add(GameObject.Find("TESTING REMOVING GRASS").GetComponent<Collider>());
+    }
+
+    private JobHandle jobHandle;
+    private MeshData meshData;
+    private bool is_deallocated = false;
+    private void OnDestroy()
+    {
+        if (!is_deallocated)
+        {
+            if (!jobHandle.IsCompleted)
+            {
+                jobHandle.Complete();
+            }
+
+            meshData.Dispose();
+        }
+    }
+
+    public IEnumerator CreateGround(WaitForFixedUpdate wait, Vector2 unit_size, Vector2Int resolution, NativeArray<Noise.NoiseLayer> noise_layers_native_array, Material static_material, NoiseLayerSettings.Foliage[] foliage)
+    {
+        this.unit_size = unit_size;
+        this.resolution = resolution;
+
         triangle_amount = resolution.x * resolution.y * 2;
         triangle_corner_amount = triangle_amount * 3;
-        ground_subtypes_length = GroundType.GetNames(typeof(GroundType)).Length - 1;
+        ground_subtypes_length = foliage.Length;
 
         ground_subtypes = new Dictionary<int, int>[ground_subtypes_length];
         ground_subtypes_changed = new bool[ground_subtypes_length];
         for (int i = 0; i < ground_subtypes_length; i++)
         {
             ground_subtypes[i] = new Dictionary<int, int>(triangle_corner_amount);
-            ground_subtypes_changed[i] = false;
+            ground_subtypes_changed[i] = true;
         }
         triangles_types = new int[triangle_amount];
-        for (int i = 0; i < triangle_amount; i++)
-        {
-            triangles_types[i] = (int)GroundType.grass;
-        }
-
-        CreateMesh();
-    }
-
-    [SerializeField] private Vector2 unit_size;
-    [SerializeField] private Vector2Int resolution;
-    [SerializeField] private NoiseLayerSettings noise_layer_settings;
-    [SerializeField] private Material[] materials;
-    private void CreateMesh()
-    {
-        NativeArray<Noise.NoiseLayer> noise_layers_native_array = new NativeArray<Noise.NoiseLayer>(Noise.CreateNoiseLayers(noise_layer_settings), Allocator.Persistent);
 
         int quadCount = resolution.x * resolution.y;
         int vertexCount = quadCount * 4;
         int triangleCount = quadCount * 6;
 
-        MeshData meshData = new MeshData();
+        meshData = new MeshData();
         meshData.vertices = new NativeArray<Vector3>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         meshData.triangles = new NativeArray<int>(triangleCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         meshData.normals = new NativeArray<Vector3>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         meshData.uv = new NativeArray<Vector2>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        meshData.mid_point = new NativeArray<Vector3>(triangle_amount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        meshData.min_y__max_y = new NativeArray<float>(2, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
         CreateMesh.CreatePlaneJob job = new CreateMesh.CreatePlaneJob
         {
@@ -73,8 +87,13 @@ public class GrassTestingWithDictionary : MonoBehaviour
             triangleCount = triangleCount
         };
 
-        JobHandle jobHandle = job.Schedule();
+        jobHandle = job.Schedule();
+        while (!jobHandle.IsCompleted)
+        {
+            yield return wait;
+        }
         jobHandle.Complete();
+
 
         CreateMesh.CreateMeshByNoiseJob noiseJob = new CreateMesh.CreateMeshByNoiseJob
         {
@@ -84,90 +103,159 @@ public class GrassTestingWithDictionary : MonoBehaviour
         };
 
         jobHandle = noiseJob.Schedule();
+        while (!jobHandle.IsCompleted)
+        {
+            yield return wait;
+        }
         jobHandle.Complete();
 
-
+        
+        CreateMesh.SmoothNormalizeJob normalizeJob = new CreateMesh.SmoothNormalizeJob
+        {
+            triangleCount = triangleCount,
+            vertexCount = vertexCount,
+            angle = 10f,
+            meshData = meshData
+        };
+        /*
         CreateMesh.NormalizeJob normalizeJob = new CreateMesh.NormalizeJob
         {
             quadCount = quadCount,
             meshData = meshData
         };
-
+        */
         jobHandle = normalizeJob.Schedule(jobHandle);
+        while (!jobHandle.IsCompleted)
+        {
+            yield return wait;
+        }
         jobHandle.Complete();
 
-        // for parrent (static/const)
-        GameObject parrent = new GameObject();
-        parrent.transform.position = transform.position;
-        parrent.transform.parent = transform.parent;
-        transform.parent = parrent.transform;
 
+        CreateMesh.MidPointJob midPointJob = new CreateMesh.MidPointJob
+        {
+            triangleCount = triangleCount,
+            meshData = meshData
+        };
+
+        jobHandle = midPointJob.Schedule(jobHandle);
+        while (!jobHandle.IsCompleted)
+        {
+            yield return wait;
+        }
+        jobHandle.Complete();
+
+        min_y = meshData.min_y__max_y[0] + transform.position.y;
+        max_y = meshData.min_y__max_y[1] + transform.position.y;
+
+        triangles_mid = meshData.mid_point.ToArray();
+        triangles = meshData.triangles.ToArray();
+
+        // init parrent (this) that holds all const/static meshes
+        MeshRenderer this_mesh_renderer = gameObject.AddComponent<MeshRenderer>();
+        MeshFilter this_mesh_filter = gameObject.AddComponent<MeshFilter>();
+        MeshCollider this_mesh_collider = gameObject.AddComponent<MeshCollider>();
+
+        // create mesh for ground
         Mesh collider_ground_mesh = new Mesh();
         collider_ground_mesh.vertices = meshData.vertices.ToArray();
         collider_ground_mesh.triangles = meshData.triangles.ToArray();
         collider_ground_mesh.normals = meshData.normals.ToArray();
         collider_ground_mesh.uv = meshData.uv.ToArray();
-        MeshCollider mesh_collider = parrent.AddComponent<MeshCollider>();
-        mesh_collider.sharedMesh = collider_ground_mesh;
-        parrent.AddComponent<MeshFilter>().sharedMesh = collider_ground_mesh;
-        parrent.AddComponent<MeshRenderer>();
 
+        this_mesh_renderer.material = static_material;
+        this_mesh_filter.sharedMesh = collider_ground_mesh;
+        this_mesh_collider.sharedMesh = collider_ground_mesh;
+
+        // create child that holds changing meshes
+        GameObject child = new GameObject("chaning meshes");
+        MeshRenderer child_mesh_renderer = child.AddComponent<MeshRenderer>();
+        MeshFilter child_mesh_filter = child.AddComponent<MeshFilter>();
+
+        child.transform.parent = transform;
+        child.transform.localPosition = Vector3.up * 0.1f;
+
+        // setup multi mesh for child
         ground_mesh = new Mesh();
         ground_mesh.vertices = meshData.vertices.ToArray();
-        triangles = meshData.triangles.ToArray();
         ground_mesh.normals = meshData.normals.ToArray();
         ground_mesh.uv = meshData.uv.ToArray();
 
         ground_mesh.subMeshCount = ground_subtypes_length;
-        ground_mesh.SetTriangles(triangles, 0);
-        ground_mesh.SetTriangles(new int[0], 1);
-        ground_mesh.SetTriangles(new int[0], 2);
 
-        meshData.Dispose();
-        noise_layers_native_array.Dispose();
 
-        // setup mesh
-        MeshFilter mesh_filter = gameObject.AddComponent<MeshFilter>();
-        MeshRenderer mesh_renderer = gameObject.AddComponent<MeshRenderer>();
-        mesh_filter.sharedMesh = ground_mesh;
-        mesh_renderer.sharedMaterials = materials;
-
-        // set triangle type and midpoint for each triangle
-        triangles_mid = new Vector3[triangles.Length / 3];
-
-        min_max_y_mesh = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
-
-        Vector3[] vertices = ground_mesh.vertices;
+        // native array of size triangle_amount
+        NativeArray<int> ground_type_native_array = new NativeArray<int>(triangle_amount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        // create FoliageJob.FoliageNativeArray[]
+        NativeArray<CreateMesh.FoliageJob.FoliageNativeArray> foliage_native_array = new NativeArray<CreateMesh.FoliageJob.FoliageNativeArray>(foliage.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        for (int i = 0; i < foliage.Length; i++)
+        {
+            foliage_native_array[i] = CreateMesh.FoliageJob.create_foliage_native_array(foliage[i]);
+        }
+        // pass them into a FoliageJob and execute
+        CreateMesh.FoliageJob foliageJob = new CreateMesh.FoliageJob
+        {
+            triangle_amount = triangle_amount,
+            original_mesh_data = meshData,
+            foliage = foliage_native_array,
+            ground_type_native_array = ground_type_native_array,
+        };
+        jobHandle = foliageJob.Schedule(jobHandle);
+        while (!jobHandle.IsCompleted)
+        {
+            yield return wait;
+        }
+        jobHandle.Complete();
+        // populate nativearray with value of GroundType
+        //      dependent on if any random foliage is true
+        //      otherwise do grass
+        // grab native array back and itterate over it setting
+        //      ground_subtypes[nativearray[i][i] = triangles[i]
         for (int i = 0; i < triangle_amount; i++)
         {
-            int triangle_point_index = i * 3;
-            triangles_mid[i] = (vertices[triangles[triangle_point_index]] + vertices[triangles[triangle_point_index + 1]] + vertices[triangles[triangle_point_index + 2]]) / 3.0f;
+            triangles_types[i] = ground_type_native_array[i];
 
-            if (triangles_mid[i].y < min_max_y_mesh.x)
+            if (triangles_types[i] == -1)
             {
-                min_max_y_mesh.x = triangles_mid[i].y;
+                continue;
             }
-            if (triangles_mid[i].y > min_max_y_mesh.y)
-            {
-                min_max_y_mesh.x = triangles_mid[i].y;
-            }
+
+            int corner_triangle = i * 3;
+            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
+            corner_triangle++;
+            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
+            corner_triangle++;
+            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
         }
-        min_max_y_mesh += Vector2.up * transform.position.y;
+        // dispose of native array
+        ground_type_native_array.Dispose();
+        foliage_native_array.Dispose();
 
-        for (int i = 0; i < triangle_corner_amount; i++)
+        // get materials for each foliage
+        Material[] foliage_materials = new Material[foliage.Length];
+        for (int i = 0; i < foliage.Length; i++)
         {
-            ground_subtypes[(int)GroundType.grass][i] = triangles[i];
+            foliage_materials[i] = foliage[i].material.material;
         }
+        child_mesh_renderer.materials = foliage_materials;
+        child_mesh_filter.sharedMesh = ground_mesh;
+
+        is_deallocated = true;
+
+        meshData.Dispose();
     }
 
-    public List<Collider> test_colliders;
+    public List<Collider> test_colliders = new List<Collider>();
     // switches traingles that are in this collider:
     // takes some time
     private void FixedUpdate()
     {
-        foreach (Collider test_collider in test_colliders)
+        if (is_deallocated)
         {
-            SwitchTrainglesInCollider(test_collider, (int)GroundType.none);
+            foreach (Collider test_collider in test_colliders)
+            {
+                SwitchTrainglesInCollider(test_collider, -1);
+            }
         }
     }
 
@@ -175,15 +263,18 @@ public class GrassTestingWithDictionary : MonoBehaviour
     // goes quickly
     private void LateUpdate()
     {
-        for (int i = 0; i < ground_subtypes_length; i++)
+        if (is_deallocated)
         {
-            if (ground_subtypes_changed[i])
+            for (int i = 0; i < ground_subtypes_length; i++)
             {
-                ground_subtypes_changed[i] = false;
+                if (ground_subtypes_changed[i])
+                {
+                    ground_subtypes_changed[i] = false;
 
-                int[] triangles_dict_copy = new int[ground_subtypes[i].Count];
-                ground_subtypes[i].Values.CopyTo(triangles_dict_copy, 0);
-                ground_mesh.SetTriangles(triangles_dict_copy, i, false);
+                    int[] triangles_dict_copy = new int[ground_subtypes[i].Count];
+                    ground_subtypes[i].Values.CopyTo(triangles_dict_copy, 0);
+                    ground_mesh.SetTriangles(triangles_dict_copy, i, false);
+                }
             }
         }
     }
@@ -202,35 +293,24 @@ public class GrassTestingWithDictionary : MonoBehaviour
     {
         (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
 
-        // if collider is inbetween
-        if (min_max_y_mesh.x > min_max_y.x && min_max_y_mesh.y < min_max_y.x || min_max_y_mesh.x > min_max_y.y && min_max_y_mesh.y < min_max_y.y)
+        // if collider is inbetween min max
+        if (min_max_y.x < max_y || min_max_y.y > min_y)
         {
             int max_x = bounds_max_to_mesh_index.x * 2;
-            int x = bounds_min_to_mesh_index.x * 2;
+            int start_x = bounds_min_to_mesh_index.x * 2;
 
-            // if the second for loop is pointless dont do the first
-            if (x >= max_x)
+            if (start_x >= max_x)
             {
                 return;
             }
 
             int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
             int add_z = resolution.y * 2;
-            int z = bounds_min_to_mesh_index.y * resolution.y * 2;
 
-            for (; z < max_z; z += add_z)
+            for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
             {
-                for (; x < max_x; x++)
+                for (int x = start_x; x < max_x; x++)
                 {
-                    /*
-                    int triangle_index = z + x;
-                    int single_triangle_index = triangle_index / 3;
-                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
-
-                    single_triangle_index++;
-                    triangle_index += 3;
-                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
-                    */
                     int triangle_index = z + x;
                     if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
                     {
@@ -295,12 +375,12 @@ public class GrassTestingWithDictionary : MonoBehaviour
         }
 
         // if triangle is not allready in the wanted submesh
-        if (ground_type == (int)GroundType.none)
+        if (ground_type == -1)
         {
             // we should only remove triangle
             RemoveTriangle();
         }
-        else if (triangles_types[triangle_index] == (int)GroundType.none)
+        else if (triangles_types[triangle_index] == -1)
         {
             // we should only add triangle
             AddTriangle();

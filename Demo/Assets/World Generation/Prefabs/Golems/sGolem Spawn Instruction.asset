@@ -15,7 +15,7 @@ MonoBehaviour:
   parrent_name: 9
   min_child_amount_required: 2
   ignore_bounding_boxes: 0
-  spawn_chance: 0.25
+  spawn_chance: 0.1
   spawn_range_noise: {x: 0, y: 0}
   spawn_chance_noise: 1
   noise_layer:

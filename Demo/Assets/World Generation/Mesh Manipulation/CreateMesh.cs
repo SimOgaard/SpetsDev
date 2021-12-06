@@ -10,6 +10,9 @@ public struct MeshData
     public NativeArray<int> triangles;
     public NativeArray<Vector3> normals;
     public NativeArray<Vector2> uv;
+
+    public NativeArray<Vector3> mid_point;
+    public NativeArray<float> min_y__max_y;
 }
 
 public struct MeshDataList
@@ -18,14 +21,9 @@ public struct MeshDataList
     public NativeList<int> triangles;
     public NativeList<Vector3> normals;
     public NativeList<Vector2> uv;
-}
 
-public struct MeshChunkData
-{
-    public NativeSlice<Vector3> vertices;
-    public NativeSlice<int> triangles;
-    public NativeSlice<Vector3> normals;
-    public NativeSlice<Vector2> uv;
+    public NativeArray<Vector3> mid_point;
+    public NativeArray<float> min_y__max_y;
 }
 
 public static class MeshDataExtensions
@@ -36,6 +34,9 @@ public static class MeshDataExtensions
         meshData.triangles.Cleanup();
         meshData.normals.Cleanup();
         meshData.uv.Cleanup();
+
+        meshData.mid_point.Cleanup();
+        meshData.min_y__max_y.Cleanup();
     }
     public static void Dispose(this MeshDataList meshData)
     {
@@ -43,6 +44,9 @@ public static class MeshDataExtensions
         meshData.triangles.Dispose();
         meshData.normals.Dispose();
         meshData.uv.Dispose();
+
+        meshData.mid_point.Cleanup();
+        meshData.min_y__max_y.Cleanup();
     }
 }
 
@@ -255,6 +259,181 @@ public class CreateMesh : MonoBehaviour
         }
     }
 
+    /// <summary>
+    ///     Recalculate the normals of a mesh based on an angle threshold. This takes
+    ///     into account distinct vertices that have the same position.
+    /// </summary>
+    /// <param name="mesh"></param>
+    /// <param name="angle">
+    ///     The smoothing angle. Note that triangles that already share
+    ///     the same vertex will be smooth regardless of the angle! 
+    /// </param>
+    public struct SmoothNormalizeJob : IJob
+    {
+        [ReadOnly] public int triangleCount;
+        [ReadOnly] public int vertexCount;        
+
+        [ReadOnly] public float angle;
+        public MeshData meshData;
+
+        private struct VertexKey
+        {
+            private readonly long _x;
+            private readonly long _y;
+            private readonly long _z;
+
+            // Change this if you require a different precision.
+            private const int Tolerance = 100000;
+
+            // Magic FNV values. Do not change these.
+            private const long FNV32Init = 0x811c9dc5;
+            private const long FNV32Prime = 0x01000193;
+
+            public VertexKey(Vector3 position)
+            {
+                _x = (long)(Mathf.Round(position.x * Tolerance));
+                _y = (long)(Mathf.Round(position.y * Tolerance));
+                _z = (long)(Mathf.Round(position.z * Tolerance));
+            }
+
+            public override bool Equals(object obj)
+            {
+                var key = (VertexKey)obj;
+                return _x == key._x && _y == key._y && _z == key._z;
+            }
+
+            public override int GetHashCode()
+            {
+                long rv = FNV32Init;
+                rv ^= _x;
+                rv *= FNV32Prime;
+                rv ^= _y;
+                rv *= FNV32Prime;
+                rv ^= _z;
+                rv *= FNV32Prime;
+
+                return rv.GetHashCode();
+            }
+        }
+
+        private struct VertexEntry
+        {
+            public int TriangleIndex;
+            public int VertexIndex;
+
+            public VertexEntry(int triIndex, int vertIndex)
+            {
+                TriangleIndex = triIndex;
+                VertexIndex = vertIndex;
+            }
+        }
+
+        public void Execute()
+        {
+            float cosineThreshold = Mathf.Cos(angle * Mathf.Deg2Rad);
+            Vector3[] triNormals = new Vector3[triangleCount / 3];
+            Dictionary<VertexKey, List<VertexEntry>> dictionary = new Dictionary<VertexKey, List<VertexEntry>>(vertexCount);
+
+            for (var i = 0; i < triangleCount; i += 3)
+            {
+                int i1 = meshData.triangles[i];
+                int i2 = meshData.triangles[i + 1];
+                int i3 = meshData.triangles[i + 2];
+
+                // Calculate the normal of the triangle
+                Vector3 p1 = meshData.vertices[i2] - meshData.vertices[i1];
+                Vector3 p2 = meshData.vertices[i3] - meshData.vertices[i1];
+                Vector3 normal = Vector3.Cross(p1, p2).normalized;
+                int triIndex = i / 3;
+                triNormals[triIndex] = normal;
+
+                List<VertexEntry> entry;
+                VertexKey key;
+
+                if (!dictionary.TryGetValue(key = new VertexKey(meshData.vertices[i1]), out entry))
+                {
+                    entry = new List<VertexEntry>(4);
+                    dictionary.Add(key, entry);
+                }
+                entry.Add(new VertexEntry(triIndex, i1));
+
+                if (!dictionary.TryGetValue(key = new VertexKey(meshData.vertices[i2]), out entry))
+                {
+                    entry = new List<VertexEntry>();
+                    dictionary.Add(key, entry);
+                }
+                entry.Add(new VertexEntry(triIndex, i2));
+
+                if (!dictionary.TryGetValue(key = new VertexKey(meshData.vertices[i3]), out entry))
+                {
+                    entry = new List<VertexEntry>();
+                    dictionary.Add(key, entry);
+                }
+                entry.Add(new VertexEntry(triIndex, i3));
+            }
+
+            // Each entry in the dictionary represents a unique vertex position.
+
+            foreach (var vertList in dictionary.Values)
+            {
+                for (var i = 0; i < vertList.Count; ++i)
+                {
+
+                    Vector3 sum = new Vector3();
+                    var lhsEntry = vertList[i];
+
+                    for (var j = 0; j < vertList.Count; ++j)
+                    {
+                        var rhsEntry = vertList[j];
+
+                        if (lhsEntry.VertexIndex == rhsEntry.VertexIndex)
+                        {
+                            sum += triNormals[rhsEntry.TriangleIndex];
+                        }
+                        else
+                        {
+                            // The dot product is the cosine of the angle between the two triangles.
+                            // A larger cosine means a smaller angle.
+                            float dot = Vector3.Dot(
+                                triNormals[lhsEntry.TriangleIndex],
+                                triNormals[rhsEntry.TriangleIndex]);
+                            if (dot >= cosineThreshold)
+                            {
+                                sum += triNormals[rhsEntry.TriangleIndex];
+                            }
+                        }
+                    }
+
+                    meshData.normals[lhsEntry.VertexIndex] = sum.normalized;
+                }
+            }
+        }
+    }
+
+    public struct MidPointJob : IJob
+    {
+        [ReadOnly] public int triangleCount;
+        public MeshData meshData;
+
+        public void Execute()
+        {
+            for (int i = 0; i < triangleCount; i+=3)
+            {
+                int tri_index = i / 3;
+                meshData.mid_point[tri_index] = (meshData.vertices[meshData.triangles[i]] + meshData.vertices[meshData.triangles[i + 1]] + meshData.vertices[meshData.triangles[i + 2]]) / 3.0f;
+
+                if (meshData.mid_point[tri_index].y < meshData.min_y__max_y[0])
+                {
+                    meshData.min_y__max_y[0] = meshData.mid_point[tri_index].y;
+                }
+                if (meshData.mid_point[tri_index].y > meshData.min_y__max_y[1])
+                {
+                    meshData.min_y__max_y[1] = meshData.mid_point[tri_index].y;
+                }
+            }
+        }
+    }
+
     // the triangles are the same list for each mesh no?
     // just reuse it in chunk.loadchunk
 
@@ -279,6 +458,71 @@ public class CreateMesh : MonoBehaviour
                     {
                         vertices[i] = new Vector3(vertices[i].x, vertices[i].y + noise_layers[q].GetNoiseValue(vertices[i].x + offset.x, vertices[i].z + offset.z), vertices[i].z);
                     }
+                }
+            }
+        }
+    }
+
+    public struct FoliageJob : IJob
+    {
+        public static FoliageNativeArray create_foliage_native_array(NoiseLayerSettings.Foliage random_foliage)
+        {
+            FoliageNativeArray native = new FoliageNativeArray();
+            native.enabled = random_foliage.enabled;
+            native.noise_layer = new Noise.NoiseLayer(random_foliage.noise_layer);
+            native.keep_range_noise = random_foliage.keep_range_noise;
+            native.keep_range_random_noise = random_foliage.keep_range_random_noise;
+            native.keep_range_random = random_foliage.keep_range_random;
+            return native;
+        }
+
+        public struct FoliageNativeArray
+        {
+            [ReadOnly] public bool enabled;
+            [ReadOnly] public Noise.NoiseLayer noise_layer;
+            [ReadOnly] public Vector2 keep_range_noise;
+            [ReadOnly] public float keep_range_random_noise;
+            [ReadOnly] public float keep_range_random;
+        }
+
+        [ReadOnly] public int triangle_amount;
+        [ReadOnly] public MeshData original_mesh_data;
+        [ReadOnly] public NativeArray<FoliageNativeArray> foliage;
+
+        [WriteOnly] public NativeArray<int> ground_type_native_array;
+
+        public void Execute()
+        {
+            System.Random rand = new System.Random();
+
+            // iterate each triangle
+            for (int i = 0; i < triangle_amount; i++)
+            {
+                ground_type_native_array[i] = -1;
+
+                float random_value = (float)rand.NextDouble();
+
+                // for each foliage
+                for (int f = 0; f < foliage.Length; f++)
+                {
+                    if (random_value <= foliage[f].keep_range_random)
+                    {
+                        ground_type_native_array[i] = f;
+                        break;
+                    }
+                    else
+                    {
+                        float noise_value = foliage[f].noise_layer.GetNoiseValue(original_mesh_data.mid_point[i].x, original_mesh_data.mid_point[i].z);
+                        if (noise_value > foliage[f].keep_range_noise.x && noise_value < foliage[f].keep_range_noise.y && noise_value * random_value <= foliage[f].keep_range_random_noise)
+                        {
+                            ground_type_native_array[i] = f;
+                            break;
+                        }
+                    }
+                    // triangle middle
+                    // if foliage is valid for this triangle
+                    // set triangle to foliage type
+                    // break loop
                 }
             }
         }

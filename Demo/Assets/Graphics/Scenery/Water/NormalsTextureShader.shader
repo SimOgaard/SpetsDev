@@ -48,6 +48,7 @@
             ENDCG
         }
     }
+	/*
 	SubShader
     {
         Tags 
@@ -84,4 +85,5 @@
             ENDCG
         }
     }
+	*/
 }

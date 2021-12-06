@@ -33,7 +33,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void Start()
     {
-        StartWith(typeof(EarthBendingPillarControllable));
+        StartWith(typeof(EarthSpikesBase));
     }
 
     private void StartWith(System.Type equipment_type)

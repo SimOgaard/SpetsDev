@@ -14,14 +14,14 @@ public class EarthBendingPillarBase : Ability, Equipment.IEquipment
         set { _current_cooldown = Mathf.Max(0f, value); }
     }
 
-    public float pillar_traverse_time = 0.2f;
-    public float pillar_growth_speed = 1.25f;
-    public float pillar_sleep_time = 3.5f;
-    public float pillar_gap = 3f;
+    protected float pillar_traverse_time = 0.2f;
+    protected float pillar_growth_speed = 1.25f;
+    protected float pillar_sleep_time = 3.5f;
+    protected float pillar_gap = 3f;
 
-    public int max_pillars = 6;
-    public int ready_pillars = 6;
-    public Vector3 scale = new Vector3(1.75f, 8f, 1.75f);
+    protected int max_pillars = 6;
+    protected int ready_pillars = 6;
+    protected Vector3 scale = new Vector3(1.75f, 8f, 1.75f);
 
     [SerializeField] private float pillar_distance_from_player = 7f;
 

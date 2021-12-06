@@ -28,6 +28,7 @@ Shader "Unlit/GrassGroundShaderSplit"
 			Tags
 			{
 				"RenderType" = "Opaque"
+				"Queue" = "Geometry"
 				"LightMode" = "ForwardAdd"
 				"PassFlags" = "OnlyDirectional"
 			}

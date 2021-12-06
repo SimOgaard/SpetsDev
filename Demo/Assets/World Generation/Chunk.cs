@@ -21,28 +21,6 @@ public class Chunk : MonoBehaviour
         this.player_transform = player_transform;
     }
 
-    private JobHandle jobHandle;
-    private MeshData meshData;
-    private bool is_deallocated = false;
-    private void OnDestroy()
-    {
-        if (!is_deallocated)
-        {
-            if (!jobHandle.IsCompleted)
-            {
-                jobHandle.Complete();
-            }
-
-            meshData.Dispose();
-        }
-    }
-
-
-    // move all mesh creating to another thread that is passed in (since createing new thread is expensive)
-    // while (thread is not complete)
-    // {
-    //      yield return wait;
-    // }
     public IEnumerator LoadChunk(NoiseLayerSettings noise_layer_settings, NativeArray<Noise.NoiseLayer> noise_layers_native_array, WorldGenerationManager.ChunkDetails chunk_details/*, int[] triangles*/)
     {
         WaitForFixedUpdate wait = new WaitForFixedUpdate();
@@ -50,79 +28,15 @@ public class Chunk : MonoBehaviour
         // initilize variables
         is_loading = true;
 
-        // initilizes ground
-        /*
-        CoroutineWithData create_mesh_coroutine = new CoroutineWithData(this, CreateMesh.CreateMeshByNoise(wait, noise_layers, chunk_details.unit_size, chunk_details.resolution, transform.localPosition));
-        yield return create_mesh_coroutine.coroutine;
-        Mesh ground_mesh = create_mesh_coroutine.result as Mesh;
-        Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
-        */
+        GameObject ground_game_object = new GameObject("Ground");
+        ground_game_object.transform.parent = transform;
+        ground_game_object.transform.localPosition = Vector3.zero;
+        ground_game_object.layer = Layer.game_world;
+        GroundMesh ground_mesh = ground_game_object.AddComponent<GroundMesh>();
+        ground_mesh.Init();
+        yield return ground_mesh.CreateGround(wait, chunk_details.unit_size, chunk_details.resolution, noise_layers_native_array, noise_layer_settings.material_static.material, noise_layer_settings.random_foliage);
 
-        int quadCount = chunk_details.resolution.x * chunk_details.resolution.y;
-        int vertexCount = quadCount * 4;
-        int triangleCount = quadCount * 6;
-
-        meshData = new MeshData();
-        meshData.vertices = new NativeArray<Vector3>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        meshData.triangles = new NativeArray<int>(triangleCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        meshData.normals = new NativeArray<Vector3>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        meshData.uv = new NativeArray<Vector2>(vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-
-        CreateMesh.CreatePlaneJob job = new CreateMesh.CreatePlaneJob
-        {
-            meshData = meshData,
-            planeSize = chunk_details.resolution,
-            quadSize = chunk_details.unit_size,
-            quadCount = quadCount,
-            vertexCount = vertexCount,
-            triangleCount = triangleCount
-        };
-
-        jobHandle = job.Schedule();
-        while (!jobHandle.IsCompleted)
-        {
-            yield return wait;
-        }
-        jobHandle.Complete();
-
-        
-        CreateMesh.CreateMeshByNoiseJob noiseJob = new CreateMesh.CreateMeshByNoiseJob
-        {
-            vertices = meshData.vertices,
-            offset = transform.position,
-            noise_layers = noise_layers_native_array
-        };
-
-        jobHandle = noiseJob.Schedule();
-        while (!jobHandle.IsCompleted)
-        {
-            yield return wait;
-        }
-        jobHandle.Complete();
-        
-
-        CreateMesh.NormalizeJob normalizeJob = new CreateMesh.NormalizeJob
-        {
-            quadCount = quadCount,
-            meshData = meshData
-        };
-
-        jobHandle = normalizeJob.Schedule(jobHandle);
-        while (!jobHandle.IsCompleted)
-        {
-            yield return wait;
-        }
-        jobHandle.Complete();
-
-        Mesh ground_mesh = new Mesh();
-        ground_mesh.vertices = meshData.vertices.ToArray();
-        ground_mesh.triangles = meshData.triangles.ToArray();
-        ground_mesh.normals = meshData.normals.ToArray();
-        ground_mesh.uv = meshData.uv.ToArray();
-
-        is_deallocated = true;
-
-        Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
+        //Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
 
         /*
         Task mesh_creator_task = new Task(CreateMesh.CreateMeshByNoiseOnThread);
@@ -133,6 +47,8 @@ public class Chunk : MonoBehaviour
             yield return wait;
         }
         */
+
+        /*
 
         MeshDataList mesh_data_foliage = new MeshDataList();
         mesh_data_foliage.vertices = new NativeList<Vector3>(Allocator.Persistent);
@@ -181,16 +97,11 @@ public class Chunk : MonoBehaviour
 
             yield return wait;
 
-            /*
-            CoroutineWithData create_foliage_mesh_coroutine = new CoroutineWithData(this, CreateMesh.DropMeshVertices(wait, ground_mesh, foliage_settings.noise_layer, foliage_settings.keep_range_noise, foliage_settings.keep_range_random_noise, foliage_settings.keep_range_random, Vector3.up * 0.1f, transform.localPosition));
-            yield return create_foliage_mesh_coroutine.coroutine;
-            Mesh foliage_mesh = create_foliage_mesh_coroutine.result as Mesh;
-            */
-            CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
+            //CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
             GameObject foliage_game_object = CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name, ground_transform);
         }
         meshData.Dispose();
-
+        */
         // initilizes all parrent objects of prefabs
         GameObject land_marks_game_object;
         WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.land_marks);
@@ -219,6 +130,7 @@ public class Chunk : MonoBehaviour
         WorldGenerationManager.chunks_in_loading.Remove(this);
         //Debug.Log("done loading: " + transform.name);
     }
+    /*
     public void ReloadChunk()
     {
 
@@ -269,7 +181,7 @@ public class Chunk : MonoBehaviour
 
         return foliage_game_object;
     }
-
+    */
     public float DistToPlayer()
     {
         return (transform.position - player_transform.position).magnitude;

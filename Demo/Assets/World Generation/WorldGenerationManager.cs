@@ -73,6 +73,19 @@ public class WorldGenerationManager : MonoBehaviour
         while (load.MoveNext()) { }
     }
 
+    private void AddCurveToAllMaterials()
+    {
+        // not water
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_static.material, noise_layer_settings.material_static.curve);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf.material, noise_layer_settings.material_leaf.curve);
+        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood.material, noise_layer_settings.material_wood.curve);
+
+        foreach (NoiseLayerSettings.Foliage foliage in noise_layer_settings.random_foliage)
+        {
+            CurveCreator.AddCurveTexture(ref foliage.material.material, foliage.material.curve);
+        }
+    }
+
     private Transform player_transform;
     private void Awake()
     {
@@ -82,6 +95,8 @@ public class WorldGenerationManager : MonoBehaviour
         }
 
         chunks_in_loading = new List<Chunk>();
+
+        AddCurveToAllMaterials();
 
         noise_layers = Noise.CreateNoiseLayers(noise_layer_settings);
 #if UNITY_EDITOR

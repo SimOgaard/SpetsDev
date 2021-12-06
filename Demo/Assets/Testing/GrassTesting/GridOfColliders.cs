@@ -28,11 +28,12 @@ public class GridOfColliders : MonoBehaviour
 
                 foreach (Transform child in dictionary_testing_transform)
                 {
-                    child.GetComponent<GrassTestingWithDictionary>().test_colliders.Add(col);
+                    child.GetChild(0).GetComponent<GrassTestingWithDictionary>().test_colliders.Add(col);
                 }
                 foreach (Transform child in array_testing_transform)
                 {
-                    child.GetComponent<GrassTestingWithArray>().test_colliders.Add(col);
+
+                    child.GetChild(0).GetComponent<GrassTestingWithArray>().test_colliders.Add(col);
                 }
             }
         }
