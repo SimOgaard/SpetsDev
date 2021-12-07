@@ -75,6 +75,73 @@ MonoBehaviour:
       resolution: 256
       col_diff: 0
   random_foliage:
+  - name: wheat
+    enabled: 0
+    material:
+      material: {fileID: 2100000, guid: 9baa661ff1c8daa4187c9bee4dff609f, type: 2}
+      curve:
+        light_curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: -0.29350093
+            outSlope: -0.29350093
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.15225564
+          - serializedVersion: 3
+            time: 0.95
+            value: 0
+            inSlope: -2.1821172
+            outSlope: -2.1821172
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.04323307
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        resolution: 256
+        col_diff: 0
+    noise_layer:
+      enabled: 1
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 0
+        frequency: 0.001
+      fractal:
+        fractal_type: 0
+        octaves: 5
+        lacunarity: 2
+        gain: 1
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0.75, y: 1}
+    keep_range_random_noise: 5
+    keep_range_random: 0.0005
   - name: flowers blue
     enabled: 1
     material:
@@ -140,8 +207,8 @@ MonoBehaviour:
         lacunarity: 0
         gain: 0
     keep_range_noise: {x: 0.75, y: 1}
-    keep_range_random_noise: 0.025
-    keep_range_random: 0.0005
+    keep_range_random_noise: 0.6
+    keep_range_random: 0.00075
   - name: grass
     enabled: 1
     material:

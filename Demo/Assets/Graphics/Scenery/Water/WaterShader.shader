@@ -44,7 +44,7 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-			#include "/Assets/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
 			// Blends two colors using the same algorithm that our shader is using
 			// to blend with the screen. This is usually called "normal blending",

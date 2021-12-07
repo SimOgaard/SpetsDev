@@ -13,12 +13,12 @@ public class EarthSpikesBase : Ability, Equipment.IEquipment
 
     public override void UsePrimary()
     {
-        grass_cutter.enabled = true;
+        //grass_cutter.enabled = true;
         Debug.Log("EarthSpikesAbility.UsePrimary");
     }
     public override void StopPrimary()
     {
-        grass_cutter.enabled = false;
+        //grass_cutter.enabled = false;
         Debug.Log("EarthSpikesAbility.StopPrimary");
     }
 

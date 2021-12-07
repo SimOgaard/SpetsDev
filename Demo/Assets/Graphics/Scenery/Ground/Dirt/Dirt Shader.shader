@@ -52,7 +52,7 @@
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
 			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
-			#include "/Assets/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;

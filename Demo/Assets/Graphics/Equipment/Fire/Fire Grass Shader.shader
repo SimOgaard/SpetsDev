@@ -31,7 +31,7 @@
 
 			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardFire.cginc"
-			#include "/Assets/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;

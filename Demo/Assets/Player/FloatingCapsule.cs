@@ -64,12 +64,16 @@ public class FloatingCapsule : MonoBehaviour
 
     public virtual void FixedUpdate()
     {
-        if (Tumbling() || GameTime.is_paused)
+        if (Tumbling())
         {
             return;
         }
         Upright();
         Vector3 ground_velocity = Hover();
+        if (GameTime.is_paused)
+        {
+            return;
+        }
         Move(ground_velocity);
     }
 

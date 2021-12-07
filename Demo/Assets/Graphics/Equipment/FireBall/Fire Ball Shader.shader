@@ -20,7 +20,7 @@
 			#pragma fragment frag
 
 			#include "/Assets/Graphics/CGincFiles/NoShading.cginc"
-			#include "/Assets/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
 			sampler2D _CurveTexture;
 			float4 _CurveTexture_ST;

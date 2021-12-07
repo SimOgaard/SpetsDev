@@ -488,6 +488,7 @@ public class CreateMesh : MonoBehaviour
         [ReadOnly] public int triangle_amount;
         [ReadOnly] public MeshData original_mesh_data;
         [ReadOnly] public NativeArray<FoliageNativeArray> foliage;
+        [ReadOnly] public Vector3 chunk_offset;
 
         [WriteOnly] public NativeArray<int> ground_type_native_array;
 
@@ -505,24 +506,32 @@ public class CreateMesh : MonoBehaviour
                 // for each foliage
                 for (int f = 0; f < foliage.Length; f++)
                 {
-                    if (random_value <= foliage[f].keep_range_random)
+                    if (foliage[f].enabled)
                     {
-                        ground_type_native_array[i] = f;
-                        break;
-                    }
-                    else
-                    {
-                        float noise_value = foliage[f].noise_layer.GetNoiseValue(original_mesh_data.mid_point[i].x, original_mesh_data.mid_point[i].z);
-                        if (noise_value > foliage[f].keep_range_noise.x && noise_value < foliage[f].keep_range_noise.y && noise_value * random_value <= foliage[f].keep_range_random_noise)
+                        if (random_value <= foliage[f].keep_range_random)
                         {
                             ground_type_native_array[i] = f;
                             break;
                         }
+                        else
+                        {
+                            float noise_value = foliage[f].noise_layer.GetNoiseValue(original_mesh_data.mid_point[i].x + chunk_offset.x, original_mesh_data.mid_point[i].z + chunk_offset.z);
+
+                            bool keep_threshold_low = noise_value > foliage[f].keep_range_noise.x;
+                            bool keep_threshold_high = noise_value < foliage[f].keep_range_noise.y;
+                            bool keep_random = random_value <= (noise_value - foliage[f].keep_range_noise.x) * foliage[f].keep_range_random_noise;
+
+                            if (keep_threshold_low && keep_threshold_high && keep_random)
+                            {
+                                ground_type_native_array[i] = f;
+                                break;
+                            }
+                        }
+                        // triangle middle
+                        // if foliage is valid for this triangle
+                        // set triangle to foliage type
+                        // break loop
                     }
-                    // triangle middle
-                    // if foliage is valid for this triangle
-                    // set triangle to foliage type
-                    // break loop
                 }
             }
         }

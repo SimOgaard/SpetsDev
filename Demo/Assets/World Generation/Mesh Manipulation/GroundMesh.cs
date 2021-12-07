@@ -25,11 +25,7 @@ public class GroundMesh : MonoBehaviour
     private Vector2 unit_size;
     private Vector2Int resolution;
 
-    public void Init()
-    {
-        // TESTING
-        test_colliders.Add(GameObject.Find("TESTING REMOVING GRASS").GetComponent<Collider>());
-    }
+    private Transform child;
 
     private JobHandle jobHandle;
     private MeshData meshData;
@@ -49,6 +45,10 @@ public class GroundMesh : MonoBehaviour
 
     public IEnumerator CreateGround(WaitForFixedUpdate wait, Vector2 unit_size, Vector2Int resolution, NativeArray<Noise.NoiseLayer> noise_layers_native_array, Material static_material, NoiseLayerSettings.Foliage[] foliage)
     {
+        // TESTING
+        test_colliders.Add(GameObject.Find("TESTING REMOVING GRASS").GetComponent<Collider>());
+        // TESTING
+
         this.unit_size = unit_size;
         this.resolution = resolution;
 
@@ -145,8 +145,8 @@ public class GroundMesh : MonoBehaviour
         }
         jobHandle.Complete();
 
-        min_y = meshData.min_y__max_y[0] + transform.position.y;
-        max_y = meshData.min_y__max_y[1] + transform.position.y;
+        min_y = meshData.min_y__max_y[0];
+        max_y = meshData.min_y__max_y[1];
 
         triangles_mid = meshData.mid_point.ToArray();
         triangles = meshData.triangles.ToArray();
@@ -168,19 +168,18 @@ public class GroundMesh : MonoBehaviour
         this_mesh_collider.sharedMesh = collider_ground_mesh;
 
         // create child that holds changing meshes
-        GameObject child = new GameObject("chaning meshes");
-        MeshRenderer child_mesh_renderer = child.AddComponent<MeshRenderer>();
-        MeshFilter child_mesh_filter = child.AddComponent<MeshFilter>();
+        child = new GameObject("chaning meshes").transform;
+        MeshRenderer child_mesh_renderer = child.gameObject.AddComponent<MeshRenderer>();
+        MeshFilter child_mesh_filter = child.gameObject.AddComponent<MeshFilter>();
 
         child.transform.parent = transform;
-        child.transform.localPosition = Vector3.up * 0.1f;
+        child.transform.localPosition = Vector3.up * 1.5f;
 
         // setup multi mesh for child
         ground_mesh = new Mesh();
         ground_mesh.vertices = meshData.vertices.ToArray();
         ground_mesh.normals = meshData.normals.ToArray();
         ground_mesh.uv = meshData.uv.ToArray();
-
         ground_mesh.subMeshCount = ground_subtypes_length;
 
 
@@ -199,6 +198,7 @@ public class GroundMesh : MonoBehaviour
             original_mesh_data = meshData,
             foliage = foliage_native_array,
             ground_type_native_array = ground_type_native_array,
+            chunk_offset = child.position,
         };
         jobHandle = foliageJob.Schedule(jobHandle);
         while (!jobHandle.IsCompleted)
@@ -245,6 +245,7 @@ public class GroundMesh : MonoBehaviour
         meshData.Dispose();
     }
 
+    // TESTING
     public List<Collider> test_colliders = new List<Collider>();
     // switches traingles that are in this collider:
     // takes some time
@@ -258,6 +259,7 @@ public class GroundMesh : MonoBehaviour
             }
         }
     }
+    // TESTING
 
     // set triangles for each affected submesh:
     // goes quickly
@@ -279,9 +281,9 @@ public class GroundMesh : MonoBehaviour
         }
     }
 
-    public static bool IsInside1(Collider collider, Vector3 point)
+    public static bool IsInside1(Collider collider, Vector3 point, float margin = 1e-3f)
     {
-        return (collider.ClosestPoint(point) - point).sqrMagnitude < Mathf.Epsilon * Mathf.Epsilon;
+        return (collider.ClosestPoint(point) - point).sqrMagnitude < margin;
     }
 
     public static bool IsInside2(Collider collider, Vector3 point)
@@ -312,7 +314,7 @@ public class GroundMesh : MonoBehaviour
                 for (int x = start_x; x < max_x; x++)
                 {
                     int triangle_index = z + x;
-                    if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+                    if (triangles_types[triangle_index] != ground_type && IsInside1(collider, triangles_mid[triangle_index] + child.position, 0.5f))
                     {
                         SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
                     }
@@ -326,7 +328,7 @@ public class GroundMesh : MonoBehaviour
         Vector2 mesh_size = Vector2.Scale(unit_size, resolution);
         Vector3 mesh_size_half = new Vector3(mesh_size.x * 0.5f, 0f, mesh_size.y * 0.5f);
 
-        Vector3 mesh_mid_point = transform.position;
+        Vector3 mesh_mid_point = child.position;
         Vector3 mesh_origo_point = mesh_mid_point - mesh_size_half;
 
         bounds.center -= mesh_origo_point;

@@ -42,7 +42,7 @@
 
 	CGINCLUDE
 	#include "UnityCG.cginc"
-	#include "/Assets/Graphics/FastNoiseLite.cginc"
+	#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
 	sampler2D _MainTex;
 
@@ -171,7 +171,7 @@
         {
 			CGPROGRAM
             #include "UnityCustomRenderTexture.cginc"
-			#include "/Assets/Graphics/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
             #pragma vertex CustomRenderTextureVertexShader
             #pragma fragment frag
             #pragma target 3.0

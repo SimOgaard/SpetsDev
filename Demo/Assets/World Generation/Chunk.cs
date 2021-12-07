@@ -28,80 +28,14 @@ public class Chunk : MonoBehaviour
         // initilize variables
         is_loading = true;
 
+        // create ground
         GameObject ground_game_object = new GameObject("Ground");
         ground_game_object.transform.parent = transform;
         ground_game_object.transform.localPosition = Vector3.zero;
         ground_game_object.layer = Layer.game_world;
         GroundMesh ground_mesh = ground_game_object.AddComponent<GroundMesh>();
-        ground_mesh.Init();
         yield return ground_mesh.CreateGround(wait, chunk_details.unit_size, chunk_details.resolution, noise_layers_native_array, noise_layer_settings.material_static.material, noise_layer_settings.random_foliage);
 
-        //Transform ground_transform = CreateGround(ground_mesh, noise_layer_settings.material_grass, noise_layer_settings.curve_grass);
-
-        /*
-        Task mesh_creator_task = new Task(CreateMesh.CreateMeshByNoiseOnThread);
-        mesh_creator_thread.Start();
-
-        while (mesh_creator_thread.IsAlive)
-        {
-            yield return wait;
-        }
-        */
-
-        /*
-
-        MeshDataList mesh_data_foliage = new MeshDataList();
-        mesh_data_foliage.vertices = new NativeList<Vector3>(Allocator.Persistent);
-        mesh_data_foliage.triangles = new NativeList<int>(Allocator.Persistent);
-        mesh_data_foliage.normals = new NativeList<Vector3>(Allocator.Persistent);
-        mesh_data_foliage.uv = new NativeList<Vector2>(Allocator.Persistent);
-
-        // initilizes flowers
-        for (int i = 0; i < noise_layer_settings.random_foliage.Length; i++)
-        {
-            // Flower testing
-            NoiseLayerSettings.Foliage foliage_settings = noise_layer_settings.random_foliage[i];
-            if (!foliage_settings.enabled)
-            {
-                continue;
-            }
-
-            yield return wait;
-
-            CreateMesh.DropMeshVerticesJob dropVerticesJob = new CreateMesh.DropMeshVerticesJob
-            {
-                mesh_data_list = mesh_data_foliage,
-                original_mesh_data = meshData,
-                noise_layer = new Noise.NoiseLayer(foliage_settings.noise_layer),
-                keep_range_noise = foliage_settings.keep_range_noise,
-                keep_range_random_noise = foliage_settings.keep_range_random_noise,
-                keep_range_random = foliage_settings.keep_range_random,
-                offset = Vector3.up * 0.1f,
-                transform_offset = transform.localPosition
-            };
-
-            jobHandle = dropVerticesJob.Schedule();
-            while (!jobHandle.IsCompleted)
-            {
-                yield return wait;
-            }
-            jobHandle.Complete();
-
-            Mesh foliage_mesh = new Mesh();
-            foliage_mesh.vertices = mesh_data_foliage.vertices.ToArray();
-            foliage_mesh.triangles = mesh_data_foliage.triangles.ToArray();
-            foliage_mesh.normals = mesh_data_foliage.normals.ToArray();
-            foliage_mesh.uv = mesh_data_foliage.uv.ToArray();
-
-            mesh_data_foliage.Dispose();
-
-            yield return wait;
-
-            //CurveCreator.AddCurveTexture(ref foliage_settings.material, foliage_settings.curve);
-            GameObject foliage_game_object = CreateRandomFoliage(foliage_mesh, foliage_settings.material, foliage_settings.name, ground_transform);
-        }
-        meshData.Dispose();
-        */
         // initilizes all parrent objects of prefabs
         GameObject land_marks_game_object;
         WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.land_marks);
@@ -121,67 +55,12 @@ public class Chunk : MonoBehaviour
 
         PlaceInWorld.SetRecursiveToGameWorld(gameObject);
 
-        //JoinMeshes join_meshes = rocks_game_object.AddComponent<JoinMeshes>();
-        //join_meshes.SetCollider();
-
         ground_game_object.layer = Layer.game_world_static;
         is_loading = false;
         is_loaded = true;
         WorldGenerationManager.chunks_in_loading.Remove(this);
-        //Debug.Log("done loading: " + transform.name);
     }
-    /*
-    public void ReloadChunk()
-    {
-
-    }
-
-    private GameObject ground_game_object;
-    private MeshFilter ground_mesh_filter;
-    private MeshRenderer ground_mesh_renderer;
-    private MeshCollider ground_mesh_collider;
-    private Transform CreateGround(Mesh mesh, Material ground_material, NoiseLayerSettings.Curve ground_curve)
-    {
-        WorldGenerationManager.InitNewChild(out ground_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.ground_mesh);
-
-        ground_game_object.transform.localPosition = Vector3.zero;
-
-        ground_mesh_filter = ground_game_object.AddComponent<MeshFilter>();
-        ground_mesh_renderer = ground_game_object.AddComponent<MeshRenderer>();
-        ground_mesh_collider = ground_game_object.AddComponent<MeshCollider>();
-        ground_mesh_collider.sharedMesh = mesh;
-
-        ground_mesh_filter.mesh = mesh;
-        CurveCreator.AddCurveTexture(ref ground_material, ground_curve);
-        ground_mesh_renderer.material = ground_material;
-
-        ground_game_object.tag = "Flammable";
-        ground_game_object.layer = Layer.game_world;
-        return ground_game_object.transform;
-    }
-
-    private void UpdateGrass(Mesh mesh, Material ground_material, NoiseLayerSettings.Curve ground_curve)
-    {
-        ground_mesh_filter.mesh = mesh;
-        ground_mesh_collider.sharedMesh = mesh;
-        CurveCreator.AddCurveTexture(ref ground_material, ground_curve);
-        ground_mesh_renderer.material = ground_material;
-    }
-
-    private GameObject CreateRandomFoliage(Mesh mesh, Material material, string name, Transform parrent)
-    {
-        GameObject foliage_game_object = new GameObject(name);
-
-        foliage_game_object.transform.parent = parrent;
-        foliage_game_object.transform.localPosition = Vector3.up * 0.1f;
-        foliage_game_object.layer = Layer.game_world;
-
-        foliage_game_object.AddComponent<MeshFilter>().mesh = mesh;
-        foliage_game_object.AddComponent<MeshRenderer>().material = material;
-
-        return foliage_game_object;
-    }
-    */
+   
     public float DistToPlayer()
     {
         return (transform.position - player_transform.position).magnitude;
