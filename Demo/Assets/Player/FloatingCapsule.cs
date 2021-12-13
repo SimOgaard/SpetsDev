@@ -72,7 +72,7 @@ public class FloatingCapsule : MonoBehaviour
         Vector3 ground_velocity = Hover();
         if (GameTime.is_paused)
         {
-            return;
+            desired_speed = 0f;
         }
         Move(ground_velocity);
     }

@@ -3,8 +3,8 @@
     Properties
     {
 		_WaterColors ("Color Texture", 2D) = "white" {}
-		_WaterCurveTexture ("Curve Texture", 2D) = "white" {}
-		_WaterCurveAlpha ("Curve Alpha", 2D) = "white" {}
+		_ColorShading ("Color Shading", 2D) = "white" {}
+		_AlphaShading ("Curve Alpha", 2D) = "white" {}
 
 		// Maximum distance the surface below the water will affect the color gradient.
 		_DepthMaximumDistance("Depth Maximum Distance", Float) = 1
@@ -45,17 +45,7 @@
 
             #include "UnityCG.cginc"
 			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
-
-			// Blends two colors using the same algorithm that our shader is using
-			// to blend with the screen. This is usually called "normal blending",
-			// and is similar to how software like Photoshop blends two layers.
-			float4 alphaBlend(float4 top, float4 bottom)
-			{
-				float3 color = (top.rgb * top.a) + (bottom.rgb * (1 - top.a));
-				float alpha = top.a + bottom.a * (1 - top.a);
-
-				return float4(color, alpha);
-			}
+			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
             struct appdata
             {
@@ -83,8 +73,8 @@
 
                 return o;
             }
-			sampler2D _WaterCurveTexture;
-			sampler2D _WaterCurveAlpha;
+			sampler2D _ColorShading;
+			sampler2D _AlphaShading;
 			sampler2D _WaterColors;
 			float _DepthMaximumDistance;
 
@@ -103,6 +93,8 @@
 			float4 _WaterReflectionColor;
 		
 			float3 _WorldOffset;
+
+			float _WaterColOffset;
 
 			float remap01(float v) {
 				return saturate((v + 1) * 0.5);
@@ -150,13 +142,12 @@
             float4 frag (v2f i) : SV_Target
             {
 				// Get all positions neccesary
-				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.5, 1.0, 1.0);
-				float3 worldPosTime = worldPos + _Time[0] * float3(15.0, 10.0, 15.0);
+				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.35, 0.75, 0.75);
+				float3 worldPosTime = worldPos + _Time[0] * float3(17.5, 12.5, 17.5);
 				float3 worldPosWarped = GetWarpValue(worldPosTime);
 				float3 worldPosWarpedOffsetOnly = worldPosWarped - worldPosTime;
 				float2 px = float2(480, 270);
 				float2 worldPosWarpedOffsetOnlyPixelPerfect = round(px * worldPosWarpedOffsetOnly.xz) / px;
-				float noiseValue = GetNoiseValue(worldPosWarped);
 				float2 screen_uv = i.screenPosition.xy;
 				float2 screen_uv_distort = screen_uv + worldPosWarpedOffsetOnlyPixelPerfect;
 				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + worldPosWarpedOffsetOnlyPixelPerfect;
@@ -176,7 +167,7 @@
 				float depthDifference = (orthoEyeDepth - orthoPlainDepth);
 				// Depth scaled to our need
 				float depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
-				
+
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
 				rawDepth = tex2D(_CameraDepthTexture, screen_uv_distort).r;
 				// Flip orthographic projection.
@@ -204,8 +195,8 @@
 				*/
 
 				// Calculate the color of the water based on the depth using our two gradient colors.
-				float curve_value = tex2D(_WaterCurveTexture, depthDifferenceDistort01).r;
-				float alpha = tex2D(_WaterCurveAlpha, depthDifferenceDistort01).r;
+				float curve_value = tex2D(_ColorShading, depthDifference01 - _WaterColOffset).r;
+				float alpha = tex2D(_AlphaShading, depthDifference01).r;
 				float4 waterColor = float4(tex2D(_WaterColors, curve_value).rgb, alpha);
 
 				// Retrieve the view-space normal of the surface behind the
@@ -242,11 +233,8 @@
 				*/
 				// Use smoothstep to ensure we get some anti-aliasing in the transition from foam to surface.
 				// Uncomment the line below to see how it looks without AA.
-				float surfaceNoise = noiseValue > surfaceNoiseCutoff ? 1 : 0;
-				//float surfaceNoise = smoothstep(surfaceNoiseCutoff - SMOOTHSTEP_AA, surfaceNoiseCutoff + SMOOTHSTEP_AA, noiseValue);
 
-				float4 surfaceNoiseColor = _FoamColor;
-				surfaceNoiseColor.a = surfaceNoise;
+
 				/*
 				// Get pixel perfect distort value for water.
 				float2 under_water_distort_time = _Time.yy * _UnderWaterDistortSpeed.xy;
@@ -285,7 +273,18 @@
 				waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
 				waterColor = alphaBlend(waterReflection, waterColor);
 
-				return alphaBlend(surfaceNoiseColor, waterColor);
+				if (surfaceNoiseCutoff != 1)
+				{
+					float noiseValue = GetNoiseValue(worldPosWarped);
+					float surfaceNoise = noiseValue > surfaceNoiseCutoff ? 1 : 0;
+
+					float4 surfaceNoiseColor = _FoamColor;
+					surfaceNoiseColor.a = surfaceNoise;
+
+					return alphaBlend(surfaceNoiseColor, waterColor);
+				}
+				return waterColor;
+				//float surfaceNoise = smoothstep(surfaceNoiseCutoff - SMOOTHSTEP_AA, surfaceNoiseCutoff + SMOOTHSTEP_AA, noiseValue);
             }
             ENDCG
         }

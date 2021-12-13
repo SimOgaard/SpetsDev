@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class DayNightCycle : MonoBehaviour
 {
-    public static float time;
-    [SerializeField] private AnimationCurve time_curve;
+    [SerializeField] private float ambient;
+    [SerializeField] private AnimationCurve ambient_light;
+
+    [SerializeField] private float darkest;
+    [SerializeField] private AnimationCurve darkest_value;
+
+    [SerializeField] private float water_offset;
+    [SerializeField] private AnimationCurve water_col_offset;
 
     [SerializeField] private Vector3 rotation_speed;
     [SerializeField] private Vector3 rotation_snap;
-    [SerializeField] private Vector3 current_rotation_euler;
+    public Vector3 current_rotation_euler;
 
     private GameObject sun;
     private GameObject moon;
@@ -32,9 +38,22 @@ public class DayNightCycle : MonoBehaviour
         Vector3 rounded_rotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(current_rotation_euler, rotation_snap)), rotation_snap);
         transform.rotation = Quaternion.Euler(rounded_rotation);
 
+        // Reposition directional light to be over player to keep shadows
+
+
+        Vector3 test = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.camera_focus_point_transform.position, transform.forward);
+        //Vector3 new_pos = Global.camera_focus_point_transform.position;
+        transform.position = test;
+
         float x = Vector3.Dot(transform.forward, Vector3.up);
-        time = time_curve.Evaluate(x);
-        Shader.SetGlobalFloat("_DayNightTime", time);
+        ambient = ambient_light.Evaluate(x);
+        Shader.SetGlobalFloat("_Ambient", ambient);
+
+        darkest = darkest_value.Evaluate(x);
+        Shader.SetGlobalFloat("_Darkest", darkest);
+
+        water_offset = water_col_offset.Evaluate(x);
+        Global.Materials.water_material.SetFloat("_WaterColOffset", water_offset);
 
         if (sun.transform.forward.y < 0 && !sun.activeInHierarchy)
         {

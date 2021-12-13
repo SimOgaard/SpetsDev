@@ -8,7 +8,6 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     private Rigidbody player_rigidbody;
-    private Transform player_transform;
     private Vector3 smoothed_position;
 
     [Header("Focus Point Position")]
@@ -18,6 +17,7 @@ public class CameraMovement : MonoBehaviour
     [SerializeField] private float player_heading_xz_amplitude;
     [SerializeField] private float player_heading_y_amplitude;
     [SerializeField] [Range(0f, 0.2f)] private float player_looking_plane_amplitude;
+    [SerializeField] private Vector2 player_looking_plane_amplitude_xy;
     [SerializeField] [Range(0f, 0.2f)] private float player_looking_3d_amplitude;
     [SerializeField] private float player_y_offset;
 
@@ -26,21 +26,13 @@ public class CameraMovement : MonoBehaviour
     [SerializeField] private float y_axis_rotation;
     [SerializeField] private float x_axis_time;
     [SerializeField] private float snap_increment;
-    [SerializeField] [Range(0.5f, 1f)] private float reccursive_rotation_threshold;
-
-    [SerializeField] private float last_stopped_rotation;
-    [SerializeField] private float current_rotation;
-    [SerializeField] private float wanted_rotation;
-
-    [SerializeField] private AnimationCurve test_curve;
+    //[SerializeField] [Range(0.5f, 1f)] private float reccursive_rotation_threshold;
+    //[SerializeField] private float last_stopped_rotation;
     
     private void Start()
     {
-        player_transform = GameObject.Find("Player").transform;
-        player_rigidbody = player_transform.GetComponent<PlayerMovement>()._rigidbody;
-        transform.position = player_transform.position;
-
-        //StartCoroutine(RotateCameraAfterCurve(test_curve));
+        player_rigidbody = Global.player_transform.GetComponent<PlayerMovement>()._rigidbody;
+        transform.position = Global.player_transform.position;
     }
 
     /// <summary>
@@ -48,15 +40,19 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private Vector3 GetLookPoint()
     {
-        Vector3 diff = transform.position - player_transform.position;
+        Vector3 diff = transform.position - Global.player_transform.position;
         Vector3 player_position_diff = (diff) * player_position_diff_amplitude;
         //Vector3 player_heading = Vector3.Scale(player_movement.controller.velocity, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
         //Vector3 player_heading = Vector3.Scale(diff, new Vector3(-player_heading_xz_amplitude, -player_heading_y_amplitude, -player_heading_xz_amplitude));
         Vector3 player_heading = Vector3.Scale(player_rigidbody.velocity, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
-        Vector3 player_looking_plane = (MousePoint.MousePositionPlayerPlane() - player_transform.position) * player_looking_plane_amplitude;
-        Vector3 player_looking_3d = (MousePoint.MousePositionWorld() - player_transform.position) * player_looking_3d_amplitude;
+        Vector3 player_looking_plane = (MousePoint.MousePositionPlayerPlane(player_looking_plane_amplitude_xy.x, player_looking_plane_amplitude_xy.y) - Global.player_transform.position) * player_looking_plane_amplitude;
+        Vector3 player_looking_3d = (MousePoint.MousePositionWorld() - Global.player_transform.position) * player_looking_3d_amplitude;
 
-        return Vector3.ClampMagnitude(player_position_diff + player_heading + player_looking_plane + player_looking_3d, max_distance) + new Vector3(0f, player_y_offset, 0f);
+        Vector3 clamped_look_point = Vector3.ClampMagnitude(player_position_diff + player_heading + player_looking_plane + player_looking_3d, max_distance);
+        Vector3 scaled_forward = Vector3.Scale(clamped_look_point, Vector3.one + transform.forward * (1f - player_looking_plane_amplitude_xy.y));
+        Vector3 scaled_sideways = Vector3.Scale(clamped_look_point, Vector3.one + transform.right * (1f - player_looking_plane_amplitude_xy.x));
+
+        return scaled_sideways + new Vector3(0f, player_y_offset, 0f);
     }
 
     /// <summary>
@@ -64,17 +60,112 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private Vector3 SmoothMovementToPoint(Vector3 focus_point)
     {
-        Vector3 smoothed_position = Vector3.Lerp(transform.position, (player_transform.position + focus_point), smooth_speed * Time.deltaTime);
+        Vector3 smoothed_position = Vector3.Lerp(transform.position, focus_point, smooth_speed * Time.deltaTime);
         return smoothed_position;
     }
 
-    private float _x_value;
-    private float x_value
+    [SerializeField] private float current_rotation;
+    [SerializeField] private float wanted_rotation;
+    private float disjointment;
+    private float offset;
+    private float f(float x)
     {
-        get { return _x_value; }
-        set { _x_value = Mathf.Clamp01(value); }
+        return (x - y_axis_rotation * (wanted_rotation + 0.5f)) / y_axis_rotation;
     }
-    
+    private float SampleRotationCurve(float x, float y_offset = 0.5f)
+    {
+        return (Mathf.Abs(x - offset) - Mathf.Abs(x + offset) * 0.5f) + x + y_offset;
+    }
+    private float SampleDerivative(float x)
+    {
+        const float h = 0.001f;
+        float rotation_curve_value_1 = SampleRotationCurve(x + h);
+        float rotation_curve_value_2 = SampleRotationCurve(x - h);
+
+        float derivative = (rotation_curve_value_1 - rotation_curve_value_2) / (h * 2f);
+        return derivative;
+    }
+
+    /// <summary>
+    /// Rotate with input float.
+    /// </summary>
+    private void Update()
+    {
+        /*
+        float derivative = SampleDerivative(current_rotation);
+        Debug.Log(derivative);            
+        return;
+        */
+        if (PlayerInput.GetKeyDown(PlayerInput.left_rotation) || (PlayerInput.GetKeyUp(PlayerInput.right_rotation) && PlayerInput.GetKey(PlayerInput.left_rotation)))
+        {
+            //wanted_rotation += y_axis_rotation;
+            StopAllCoroutines();
+            StartCoroutine(RotateCamera(1));
+        }
+        else if (PlayerInput.GetKeyDown(PlayerInput.right_rotation) || (PlayerInput.GetKeyUp(PlayerInput.left_rotation) && PlayerInput.GetKey(PlayerInput.right_rotation)))
+        {
+            //wanted_rotation -= y_axis_rotation;
+            StopAllCoroutines();
+            StartCoroutine(RotateCamera(-1));
+        }
+    }
+
+    [Header("ttesting")]
+    [SerializeField] private float oval_size_large = 1f;
+    [SerializeField] private float oval_size_small = 1f;
+    [SerializeField] private bool move = false;
+    public void SmoothPosition()
+    {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+#endif
+        
+        if (false)
+        {
+            // find mid pixel of player
+            Vector2 player_middle = MousePoint.WorldToViewportPoint(Global.player_transform.position) - new Vector3(0.5f, 0.5f, 0f);
+
+            Debug.Log(player_middle);
+
+            // check if it is outside of squarcircle
+            float squarcircle_value = Mathf.Pow(player_middle.x, 4) + Mathf.Pow(player_middle.y, 4);
+            if (squarcircle_value > Mathf.Pow(oval_size_large, 4))
+            {
+                move = true;
+            }
+            else if (squarcircle_value < Mathf.Pow(oval_size_small, 4))
+            {
+                move = false;
+            }
+
+            if (move)
+            {
+                smoothed_position = SmoothMovementToPoint(Global.player_transform.position);
+                transform.position = smoothed_position;
+            }
+
+            // if it is
+
+            // find mid pixel of player
+            // check if it is inside of smaller oval
+            // if it is
+            // stop moving camera
+        }
+        else
+        {
+            smoothed_position = SmoothMovementToPoint(Global.player_transform.position + GetLookPoint());
+            transform.position = smoothed_position;
+        }
+
+        //smoothed_position = SmoothMovementToPoint(player_transform.position + GetLookPoint());
+        //Vector3 screenPos = cam.WorldToScreenPoint(target.position);
+    }
+
+    [SerializeField] private float reccursive_rotation_threshold = 0.5f;
+    [SerializeField] private float last_stopped_rotation;
     private float C = 0f;
     private float old_direction_heading = 0f;
     //private float old_direction = 0f;
@@ -137,7 +228,7 @@ public class CameraMovement : MonoBehaviour
                     current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
                     C = current_rotation;
                     transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
-                    
+
                     if (x_time > reccursive_rotation_threshold)
                     {
                         StartCoroutine(RotateCamera(1));
@@ -176,6 +267,7 @@ public class CameraMovement : MonoBehaviour
         C = current_rotation;
     }
 
+
     private IEnumerator RotateCameraAfterCurve(AnimationCurve curve)
     {
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
@@ -213,34 +305,5 @@ public class CameraMovement : MonoBehaviour
             current_rotation += curve.Evaluate(curve_time_current);
             transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
         }
-    }
-
-    /// <summary>
-    /// Rotate with input float.
-    /// </summary>
-    private void Update()
-    {
-        if(PlayerInput.GetKeyDown(PlayerInput.left_rotation) || (PlayerInput.GetKeyUp(PlayerInput.right_rotation) && PlayerInput.GetKey(PlayerInput.left_rotation)))
-        {
-            StopAllCoroutines();
-            StartCoroutine(RotateCamera(1));
-        }
-        else if (PlayerInput.GetKeyDown(PlayerInput.right_rotation) || (PlayerInput.GetKeyUp(PlayerInput.left_rotation) && PlayerInput.GetKey(PlayerInput.right_rotation)))
-        {
-            StopAllCoroutines();
-            StartCoroutine(RotateCamera(-1));
-        }
-    }
-
-    public void SmoothPosition()
-    {
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-#endif
-        smoothed_position = SmoothMovementToPoint(GetLookPoint());
-        transform.position = smoothed_position;
     }
 }

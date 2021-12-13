@@ -9,7 +9,6 @@ using UnityEngine;
 public class PlayerMovement : FloatingCapsule
 {
     [Header("Movement")]
-    private Transform camera_focus_transform;
     [SerializeField] private float crouched_speed;
     [SerializeField] private float walk_speed;
     [SerializeField] private float sprint_speed;
@@ -28,7 +27,6 @@ public class PlayerMovement : FloatingCapsule
     public override void Awake()
     {
         base.Awake();
-        camera_focus_transform = GameObject.Find("camera_focus_point").transform;
     }
 
     /// <summary>
@@ -36,7 +34,7 @@ public class PlayerMovement : FloatingCapsule
     /// </summary>
     private void Update()
     {
-        Vector3 new_desired_heading = (camera_focus_transform.right * PlayerInput.horizontal + camera_focus_transform.forward * PlayerInput.vertical).normalized;
+        Vector3 new_desired_heading = (Global.camera_focus_point_transform.right * PlayerInput.horizontal + Global.camera_focus_point_transform.forward * PlayerInput.vertical).normalized;
         if (new_desired_heading != Vector3.zero)
         {
             desired_heading = new_desired_heading;

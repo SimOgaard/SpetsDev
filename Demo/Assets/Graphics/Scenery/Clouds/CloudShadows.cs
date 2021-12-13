@@ -5,21 +5,18 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class CloudShadows : MonoBehaviour
 {
-    [SerializeField] private bool invert;
     [SerializeField] private Light _light;
     [SerializeField] private RenderTexture shadow_render_texture;
     [SerializeField] private Material cloud_shadow_material;
-    [SerializeField] private NoiseLayerSettings.Curve curve;
-    private Transform camera_focus_point_transform;
-    private float cookie_size = 175;
+
+    private const float cookie_size = 175;
+    private const int shadow_render_texutre_resolution = 512;
 
     private void Awake()
     {
-        camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
         _light = GetComponent<Light>();
-        shadow_render_texture = CreateShadowRenderTexture(896);
+        shadow_render_texture = CreateShadowRenderTexture(shadow_render_texutre_resolution);
         _light.cookie = shadow_render_texture;
-        CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
         cloud_shadow_material.SetFloat("_CookieSize", cookie_size);
         UpdateLightProperties(1f);
     }
@@ -33,26 +30,41 @@ public class CloudShadows : MonoBehaviour
         return render_texture;
     }
 
+    public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        return RotatePointAroundPivot(point, pivot, Quaternion.Euler(angles));
+    }
+
+    public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation)
+    {
+        return rotation * (point - pivot) + pivot;
+    }
+
+    [SerializeField] private GameObject testing;
+
+    [SerializeField] private Vector3 inverse_light_pos;
+    [SerializeField] private float angleToHorizon;
     private void LateUpdate()
     {
-        // Reposition directional light to be over player to keep
-        Vector3 new_pos = camera_focus_point_transform.position;
-        new_pos.y = 0f;
-        transform.position = new_pos;
-
         // Calculate the angle between the lights direction and the horizon.
-        float angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
+        angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
 
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
-        cloud_shadow_material.SetVector("_LightPosition", transform.position * (invert ? -1f : 1f));
-        
-        /*
-        #if UNITY_EDITOR
-        CurveCreator.AddCurveTexture(ref cloud_shadow_material, curve);
-        UpdateLightProperties(_light.cookieSize);
-        #endif
-        */
+
+        // transforms xyz values to ignore forward vector
+        inverse_light_pos = RotatePointAroundPivot(transform.position, Vector3.zero, transform.rotation * Quaternion.Inverse(transform.rotation));
+        //inverse_light_pos = transform.position;
+        //inverse_light_pos.y *= 1f/Mathf.Cos(angleToHorizon * Mathf.Deg2Rad);
+
+        testing.transform.position = RotatePointAroundPivot(transform.position, Vector3.zero, transform.rotation * Quaternion.Inverse(transform.rotation));
+        testing.transform.rotation = transform.rotation * Quaternion.Inverse(transform.rotation);
+
+        cloud_shadow_material.SetVector("_LightPosition", inverse_light_pos);
+
+        Vector3 cloud_stretch_offset = (transform.up + transform.right);
+        cloud_stretch_offset = Vector3.Scale(cloud_stretch_offset, cloud_stretch_offset);
+        cloud_shadow_material.SetVector("_CloudStrechOffset", cloud_stretch_offset);
 
         // Blit using material.
         Graphics.Blit(null, shadow_render_texture, cloud_shadow_material);

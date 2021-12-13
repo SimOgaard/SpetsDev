@@ -44,7 +44,7 @@ public class CurveCreator : MonoBehaviour
         return curve_texture;
     }
 
-    public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve, string texture_name = "_CurveTexture")
+    public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve, string texture_name = "_ColorShading")
     {
         Texture2D curve_texture = Texture(new Vector2Int(curve.resolution, 1));
         curve_texture.filterMode = FilterMode.Point;
@@ -76,5 +76,13 @@ public class CurveCreator : MonoBehaviour
         curve_texture.Apply();
 
         material.SetTexture(texture_name, curve_texture);
+    }
+
+    public static void AddCurveTextures(ref NoiseLayerSettings.MaterialWithCurve material_with_curve)
+    {
+        for (int i = 0; i < material_with_curve.curves.Length; i++)
+        {
+            AddCurveTexture(ref material_with_curve.material, material_with_curve.curves[i], material_with_curve.curves[i].texture_name);
+        }
     }
 }

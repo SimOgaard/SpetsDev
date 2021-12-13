@@ -8,18 +8,26 @@ public class NoiseLayerSettings : ScriptableObject
     [Header("Terrain")]
     public NoiseLayer[] terrain_noise_layers;
 
-    [Header("Ground Material")]
+    [Header("Materials")]
+    public MaterialWithCurve material_leaf;
+    public MaterialWithCurve material_wood;
+
+    public MaterialWithCurve material_stone;
+
+    public MaterialWithCurve material_golem;
+    public MaterialWithCurve material_golem_shoulder;
+
     public MaterialWithCurve material_static;
 
     [Header("Foliage")]
     public Foliage[] random_foliage;
 
-    [Header("Tree")]
-    public MaterialWithCurve material_leaf;
-    public MaterialWithCurve material_wood;
+    [Header("Water")]
+    public Water water;
 
-    [Header("Other")]
-    public Material material_stone;
+    [Header("Clouds")]
+    public MaterialWithCurve material_sun;
+    public MaterialWithCurve material_moon;
 
     [Header("Spawn")]
     [Range(0, 0.1f)] public float object_density;
@@ -95,10 +103,20 @@ public class NoiseLayerSettings : ScriptableObject
     }
 
     [System.Serializable]
+    public class Water
+    {
+        public MaterialWithCurve material;
+        public float level;
+        public float bobing_frequency;
+        public float bobing_amplitude;
+    }
+
+    [System.Serializable]
     public class Curve
     {
+        public string texture_name = "_ColorShading";
         public AnimationCurve light_curve;
-        public int resolution;
+        public int resolution = 256;
         public float col_diff;
     }
 
@@ -118,6 +136,6 @@ public class NoiseLayerSettings : ScriptableObject
     public class MaterialWithCurve
     {
         public Material material;
-        public Curve curve;
+        public Curve[] curves;
     }
 }

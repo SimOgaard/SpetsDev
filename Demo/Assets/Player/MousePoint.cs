@@ -12,12 +12,42 @@ public class MousePoint : MonoBehaviour
     /// <summary>
     /// The current mouse position in screen pixel coordinates. Translates the whole 400x255 px render texture to in game 384x216 px.
     /// </summary>
-    private static Vector3 GetInputMousePosition()
+    private static Vector3 GetInputMousePosition(float width_scale = 1f, float height_scale = 1f)
     {
         Vector3 input_mouse_position_raw = Input.mousePosition;
+        input_mouse_position_raw.x *= width_scale;
+        input_mouse_position_raw.y *= height_scale;
 
         Vector2 input_mouse_position_offset = new Vector2(PixelPerfectCameraRotation.resolution.x / PixelPerfectCameraRotation.resolution_extended.x, PixelPerfectCameraRotation.resolution.y / PixelPerfectCameraRotation.resolution_extended.y);
         return new Vector3(input_mouse_position_raw.x * input_mouse_position_offset.x, input_mouse_position_raw.y * input_mouse_position_offset.y, 0f);
+    }
+
+    public static Vector3 WorldToViewportPoint(Vector3 point)
+    {
+        return Camera.main.WorldToViewportPoint(point);
+    }
+
+    /// <summary>
+    /// Gets the target position of the mouse calculated to be on the same plane as the player character. Allways returns value and requires less Compute than GetTargetMousePos();
+    /// </summary>
+    public static Vector3 PositionRayPlane(Vector3 plane_pos, Vector3 plane_normal, Vector3 ray_origin, Vector3 ray_direction)
+    {
+        float distance;
+        Plane plane = new Plane(plane_normal, plane_pos);
+        ray = new Ray(ray_origin, ray_direction);
+        plane.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
+    }
+
+    /// <summary>
+    /// Gets the target position of the mouse calculated to be on the same plane as the player character. Allways returns value and requires less Compute than GetTargetMousePos();
+    /// </summary>
+    public static Vector3 PositionRayPlane(Vector3 plane_pos, Vector3 plane_normal, Ray ray)
+    {
+        float distance;
+        Plane plane = new Plane(plane_normal, plane_pos);
+        plane.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
     }
 
     /// <summary>
@@ -35,11 +65,11 @@ public class MousePoint : MonoBehaviour
     /// <summary>
     /// Gets the target position of the mouse calculated to be on the same plane as the player character. Allways returns value and requires less Compute than GetTargetMousePos();
     /// </summary>
-    public static Vector3 MousePositionPlayerPlane()
+    public static Vector3 MousePositionPlayerPlane(float width_scale = 1f, float height_scale = 1f)
     {
         float distance;
         Plane plane = new Plane(Vector3.up, Global.player_transform.position + new Vector3(0f, player_offset_to_ground, 0f));
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = Camera.main.ScreenPointToRay(GetInputMousePosition(width_scale, height_scale));
         plane.Raycast(ray, out distance);
         return ray.GetPoint(distance) - new Vector3(0f, player_offset_to_ground, 0f);
     }

@@ -7,8 +7,10 @@ float4x4 unity_WorldToLight;
 
 UNITY_DECLARE_SHADOWMAP(_DirectionalShadowmap);
 float _ShadowSoftness;
-float _DarkestValue;
-float _DayNightTime;
+float _Ambient;
+float _Darkest;
+
+float _LightColorValue;
 
 float LightCalculation(float4 center, float3 normal)
 {
@@ -17,7 +19,7 @@ float LightCalculation(float4 center, float3 normal)
 	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
 	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
 	float3 worldNormal = UnityObjectToWorldNormal(normal);
-	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
+	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap);
 
 	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
     float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);
@@ -33,9 +35,9 @@ float LightCalculation(float4 center, float3 normal)
  
 	// Sample the shadowmap
 	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness * _DayNightTime);
+	shadow = saturate(shadow + _ShadowSoftness);
 
-	return max(directionalLightValue * shadow, _DarkestValue * _DayNightTime);
+	return max(saturate(directionalLightValue * shadow + _Ambient), _Darkest);
 }
 
 float LightCalculation(float3 center, float3 normal)
@@ -45,7 +47,7 @@ float LightCalculation(float3 center, float3 normal)
 	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
 	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
 	float3 worldNormal = UnityObjectToWorldNormal(normal);
-	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap) * _LightColor0.r;
+	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap);
 
 	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
     float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);
@@ -61,7 +63,7 @@ float LightCalculation(float3 center, float3 normal)
  
 	// Sample the shadowmap
 	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness * _DayNightTime);
+	shadow = saturate(shadow + _ShadowSoftness);
 
-	return max(directionalLightValue * shadow, _DarkestValue * _DayNightTime);
+	return max(saturate(directionalLightValue * shadow + _Ambient), _Darkest);
 }

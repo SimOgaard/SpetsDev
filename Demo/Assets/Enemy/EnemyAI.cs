@@ -14,7 +14,6 @@ public class EnemyAI : MonoBehaviour
     }
 
     [HideInInspector] public Agent agent;
-    [HideInInspector] public Transform player_transform;
     public Transform chase_transform;
     public Vector3 old_chase_position = Vector3.zero;
 
@@ -107,12 +106,12 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            if (!coroutine_is_started && origin == player_transform)
+            if (!coroutine_is_started && origin == Global.player_transform)
             {
                 chase_transform = origin;
                 StartCoroutine(ActivateExclamationMark());
             }
-            else if (chase_transform != player_transform && attention_level_change >= change_chase_transform_threshold)
+            else if (chase_transform != Global.player_transform && attention_level_change >= change_chase_transform_threshold)
             {
                 question_mark_material.SetFloat("_Show", 1f);
                 question_mark_material.SetFloat("_CutoffY", 1f);
@@ -145,7 +144,6 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
-        player_transform = GameObject.Find("Player").transform;
         agent = GetComponent<Agent>();
         InitHealthBar();
         _current_health = starting_health;
@@ -298,6 +296,8 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     public void SetColor(Color color)
     {
+        return;
+
         if (transform.TryGetComponent<MeshRenderer>(out MeshRenderer mesh_renderer_parrent))
         {
             mesh_renderer_parrent.material.SetColor("_Color", color);

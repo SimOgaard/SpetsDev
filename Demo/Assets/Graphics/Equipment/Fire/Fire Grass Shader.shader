@@ -10,7 +10,7 @@
 		_Speed("Speed", Float) = 1.5
 
 		_Colors ("Color Texture", 2D) = "white" {}
-		_CurveTexture ("Curve Texture", 2D) = "white" {}
+		_ColorShading ("Color Shading", 2D) = "white" {}
     }
 
     SubShader
@@ -33,8 +33,8 @@
 			#include "/Assets/Graphics/CGincFiles/BillboardFire.cginc"
 			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
@@ -72,7 +72,7 @@
 					discard;
 				}
 
-				float curve_value = tex2D(_CurveTexture, noise_value).r;
+				float curve_value = tex2D(_ColorShading, noise_value).r;
 				float4 color = tex2D(_Colors, curve_value);
 
 				return float4(color.rgb, 1);

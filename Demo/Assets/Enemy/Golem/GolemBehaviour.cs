@@ -102,7 +102,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
     private Node MediumGolemBehaviourTree()
     {
-        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, enemy_ai.player_transform, transform);
+        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.player_transform, transform);
 
         // Controlls when ai dies
         HealthNode health_node = new HealthNode(enemy_ai);
@@ -114,13 +114,13 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        RangeNode meele_range_node = new RangeNode(meele_range, enemy_ai.player_transform, meele_transform);
+        RangeNode meele_range_node = new RangeNode(meele_range, Global.player_transform, meele_transform);
         MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
         Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
 
         // Picks up golem and throws them at player
         HasGolemInHandsNode has_golem_in_hands_node = new HasGolemInHandsNode(this);
-        RangeNode throw_range_node = new RangeNode(throw_range, enemy_ai.player_transform, transform);
+        RangeNode throw_range_node = new RangeNode(throw_range, Global.player_transform, transform);
         ThrowGolemNode throw_golem_node = new ThrowGolemNode(enemy_ai.agent, enemy_ai, this);
         Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
 
@@ -132,7 +132,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         PickupGolemNode pickup_golem_node = new PickupGolemNode(this);
         Sequence pick_up_golem_sequence = new Sequence(new List<Node> { golem_pickup_range_node, pickup_golem_node });
 
-        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, enemy_ai.player_transform, transform);
+        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, Global.player_transform, transform);
         Inverter player_to_close_ignore_node_inverter = new Inverter(player_to_close_ignore_node);
         IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(throwable_parrent_transform, this);
         Selector go_to_golem_selector = new Selector(new List<Node> { pick_up_golem_sequence, go_to_golem_sequence });
@@ -142,7 +142,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
         // Chases player
         float chasing_range = 0f;
-        RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
+        RangeNode chasing_range_node = new RangeNode(chasing_range, Global.player_transform, transform);
         ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 
@@ -155,7 +155,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
     private Node LargeGolemBehaviourTree()
     {
-        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, enemy_ai.player_transform, transform);
+        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.player_transform, transform);
 
         // Controlls when ai dies
         HealthNode health_node = new HealthNode(enemy_ai);
@@ -167,13 +167,13 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        RangeNode meele_range_node = new RangeNode(meele_range, enemy_ai.player_transform, meele_transform);
+        RangeNode meele_range_node = new RangeNode(meele_range, Global.player_transform, meele_transform);
         MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
         Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
 
         // Picks up golem and throws them at player
         HasGolemInHandsNode has_golem_in_hands_node = new HasGolemInHandsNode(this);
-        RangeNode throw_range_node = new RangeNode(throw_range, enemy_ai.player_transform, transform);
+        RangeNode throw_range_node = new RangeNode(throw_range, Global.player_transform, transform);
         ThrowGolemNode throw_golem_node = new ThrowGolemNode(enemy_ai.agent, enemy_ai, this);
         Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
 
@@ -185,7 +185,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         PickupGolemNode pickup_golem_node = new PickupGolemNode(this);
         Sequence pick_up_golem_sequence = new Sequence(new List<Node> { golem_pickup_range_node, pickup_golem_node });
 
-        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, enemy_ai.player_transform, transform);
+        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, Global.player_transform, transform);
         Inverter player_to_close_ignore_node_inverter = new Inverter(player_to_close_ignore_node);
         IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(throwable_parrent_transform, this);
         Selector go_to_golem_selector = new Selector(new List<Node> { pick_up_golem_sequence, go_to_golem_sequence });
@@ -195,7 +195,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
         // Chases player
         float chasing_range = 0f;
-        RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, transform);
+        RangeNode chasing_range_node = new RangeNode(chasing_range, Global.player_transform, transform);
         ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
         Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
 

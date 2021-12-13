@@ -15,14 +15,16 @@
 		_DiscardValue ("Discard Value", Range(0, 1)) = 0.5
 
 		_Colors ("Texture", 2D) = "white" {}
-		_CurveTexture ("Texture", 2D) = "white" {}
-
+		_ColorShading ("Texture", 2D) = "white" {}
+		_HighlightShading ("Highlight Shading", 2D) = "white" {}
+		
 		_WindDistortionMap ("Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
 		_WindStrength("Wind Strength", Float) = 1
 
 		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
 		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
+		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 
     SubShader
@@ -55,15 +57,19 @@
 			
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardLeaf.cginc"
+			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
+
+			sampler2D _HighlightShading;
+			float4 _HighlightShading_ST;
 
 			float _DiscardValue;
 
@@ -77,10 +83,17 @@
 					discard;
 				}
 
-				float curve_value = tex2D(_CurveTexture, i.light).r;
-				float4 color = tex2D(_Colors, curve_value);
+				float3 light_col = _LightColor0.rgb;
 
-				return float4(color.rgb, 1);
+				float color_value = tex2D(_ColorShading, i.light).r;
+				float4 main_color = tex2D(_Colors, color_value);
+
+				// for each light take highlight
+				float highlight_value = tex2D(_HighlightShading, i.light).r * _LightColorValue;
+				float4 highlight_color = float4(light_col, highlight_value);
+
+				float4 color = float4(alphaBlend(highlight_color, main_color).rgb, 1);
+				return color;
 			}
 			ENDCG
 		}

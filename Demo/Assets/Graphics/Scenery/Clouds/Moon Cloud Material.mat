@@ -7,15 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Golem Material
-  m_Shader: {fileID: 4800000, guid: 8342145274c3c65488b4d738f88cd9de, type: 3}
+  m_Name: Moon Cloud Material
+  m_Shader: {fileID: 4800000, guid: 4675659e12e79e04993903fd91bbe1a4, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2002
-  stringTagMap:
-    RenderType: Opaque
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -24,12 +23,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Colors:
-        m_Texture: {fileID: 2800000, guid: 55eb2993e26e6a84fb2bb1289bae8a42, type: 3}
+    - _ColorShading:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CurveTexture:
-        m_Texture: {fileID: 2800000, guid: 3244191a3e75b164d922be50349d743d, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -44,10 +43,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Distort:
-        m_Texture: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -57,10 +52,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Noise:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -75,30 +66,45 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DarkestValue: 0.15
     - _DetailNormalMapScale: 1
-    - _DistortionAmount: 0.5
     - _DstBlend: 0
-    - _FirstThreshold: 0.3
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _HorizonAngleFade: 5
+    - _HorizonAngleThreshold: 15
     - _Metallic: 0
     - _Mode: 0
+    - _Noise_CellularDistanceFunction: 1
+    - _Noise_CellularJitter: 1
+    - _Noise_CellularReturnType: 1
+    - _Noise_FractalGain: 0.5
+    - _Noise_FractalLacunarity: 2
+    - _Noise_FractalOctaves: 5
+    - _Noise_FractalPingPongStrength: 2
+    - _Noise_FractalType: 1
+    - _Noise_FractalWeightedStrength: 0
+    - _Noise_Frequency: 0.02
+    - _Noise_NoiseType: 1
+    - _Noise_RotationType3D: 2
+    - _Noise_Seed: 1337
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Radius: 0.45
-    - _SecondThreshold: 0.5
-    - _ShadowSoftness: 0.2
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _Warp_DomainWarpAmplitude: 30
+    - _Warp_DomainWarpType: 0
+    - _Warp_FractalGain: 0.5
+    - _Warp_FractalLacunarity: 2
+    - _Warp_FractalOctaves: 5
+    - _Warp_FractalType: 0
+    - _Warp_Frequency: 0.005
+    - _Warp_RotationType3D: 0
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorDark: {r: 0.1215686, g: 0.3411765, b: 0.3058824, a: 1}
-    - _ColorLight: {r: 0.7607843, g: 0.8666667, b: 0.5960785, a: 1}
-    - _ColorMedium: {r: 0.4666667, g: 0.654902, b: 0.4196078, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _NoiseScroll: {r: 100, g: 25, b: 25, a: 0}
   m_BuildTextureStacks: []

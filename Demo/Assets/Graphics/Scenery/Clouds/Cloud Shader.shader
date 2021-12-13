@@ -9,7 +9,7 @@
 
 		_NoiseScroll ("Noise Scroll", Vector) = (0.035, 0.035, 0.035, 0)
 
-		_CurveTexture ("Texture", 2D) = "white" {}
+		_ColorShading ("Texture", 2D) = "white" {}
 
 		[Header(Noise settings)]
 		_Noise_Seed("Seed", Int) = 1337
@@ -56,14 +56,15 @@
 
 	float _AngleToHorizon;
 
-	sampler2D _CurveTexture;
-	float4 _CurveTexture_ST;
+	sampler2D _ColorShading;
+	float4 _ColorShading_ST;
 
 	float3 _LightPosition;
 	float _CookieSize;
 	float _Zoom;
 	
 	float3 _WorldOffset;
+	float3 _CloudStrechOffset;
 
 	struct appdata_t
 	{
@@ -126,13 +127,13 @@
 
 		// translate tex pixel coordinates to world local
 		float length = 1. / (2. * _Zoom);
-		float2 worldTexCoord = ((i.texcoord * length) + ((1. - length) / 2.)) * _CookieSize;
+		float2 worldTexCoord = (((i.texcoord / _CloudStrechOffset.xz) * length) + ((1. - length) / 2.)) * _CookieSize;
 
 		//float2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
 
 		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + (_LightPosition.x * 0.5) - _WorldOffset.x;
 		float y = _Time[0] * _NoiseScroll.y;
-		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + (_LightPosition.z * 0.5) - _WorldOffset.z;
+		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + (_LightPosition.y * 0.5) - _WorldOffset.z;
 
 		fnlDomainWarp3D(warp, x, y, z);
 		return remap01(fnlGetNoise3D(noise, x, y, z));
@@ -145,7 +146,7 @@
 
 		float alpha = GetNoiseValue(i);
 		
-		float curve_value = tex2D(_CurveTexture, alpha).r  * angle_opacity;
+		float curve_value = tex2D(_ColorShading, alpha).r  * angle_opacity;
 
 		float4 color = curve_value;
 		return color;

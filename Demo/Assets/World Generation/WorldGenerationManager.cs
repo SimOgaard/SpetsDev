@@ -38,18 +38,6 @@ public class WorldGenerationManager : MonoBehaviour
     }
     [SerializeField] private ChunkDetails chunk_details;
 
-    [System.Serializable]
-    public struct WaterDetails
-    {
-        public Material water_material;
-        public NoiseLayerSettings.Curve water_curve_color;
-        public NoiseLayerSettings.Curve water_curve_alpha;
-        public float level;
-        public float bobing_frequency;
-        public float bobing_amplitude;
-    }
-    [SerializeField] private WaterDetails water_details;
-
     public Chunk InstanciateChunkGameObject(Vector2 chunk_coord)
     {
         GameObject chunk_game_object = new GameObject("chunk " + chunk_coord);
@@ -75,18 +63,28 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void AddCurveToAllMaterials()
     {
-        // not water
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_static.material, noise_layer_settings.material_static.curve);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_leaf.material, noise_layer_settings.material_leaf.curve);
-        CurveCreator.AddCurveTexture(ref noise_layer_settings.material_wood.material, noise_layer_settings.material_wood.curve);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_static);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_leaf);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_wood);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_stone);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_golem);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_golem_shoulder);
+
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.water.material);
+
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_sun);
+        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_moon);
 
         foreach (NoiseLayerSettings.Foliage foliage in noise_layer_settings.random_foliage)
         {
-            CurveCreator.AddCurveTexture(ref foliage.material.material, foliage.material.curve);
+            CurveCreator.AddCurveTextures(ref foliage.material);
         }
+
+        // set materials to be globally accesable
+        Global.Materials.stone_material = noise_layer_settings.material_stone.material;
+        Global.Materials.water_material = noise_layer_settings.water.material.material;
     }
 
-    private Transform player_transform;
     private void Awake()
     {
         while (transform.childCount != 0)
@@ -105,10 +103,9 @@ public class WorldGenerationManager : MonoBehaviour
 
         chunk_details.offset = chunk_details.unit_size * chunk_details.resolution;
         static_chunk_size = chunk_details.offset;
-        player_transform = GameObject.Find("Player").transform;
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(water_details.water_material, water_details.water_curve_color, water_details.water_curve_alpha, 350f, 350f, water_details.level, transform);
+        water.Init(noise_layer_settings.water, 350f, 350f, transform);
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -134,7 +131,7 @@ public class WorldGenerationManager : MonoBehaviour
         {
             for (int z = -load_dist; z <= load_dist; z++)
             {
-                LoadNearestChunk(player_transform.localPosition + new Vector3((float)x * chunk_details.offset.x, 0f, (float)z * chunk_details.offset.y));
+                LoadNearestChunk(Global.player_transform.localPosition + new Vector3((float)x * chunk_details.offset.x, 0f, (float)z * chunk_details.offset.y));
             }
         }
 
@@ -157,20 +154,12 @@ public class WorldGenerationManager : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
     private void Update()
     {
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-#endif
-
-        float water_level_wave = water_details.bobing_amplitude * Mathf.Sin(Time.time * water_details.bobing_frequency);
-        Water.water_level = water_details.level + water_level_wave;
+        AddCurveToAllMaterials();
     }
 
-#if UNITY_EDITOR
     [HideInInspector] public bool foldout = true;
     private Texture2D[] noise_textures;
     private void LoadNoiseTextures()
@@ -247,10 +236,10 @@ public class WorldGenerationManager : MonoBehaviour
         {
             chunk = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
             chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
-            chunk.Initialize(chunk_details.chunk_disable_distance, player_transform);
+            chunk.Initialize(chunk_details.chunk_disable_distance, Global.player_transform);
             chunks_in_loading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - player_transform.position).magnitude < chunk_details.chunk_enable_distance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.player_transform.position).magnitude < chunk_details.chunk_enable_distance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

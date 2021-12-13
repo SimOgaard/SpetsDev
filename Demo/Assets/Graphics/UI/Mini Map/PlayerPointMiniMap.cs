@@ -13,7 +13,7 @@ public class PlayerPointMiniMap : MonoBehaviour
 
     private void Start()
     {
-        transform_follow = GameObject.Find("Player").transform;
+        transform_follow = Global.player_transform;
     }
 
     private void Update()

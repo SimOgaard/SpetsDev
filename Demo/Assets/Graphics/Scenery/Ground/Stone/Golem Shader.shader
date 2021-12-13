@@ -4,9 +4,12 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
 
-        _Color ("Color", Color) = (1, 1, 1, 1)
-        _Colors ("Color Texture", 2D) = "white" {}
-		_CurveTexture ("Curve Texture", 2D) = "white" {}
+		_Colors ("Color Texture", 2D) = "white" {}
+		_ColorShading ("Color Shading", 2D) = "white" {}
+		
+		_ColorsMoss ("Color Texture Moss", 2D) = "white" {}
+		_ColorShadingMoss ("Color Shading Moss", 2D) = "white" {}
+		_HighlightShading ("Highlight Shading", 2D) = "white" {}
 
 		_Distort("Distort", 2D) = "white" {}
 		_Radius("Radius", Range(0, 1)) = 0.75
@@ -14,6 +17,7 @@
 
 		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
 		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
+		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 
     SubShader
@@ -34,14 +38,22 @@
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
 			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
-
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
 
-			float4 _Color;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
+
+			sampler2D _ColorsMoss;
+			float4 _ColorsMoss_ST;
+
+			sampler2D _ColorShadingMoss;
+			float4 _ColorShadingMoss_ST;
+
+			sampler2D _HighlightShading;
+			float4 _HighlightShading_ST;
 
 			sampler2D _Distort;
 			float _DistortionAmount;
@@ -54,20 +66,29 @@
 
 			float4 frag(v2f i) : SV_Target
 			{
-				float light = CalculateLight(i);
+				float3 light_col = _LightColor0.rgb;
+				float light_value = CalculateLight(i);
 				
 				float2 distortSample = (tex2D(_Distort, i.uv).xy * 2 - 1) * _DistortionAmount;
 				float value = circle(i.uv + distortSample, _Radius);
 
+				float4 main_color;
 				if (value < 0.5){
-					float4 light_color = _LightColor0.rgba * light;
-					return _Color * light_color;
+					float curve_value = tex2D(_ColorShading, light_value).r;
+					main_color = tex2D(_Colors, curve_value);
+				}
+				else
+				{
+					float curve_value = tex2D(_ColorShadingMoss, light_value).r;
+					main_color = tex2D(_ColorsMoss, curve_value);				
 				}
 
-				float curve_value = tex2D(_CurveTexture, light).r;
-				float4 color = tex2D(_Colors, curve_value);
+				// for each light take highlight
+				float highlight_value = tex2D(_HighlightShading, light_value).r * _LightColorValue;
+				float4 highlight_color = float4(light_col, highlight_value);
 
-				return float4(color.rgb, 1);
+				float4 color = float4(alphaBlend(highlight_color, main_color).rgb, 1);
+				return color;
 			}
 			ENDCG
 		}

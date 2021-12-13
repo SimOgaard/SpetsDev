@@ -290,13 +290,19 @@ public static class Copy
 
 public static class Global
 {
-    public static Material stone_material = Resources.Load<Material>("Materials/Stone Material");
+    public struct Materials
+    {
+        public static Material stone_material;
+        public static Material sprite_renderer_material;
+        public static Material water_material;
+    }
 
-    public static Sprite interacting_with_sprite = Resources.Load<Sprite>("Interactables/interacting_with_sprite");
-    public static Sprite not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
+    public static Sprite interacting_with_sprite;
+    public static Sprite not_interacting_with_sprite;
 
-    public static Transform player_transform = GameObject.Find("Player").transform;
-    public static Transform equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
+    public static Transform camera_focus_point_transform;
+    public static Transform player_transform;
+    public static Transform equipments_in_inventory;
 
     public static Vector3 normal_gravity = Physics.gravity;
     public static Vector3 current_gravity = Physics.gravity;

@@ -32,7 +32,6 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private Vector3 offset;
 
-    [SerializeField] private Transform camera_focus_point;
     private CameraMovement camera_focus_point_script;
     [HideInInspector] public Camera m_camera;
     [HideInInspector] public Camera n_camera;
@@ -124,8 +123,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         Shader.SetGlobalFloat("pixels_per_unit", pixels_per_unit);
         Shader.SetGlobalFloat("y_scale", SpriteInitializer.y_scale);
 
-        camera_focus_point = GameObject.Find("camera_focus_point").transform;
-        camera_focus_point_script = camera_focus_point.GetComponent<CameraMovement>();
+        camera_focus_point_script = Global.camera_focus_point_transform.GetComponent<CameraMovement>();
         m_camera = GetComponent<Camera>();
     }
 
@@ -202,7 +200,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         camera_focus_point_script.SmoothPosition();
 
-        MoveCamera(ref m_camera, camera_focus_point, camera_rotation_init, _camera_distance);
+        MoveCamera(ref m_camera, Global.camera_focus_point_transform, camera_rotation_init, _camera_distance);
         Shader.SetGlobalVector("_CameraOffset", new Vector4(camera_offset.x, camera_offset.y, 0f, 0f));
         camera_offset = PixelSnap(ref m_camera);
         SetCameraNearClippingPlane();

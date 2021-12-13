@@ -11,7 +11,7 @@
 		_TessellationUniform("Tessellation Uniform", Range(1, 32)) = 1
 
 		_Colors ("Color Texture", 2D) = "white" {}
-		_CurveTexture ("Curve Texture", 2D) = "white" {}
+		_ColorShading ("Color Shading", 2D) = "white" {}
 		
 		_WindDistortionMap ("Distortion Map Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
@@ -39,8 +39,8 @@
 
 			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
 
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
@@ -49,7 +49,7 @@
 			{
 				float light = CalculateLight(i);
 
-				float curve_value = tex2D(_CurveTexture, light).r;
+				float curve_value = tex2D(_ColorShading, light).r;
 				float4 color = tex2D(_Colors, curve_value);
 
 				return color;
@@ -88,8 +88,8 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
@@ -104,7 +104,7 @@
 					discard;
 				}
 
-				float curve_value = tex2D(_CurveTexture, i.light).r;
+				float curve_value = tex2D(_ColorShading, i.light).r;
 				float4 color = tex2D(_Colors, curve_value);
 
 				return float4(color.rgb, 1);

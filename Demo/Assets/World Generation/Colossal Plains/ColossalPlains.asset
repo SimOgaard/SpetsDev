@@ -45,9 +45,10 @@ MonoBehaviour:
       octaves: 1
       lacunarity: 0
       gain: 0
-  material_static:
-    material: {fileID: 2100000, guid: 4205932b0786c204db021b14ed44f5f4, type: 2}
-    curve:
+  material_leaf:
+    material: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
+    curves:
+    - texture_name: _ColorShading
       light_curve:
         serializedVersion: 2
         m_Curve:
@@ -74,12 +75,217 @@ MonoBehaviour:
         m_RotationOrder: 4
       resolution: 256
       col_diff: 0
+  material_wood:
+    material: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.29350093
+          outSlope: -0.29350093
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.15225564
+        - serializedVersion: 3
+          time: 0.95
+          value: 0
+          inSlope: -2.1821172
+          outSlope: -2.1821172
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.04323307
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+  material_stone:
+    material: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.3012249
+          outSlope: -0.3012249
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.10178571
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: -2.469238
+          outSlope: -2.469238
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.041071415
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+  material_golem:
+    material: {fileID: 2100000, guid: 3d385ee943ef2d4448499d64dbca2a68, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.3012249
+          outSlope: -0.3012249
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.10178571
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: -2.469238
+          outSlope: -2.469238
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.041071415
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+    - texture_name: _ColorShadingMoss
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.29350093
+          outSlope: -0.29350093
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.15225564
+        - serializedVersion: 3
+          time: 1.025
+          value: 0
+          inSlope: -2.1821172
+          outSlope: -2.1821172
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.04323307
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+  material_golem_shoulder:
+    material: {fileID: 2100000, guid: 3fe0ad543c16ce542becd818292743d9, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.3012249
+          outSlope: -0.3012249
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.10178571
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: -2.469238
+          outSlope: -2.469238
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.041071415
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+    - texture_name: __ColorShadingMoss
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.29350093
+          outSlope: -0.29350093
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.15225564
+        - serializedVersion: 3
+          time: 1.025
+          value: 0
+          inSlope: -2.1821172
+          outSlope: -2.1821172
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.04323307
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
+  material_static:
+    material: {fileID: 2100000, guid: 4205932b0786c204db021b14ed44f5f4, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: -0.29350093
+          outSlope: -0.29350093
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.15225564
+        - serializedVersion: 3
+          time: 1.025
+          value: 0
+          inSlope: -2.1821172
+          outSlope: -2.1821172
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.04323307
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      resolution: 256
+      col_diff: 0
   random_foliage:
   - name: wheat
     enabled: 0
     material:
       material: {fileID: 2100000, guid: 9baa661ff1c8daa4187c9bee4dff609f, type: 2}
-      curve:
+      curves:
+      - texture_name: _ColorShading
         light_curve:
           serializedVersion: 2
           m_Curve:
@@ -93,7 +299,7 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0.15225564
           - serializedVersion: 3
-            time: 0.95
+            time: 1.025
             value: 0
             inSlope: -2.1821172
             outSlope: -2.1821172
@@ -146,7 +352,8 @@ MonoBehaviour:
     enabled: 1
     material:
       material: {fileID: 2100000, guid: e8c6b2ed49c9d9f48804cf540e9a4dc6, type: 2}
-      curve:
+      curves:
+      - texture_name: _ColorShading
         light_curve:
           serializedVersion: 2
           m_Curve:
@@ -213,7 +420,8 @@ MonoBehaviour:
     enabled: 1
     material:
       material: {fileID: 2100000, guid: f3a71938adb091240952b70b19cc9788, type: 2}
-      curve:
+      curves:
+      - texture_name: _ColorShading
         light_curve:
           serializedVersion: 2
           m_Curve:
@@ -227,7 +435,7 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0.15225564
           - serializedVersion: 3
-            time: 0.95
+            time: 1.025
             value: 0
             inSlope: -2.1821172
             outSlope: -2.1821172
@@ -276,55 +484,97 @@ MonoBehaviour:
     keep_range_noise: {x: 0, y: 0}
     keep_range_random_noise: 0
     keep_range_random: 1
-  material_leaf:
-    material: {fileID: 2100000, guid: fd1cd9b5e9c5d1d40a27a43766458b77, type: 2}
-    curve:
+  water:
+    material:
+      material: {fileID: 2100000, guid: 6ec1cf8e7ca7a3c45a3e6aca996b4949, type: 2}
+      curves:
+      - texture_name: _ColorShading
+        light_curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: -2.698934
+            outSlope: -2.698934
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.051339287
+          - serializedVersion: 3
+            time: 0.8
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.083928585
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        resolution: 256
+        col_diff: 0
+      - texture_name: _AlphaShading
+        light_curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0.0022087097
+            value: 0.4037135
+            inSlope: 2.9609056
+            outSlope: 2.9609056
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.03151859
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        resolution: 256
+        col_diff: 0
+    level: 5.5
+    bobing_frequency: 0.5
+    bobing_amplitude: 0.25
+  material_sun:
+    material: {fileID: 2100000, guid: f952cc4a84636174eb3059e65f39b68a, type: 2}
+    curves:
+    - texture_name: _ColorShading
       light_curve:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: -0.29350093
-          outSlope: -0.29350093
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0.15225564
-        - serializedVersion: 3
-          time: 0.95
-          value: 0
-          inSlope: -2.1821172
-          outSlope: -2.1821172
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.04323307
-          outWeight: 0
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      resolution: 256
-      col_diff: 0
-  material_wood:
-    material: {fileID: 2100000, guid: 550a699809eca094396f4a66dbb700c2, type: 2}
-    curve:
-      light_curve:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: -1
-          outSlope: -1
+          time: 0.2
+          value: 0.65
+          inSlope: 1.4000002
+          outSlope: 1.4000002
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
-          value: 0
-          inSlope: -1
-          outSlope: -1
+          time: 0.45
+          value: 1
+          inSlope: 1.4000002
+          outSlope: 1.4000002
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -334,7 +584,36 @@ MonoBehaviour:
         m_RotationOrder: 0
       resolution: 256
       col_diff: 0
-  material_stone: {fileID: 2100000, guid: 19bf7ee1216037f46b166b3e6d26ae3a, type: 2}
+  material_moon:
+    material: {fileID: 2100000, guid: a0cb0e12239c63a46abef4e13f6412fe, type: 2}
+    curves:
+    - texture_name: _ColorShading
+      light_curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0.2
+          value: 0.65
+          inSlope: 1.4000002
+          outSlope: 1.4000002
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.45
+          value: 1
+          inSlope: 1.4000002
+          outSlope: 1.4000002
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+      resolution: 256
+      col_diff: 0
   object_density: 0.0075
   spawn_prefabs:
   - {fileID: 2656273714191936001, guid: 07b83147b4ffd8541b5c6a1b706dfa70, type: 3}

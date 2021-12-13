@@ -8,20 +8,16 @@ public class Water : MonoBehaviour
     public static float water_level = 0f;
     public static float buoyancy_force = 1f;
 
-    //private Material material;
-    private Transform camera_focus_point_transform;
-
-    private void Start()
-    {
-        camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
-    }
+    private NoiseLayerSettings.Water water_settings;
 
     private void LateUpdate()
     {
-        Vector3 new_pos = camera_focus_point_transform.position;
+        float water_level_wave = water_settings.bobing_amplitude * Mathf.Sin(Time.time * water_settings.bobing_frequency);
+        Water.water_level = water_settings.level + water_level_wave;
+
+        Vector3 new_pos = Global.camera_focus_point_transform.position;
         new_pos.y = water_level;
         transform.position = new_pos;
-        //material.SetVector("_Center", new_pos);
     }
 
     private static Mesh BuildQuad(float width, float height)
@@ -63,20 +59,22 @@ public class Water : MonoBehaviour
         return mesh;
     }
 
-    public void Init(Material material, NoiseLayerSettings.Curve curve_color, NoiseLayerSettings.Curve curve_alpha, float width, float height, float water_level, Transform parrent)
+    public void Init(NoiseLayerSettings.Water water_settings, float width, float height, Transform parrent)
     {
+        this.water_settings = water_settings;
+        /*
         CurveCreator.AddCurveTexture(ref material, curve_color, "_WaterCurveTexture");
         Texture2D alpha_texture = CurveCreator.CreateCurveTexture(curve_alpha);
         material.SetTexture("_WaterCurveAlpha", alpha_texture);
-
+        */
         gameObject.name = "water";
         transform.parent = parrent;
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-        Water.water_level = water_level;
+        Water.water_level = water_settings.level;
         gameObject.AddComponent<MeshFilter>().mesh = BuildQuad(width, height);
         MeshRenderer mesh_renderer = gameObject.AddComponent<MeshRenderer>();
-        mesh_renderer.material = material;
+        mesh_renderer.material = water_settings.material.material;
         mesh_renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         mesh_renderer.receiveShadows = false;
         //this.material = material;

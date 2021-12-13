@@ -11,7 +11,8 @@ Shader "Unlit/GrassShaderSplit"
 		_TessellationUniform("Tessellation Uniform", Range(1, 32)) = 1
 
 		_Colors ("Color Texture", 2D) = "white" {}
-		_CurveTexture ("Curve Texture", 2D) = "white" {}
+		_ColorShading ("Color Shading", 2D) = "white" {}
+		_HighlightShading ("Highlight Shading", 2D) = "white" {}
 		_PerPixelLightning ("Per Pixel Lightning", Float) = 0
 		
 		_WindDistortionMap ("Distortion Map Texture", 2D) = "white" {}
@@ -20,6 +21,7 @@ Shader "Unlit/GrassShaderSplit"
 
 		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
 		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
+		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 
 	SubShader
@@ -50,17 +52,21 @@ Shader "Unlit/GrassShaderSplit"
 			//#include "/Assets/Graphics/CGincFiles/CustomTessellation.cginc"
 			#include "/Assets/Graphics/CGincFiles/FlatShadingSetup.cginc"
 			#include "/Assets/Graphics/CGincFiles/BillboardGrass.cginc"
+			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
-			sampler2D _CurveTexture;
-			float4 _CurveTexture_ST;
+			sampler2D _ColorShading;
+			float4 _ColorShading_ST;
 
 			sampler2D _Colors;
 			float4 _Colors_ST;
 
 			float _PerPixelLightning;
+						
+			sampler2D _HighlightShading;
+			float4 _HighlightShading_ST;
 
 			float4 frag(g2f i, float facing : VFACE) : SV_Target
 			{
@@ -72,12 +78,17 @@ Shader "Unlit/GrassShaderSplit"
 					discard;
 				}
 
-				alpha = saturate(alpha * _PerPixelLightning);
+				float3 light_col = _LightColor0.rgb;
 
-				float curve_value = tex2D(_CurveTexture, i.light * alpha).r;
-				float4 color = tex2D(_Colors, curve_value);
+				float color_value = tex2D(_ColorShading, i.light).r;
+				float4 main_color = tex2D(_Colors, color_value);
 
-				return float4(color.rgb, 1);
+				// for each light take highlight
+				float highlight_value = tex2D(_HighlightShading, i.light).r * _LightColorValue;
+				float4 highlight_color = float4(light_col, highlight_value);
+
+				float4 color = float4(alphaBlend(highlight_color, main_color).rgb, 1);
+				return color;
 			}
 			ENDCG
 		}
