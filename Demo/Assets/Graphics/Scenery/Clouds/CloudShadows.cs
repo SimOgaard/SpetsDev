@@ -40,11 +40,9 @@ public class CloudShadows : MonoBehaviour
         return rotation * (point - pivot) + pivot;
     }
 
-    [SerializeField] private GameObject testing;
-
     [SerializeField] private Vector3 inverse_light_pos;
     [SerializeField] private float angleToHorizon;
-    private void LateUpdate()
+    public void UpdatePos()
     {
         // Calculate the angle between the lights direction and the horizon.
         angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
@@ -52,13 +50,7 @@ public class CloudShadows : MonoBehaviour
         // Set remaining material properties.
         cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
 
-        // transforms xyz values to ignore forward vector
-        inverse_light_pos = RotatePointAroundPivot(transform.position, Vector3.zero, transform.rotation * Quaternion.Inverse(transform.rotation));
-        //inverse_light_pos = transform.position;
-        //inverse_light_pos.y *= 1f/Mathf.Cos(angleToHorizon * Mathf.Deg2Rad);
-
-        testing.transform.position = RotatePointAroundPivot(transform.position, Vector3.zero, transform.rotation * Quaternion.Inverse(transform.rotation));
-        testing.transform.rotation = transform.rotation * Quaternion.Inverse(transform.rotation);
+        inverse_light_pos = RotatePointAroundPivot(transform.position, Vector3.zero, Quaternion.Inverse(transform.rotation));
 
         cloud_shadow_material.SetVector("_LightPosition", inverse_light_pos);
 

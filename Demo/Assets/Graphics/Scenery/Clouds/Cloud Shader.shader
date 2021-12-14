@@ -127,13 +127,13 @@
 
 		// translate tex pixel coordinates to world local
 		float length = 1. / (2. * _Zoom);
-		float2 worldTexCoord = (((i.texcoord / _CloudStrechOffset.xz) * length) + ((1. - length) / 2.)) * _CookieSize;
+		float2 worldTexCoord = (((i.texcoord / (_CloudStrechOffset.xz)) * length) + ((1. - length) / 2.)) * _CookieSize;
 
 		//float2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
 
-		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + (_LightPosition.x * 0.5) - _WorldOffset.x;
+		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + ((_LightPosition.x * 0.5) - _WorldOffset.x) / _CloudStrechOffset.x;
 		float y = _Time[0] * _NoiseScroll.y;
-		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + (_LightPosition.y * 0.5) - _WorldOffset.z;
+		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + ((_LightPosition.y * 0.5) - _WorldOffset.z) / _CloudStrechOffset.z;
 
 		fnlDomainWarp3D(warp, x, y, z);
 		return remap01(fnlGetNoise3D(noise, x, y, z));

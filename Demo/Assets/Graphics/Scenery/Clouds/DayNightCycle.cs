@@ -18,13 +18,16 @@ public class DayNightCycle : MonoBehaviour
     public Vector3 current_rotation_euler;
 
     private GameObject sun;
+    private CloudShadows sun_cloud_shadows;
     private GameObject moon;
+    private CloudShadows moon_cloud_shadows;
 
     private void Start()
     {
         sun = transform.GetChild(0).gameObject;
+        sun_cloud_shadows = sun.GetComponent<CloudShadows>();
         moon = transform.GetChild(1).gameObject;
-        current_rotation_euler = transform.rotation.eulerAngles;
+        moon_cloud_shadows = moon.GetComponent<CloudShadows>();
     }
 
     public static Vector3 DivideVector3(Vector3 numerator, Vector3 denominator)
@@ -32,18 +35,21 @@ public class DayNightCycle : MonoBehaviour
         return new Vector3(numerator.x / denominator.x, numerator.y / denominator.y, numerator.z / denominator.z);
     }
 
-    private void Update()
+    public void UpdatePos()
     {
         current_rotation_euler += rotation_speed * Time.deltaTime;
-        Vector3 rounded_rotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(current_rotation_euler, rotation_snap)), rotation_snap);
-        transform.rotation = Quaternion.Euler(rounded_rotation);
+        if (rotation_snap != Vector3.zero)
+        {
+            Vector3 rounded_rotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(current_rotation_euler, rotation_snap)), rotation_snap);
+            transform.rotation = Quaternion.Euler(rounded_rotation);
+        }
+        else
+        {
+            transform.rotation = Quaternion.Euler(current_rotation_euler);
+        }
 
         // Reposition directional light to be over player to keep shadows
-
-
-        Vector3 test = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.camera_focus_point_transform.position, transform.forward);
-        //Vector3 new_pos = Global.camera_focus_point_transform.position;
-        transform.position = test;
+        transform.position = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.camera_focus_point_transform.position, transform.forward);
 
         float x = Vector3.Dot(transform.forward, Vector3.up);
         ambient = ambient_light.Evaluate(x);
@@ -55,15 +61,26 @@ public class DayNightCycle : MonoBehaviour
         water_offset = water_col_offset.Evaluate(x);
         Global.Materials.water_material.SetFloat("_WaterColOffset", water_offset);
 
-        if (sun.transform.forward.y < 0 && !sun.activeInHierarchy)
+        if (sun.transform.forward.y < 0)
         {
-            sun.SetActive(true);
-            moon.SetActive(false);
+            sun_cloud_shadows.UpdatePos();
+
+            if (!sun.activeInHierarchy)
+            {
+                sun.SetActive(true);
+                moon.SetActive(false);
+            }
         }
-        else if (moon.transform.forward.y < 0 && !moon.activeInHierarchy)
+        else if (moon.transform.forward.y < 0)
         {
-            moon.SetActive(true);
-            sun.SetActive(false);
+            moon_cloud_shadows.UpdatePos();
+
+            if (!moon.activeInHierarchy)
+            {
+                moon.SetActive(true);
+                sun.SetActive(false);
+            }
         }
+
     }
 }

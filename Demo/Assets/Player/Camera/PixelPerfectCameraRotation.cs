@@ -42,6 +42,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
     private PlanarReflectionManager planar_reflection_manager;
 
+    [SerializeField] private DayNightCycle day_night_cycle;
     [SerializeField] private CloudShadows sun_cloud_shadows;
     [SerializeField] private CloudShadows moon_cloud_shadows;
 
@@ -139,6 +140,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
 #endif
         planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
+        day_night_cycle = GameObject.Find("DayNightCycle").GetComponent<DayNightCycle>();
     }
 
     private void UpdateZoomValues(float scroll_offset = 0f)
@@ -212,6 +214,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         // Move camera after main camera
         planar_reflection_manager.ConstructMatrix4X4Ortho(bot_right_ray, bot_left_ray, 2f * m_camera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
         planar_reflection_manager.SetCameraNearClippingPlane();
+
+        day_night_cycle.UpdatePos();
     }
 
     private bool SeesUnloaded()
