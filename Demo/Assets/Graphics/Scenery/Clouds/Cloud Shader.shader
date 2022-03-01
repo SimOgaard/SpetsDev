@@ -99,7 +99,7 @@
 	{
 		fnl_state noise = fnlCreateState();
 		noise.seed = 1337; //_Noise_Seed;
-		noise.frequency = 5.0 / (_CookieSize); //_Noise_Frequency;
+		noise.frequency = 6.0 / (_CookieSize); //_Noise_Frequency;
 		noise.noise_type = 1; //_Noise_NoiseType;
 		noise.rotation_type_3d = 2; //_Noise_RotationType3D;
 

@@ -58,6 +58,9 @@ public class DayNightCycle : MonoBehaviour
         darkest = darkest_value.Evaluate(x);
         Shader.SetGlobalFloat("_Darkest", darkest);
 
+        //Debug.Log($"ambient {ambient}");
+        //Debug.Log($"darkest {darkest}");
+
         water_offset = water_col_offset.Evaluate(x);
         Global.Materials.water_material.SetFloat("_WaterColOffset", water_offset);
 

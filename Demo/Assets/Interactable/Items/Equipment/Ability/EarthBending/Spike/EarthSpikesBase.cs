@@ -8,17 +8,12 @@ using UnityEngine;
 /// </summary>
 public class EarthSpikesBase : Ability, Equipment.IEquipment
 {
-    // grass cutting simulator
-    private Collider grass_cutter;
-
     public override void UsePrimary()
     {
-        //grass_cutter.enabled = true;
         Debug.Log("EarthSpikesAbility.UsePrimary");
     }
     public override void StopPrimary()
     {
-        //grass_cutter.enabled = false;
         Debug.Log("EarthSpikesAbility.StopPrimary");
     }
 
@@ -32,7 +27,5 @@ public class EarthSpikesBase : Ability, Equipment.IEquipment
     {
         base.Awake();
         icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
-
-        grass_cutter = GameObject.Find("TESTING REMOVING GRASS").GetComponent<Collider>();
     }
 }

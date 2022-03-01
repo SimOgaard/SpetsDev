@@ -16,7 +16,6 @@
 		_DistortionAmount("Distortion Amount", Float) = 0.1
 
 		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
-		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
 		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 

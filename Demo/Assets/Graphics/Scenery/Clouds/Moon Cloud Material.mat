@@ -71,7 +71,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HorizonAngleFade: 5
+    - _HorizonAngleFade: 15
     - _HorizonAngleThreshold: 15
     - _Metallic: 0
     - _Mode: 0

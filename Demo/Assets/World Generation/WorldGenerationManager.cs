@@ -101,6 +101,7 @@ public class WorldGenerationManager : MonoBehaviour
         LoadNoiseTextures();
 #endif
 
+        ColliderMeshManipulation.triangle_size_margin = Mathf.Max(chunk_details.unit_size.x, chunk_details.unit_size.y);
         chunk_details.offset = chunk_details.unit_size * chunk_details.resolution;
         static_chunk_size = chunk_details.offset;
 
@@ -204,32 +205,34 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearest_chunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / static_chunk_size.x),
-            Mathf.RoundToInt(position_2d.y / static_chunk_size.y)
+            Mathf.RoundToInt(position_2d.x / static_chunk_size.x) + 100,
+            Mathf.RoundToInt(position_2d.y / static_chunk_size.y) + 100
         );
         return nearest_chunk;
     }
 
     public static Vector2 ReturnNearestChunkCoord(Vector3 position)
     {
-        Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
+        Vector2 position_2d = new Vector2(position.x, position.z);
+        Vector2Int nearest_chunk = new Vector2Int(
+            Mathf.RoundToInt(position_2d.x / static_chunk_size.x),
+            Mathf.RoundToInt(position_2d.y / static_chunk_size.y)
+        );
         Vector2 chunk_coord = nearest_chunk * static_chunk_size;
         return chunk_coord;
     }
 
     public static Chunk ReturnNearestChunk(Vector3 position)
     {
-        Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearest_chunk_index = nearest_chunk + chunk_index_offset;
+        Vector2Int nearest_chunk_index = nearest_chunk;
         return chunks[nearest_chunk_index.x, nearest_chunk_index.y];
     }
 
     public Chunk LoadNearestChunk(Vector3 position)
     {
-        Vector2Int chunk_index_offset = new Vector2Int(100, 100);
         Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearest_chunk_index = nearest_chunk + chunk_index_offset;
+        Vector2Int nearest_chunk_index = nearest_chunk;
         Chunk chunk = chunks[nearest_chunk_index.x, nearest_chunk_index.y];
 
         if (chunk == null)
@@ -246,5 +249,30 @@ public class WorldGenerationManager : MonoBehaviour
         }
 
         return chunk;
+    }
+
+    public static Chunk[] ReturnAllCunksInBounds(Bounds bounds)
+    {
+        // get nearest chunk for min max coords
+        Vector2Int max_index = ReturnNearestChunkIndex(bounds.max);
+        Vector2Int min_index = ReturnNearestChunkIndex(bounds.min);
+
+        // create list of length:
+        Vector2Int diff_index = max_index - min_index + Vector2Int.one;
+        int length = diff_index.x * diff_index.y;
+        Chunk[] chunks_in_bounds = new Chunk[length];
+
+        // populate list with every chunk between max_index and min_index
+        int i = 0;
+        for (int x = min_index.x; x <= max_index.x; x++)
+        {
+            for (int z = min_index.y; z <= max_index.y; z++)
+            {
+                chunks_in_bounds[i] = chunks[x, z];
+                i++;
+            }
+        }
+
+        return chunks_in_bounds;
     }
 }

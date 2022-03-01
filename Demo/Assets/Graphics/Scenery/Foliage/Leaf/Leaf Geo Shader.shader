@@ -18,12 +18,13 @@
 		_ColorShading ("Texture", 2D) = "white" {}
 		_HighlightShading ("Highlight Shading", 2D) = "white" {}
 		
+		/*
 		_WindDistortionMap ("Texture", 2D) = "white" {}
 		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
 		_WindStrength("Wind Strength", Float) = 1
+		*/
 
 		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
-		_DarkestValue("Darkest Value", Range(0, 1)) = 0.0
 		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 

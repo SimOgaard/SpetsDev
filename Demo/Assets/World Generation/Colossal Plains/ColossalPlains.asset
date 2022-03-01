@@ -280,8 +280,76 @@ MonoBehaviour:
       resolution: 256
       col_diff: 0
   random_foliage:
-  - name: wheat
+  - type: 16
     enabled: 0
+    material:
+      material: {fileID: 2100000, guid: 4ac97750709577a44aa3796ec07eda91, type: 2}
+      curves:
+      - texture_name: _ColorShading
+        light_curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1.0023079
+            inSlope: -0.680546
+            outSlope: -0.680546
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.08964144
+          - serializedVersion: 3
+            time: 0.9963964
+            value: 0.009305559
+            inSlope: -1.3479068
+            outSlope: -1.3479068
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.063745014
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        resolution: 256
+        col_diff: 0.2
+    noise_layer:
+      enabled: 0
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 0
+        frequency: 0.001
+      fractal:
+        fractal_type: 0
+        octaves: 5
+        lacunarity: 2
+        gain: 1
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0, y: 0}
+    keep_range_random_noise: 5
+    keep_range_random: 0.0005
+  - type: 8
+    enabled: 1
     material:
       material: {fileID: 2100000, guid: 9baa661ff1c8daa4187c9bee4dff609f, type: 2}
       curves:
@@ -348,10 +416,10 @@ MonoBehaviour:
     keep_range_noise: {x: 0.75, y: 1}
     keep_range_random_noise: 5
     keep_range_random: 0.0005
-  - name: flowers blue
+  - type: 4
     enabled: 1
     material:
-      material: {fileID: 2100000, guid: e8c6b2ed49c9d9f48804cf540e9a4dc6, type: 2}
+      material: {fileID: 2100000, guid: 5cf7e828f424af5498f6ad594ccb6179, type: 2}
       curves:
       - texture_name: _ColorShading
         light_curve:
@@ -416,7 +484,75 @@ MonoBehaviour:
     keep_range_noise: {x: 0.75, y: 1}
     keep_range_random_noise: 0.6
     keep_range_random: 0.00075
-  - name: grass
+  - type: 2
+    enabled: 0
+    material:
+      material: {fileID: 2100000, guid: 869b6e9eb4e2688489f985ae28976907, type: 2}
+      curves:
+      - texture_name: _ColorShading
+        light_curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1.0023079
+            inSlope: -0.680546
+            outSlope: -0.680546
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.08964144
+          - serializedVersion: 3
+            time: 1.0168432
+            value: 0.028165422
+            inSlope: -1.3479068
+            outSlope: -1.3479068
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.063745014
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        resolution: 256
+        col_diff: 0.0625
+    noise_layer:
+      enabled: 0
+      general:
+        amplitude: 1
+        offsett: {x: 0, y: 0}
+        min_value: 0
+        smoothing_min: 0
+        max_value: 1
+        smoothing_max: 0
+      general_noise:
+        noise_type: 0
+        seed: 0
+        frequency: 0.005
+      fractal:
+        fractal_type: 1
+        octaves: 5
+        lacunarity: 2
+        gain: 0.5
+        weighted_strength: 0
+        ping_pong_strength: 0
+      cellular:
+        cellular_distance_function: 0
+        cellular_return_type: 0
+        jitter: 0
+      domain_warp:
+        domain_warp_type: 0
+        amplitude: 0
+        frequency: 0
+      domain_warp_fractal:
+        fractal_type: 0
+        octaves: 0
+        lacunarity: 0
+        gain: 0
+    keep_range_noise: {x: 0, y: 0}
+    keep_range_random_noise: 0
+    keep_range_random: 1
+  - type: 1
     enabled: 1
     material:
       material: {fileID: 2100000, guid: f3a71938adb091240952b70b19cc9788, type: 2}
@@ -553,19 +689,19 @@ MonoBehaviour:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0.004944587
-          value: 0.70326316
-          inSlope: 0.72089267
-          outSlope: 0.72089267
+          time: -0.2
+          value: 0.35
+          inSlope: 1
+          outSlope: 1
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.4139282
-          value: 0.99809647
-          inSlope: 0.72089267
-          outSlope: 0.72089267
+          time: 0.45
+          value: 1
+          inSlope: 1
+          outSlope: 1
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -583,22 +719,22 @@ MonoBehaviour:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0
-          value: 0
-          inSlope: 2
-          outSlope: 2
-          tangentMode: 0
+          time: -0.2
+          value: 0.35
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0
-          outWeight: 0
+          outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
+          time: 0.45
           value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
           weightedMode: 0
-          inWeight: 0
+          inWeight: 0.33333334
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2

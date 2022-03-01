@@ -6,20 +6,88 @@ using Unity.Collections;
 
 public class GroundMesh : MonoBehaviour
 {
-    private int ground_subtypes_length;
+    [System.Serializable]
+    public struct MeshManipulationState
+    {
+        public GroundTriangleType change_from;
+        [SerializeField] private GroundTriangleType _change_to;
+        public GroundTriangleType change_to
+        {
+            get { return _change_to; }
+            set {
+                _change_to = value;
+                change_to_index = GroundTriangleTypeIndex((int)value);
+            }
+        }
+        public int change_to_index;
+
+        public static bool IsIn(GroundTriangleType a, GroundTriangleType b)
+        {
+            return a == b || (a & b) != 0;
+        }
+
+        // Returns position of the only set bit in 'n'
+        public static int GroundTriangleTypeIndex(int n)
+        {
+            if (n == 0)
+            {
+                return -1;
+            }
+
+            int i = 1, pos = 1;
+
+            // Iterate through bits of n till we find a set bit
+            // i&n will be non-zero only when 'i' and 'n' have a set bit
+            // at same position
+            while ((i & n) == 0)
+            {
+                // Unset current bit and set the next bit in 'i'
+                i = i << 1;
+
+                // increment position
+                ++pos;
+            }
+            return pos - 1;
+        }
+    }
+
+    // (int) GroundTriangleType - 1 = 
+    public const int GroundTriangleTypeLength = 5;
+    [System.Flags]
+    public enum GroundTriangleType
+    {
+        //Nothing = 0,
+        //Everything = 0x7FFFFFFF,
+        //EverythingExcludingNothing = 0x3FFFFFFF, // 2^30, 
+                                                 //        EverythingIncludingNothing = //0x7FFFFFFF,
+        Grass = 1,  // 2
+        GrassTrampled = 2,  // 2
+        Flower = 4,  // 4
+        Wheat = 8,  // 8
+        WheatTrampled = 16,  // 32
+        //Everything = 0b0001_1111
+    }
+
+    //private int ground_subtypes_length;
 
     private int triangle_amount;
     private int triangle_corner_amount;
 
     private int[] triangles; // holds every triangle for ground mesh
-    private int[] triangles_types; // holds every triangle state
+    private GroundTriangleType[] triangles_types; // holds every triangle state
+    private int[] triangles_types_index;
 
-    private float min_y;
-    private float max_y;
+    private Vector2 min_max_y;
     private Vector3[] triangles_mid;
 
     private Dictionary<int, int>[] ground_subtypes; // holds one dictionary for each groundtype. holds triangles
     private bool[] ground_subtypes_changed; // what submesh that needs to be updated
+
+    /*
+    private int[,] ground_subtypes_array; // holds every triangles type
+    private int[] ground_subtypes_lengths; // what are the lengths of the submeshes?
+    private int[] ground_subtypes_index; // holds current indices
+    */
 
     private Mesh ground_mesh;
     private Vector2 unit_size;
@@ -45,25 +113,22 @@ public class GroundMesh : MonoBehaviour
 
     public IEnumerator CreateGround(WaitForFixedUpdate wait, Vector2 unit_size, Vector2Int resolution, NativeArray<Noise.NoiseLayer> noise_layers_native_array, Material static_material, NoiseLayerSettings.Foliage[] foliage)
     {
-        // TESTING
-        test_colliders.Add(GameObject.Find("TESTING REMOVING GRASS").GetComponent<Collider>());
-        // TESTING
-
         this.unit_size = unit_size;
         this.resolution = resolution;
 
         triangle_amount = resolution.x * resolution.y * 2;
         triangle_corner_amount = triangle_amount * 3;
-        ground_subtypes_length = foliage.Length;
+        //ground_subtypes_length = foliage.Length;
 
-        ground_subtypes = new Dictionary<int, int>[ground_subtypes_length];
-        ground_subtypes_changed = new bool[ground_subtypes_length];
-        for (int i = 0; i < ground_subtypes_length; i++)
+        ground_subtypes = new Dictionary<int, int>[GroundTriangleTypeLength];
+        ground_subtypes_changed = new bool[GroundTriangleTypeLength];
+        for (int i = 0; i < GroundTriangleTypeLength; i++)
         {
             ground_subtypes[i] = new Dictionary<int, int>(triangle_corner_amount);
             ground_subtypes_changed[i] = true;
         }
-        triangles_types = new int[triangle_amount];
+        triangles_types = new GroundTriangleType[triangle_amount];
+        triangles_types_index = new int[triangle_amount];
 
         int quadCount = resolution.x * resolution.y;
         int vertexCount = quadCount * 4;
@@ -145,8 +210,8 @@ public class GroundMesh : MonoBehaviour
         }
         jobHandle.Complete();
 
-        min_y = meshData.min_y__max_y[0];
-        max_y = meshData.min_y__max_y[1];
+        min_max_y.x = meshData.min_y__max_y[0];
+        min_max_y.y = meshData.min_y__max_y[1];
 
         triangles_mid = meshData.mid_point.ToArray();
         triangles = meshData.triangles.ToArray();
@@ -158,6 +223,7 @@ public class GroundMesh : MonoBehaviour
 
         // create mesh for ground
         Mesh collider_ground_mesh = new Mesh();
+        collider_ground_mesh.MarkDynamic();
         collider_ground_mesh.vertices = meshData.vertices.ToArray();
         collider_ground_mesh.triangles = meshData.triangles.ToArray();
         collider_ground_mesh.normals = meshData.normals.ToArray();
@@ -177,14 +243,15 @@ public class GroundMesh : MonoBehaviour
 
         // setup multi mesh for child
         ground_mesh = new Mesh();
+        ground_mesh.MarkDynamic();
         ground_mesh.vertices = meshData.vertices.ToArray();
         ground_mesh.normals = meshData.normals.ToArray();
         ground_mesh.uv = meshData.uv.ToArray();
-        ground_mesh.subMeshCount = ground_subtypes_length;
-
+        ground_mesh.subMeshCount = GroundTriangleTypeLength;
 
         // native array of size triangle_amount
-        NativeArray<int> ground_type_native_array = new NativeArray<int>(triangle_amount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        NativeArray<GroundTriangleType> ground_type_native_array = new NativeArray<GroundTriangleType>(triangle_amount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        NativeArray<int> ground_type_index_native_array = new NativeArray<int>(triangle_amount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         // create FoliageJob.FoliageNativeArray[]
         NativeArray<CreateMesh.FoliageJob.FoliageNativeArray> foliage_native_array = new NativeArray<CreateMesh.FoliageJob.FoliageNativeArray>(foliage.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         for (int i = 0; i < foliage.Length; i++)
@@ -198,6 +265,7 @@ public class GroundMesh : MonoBehaviour
             original_mesh_data = meshData,
             foliage = foliage_native_array,
             ground_type_native_array = ground_type_native_array,
+            ground_type_index_native_array = ground_type_index_native_array,
             chunk_offset = child.position,
         };
         jobHandle = foliageJob.Schedule(jobHandle);
@@ -214,28 +282,31 @@ public class GroundMesh : MonoBehaviour
         for (int i = 0; i < triangle_amount; i++)
         {
             triangles_types[i] = ground_type_native_array[i];
+            triangles_types_index[i] = ground_type_index_native_array[i];
 
-            if (triangles_types[i] == -1)
+            if (triangles_types[i] ==(GroundTriangleType) 0)
             {
                 continue;
             }
 
             int corner_triangle = i * 3;
-            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
+            ground_subtypes[ground_type_index_native_array[i]][corner_triangle] = triangles[corner_triangle];
             corner_triangle++;
-            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
+            ground_subtypes[ground_type_index_native_array[i]][corner_triangle] = triangles[corner_triangle];
             corner_triangle++;
-            ground_subtypes[ground_type_native_array[i]][corner_triangle] = triangles[corner_triangle];
+            ground_subtypes[ground_type_index_native_array[i]][corner_triangle] = triangles[corner_triangle];
         }
-        // dispose of native array
+        // dispose of native arrays
         ground_type_native_array.Dispose();
+        ground_type_index_native_array.Dispose();
         foliage_native_array.Dispose();
 
         // get materials for each foliage
-        Material[] foliage_materials = new Material[foliage.Length];
+        Material[] foliage_materials = new Material[GroundTriangleTypeLength];
         for (int i = 0; i < foliage.Length; i++)
         {
-            foliage_materials[i] = foliage[i].material.material;
+            Debug.Log(foliage[i].type);
+            foliage_materials[MeshManipulationState.GroundTriangleTypeIndex((int)foliage[i].type)] = foliage[i].material.material;
         }
         child_mesh_renderer.materials = foliage_materials;
         child_mesh_filter.sharedMesh = ground_mesh;
@@ -245,29 +316,13 @@ public class GroundMesh : MonoBehaviour
         meshData.Dispose();
     }
 
-    // TESTING
-    public List<Collider> test_colliders = new List<Collider>();
-    // switches traingles that are in this collider:
-    // takes some time
-    private void FixedUpdate()
-    {
-        if (is_deallocated)
-        {
-            foreach (Collider test_collider in test_colliders)
-            {
-                SwitchTrainglesInCollider(test_collider, -1);
-            }
-        }
-    }
-    // TESTING
-
     // set triangles for each affected submesh:
     // goes quickly
     private void LateUpdate()
     {
         if (is_deallocated)
         {
-            for (int i = 0; i < ground_subtypes_length; i++)
+            for (int i = 0; i < GroundTriangleTypeLength; i++)
             {
                 if (ground_subtypes_changed[i])
                 {
@@ -291,12 +346,12 @@ public class GroundMesh : MonoBehaviour
         return collider.ClosestPoint(point) == point;
     }
 
-    public void SwitchTrainglesInCollider(Collider collider, int ground_type)
+    public void SwitchTrainglesInCollider(Collider collider, MeshManipulationState[] mesh_manipulations)
     {
         (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
 
         // if collider is inbetween min max
-        if (min_max_y.x < max_y || min_max_y.y > min_y)
+        if (min_max_y.x < min_max_y.y || min_max_y.y > min_max_y.x)
         {
             int max_x = bounds_max_to_mesh_index.x * 2;
             int start_x = bounds_min_to_mesh_index.x * 2;
@@ -314,9 +369,47 @@ public class GroundMesh : MonoBehaviour
                 for (int x = start_x; x < max_x; x++)
                 {
                     int triangle_index = z + x;
-                    if (triangles_types[triangle_index] != ground_type && IsInside1(collider, triangles_mid[triangle_index] + child.position, 0.5f))
+                    if (IsInside1(collider, triangles_mid[triangle_index] + child.position, 0.5f))
                     {
-                        SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
+                        for (int i = 0; i < mesh_manipulations.Length; i++)
+                        {
+                            if (SwitchTraingle(mesh_manipulations[i], triangle_index * 3, triangle_index))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void SwitchTrainglesInCollider(Collider collider, MeshManipulationState mesh_manipulation)
+    {
+        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
+
+        // if collider is inbetween min max
+        if (min_max_y.x < min_max_y.y || min_max_y.y > min_max_y.x)
+        {
+            int max_x = bounds_max_to_mesh_index.x * 2;
+            int start_x = bounds_min_to_mesh_index.x * 2;
+
+            if (start_x >= max_x)
+            {
+                return;
+            }
+
+            int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
+            int add_z = resolution.y * 2;
+
+            for (int z = bounds_min_to_mesh_index.y * resolution.y * 2; z < max_z; z += add_z)
+            {
+                for (int x = start_x; x < max_x; x++)
+                {
+                    int triangle_index = z + x;
+                    if (IsInside1(collider, triangles_mid[triangle_index] + child.position, 0.5f))
+                    {
+                        SwitchTraingle(mesh_manipulation, triangle_index * 3, triangle_index);
                     }
                 }
             }
@@ -349,48 +442,62 @@ public class GroundMesh : MonoBehaviour
         return (bounds_min_to_mesh_index, bounds_max_to_mesh_index, new Vector2(bounds_min.y, bounds_max.y));
     }
 
-    private void SwitchTraingle(int ground_type, int triangle_corner_index, int triangle_index)
+    private bool SwitchTraingle(MeshManipulationState mesh_manipulation, int triangle_corner_index, int triangle_index)
     {
+        // removes selected triangle from its submesh
         void RemoveTriangle()
         {
             // show that this mesh was updated
-            ground_subtypes_changed[triangles_types[triangle_index]] = true;
+            ground_subtypes_changed[triangles_types_index[triangle_index]] = true;
 
             // remove triangle from last dict/submesh
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 1);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 2);
+            ground_subtypes[triangles_types_index[triangle_index]].Remove(triangle_corner_index);
+            ground_subtypes[triangles_types_index[triangle_index]].Remove(triangle_corner_index + 1);
+            ground_subtypes[triangles_types_index[triangle_index]].Remove(triangle_corner_index + 2);
         }
 
+        // adds a triangle to specified submesh at triangle point
         void AddTriangle()
         {
-            // change triangle type to new
-            triangles_types[triangle_index] = ground_type;
-
             // show that this mesh was updated
-            ground_subtypes_changed[ground_type] = true;
+            ground_subtypes_changed[mesh_manipulation.change_to_index] = true;
 
             // place new triangle in new submesh
-            ground_subtypes[ground_type][triangle_corner_index] = triangles[triangle_corner_index];
-            ground_subtypes[ground_type][triangle_corner_index + 1] = triangles[triangle_corner_index + 1];
-            ground_subtypes[ground_type][triangle_corner_index + 2] = triangles[triangle_corner_index + 2];
+            ground_subtypes[mesh_manipulation.change_to_index][triangle_corner_index] = triangles[triangle_corner_index];
+            ground_subtypes[mesh_manipulation.change_to_index][triangle_corner_index + 1] = triangles[triangle_corner_index + 1];
+            ground_subtypes[mesh_manipulation.change_to_index][triangle_corner_index + 2] = triangles[triangle_corner_index + 2];
         }
 
-        // if triangle is not allready in the wanted submesh
-        if (ground_type == -1)
+        // if allready placed triangle is of any type in change_from
+        if (MeshManipulationState.IsIn(triangles_types[triangle_index], mesh_manipulation.change_from) && triangles_types[triangle_index] != mesh_manipulation.change_to)
         {
-            // we should only remove triangle
-            RemoveTriangle();
+            if (mesh_manipulation.change_to == (GroundTriangleType) 0)
+            {
+                // we should only remove triangle
+                //Debug.Log("shouldt happen");
+                RemoveTriangle();
+            }
+            else if (triangles_types[triangle_index] == (GroundTriangleType) 0)
+            {
+                // we should only add triangle
+                //Debug.Log("shouldt happen");
+                AddTriangle();
+            }
+            else
+            {
+                //Debug.Log("shouldt happen");
+                RemoveTriangle();
+                AddTriangle();
+            }
+
+            // change triangle type to new
+            triangles_types[triangle_index] = mesh_manipulation.change_to;
+            triangles_types_index[triangle_index] = mesh_manipulation.change_to_index;
+
+            return true;
         }
-        else if (triangles_types[triangle_index] == -1)
-        {
-            // we should only add triangle
-            AddTriangle();
-        }
-        else
-        {
-            RemoveTriangle();
-            AddTriangle();
-        }
+
+        //Debug.Log($"{triangles_types[triangle_index]} | {mesh_manipulation.change_from}");
+        return false;
     }
 }

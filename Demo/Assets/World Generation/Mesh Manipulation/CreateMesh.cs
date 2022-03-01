@@ -468,6 +468,7 @@ public class CreateMesh : MonoBehaviour
         public static FoliageNativeArray create_foliage_native_array(NoiseLayerSettings.Foliage random_foliage)
         {
             FoliageNativeArray native = new FoliageNativeArray();
+            native.type = random_foliage.type;
             native.enabled = random_foliage.enabled;
             native.noise_layer = new Noise.NoiseLayer(random_foliage.noise_layer);
             native.keep_range_noise = random_foliage.keep_range_noise;
@@ -478,6 +479,7 @@ public class CreateMesh : MonoBehaviour
 
         public struct FoliageNativeArray
         {
+            [ReadOnly] public GroundMesh.GroundTriangleType type;
             [ReadOnly] public bool enabled;
             [ReadOnly] public Noise.NoiseLayer noise_layer;
             [ReadOnly] public Vector2 keep_range_noise;
@@ -490,7 +492,8 @@ public class CreateMesh : MonoBehaviour
         [ReadOnly] public NativeArray<FoliageNativeArray> foliage;
         [ReadOnly] public Vector3 chunk_offset;
 
-        [WriteOnly] public NativeArray<int> ground_type_native_array;
+        [WriteOnly] public NativeArray<GroundMesh.GroundTriangleType> ground_type_native_array;
+        [WriteOnly] public NativeArray<int> ground_type_index_native_array;
 
         public void Execute()
         {
@@ -499,7 +502,8 @@ public class CreateMesh : MonoBehaviour
             // iterate each triangle
             for (int i = 0; i < triangle_amount; i++)
             {
-                ground_type_native_array[i] = -1;
+                ground_type_native_array[i] = (GroundMesh.GroundTriangleType) 0;
+                ground_type_index_native_array[i] = -1;
 
                 float random_value = (float)rand.NextDouble();
 
@@ -510,7 +514,8 @@ public class CreateMesh : MonoBehaviour
                     {
                         if (random_value <= foliage[f].keep_range_random)
                         {
-                            ground_type_native_array[i] = f;
+                            ground_type_native_array[i] = foliage[f].type;
+                            ground_type_index_native_array[i] = GroundMesh.MeshManipulationState.GroundTriangleTypeIndex((int)foliage[f].type);
                             break;
                         }
                         else
@@ -523,7 +528,8 @@ public class CreateMesh : MonoBehaviour
 
                             if (keep_threshold_low && keep_threshold_high && keep_random)
                             {
-                                ground_type_native_array[i] = f;
+                                ground_type_native_array[i] = foliage[f].type;
+                                ground_type_index_native_array[i] = GroundMesh.MeshManipulationState.GroundTriangleTypeIndex((int)foliage[f].type);
                                 break;
                             }
                         }

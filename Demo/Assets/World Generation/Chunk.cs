@@ -11,6 +11,7 @@ public class Chunk : MonoBehaviour
     private float chunk_disable_distance;
     private Transform player_transform;
     private Enemies enemies;
+    public GroundMesh ground_mesh;
 
     public void Initialize(float chunk_disable_distance, Transform player_transform)
     {
@@ -33,7 +34,7 @@ public class Chunk : MonoBehaviour
         ground_game_object.transform.parent = transform;
         ground_game_object.transform.localPosition = Vector3.zero;
         ground_game_object.layer = Layer.game_world;
-        GroundMesh ground_mesh = ground_game_object.AddComponent<GroundMesh>();
+        ground_mesh = ground_game_object.AddComponent<GroundMesh>();
         yield return ground_mesh.CreateGround(wait, chunk_details.unit_size, chunk_details.resolution, noise_layers_native_array, noise_layer_settings.material_static.material, noise_layer_settings.random_foliage);
 
         // initilizes all parrent objects of prefabs

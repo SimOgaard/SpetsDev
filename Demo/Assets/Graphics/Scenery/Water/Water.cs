@@ -12,6 +12,12 @@ public class Water : MonoBehaviour
 
     private void LateUpdate()
     {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+#endif
         float water_level_wave = water_settings.bobing_amplitude * Mathf.Sin(Time.time * water_settings.bobing_frequency);
         Water.water_level = water_settings.level + water_level_wave;
 

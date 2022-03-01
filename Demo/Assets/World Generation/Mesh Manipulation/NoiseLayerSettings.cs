@@ -123,7 +123,7 @@ public class NoiseLayerSettings : ScriptableObject
     [System.Serializable]
     public class Foliage
     {
-        public string name;
+        public GroundMesh.GroundTriangleType type;
         public bool enabled = true;
         public MaterialWithCurve material;
         public NoiseLayer noise_layer;
