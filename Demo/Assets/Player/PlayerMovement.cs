@@ -9,20 +9,20 @@ using UnityEngine;
 public class PlayerMovement : FloatingCapsule
 {
     [Header("Movement")]
-    [SerializeField] private float crouched_speed;
-    [SerializeField] private float walk_speed;
-    [SerializeField] private float sprint_speed;
+    [SerializeField] private float crouchedSpeed;
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float sprintSpeed;
 
     [Header("Sound")]
-    [SerializeField] private float base_sound = 1f;
-    [SerializeField] private float sound_amplifier = 1f;
-    [SerializeField] private float max_sound = 1f;
+    [SerializeField] private float baseSound = 1f;
+    [SerializeField] private float soundAmplifier = 1f;
+    [SerializeField] private float maxSound = 1f;
 
     [Header("Vision")]
-    [SerializeField] private float base_vision = 1f;
-    [SerializeField] private float vision_amplifier = 1f;
-    [SerializeField] private float max_vision = 1f;
-    [SerializeField] private float min_vision = 0.001f;
+    [SerializeField] private float baseVision = 1f;
+    [SerializeField] private float visionAmplifier = 1f;
+    [SerializeField] private float maxVision = 1f;
+    [SerializeField] private float minVision = 0.001f;
 
     public override void Awake()
     {
@@ -30,40 +30,40 @@ public class PlayerMovement : FloatingCapsule
     }
 
     /// <summary>
-    /// Retrieves input and normal of plain under player and liniarly interpolates move_speed between sprinting and walking speed dependent on acceleration.
+    /// Retrieves input and normal of plain under player and liniarly interpolates moveSpeed between sprinting and walking speed dependent on acceleration.
     /// </summary>
     private void Update()
     {
-        Vector3 new_desired_heading = (Global.camera_focus_point_transform.right * PlayerInput.horizontal + Global.camera_focus_point_transform.forward * PlayerInput.vertical).normalized;
-        if (new_desired_heading != Vector3.zero)
+        Vector3 newDesiredHeading = (Global.cameraFocusPointTransform.right * PlayerInput.horizontal + Global.cameraFocusPointTransform.forward * PlayerInput.vertical).normalized;
+        if (newDesiredHeading != Vector3.zero)
         {
-            desired_heading = new_desired_heading;
+            desiredHeading = newDesiredHeading;
         }
         else
         {
-            desired_speed = 0f;
+            desiredSpeed = 0f;
             return;
         }
 
-        if (Input.GetKey(PlayerInput.crouch_key))
+        if (Input.GetKey(PlayerInput.crouchKey))
         {
-            desired_speed = crouched_speed;
+            desiredSpeed = crouchedSpeed;
         }
-        else if (Input.GetKey(PlayerInput.sprint_key))
+        else if (Input.GetKey(PlayerInput.sprintKey))
         {
-            desired_speed = sprint_speed;
+            desiredSpeed = sprintSpeed;
         }
         else
         {
-            desired_speed = walk_speed;
+            desiredSpeed = walkSpeed;
         }
     }
 
     private void MakeSound()
     {
-        if (desired_speed > (crouched_speed + 0.1f))
+        if (desiredSpeed > (crouchedSpeed + 0.1f))
         {
-            float sound = Mathf.Max(_rigidbody.velocity.magnitude * sound_amplifier * base_sound, max_sound);
+            float sound = Mathf.Max(_rigidbody.velocity.magnitude * soundAmplifier * baseSound, maxSound);
             Enemies.Sound(transform, sound, Time.fixedDeltaTime);
         }
     }
@@ -77,9 +77,9 @@ public class PlayerMovement : FloatingCapsule
 
     private void CheckEnemyVision()
     {
-        float min = min_vision;
-        float max = max_vision;
-        float vision = Mathf.Min(Mathf.Max(_rigidbody.velocity.magnitude * vision_amplifier * base_vision, min), max);
+        float min = minVision;
+        float max = maxVision;
+        float vision = Mathf.Min(Mathf.Max(_rigidbody.velocity.magnitude * visionAmplifier * baseVision, min), max);
         Enemies.Vision(transform, vision, Time.fixedDeltaTime);
     }
 

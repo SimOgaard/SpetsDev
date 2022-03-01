@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class PlaceInWorld : MonoBehaviour
 {
-    public SpawnInstruction this_instruction;
-    public SpawnInstruction child_instruction;
+    public SpawnInstruction thisInstruction;
+    public SpawnInstruction childInstruction;
 
-    private List<Collider> bounding_boxes = new List<Collider>();
+    private List<Collider> boundingBoxes = new List<Collider>();
 
-    [SerializeField] private int child_transform_amount = 0;
+    [SerializeField] private int childTransformAmount = 0;
 
     private void AddToBoundingBoxesLocal(List<Collider> bounds)
     {
-        bounding_boxes.AddRange(bounds);
+        boundingBoxes.AddRange(bounds);
     }
 
     public static void SetRecursiveToGameWorld(GameObject obj)
     {
-        if (Layer.IsInLayer(Layer.Mask.spawned_game_world, obj.layer))
+        if (Layer.IsInLayer(Layer.Mask.spawnedGameWorld, obj.layer))
         {
-            obj.layer = Layer.game_world;
+            obj.layer = Layer.gameWorld;
         }
 
         foreach (Transform child in obj.transform)
@@ -29,14 +29,14 @@ public class PlaceInWorld : MonoBehaviour
         }
     }
 
-    public static Quaternion RandomRotationObject(float rotation_offset, float rotation_increment)
+    public static Quaternion RandomRotationObject(float rotationOffset, float rotationIncrement)
     {
-        return Quaternion.Euler(0f, RandomRotationAroundAxis(rotation_offset, rotation_increment), 0f);
+        return Quaternion.Euler(0f, RandomRotationAroundAxis(rotationOffset, rotationIncrement), 0f);
     }
 
-    public static float RandomRotationAroundAxis(float rotation_offset, float rotation_increment)
+    public static float RandomRotationAroundAxis(float rotationOffset, float rotationIncrement)
     {
-        return rotation_offset + rotation_increment * Mathf.RoundToInt(Random.Range(0f, 360f));
+        return rotationOffset + rotationIncrement * Mathf.RoundToInt(Random.Range(0f, 360f));
     }
 
     public static Vector3 GetVectorBySharedXYZ(float x, float y, float z, SpawnInstruction.SharedXYZ sharedXYZ)
@@ -57,36 +57,36 @@ public class PlaceInWorld : MonoBehaviour
         return Vector3.zero;
     }
 
-    public static Vector3 RandomVector(Vector3 min_scale, Vector3 max_scale, SpawnInstruction.SharedXYZ sharedXYZ)
+    public static Vector3 RandomVector(Vector3 minScale, Vector3 maxScale, SpawnInstruction.SharedXYZ sharedXYZ)
     {
-        float x = Random.Range(min_scale.x, max_scale.x);
-        float y = Random.Range(min_scale.y, max_scale.y);
-        float z = Random.Range(min_scale.z, max_scale.z);
+        float x = Random.Range(minScale.x, maxScale.x);
+        float y = Random.Range(minScale.y, maxScale.y);
+        float z = Random.Range(minScale.z, maxScale.z);
 
         return GetVectorBySharedXYZ(x, y, z, sharedXYZ);
     }
 
-    public static Vector3 RandomVector(Vector3 min_scale, Vector3 max_scale, SpawnInstruction.SharedXYZ sharedXYZ, Vector3 current_scale)
+    public static Vector3 RandomVector(Vector3 minScale, Vector3 maxScale, SpawnInstruction.SharedXYZ sharedXYZ, Vector3 currentScale)
     {
-        float x = Random.Range(min_scale.x, max_scale.x) * current_scale.x;
-        float y = Random.Range(min_scale.y, max_scale.y) * current_scale.y;
-        float z = Random.Range(min_scale.z, max_scale.z) * current_scale.z;
+        float x = Random.Range(minScale.x, maxScale.x) * currentScale.x;
+        float y = Random.Range(minScale.y, maxScale.y) * currentScale.y;
+        float z = Random.Range(minScale.z, maxScale.z) * currentScale.z;
 
         return GetVectorBySharedXYZ(x, y, z, sharedXYZ);
     }
 
-    public static Vector3 RandomVector(Vector3 min_scale, Vector3 max_scale, SpawnInstruction.SharedXYZ sharedXYZ, Quaternion rotation)
+    public static Vector3 RandomVector(Vector3 minScale, Vector3 maxScale, SpawnInstruction.SharedXYZ sharedXYZ, Quaternion rotation)
     {
-        float x = Random.Range(min_scale.x, max_scale.x);
-        float y = Random.Range(min_scale.y, max_scale.y);
-        float z = Random.Range(min_scale.z, max_scale.z);
+        float x = Random.Range(minScale.x, maxScale.x);
+        float y = Random.Range(minScale.y, maxScale.y);
+        float z = Random.Range(minScale.z, maxScale.z);
 
         return rotation * GetVectorBySharedXYZ(x, y, z, sharedXYZ);
     }
 
-    public static (Vector3 point, Vector3 normal, bool ray_hit) PointNormalWithRayCast(Vector3 origin, Vector3 random_vector, Vector3 direction, LayerMask placable_layer_mask)
+    public static (Vector3 point, Vector3 normal, bool rayHit) PointNormalWithRayCast(Vector3 origin, Vector3 randomVector, Vector3 direction, LayerMask placableLayerMask)
     {
-        RaycastHit[] hits = Physics.RaycastAll(origin + Vector3.up * 100f + random_vector, direction, 400f, placable_layer_mask, QueryTriggerInteraction.Ignore);
+        RaycastHit[] hits = Physics.RaycastAll(origin + Vector3.up * 100f + randomVector, direction, 400f, placableLayerMask, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
         for (int i = 0; i < hits.Length; i++)
         {
@@ -95,21 +95,21 @@ public class PlaceInWorld : MonoBehaviour
         return (Vector3.zero, Vector3.zero, false);
     }
 
-    private void CountDownChild(bool is_parrent)
+    private void CountDownChild(bool isParrent)
     {
-        if (is_parrent)
+        if (isParrent)
         {
-            child_transform_amount = -1;
+            childTransformAmount = -1;
         }
         else
         {
-            child_transform_amount--;
+            childTransformAmount--;
         }
     }
 
-    private bool DestroyOnMissingChildren(int child_count, int min_child_amount_required)
+    private bool DestroyOnMissingChildren(int childCount, int minChildAmountRequired)
     {
-        if (child_count < min_child_amount_required)
+        if (childCount < minChildAmountRequired)
         {
             Destroy(gameObject);
             return true;
@@ -117,29 +117,29 @@ public class PlaceInWorld : MonoBehaviour
         return false;
     }
 
-    public static IEnumerator Spawn(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform transform, Transform chunk_transform, SpawnInstruction spawn_instruction, bool is_parrent = false)
+    public static IEnumerator Spawn(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform transform, Transform chunkTransform, SpawnInstruction spawnInstruction, bool isParrent = false)
     {
         //Debug.Log("Spawn");
         // Should this Transform spawn?
-        if (spawn_instruction.noise_layer.enabled)
+        if (spawnInstruction.noiseLayer.enabled)
         {
-            Noise.NoiseLayer noise = new Noise.NoiseLayer(spawn_instruction.noise_layer);
-            float noise_value = noise.GetNoiseValue(transform.position.x, transform.position.z);
+            Noise.NoiseLayer noise = new Noise.NoiseLayer(spawnInstruction.noiseLayer);
+            float noiseValue = noise.GetNoiseValue(transform.position.x, transform.position.z);
 
-            if (!(Random.value <= spawn_instruction.spawn_chance || (noise_value > spawn_instruction.spawn_range_noise.x && noise_value < spawn_instruction.spawn_range_noise.y && Random.value <= spawn_instruction.spawn_chance_noise)))
+            if (!(Random.value <= spawnInstruction.spawnChance || (noiseValue > spawnInstruction.spawnRangeNoise.x && noiseValue < spawnInstruction.spawnRangeNoise.y && Random.value <= spawnInstruction.spawnChanceNoise)))
             {
                 Destroy(transform.gameObject);
-                CountDownChild(is_parrent);
+                CountDownChild(isParrent);
                 //Debug.Log("Random destroy noise");
                 yield break;
             }
         }
         else
         {
-            if (!(Random.value <= spawn_instruction.spawn_chance))
+            if (!(Random.value <= spawnInstruction.spawnChance))
             {
                 Destroy(transform.gameObject);
-                CountDownChild(is_parrent);
+                CountDownChild(isParrent);
                 //Debug.Log("Random destroy");
                 yield break;
             }
@@ -152,48 +152,48 @@ public class PlaceInWorld : MonoBehaviour
             //Debug.Log("transform == null");
             yield break;
         }
-        (Vector3 point, Vector3 normal, bool ray_hit) = PointNormalWithRayCast(
+        (Vector3 point, Vector3 normal, bool rayHit) = PointNormalWithRayCast(
             transform.position,
-            RandomVector(spawn_instruction.min_ray_position, spawn_instruction.max_ray_position, spawn_instruction.shared_ray_position, transform.localScale),
+            RandomVector(spawnInstruction.minRayPosition, spawnInstruction.maxRayPosition, spawnInstruction.sharedRayPosition, transform.localScale),
             -transform.up,
-            spawn_instruction.ray_layer_mask
+            spawnInstruction.rayLayerMask
         );
 
         // Place transform.
-        if (ray_hit && Vector3.Dot(normal, Vector3.up) >= Mathf.Cos(spawn_instruction.max_rotation * Mathf.Deg2Rad))
+        if (rayHit && Vector3.Dot(normal, Vector3.up) >= Mathf.Cos(spawnInstruction.maxRotation * Mathf.Deg2Rad))
         {
             transform.position = point;
         }
-        else // if (spawn_instruction.ray_layer_mask.value != 0)
+        else // if (spawnInstruction.rayLayerMask.value != 0)
         {
             Destroy(transform.gameObject);
-            CountDownChild(is_parrent);
+            CountDownChild(isParrent);
             //Debug.Log("ray didnt hit");
             yield break;
         }
 
         // Apply rotation, scale and position offsets.
-        if (spawn_instruction.rotate_twords_ground_normal)
+        if (spawnInstruction.rotateTwordsGroundNormal)
         {
             transform.rotation = Quaternion.FromToRotation(Vector3.up, normal);
-            transform.RotateAround(transform.position, transform.up, RandomRotationAroundAxis(spawn_instruction.rotation_offset, spawn_instruction.rotation_increment));
+            transform.RotateAround(transform.position, transform.up, RandomRotationAroundAxis(spawnInstruction.rotationOffset, spawnInstruction.rotationIncrement));
         }
-        else if (spawn_instruction.rotation_offset + spawn_instruction.rotation_increment != 0)
+        else if (spawnInstruction.rotationOffset + spawnInstruction.rotationIncrement != 0)
         {
-            if (spawn_instruction.reset_rotation)
+            if (spawnInstruction.resetRotation)
             {
                 transform.rotation = Quaternion.identity;
             }
-            transform.rotation = RandomRotationObject(spawn_instruction.rotation_offset, spawn_instruction.rotation_increment);
+            transform.rotation = RandomRotationObject(spawnInstruction.rotationOffset, spawnInstruction.rotationIncrement);
         }
-        transform.localScale = RandomVector(spawn_instruction.min_scale, spawn_instruction.max_scale, spawn_instruction.shared_scales, transform.localScale);
-        transform.localPosition += transform.rotation * RandomVector(spawn_instruction.min_position_local, spawn_instruction.max_position_local, spawn_instruction.local_shared_position, transform.localScale);
-        transform.localPosition += RandomVector(spawn_instruction.min_position, spawn_instruction.max_position, spawn_instruction.global_shared_position, transform.localScale);
+        transform.localScale = RandomVector(spawnInstruction.minScale, spawnInstruction.maxScale, spawnInstruction.sharedScales, transform.localScale);
+        transform.localPosition += transform.rotation * RandomVector(spawnInstruction.minPositionLocal, spawnInstruction.maxPositionLocal, spawnInstruction.localSharedPosition, transform.localScale);
+        transform.localPosition += RandomVector(spawnInstruction.minPosition, spawnInstruction.maxPosition, spawnInstruction.globalSharedPosition, transform.localScale);
 
         // Change parrent on delay so that destroys further in this script can effect them aswell.
-        if (!is_parrent && spawn_instruction.parrent_name != SpawnInstruction.PlacableGameObjectsParrent.keep)
+        if (!isParrent && spawnInstruction.parrentName != SpawnInstruction.PlacableGameObjectsParrent.keep)
         {
-            transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(spawn_instruction.parrent_name));
+            transform.parent = chunkTransform.Find(SpawnInstruction.GetHierarchyName(spawnInstruction.parrentName));
         }
 
         yield return wait;
@@ -203,47 +203,47 @@ public class PlaceInWorld : MonoBehaviour
             yield break;
         }
 
-        if (spawn_instruction.density != Density.DensityValues.ignore)
+        if (spawnInstruction.density != Density.DensityValues.ignore)
         {
             Density density = JoinMeshes.GetAddComponent(transform.gameObject, typeof(Density)) as Density;
-            density.density = spawn_instruction.density;
+            density.density = spawnInstruction.density;
         }
 
-        if (transform.TryGetComponent(out BoundingBoxes bounding_boxes_object))
+        if (transform.TryGetComponent(out BoundingBoxes boundingBoxesObject))
         {
             //Debug.Log("BoundingBoxes found");
-            List<Collider> bounds = bounding_boxes_object.GetBoundingBoxes();
-            List<Collider> bounds_to_be_removed = new List<Collider>();
+            List<Collider> bounds = boundingBoxesObject.GetBoundingBoxes();
+            List<Collider> boundsToBeRemoved = new List<Collider>();
 
-            if (!spawn_instruction.ignore_bounding_boxes)
+            if (!spawnInstruction.ignoreBoundingBoxes)
             {
                 //Debug.Log("Do not ignore bounding boxes");
-                bool destroy_children = bounding_boxes_object.ShouldDestroyChildren();
+                bool destroyChildren = boundingBoxesObject.ShouldDestroyChildren();
 
-                foreach (Collider spawning_collider in bounds)
+                foreach (Collider spawningCollider in bounds)
                 {
-                    //Debug.Log(spawning_collider);
+                    //Debug.Log(spawningCollider);
 
-                    foreach (Collider instanciated_colliders in GetBoundingBoxes())
+                    foreach (Collider instanciatedColliders in GetBoundingBoxes())
                     {
-                        if (destroy_children)
+                        if (destroyChildren)
                         {
-                            ////Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
-                            if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
+                            ////Debug.Log("intersected: " + spawningCollider.bounds.Intersects(instanciatedColliders.bounds));
+                            if (spawningCollider.bounds.Intersects(instanciatedColliders.bounds))
                             {
-                                CountDownChild(is_parrent);
-                                bounds_to_be_removed.Add(spawning_collider);
-                                Destroy(spawning_collider.gameObject);
+                                CountDownChild(isParrent);
+                                boundsToBeRemoved.Add(spawningCollider);
+                                Destroy(spawningCollider.gameObject);
                             }
                         }
                         else
                         {
-                            ////Debug.Log("intersected: " + spawning_collider.bounds.Intersects(instanciated_colliders.bounds));
-                            if (spawning_collider.bounds.Intersects(instanciated_colliders.bounds))
+                            ////Debug.Log("intersected: " + spawningCollider.bounds.Intersects(instanciatedColliders.bounds));
+                            if (spawningCollider.bounds.Intersects(instanciatedColliders.bounds))
                             {
-                                CountDownChild(is_parrent);
+                                CountDownChild(isParrent);
                                 Destroy(transform.gameObject);
-                                //Debug.Log("spawning_collider intersects with instanciated_colliders");
+                                //Debug.Log("spawningCollider intersects with instanciatedColliders");
                                 //Debug.Log(transform.gameObject, transform.gameObject);
                                 yield break;
                             }
@@ -251,19 +251,19 @@ public class PlaceInWorld : MonoBehaviour
                     }
                 }
 
-                foreach (Collider bound in bounds_to_be_removed)
+                foreach (Collider bound in boundsToBeRemoved)
                 {
                     bounds.Remove(bound);
                 }
 
                 AddToBoundingBoxesLocal(bounds);
-                Destroy(bounding_boxes_object);
+                Destroy(boundingBoxesObject);
                 //Debug.Log("added bounds");
                 yield break;
             }
 
             AddToBoundingBoxesLocal(bounds);
-            Destroy(bounding_boxes_object);
+            Destroy(boundingBoxesObject);
             //Debug.Log("added bounds");
             yield break;
         }
@@ -274,30 +274,30 @@ public class PlaceInWorld : MonoBehaviour
         }
     }
 
-    public IEnumerator InitAsChild(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform chunk_transform)
+    public IEnumerator InitAsChild(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxesLocal, System.Func<List<Collider>> GetBoundingBoxes, System.Action<bool> CountDownChild, Transform chunkTransform)
     {
-        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction));
+        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunkTransform, thisInstruction));
     }
 
-    public IEnumerator InitAsParrent(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxes, System.Func<List<Collider>> GetBoundingBoxes, float x, float z, Transform chunk_transform)
+    public IEnumerator InitAsParrent(WaitForFixedUpdate wait, System.Action<List<Collider>> AddToBoundingBoxes, System.Func<List<Collider>> GetBoundingBoxes, float x, float z, Transform chunkTransform)
     {
         //Debug.Log("IsInitAsParrent");
 
         // Get amount of children of gameobject. Because Destroy() doesnt regrister in transform.childCount.
-        child_transform_amount = transform.childCount;
+        childTransformAmount = transform.childCount;
 
         // Spawn this gameobject.
         transform.position += new Vector3(x, 0f, z);
-        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunk_transform, this_instruction, true));
+        yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, transform, chunkTransform, thisInstruction, true));
         if (this == null)
         {
             //Debug.Log("IsInitAsParrent == null");
             yield break;
         }
 
-        if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
+        if (DestroyOnMissingChildren(childTransformAmount, thisInstruction.minChildAmountRequired))
         {
-            //Debug.Log("ChildCount: " + child_transform_amount);
+            //Debug.Log("ChildCount: " + childTransformAmount);
             yield break;
         }
 
@@ -312,31 +312,31 @@ public class PlaceInWorld : MonoBehaviour
         foreach (Transform child in children)
         {
             //Debug.Log(child, child);
-            if (child.TryGetComponent(out PlaceInWorld place_in_world))
+            if (child.TryGetComponent(out PlaceInWorld placeInWorld))
             {
                 //Debug.Log("place in world found");
-                yield return StartCoroutine(place_in_world.InitAsChild(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, chunk_transform));
-                Destroy(place_in_world);
+                yield return StartCoroutine(placeInWorld.InitAsChild(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, chunkTransform));
+                Destroy(placeInWorld);
             }
-            else if (child_instruction != null)
+            else if (childInstruction != null)
             {
                 //Debug.Log("child instruction found");
-                yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, child, chunk_transform, child_instruction));
+                yield return StartCoroutine(Spawn(wait, AddToBoundingBoxesLocal, GetBoundingBoxes, CountDownChild, child, chunkTransform, childInstruction));
             }
-            if (DestroyOnMissingChildren(child_transform_amount, this_instruction.min_child_amount_required))
+            if (DestroyOnMissingChildren(childTransformAmount, thisInstruction.minChildAmountRequired))
             {
-                //Debug.Log("ChildCount: " + child_transform_amount);
+                //Debug.Log("ChildCount: " + childTransformAmount);
                 yield break;
             }
         }
 
-        //Debug.Log("add to global bounding_boxes");
-        AddToBoundingBoxes(bounding_boxes);
-        transform.parent = chunk_transform.Find(SpawnInstruction.GetHierarchyName(this_instruction.parrent_name));
+        //Debug.Log("add to global boundingBoxes");
+        AddToBoundingBoxes(boundingBoxes);
+        transform.parent = chunkTransform.Find(SpawnInstruction.GetHierarchyName(thisInstruction.parrentName));
 
-        if (gameObject.TryGetComponent<SetAsEnemy>(out SetAsEnemy set_as_enemy))
+        if (gameObject.TryGetComponent<SetAsEnemy>(out SetAsEnemy setAsEnemy))
         {
-            set_as_enemy.Init();
+            setAsEnemy.Init();
         }
 
         Destroy(this);

@@ -4,55 +4,55 @@ using UnityEngine;
 
 public class PlanarReflectionManager : MonoBehaviour
 {
-    private Camera reflection_camera;
+    private Camera reflectionCamera;
 
-    [SerializeField] private float camera_far_clipping_plane = 150f;
+    [SerializeField] private float cameraFarClippingPlane = 150f;
 
     private void Awake()
     {
-        reflection_camera = GetComponent<Camera>();
-        reflection_camera.farClipPlane = camera_far_clipping_plane;
+        reflectionCamera = GetComponent<Camera>();
+        reflectionCamera.farClipPlane = cameraFarClippingPlane;
     }
 
     public void SetCameraNearClippingPlane()
     {
-        Vector4 clipPlaneWorldSpace = new Vector4(0f, 1f, 0f, -Water.water_level);
-        Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(reflection_camera.worldToCameraMatrix)) * clipPlaneWorldSpace;
-        reflection_camera.projectionMatrix = Camera.main.CalculateObliqueMatrix(clipPlaneCameraSpace);
+        Vector4 clipPlaneWorldSpace = new Vector4(0f, 1f, 0f, -Water.waterLevel);
+        Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(reflectionCamera.worldToCameraMatrix)) * clipPlaneWorldSpace;
+        reflectionCamera.projectionMatrix = Camera.main.CalculateObliqueMatrix(clipPlaneCameraSpace);
     }
   
-    public void ConstructMatrix4X4Ortho(Ray bot_right_ray, Ray bot_left_ray, float camera_orthographic_height, Quaternion camera_rotation)
+    public void ConstructMatrix4X4Ortho(Ray botRightRay, Ray botLeftRay, float cameraOrthographicHeight, Quaternion cameraRotation)
     {
         // Construct plane representing the water level
-        Plane plane = new Plane(Vector3.up, -Water.water_level);
+        Plane plane = new Plane(Vector3.up, -Water.waterLevel);
 
         // Assign floats of ray distance for bottom corners
-        float bot_right_distance;
-        float bot_left_distance;
+        float botRightDistance;
+        float botLeftDistance;
 
         // Raycast to plain
-        plane.Raycast(bot_right_ray, out bot_right_distance);
-        plane.Raycast(bot_left_ray, out bot_left_distance);
+        plane.Raycast(botRightRay, out botRightDistance);
+        plane.Raycast(botLeftRay, out botLeftDistance);
 
         // Get each position of all four camera corners where they hit the water plain
-        Vector3 top_right_position = bot_right_ray.GetPoint(bot_right_distance);
-        Vector3 top_left_position = bot_left_ray.GetPoint(bot_left_distance);
+        Vector3 topRightPosition = botRightRay.GetPoint(botRightDistance);
+        Vector3 topLeftPosition = botLeftRay.GetPoint(botLeftDistance);
 
         // Get sidebar of new camera
-        Vector3 camera_sidebar_direction = camera_rotation * Vector3.down;
-        Vector3 camera_sidebar = camera_sidebar_direction * camera_orthographic_height;
+        Vector3 cameraSidebarDirection = cameraRotation * Vector3.down;
+        Vector3 cameraSidebar = cameraSidebarDirection * cameraOrthographicHeight;
 
         // Create the vectors representing bottom corners of our new worldToCameraMatrix.
-        Vector3 bot_right_position = top_right_position + camera_sidebar;
-        Vector3 bot_left_position = top_left_position + camera_sidebar;
+        Vector3 botRightPosition = topRightPosition + cameraSidebar;
+        Vector3 botLeftPosition = topLeftPosition + cameraSidebar;
 
         // Get middle point of our four points
-        Vector3 middle = (top_right_position + top_left_position + bot_right_position + bot_left_position) * 0.25f;
+        Vector3 middle = (topRightPosition + topLeftPosition + botRightPosition + botLeftPosition) * 0.25f;
 
         // Assign that point to the camera position and rotate camera
-        reflection_camera.transform.position = middle;
-        reflection_camera.transform.rotation = camera_rotation;
+        reflectionCamera.transform.position = middle;
+        reflectionCamera.transform.rotation = cameraRotation;
 
-        //Matrix4x4 world_to_camera_matrix = Matrix4x4.Ortho(-10, 10, -10, 10, 0, 10); // You could probably create an ortho matrix from theese cords but i do not now how
+        //Matrix4x4 worldToCameraMatrix = Matrix4x4.Ortho(-10, 10, -10, 10, 0, 10); // You could probably create an ortho matrix from theese cords but i do not now how
     }
 }

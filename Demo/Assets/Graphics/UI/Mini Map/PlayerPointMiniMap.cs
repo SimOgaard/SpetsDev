@@ -5,21 +5,21 @@ using UnityEngine;
 public class PlayerPointMiniMap : MonoBehaviour
 {
     [SerializeField]
-    private float y_const;
+    private float yConst;
 
-    private Vector3 position_vector;
+    private Vector3 positionVector;
 
-    private Transform transform_follow;
+    private Transform transformFollow;
 
     private void Start()
     {
-        transform_follow = Global.player_transform;
+        transformFollow = Global.playerTransform;
     }
 
     private void Update()
     {
-        position_vector = transform_follow.position;
-        position_vector.y = y_const;
-        transform.position = position_vector;
+        positionVector = transformFollow.position;
+        positionVector.y = yConst;
+        transform.position = positionVector;
     }
 }

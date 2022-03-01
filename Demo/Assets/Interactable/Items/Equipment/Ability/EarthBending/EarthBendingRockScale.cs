@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EarthBendingRockScale : EarthBendingRock
 {
-    public float end_scale;
+    public float endScale;
 
     /// <summary>
     /// Places rock at ground given a point.
@@ -12,11 +12,11 @@ public class EarthBendingRockScale : EarthBendingRock
     public override void PlacePillar(Vector3 point, Quaternion rotation, Vector3 scale)
     {
         transform.rotation = rotation;
-        end_scale = scale.y;
-        scale.y = under_ground_height;
+        endScale = scale.y;
+        scale.y = underGroundHeight;
         transform.localScale = scale;
-        (Vector3 place_point, Vector3 normal) = GetRayHitData(point, rotation, scale);
-        transform.position = place_point + rotation * Vector3.down * under_ground_height;
+        (Vector3 placePoint, Vector3 normal) = GetRayHitData(point, rotation, scale);
+        transform.position = placePoint + rotation * Vector3.down * underGroundHeight;
         gameObject.SetActive(true);
     }
 
@@ -26,53 +26,53 @@ public class EarthBendingRockScale : EarthBendingRock
     /// </summary>
     private void FixedUpdate()
     {
-        float move_diff;
+        float moveDiff;
         float sound;
-        switch (move_state)
+        switch (moveState)
         {
             case MoveStates.up:
-                if (growth_time == 1f)
+                if (growthTime == 1f)
                 {
-                    current_sleep_time = sleep_time;
-                    rock_rigidbody.Sleep();
-                    move_state = MoveStates.still;
+                    currentSleepTime = sleepTime;
+                    rockRigidbody.Sleep();
+                    moveState = MoveStates.still;
                     break;
                 }
-                move_diff = growth_speed * Time.fixedDeltaTime;
-                sound = Mathf.Min(growth_speed * sound_amplifier, max_sound);
+                moveDiff = growthSpeed * Time.fixedDeltaTime;
+                sound = Mathf.Min(growthSpeed * soundAmplifier, maxSound);
                 Enemies.Sound(transform, sound, Time.fixedDeltaTime);
-                growth_time += move_diff;
-                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(under_ground_height, end_scale, growth_time), transform.localScale.z);
+                growthTime += moveDiff;
+                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(underGroundHeight, endScale, growthTime), transform.localScale.z);
                 break;
             case MoveStates.still:
-                current_sleep_time -= Time.deltaTime;
-                if (current_sleep_time < 0f)
+                currentSleepTime -= Time.deltaTime;
+                if (currentSleepTime < 0f)
                 {
-                    rock_rigidbody.WakeUp();
-                    move_state = MoveStates.down;
+                    rockRigidbody.WakeUp();
+                    moveState = MoveStates.down;
                     break;
                 }
                 break;
             case MoveStates.down:
-                if (growth_time == 0f)
+                if (growthTime == 0f)
                 {
-                    move_state = MoveStates.up;
-                    if (should_be_deleted)
+                    moveState = MoveStates.up;
+                    if (shouldBeDeleted)
                     {
                         Destroy(gameObject);
                     }
                     else
                     {
-                        rock_rigidbody.Sleep();
+                        rockRigidbody.Sleep();
                         gameObject.SetActive(false);
                     }
                     break;
                 }
-                move_diff = growth_speed * Time.fixedDeltaTime;
-                sound = Mathf.Min(growth_speed * sound_amplifier, max_sound);
+                moveDiff = growthSpeed * Time.fixedDeltaTime;
+                sound = Mathf.Min(growthSpeed * soundAmplifier, maxSound);
                 Enemies.Sound(transform, sound, Time.fixedDeltaTime);
-                growth_time -= move_diff;
-                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(under_ground_height, end_scale, growth_time), transform.localScale.z);
+                growthTime -= moveDiff;
+                transform.localScale = new Vector3(transform.localScale.x, Mathf.Lerp(underGroundHeight, endScale, growthTime), transform.localScale.z);
                 break;
         }
     }

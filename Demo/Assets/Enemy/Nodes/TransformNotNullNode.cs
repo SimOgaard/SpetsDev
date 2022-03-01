@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class TransformNotNullNode : Node
 {
-    private EnemyAI enemy_ai;
+    private EnemyAI enemyAi;
 
-    public TransformNotNullNode(EnemyAI enemy_ai)
+    public TransformNotNullNode(EnemyAI enemyAi)
     {
-        this.enemy_ai = enemy_ai;
+        this.enemyAi = enemyAi;
     }
 
     public override NodeState Evaluate()
     {
-        if (enemy_ai.chase_transform == null)
+        if (enemyAi.chaseTransform == null)
         {
             return NodeState.failure;
         }

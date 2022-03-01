@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
-    public enum Status { idle, walking, sprinting, sliding, using_weapon, using_ability, using_ultimate }
+    public enum Status { idle, walking, sprinting, sliding, usingWeapon, usingAbility, usingUltimate }
     public Status status;
 
     /// <summary>

@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class IsBuriedNode : Node
 {
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
 
-    public IsBuriedNode(GolemBehaviour golem_behaviour)
+    public IsBuriedNode(GolemBehaviour golemBehaviour)
     {
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
     }
 
     public override NodeState Evaluate()
     {
-        return golem_behaviour.is_buried ? NodeState.success : NodeState.failure;
+        return golemBehaviour.isBuried ? NodeState.success : NodeState.failure;
     }
 }

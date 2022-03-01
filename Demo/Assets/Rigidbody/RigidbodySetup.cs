@@ -6,24 +6,24 @@ public class RigidbodySetup : MonoBehaviour
     private Rigidbody _rigidbody;
 
     [Header("Sound")]
-    public float max_sound = Mathf.Infinity;
-    public float min_sound = 0f;
-    public static float sound_amplifier = 1f;
+    public float maxSound = Mathf.Infinity;
+    public float minSound = 0f;
+    public static float soundAmplifier = 1f;
     private float weight;
 
-    private bool can_make_sound = true;
+    private bool canMakeSound = true;
     private WaitForSeconds wait = new WaitForSeconds(0.1f);
 
     public IEnumerator DelaySound()
     {
-        can_make_sound = false;
+        canMakeSound = false;
         yield return wait;
-        can_make_sound = true;
+        canMakeSound = true;
     }
 
     public Rigidbody AddRigidbody(Density.DensityValues density)
     {
-        gameObject.layer = Layer.game_world_moving;
+        gameObject.layer = Layer.gameWorldMoving;
         transform.parent = WorldGenerationManager.ReturnNearestChunk(transform.position).transform;
         weight = MeshDensity.WeightOfMesh(gameObject.GetComponent<MeshFilter>().mesh, transform.lossyScale, density);
         this._rigidbody = gameObject.AddComponent<Rigidbody>();
@@ -42,19 +42,19 @@ public class RigidbodySetup : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!can_make_sound)
+        if (!canMakeSound)
         {
             return;
         }
 
         DelaySound();
-        float final_sound = Mathf.Max(Mathf.Min(_rigidbody.velocity.magnitude * weight, max_sound), min_sound);
-        Enemies.Sound(transform, final_sound);
+        float finalSound = Mathf.Max(Mathf.Min(_rigidbody.velocity.magnitude * weight, maxSound), minSound);
+        Enemies.Sound(transform, finalSound);
     }
 
-    public static Rigidbody AddRigidbody(GameObject game_object)
+    public static Rigidbody AddRigidbody(GameObject gameObject)
     {
-        RigidbodySetup rigidbody_setup = game_object.AddComponent<RigidbodySetup>();
-        return rigidbody_setup.AddRigidbody(game_object.GetComponent<Density>().density);
+        RigidbodySetup rigidbodySetup = gameObject.AddComponent<RigidbodySetup>();
+        return rigidbodySetup.AddRigidbody(gameObject.GetComponent<Density>().density);
     }
 }

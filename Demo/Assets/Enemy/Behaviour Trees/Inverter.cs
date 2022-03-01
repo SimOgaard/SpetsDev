@@ -16,15 +16,15 @@ public class Inverter : Node
         switch (node.Evaluate())
         {
             case NodeState.running:
-                _node_state = NodeState.running;
+                _nodeState = NodeState.running;
                 break;
             case NodeState.success:
-                _node_state = NodeState.failure;
+                _nodeState = NodeState.failure;
                 break;
             case NodeState.failure:
-                _node_state = NodeState.success;
+                _nodeState = NodeState.success;
                 break;
         }
-        return _node_state;
+        return _nodeState;
     }
 }

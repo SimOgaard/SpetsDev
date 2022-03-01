@@ -50,13 +50,13 @@ public class ReporterEditor : Editor
 		reporter.images.systemInfoImage      = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/ComputerIcon.png"), typeof(Texture2D));
 		reporter.images.graphicsInfoImage    = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/graphicCard.png"), typeof(Texture2D));
 		reporter.images.backImage            = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/back.png"), typeof(Texture2D));
-		reporter.images.logImage             = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/log_icon.png"), typeof(Texture2D));
-		reporter.images.warningImage         = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/warning_icon.png"), typeof(Texture2D));
-		reporter.images.errorImage           = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/error_icon.png"), typeof(Texture2D));
+		reporter.images.logImage             = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/logIcon.png"), typeof(Texture2D));
+		reporter.images.warningImage         = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/warningIcon.png"), typeof(Texture2D));
+		reporter.images.errorImage           = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/errorIcon.png"), typeof(Texture2D));
 		reporter.images.barImage             = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/bar.png"), typeof(Texture2D));
-		reporter.images.button_activeImage   = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/button_active.png"), typeof(Texture2D));
-		reporter.images.even_logImage        = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/even_log.png"), typeof(Texture2D));
-		reporter.images.odd_logImage         = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/odd_log.png"), typeof(Texture2D));
+		reporter.images.buttonActiveImage   = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/buttonActive.png"), typeof(Texture2D));
+		reporter.images.evenLogImage        = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/evenLog.png"), typeof(Texture2D));
+		reporter.images.oddLogImage         = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/oddLog.png"), typeof(Texture2D));
 		reporter.images.selectedImage        = (Texture2D)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/selected.png"), typeof(Texture2D));
 
 		reporter.images.reporterScrollerSkin = (GUISkin)AssetDatabase.LoadAssetAtPath(Path.Combine(reporterPath, "Images/reporterScrollerSkin.guiskin"), typeof(GUISkin));
@@ -82,10 +82,10 @@ public class ReporterModificationProcessor : UnityEditor.AssetModificationProces
 				if (!Directory.Exists(Application.dataPath + "/StreamingAssets")) {
 					Directory.CreateDirectory(Application.dataPath + "/StreamingAssets");
 				}
-				string info_path = Application.dataPath + "/StreamingAssets/build_info"; 
-				StreamWriter build_info = new StreamWriter(info_path);
-				build_info.Write("Build from " + SystemInfo.deviceName + " at " + System.DateTime.Now.ToString());
-				build_info.Close();
+				string infoPath = Application.dataPath + "/StreamingAssets/buildInfo"; 
+				StreamWriter buildInfo = new StreamWriter(infoPath);
+				buildInfo.Write("Build from " + SystemInfo.deviceName + " at " + System.DateTime.Now.ToString());
+				buildInfo.Close();
 			}
 
 			isCompiling = EditorApplication.isCompiling;

@@ -9,17 +9,17 @@ using UnityEngine.UI;
 /// </summary>
 public class UIInventory : MonoBehaviour
 {
-    [SerializeField] private GameObject current_weapon_UI_game_object;
-    public static Image current_weapon_UI_image;
-    private Material weapon_cooldown_material;
-    [SerializeField] private GameObject current_ability_UI_game_object;
-    public static Image current_ability_UI_image;
-    private Material ability_cooldown_material;
-    [SerializeField] private GameObject current_ultimate_UI_game_object;
-    public static Image current_ultimate_UI_image;
-    private Material ultimate_cooldown_material;
+    [SerializeField] private GameObject currentWeapon_UIGameObject;
+    public static Image currentWeapon_UIImage;
+    private Material weaponCooldownMaterial;
+    [SerializeField] private GameObject currentAbility_UIGameObject;
+    public static Image currentAbility_UIImage;
+    private Material abilityCooldownMaterial;
+    [SerializeField] private GameObject currentUltimate_UIGameObject;
+    public static Image currentUltimate_UIImage;
+    private Material ultimateCooldownMaterial;
 
-    [SerializeField] private Color background_color;
+    [SerializeField] private Color backgroundColor;
 
     /// <summary>
     /// Retrieves each Image component for each equipment.
@@ -27,29 +27,29 @@ public class UIInventory : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        current_weapon_UI_image = current_weapon_UI_game_object.GetComponent<Image>();
-        current_ability_UI_image = current_ability_UI_game_object.GetComponent<Image>();
-        current_ultimate_UI_image = current_ultimate_UI_game_object.GetComponent<Image>();
+        currentWeapon_UIImage = currentWeapon_UIGameObject.GetComponent<Image>();
+        currentAbility_UIImage = currentAbility_UIGameObject.GetComponent<Image>();
+        currentUltimate_UIImage = currentUltimate_UIGameObject.GetComponent<Image>();
 
-        current_weapon_UI_image.color = background_color; //Resources.Load<Sprite>("Sprites/debugger");
-        current_ability_UI_image.color = background_color;
-        current_ultimate_UI_image.color = background_color;
+        currentWeapon_UIImage.color = backgroundColor; //Resources.Load<Sprite>("Sprites/debugger");
+        currentAbility_UIImage.color = backgroundColor;
+        currentUltimate_UIImage.color = backgroundColor;
 
-        RectTransform current_weapon_rect_transform = current_weapon_UI_game_object.GetComponent<RectTransform>();
-        RectTransform current_ability_rect_transform = current_ability_UI_game_object.GetComponent<RectTransform>();
-        RectTransform current_ultimate_rect_transform = current_ultimate_UI_game_object.GetComponent<RectTransform>();
+        RectTransform currentWeaponRectTransform = currentWeapon_UIGameObject.GetComponent<RectTransform>();
+        RectTransform currentAbilityRectTransform = currentAbility_UIGameObject.GetComponent<RectTransform>();
+        RectTransform currentUltimateRectTransform = currentUltimate_UIGameObject.GetComponent<RectTransform>();
 
-        current_weapon_rect_transform.sizeDelta = new Vector2(14f, 14f);
-        current_ability_rect_transform.sizeDelta = new Vector2(14f, 14f);
-        current_ultimate_rect_transform.sizeDelta = new Vector2(19f, 19f);
+        currentWeaponRectTransform.sizeDelta = new Vector2(14f, 14f);
+        currentAbilityRectTransform.sizeDelta = new Vector2(14f, 14f);
+        currentUltimateRectTransform.sizeDelta = new Vector2(19f, 19f);
 
-        weapon_cooldown_material = current_weapon_UI_game_object.transform.GetChild(0).GetComponent<Image>().material;
-        ability_cooldown_material = current_ability_UI_game_object.transform.GetChild(0).GetComponent<Image>().material;
-        ultimate_cooldown_material = current_ultimate_UI_game_object.transform.GetChild(0).GetComponent<Image>().material;
+        weaponCooldownMaterial = currentWeapon_UIGameObject.transform.GetChild(0).GetComponent<Image>().material;
+        abilityCooldownMaterial = currentAbility_UIGameObject.transform.GetChild(0).GetComponent<Image>().material;
+        ultimateCooldownMaterial = currentUltimate_UIGameObject.transform.GetChild(0).GetComponent<Image>().material;
 
-        weapon_cooldown_material.SetFloat("_Arc1", 0f);
-        ability_cooldown_material.SetFloat("_Arc1", 0f);
-        ultimate_cooldown_material.SetFloat("_Arc1", 0f);
+        weaponCooldownMaterial.SetFloat("_Arc1", 0f);
+        abilityCooldownMaterial.SetFloat("_Arc1", 0f);
+        ultimateCooldownMaterial.SetFloat("_Arc1", 0f);
     }
 
     private void ChangeCooldown(Equipment.IEquipment equipment, Material material)
@@ -59,11 +59,11 @@ public class UIInventory : MonoBehaviour
             return;
         }
 
-        float current_cooldown = equipment.current_cooldown;
+        float currentCooldown = equipment.currentCooldown;
         float cooldown = equipment.cooldown;
-        float cooldown_remap01 = current_cooldown / cooldown;
+        float cooldownRemap01 = currentCooldown / cooldown;
 
-        material.SetFloat("_Arc1", cooldown_remap01);
+        material.SetFloat("_Arc1", cooldownRemap01);
     }
 
     /// <summary>
@@ -71,8 +71,8 @@ public class UIInventory : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        ChangeCooldown(PlayerInventory.weapon, weapon_cooldown_material);
-        ChangeCooldown(PlayerInventory.ability, ability_cooldown_material);
-        ChangeCooldown(PlayerInventory.ultimate, ultimate_cooldown_material);
+        ChangeCooldown(PlayerInventory.weapon, weaponCooldownMaterial);
+        ChangeCooldown(PlayerInventory.ability, abilityCooldownMaterial);
+        ChangeCooldown(PlayerInventory.ultimate, ultimateCooldownMaterial);
     }
 }

@@ -14,63 +14,63 @@ public class Noise : MonoBehaviour
         private float amplitude;
         private Vector2 offsett;
 
-        private float min_value;
-        private float smoothing_min;
-        private float max_value;
-        private float smoothing_max;
+        private float minValue;
+        private float smoothingMin;
+        private float maxValue;
+        private float smoothingMax;
 
         private float SmoothMin(float a)
         {
-            float h = Mathf.Max(0f, Mathf.Min(1f, (max_value - a + smoothing_max) / (2f * smoothing_max)));
-            return a * h + max_value * (1f - h) - smoothing_max * h * (1f - h);
+            float h = Mathf.Max(0f, Mathf.Min(1f, (maxValue - a + smoothingMax) / (2f * smoothingMax)));
+            return a * h + maxValue * (1f - h) - smoothingMax * h * (1f - h);
         }
 
         private float SmoothMax(float a)
         {
-            float h = Mathf.Max(0f, Mathf.Min(1f, (min_value - a + smoothing_min) / (2f * smoothing_min)));
-            return a * h + min_value * (1f - h) - smoothing_min * h * (1f - h);
+            float h = Mathf.Max(0f, Mathf.Min(1f, (minValue - a + smoothingMin) / (2f * smoothingMin)));
+            return a * h + minValue * (1f - h) - smoothingMin * h * (1f - h);
         }
 
-        public NoiseLayer(NoiseLayerSettings.NoiseLayer noise_layer)
+        public NoiseLayer(NoiseLayerSettings.NoiseLayer noiseLayer)
         {
             // sets noise
             noise = new FastNoiseLite();
-            noise.SetSeed(noise_layer.general_noise.seed);
-            noise.SetFrequency(noise_layer.general_noise.frequency);
-            noise.SetNoiseType(noise_layer.general_noise.noise_type);
+            noise.SetSeed(noiseLayer.generalNoise.seed);
+            noise.SetFrequency(noiseLayer.generalNoise.frequency);
+            noise.SetNoiseType(noiseLayer.generalNoise.noiseType);
 
-            noise.SetFractalType(noise_layer.fractal.fractal_type);
-            noise.SetFractalOctaves(noise_layer.fractal.octaves);
-            noise.SetFractalLacunarity(noise_layer.fractal.lacunarity);
-            noise.SetFractalGain(noise_layer.fractal.gain);
-            noise.SetFractalWeightedStrength(noise_layer.fractal.weighted_strength);
-            noise.SetFractalPingPongStrength(noise_layer.fractal.ping_pong_strength);
+            noise.SetFractalType(noiseLayer.fractal.fractalType);
+            noise.SetFractalOctaves(noiseLayer.fractal.octaves);
+            noise.SetFractalLacunarity(noiseLayer.fractal.lacunarity);
+            noise.SetFractalGain(noiseLayer.fractal.gain);
+            noise.SetFractalWeightedStrength(noiseLayer.fractal.weightedStrength);
+            noise.SetFractalPingPongStrength(noiseLayer.fractal.pingPongStrength);
 
-            noise.SetCellularDistanceFunction(noise_layer.cellular.cellular_distance_function);
-            noise.SetCellularReturnType(noise_layer.cellular.cellular_return_type);
-            noise.SetCellularJitter(noise_layer.cellular.jitter);
+            noise.SetCellularDistanceFunction(noiseLayer.cellular.cellularDistanceFunction);
+            noise.SetCellularReturnType(noiseLayer.cellular.cellularReturnType);
+            noise.SetCellularJitter(noiseLayer.cellular.jitter);
 
             // domain warp
             warp = new FastNoiseLite();
-            warp.SetSeed(noise_layer.general_noise.seed);
-            warp.SetDomainWarpType(noise_layer.domain_warp.domain_warp_type);
-            warp.SetDomainWarpAmp(noise_layer.domain_warp.amplitude);
-            warp.SetFrequency(noise_layer.domain_warp.frequency);
+            warp.SetSeed(noiseLayer.generalNoise.seed);
+            warp.SetDomainWarpType(noiseLayer.domainWarp.domainWarpType);
+            warp.SetDomainWarpAmp(noiseLayer.domainWarp.amplitude);
+            warp.SetFrequency(noiseLayer.domainWarp.frequency);
 
-            warp.SetFractalType(noise_layer.domain_warp_fractal.fractal_type);
-            warp.SetFractalOctaves(noise_layer.domain_warp_fractal.octaves);
-            warp.SetFractalLacunarity(noise_layer.domain_warp_fractal.lacunarity);
-            warp.SetFractalGain(noise_layer.domain_warp_fractal.gain);
+            warp.SetFractalType(noiseLayer.domainWarpFractal.fractalType);
+            warp.SetFractalOctaves(noiseLayer.domainWarpFractal.octaves);
+            warp.SetFractalLacunarity(noiseLayer.domainWarpFractal.lacunarity);
+            warp.SetFractalGain(noiseLayer.domainWarpFractal.gain);
 
-            enabled = noise_layer.enabled;
+            enabled = noiseLayer.enabled;
 
-            amplitude = noise_layer.general.amplitude;
-            offsett = noise_layer.general.offsett;
+            amplitude = noiseLayer.general.amplitude;
+            offsett = noiseLayer.general.offsett;
 
-            min_value = noise_layer.general.min_value;
-            smoothing_max = Mathf.Max(0f, noise_layer.general.smoothing_max);
-            max_value = noise_layer.general.max_value;
-            smoothing_min = Mathf.Min(0f, -noise_layer.general.smoothing_min);
+            minValue = noiseLayer.general.minValue;
+            smoothingMax = Mathf.Max(0f, noiseLayer.general.smoothingMax);
+            maxValue = noiseLayer.general.maxValue;
+            smoothingMin = Mathf.Min(0f, -noiseLayer.general.smoothingMin);
         }
 
         public float GetNoiseValueColor(float x, float z)
@@ -78,11 +78,11 @@ public class Noise : MonoBehaviour
             x += offsett.x;
             z += offsett.y;
             warp.DomainWarp(ref x, ref z);
-            float noise_value = noise.GetNoise(x, z);
-            noise_value = (noise_value + 1f) * 0.5f;
-            noise_value = SmoothMin(noise_value);
-            noise_value = SmoothMax(noise_value);
-            return noise_value;
+            float noiseValue = noise.GetNoise(x, z);
+            noiseValue = (noiseValue + 1f) * 0.5f;
+            noiseValue = SmoothMin(noiseValue);
+            noiseValue = SmoothMax(noiseValue);
+            return noiseValue;
         }
 
         public float GetNoiseValue(float x, float z)
@@ -90,32 +90,32 @@ public class Noise : MonoBehaviour
             return GetNoiseValueColor(x, z) * amplitude;
         }
 
-        public Texture2D GetNoiseTexture(Vector2Int texture_size)
+        public Texture2D GetNoiseTexture(Vector2Int textureSize)
         {
-            Texture2D noise_texture = new Texture2D(texture_size.x, texture_size.y);
-            for (int x = 0; x < texture_size.x; x++)
+            Texture2D noiseTexture = new Texture2D(textureSize.x, textureSize.y);
+            for (int x = 0; x < textureSize.x; x++)
             {
-                for (int y = 0; y < texture_size.y; y++)
+                for (int y = 0; y < textureSize.y; y++)
                 {
-                    float noise_value = GetNoiseValueColor(x, y);
+                    float noiseValue = GetNoiseValueColor(x, y);
 
-                    Color color = new Color(noise_value, noise_value, noise_value);
-                    noise_texture.SetPixel(x, y, color);
+                    Color color = new Color(noiseValue, noiseValue, noiseValue);
+                    noiseTexture.SetPixel(x, y, color);
                 }
             }
-            noise_texture.Apply();
-            return noise_texture;
+            noiseTexture.Apply();
+            return noiseTexture;
         }
     }
 
-    public static NoiseLayer[] CreateNoiseLayers(NoiseLayerSettings noise_layer_settings)
+    public static NoiseLayer[] CreateNoiseLayers(NoiseLayerSettings noiseLayerSettings)
     {
-        int noise_length = noise_layer_settings.terrain_noise_layers.Length;
-        NoiseLayer[] noise_layers = new NoiseLayer[noise_length];
-        for (int i = 0; i < noise_length; i++)
+        int noiseLength = noiseLayerSettings.terrainNoiseLayers.Length;
+        NoiseLayer[] noiseLayers = new NoiseLayer[noiseLength];
+        for (int i = 0; i < noiseLength; i++)
         {
-            noise_layers[i] = new NoiseLayer(noise_layer_settings.terrain_noise_layers[i]);
+            noiseLayers[i] = new NoiseLayer(noiseLayerSettings.terrainNoiseLayers[i]);
         }
-        return noise_layers;
+        return noiseLayers;
     }
 }

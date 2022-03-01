@@ -50,7 +50,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all objects that should not render to camera.
     /// </summary>
-    public static int not_rendered
+    public static int notRendered
     {
         get { return LayerMask.NameToLayer("NotRendered"); }
     }
@@ -58,7 +58,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all game world objects.
     /// </summary>
-    public static int game_world
+    public static int gameWorld
     {
         get { return LayerMask.NameToLayer("GameWorld"); }
     }
@@ -66,7 +66,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all game world objects that are moving.
     /// </summary>
-    public static int game_world_moving
+    public static int gameWorldMoving
     {
         get { return LayerMask.NameToLayer("GameWorldMoving"); }
     }
@@ -74,7 +74,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all static game world objects.
     /// </summary>
-    public static int game_world_static
+    public static int gameWorldStatic
     {
         get { return LayerMask.NameToLayer("GameWorldStatic"); }
     }    
@@ -82,7 +82,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all objects that should not collide with player.
     /// </summary>
-    public static int ignore_player_collision
+    public static int ignorePlayerCollision
     {
         get { return LayerMask.NameToLayer("IgnorePlayerCollision"); }
     }
@@ -90,7 +90,7 @@ public static class Layer
     /// <summary>
     /// Layer index of all objects that should not collide with enemies.
     /// </summary>
-    public static int ignore_enemy_collision
+    public static int ignoreEnemyCollision
     {
         get { return LayerMask.NameToLayer("IgnoreEnemyCollision"); }
     }
@@ -114,15 +114,15 @@ public static class Layer
     /// <summary>
     /// Layer index of game objects that should not be affected by external forces.
     /// </summary>
-    public static int ignore_external_forces
+    public static int ignoreExternalForces
     {
         get { return LayerMask.NameToLayer("IgnoreExternalForces"); }
     }
 
     /// <summary>
-    /// Layer index of spawned prefab with trigger collider for raycast overriding layer_game_world.
+    /// Layer index of spawned prefab with trigger collider for raycast overriding layerGameWorld.
     /// </summary>
-    public static int spawned_game_world_higher_priority
+    public static int spawnedGameWorldHigherPriority
     {
         get { return LayerMask.NameToLayer("GameWorldHighPriority"); }
     }
@@ -130,7 +130,7 @@ public static class Layer
     /// <summary>
     /// Layer index of spawned prefab with collider that spawning raycast should ignore.
     /// </summary>
-    public static int spawned_game_world_no_priority
+    public static int spawnedGameWorldNoPriority
     {
         get { return LayerMask.NameToLayer("GameWorldIgnore"); }
     }
@@ -145,45 +145,45 @@ public static class Layer
         /// </summary>
         public static LayerMask ground
         {
-            get { return (1 << default_) | (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
+            get { return (1 << default_) | (1 << gameWorld) | (1 << gameWorldMoving) | (1 << gameWorldStatic); }
         }
 
         /// <summary>
         /// Layer Mask of what is generally concidered static ground.
         /// </summary>
-        public static LayerMask static_ground
+        public static LayerMask staticGround
         {
-            get { return (1 << game_world) | (1 << game_world_static); }
+            get { return (1 << gameWorld) | (1 << gameWorldStatic); }
         }
 
         /// <summary>
         /// Layer Mask of what is concidered ground for player.
         /// </summary>
-        public static LayerMask ground_player
+        public static LayerMask groundPlayer
         {
-            get { return (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
+            get { return (1 << gameWorld) | (1 << gameWorldMoving) | (1 << gameWorldStatic); }
         }
 
         /// <summary>
         /// Layer Mask of what is concidered ground for enemies.
         /// </summary>
-        public static LayerMask ground_enemy
+        public static LayerMask groundEnemy
         {
-            get { return (1 << game_world) | (1 << game_world_moving) | (1 << game_world_static); }
+            get { return (1 << gameWorld) | (1 << gameWorldMoving) | (1 << gameWorldStatic); }
         }
 
         /// <summary>
         /// Layer Mask of what should be transformed into game world layer.
         /// </summary>
-        public static LayerMask spawned_game_world
+        public static LayerMask spawnedGameWorld
         {
-            get { return (1 << game_world) | (1 << spawned_game_world_higher_priority) | (1 << spawned_game_world_no_priority); }
+            get { return (1 << gameWorld) | (1 << spawnedGameWorldHigherPriority) | (1 << spawnedGameWorldNoPriority); }
         }
 
         /// <summary>
         /// Layer Mask of what is concidered ground for player.
         /// </summary>
-        public static LayerMask player_and_enemy
+        public static LayerMask playerAndEnemy
         {
             get { return (1 << enemy) | (1 << player); }
         }
@@ -191,42 +191,42 @@ public static class Layer
         /// <summary>
         /// Layer Mask of what should ignore forces.
         /// </summary>
-        public static LayerMask ignore_forces
+        public static LayerMask ignoreForces
         {
-            get { return (1 << game_world_static) | (1 << ignore_external_forces) | (1 << player); }
+            get { return (1 << gameWorldStatic) | (1 << ignoreExternalForces) | (1 << player); }
         }
     }
 
     /// <summary>
     /// Returns true if layer values are the same.
     /// </summary>
-    public static bool IsInLayer(int layer_value_1, int layer_value_2)
+    public static bool IsInLayer(int layerValue_1, int layerValue_2)
     {
-        return layer_value_1 == layer_value_2;
+        return layerValue_1 == layerValue_2;
     }
 
     /// <summary>
     /// Returns true if layer value and game object layer value is the same.
     /// </summary>
-    public static bool IsInLayer(int layer_value, GameObject obj)
+    public static bool IsInLayer(int layerValue, GameObject obj)
     {
-        return (layer_value & 1 << obj.layer) != 0;
+        return (layerValue & 1 << obj.layer) != 0;
     }
 
     /// <summary>
     /// Returns true if layer mask contains layer value.
     /// </summary>
-    public static bool IsInLayer(LayerMask layer_mask, int layer_value)
+    public static bool IsInLayer(LayerMask layerMask, int layerValue)
     {
-        return (layer_mask.value & 1 << layer_value) != 0;
+        return (layerMask.value & 1 << layerValue) != 0;
     }
 
     /// <summary>
     /// Returns true if layer mask contains layer value of given game object.
     /// </summary>
-    public static bool IsInLayer(LayerMask layer_mask, GameObject obj)
+    public static bool IsInLayer(LayerMask layerMask, GameObject obj)
     {
-        return (layer_mask.value & 1 << obj.layer) != 0;
+        return (layerMask.value & 1 << obj.layer) != 0;
     }
 }
 
@@ -292,43 +292,43 @@ public static class Global
 {
     public struct Materials
     {
-        public static Material stone_material;
-        public static Material sprite_renderer_material;
-        public static Material water_material;
+        public static Material stoneMaterial;
+        public static Material spriteRendererMaterial;
+        public static Material waterMaterial;
     }
 
-    public static Sprite interacting_with_sprite;
-    public static Sprite not_interacting_with_sprite;
+    public static Sprite interactingWithSprite;
+    public static Sprite notInteractingWithSprite;
 
-    public static Transform camera_focus_point_transform;
-    public static Transform player_transform;
-    public static Transform equipments_in_inventory;
+    public static Transform cameraFocusPointTransform;
+    public static Transform playerTransform;
+    public static Transform equipmentsInInventory;
 
-    public static Vector3 normal_gravity = Physics.gravity;
-    public static Vector3 current_gravity = Physics.gravity;
+    public static Vector3 normalGravity = Physics.gravity;
+    public static Vector3 currentGravity = Physics.gravity;
 }
 
 public static class GameTime
 {
-    private static bool _is_paused = false;
-    public static bool is_paused
+    private static bool _isPaused = false;
+    public static bool isPaused
     {
-        get { return _is_paused; }
+        get { return _isPaused; }
         set {
-            if (value != _is_paused)
+            if (value != _isPaused)
             {
-                _is_paused = value;
+                _isPaused = value;
             }
         }
     }
 
-    public static void PauseGame(float time_scale = 0f)
+    public static void PauseGame(float timeScale = 0f)
     {
-        Time.timeScale = time_scale;
+        Time.timeScale = timeScale;
     }
 
-    public static void ResumeGame(float time_scale = 1f)
+    public static void ResumeGame(float timeScale = 1f)
     {
-        Time.timeScale = time_scale;
+        Time.timeScale = timeScale;
     }
 }

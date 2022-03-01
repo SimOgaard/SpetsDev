@@ -11,20 +11,20 @@ public class Upgrade : Item
         int amount { get; set; }
 
         void Drop(Vector3 position, Vector3 thrust);
-        Vector3 Thrust(float selected_rotation, Vector3 forward_vector, float force = 5750f);
+        Vector3 Thrust(float selectedRotation, Vector3 forwardVector, float force = 5750f);
     }
 
     #region initialize
     public static (GameObject, IUpgrade) CreateRandomUpgrade()
     {
-        System.Type equipment_type = Equipment.RandomEquipment();
-        return CreateRandomUpgrade(equipment_type);
+        System.Type equipmentType = Equipment.RandomEquipment();
+        return CreateRandomUpgrade(equipmentType);
     }
-    public static (GameObject, IUpgrade) CreateRandomUpgrade(System.Type equipment_type)
+    public static (GameObject, IUpgrade) CreateRandomUpgrade(System.Type equipmentType)
     {
-        GameObject equipment_game_object = new GameObject(equipment_type.Name, equipment_type);
-        IUpgrade equipment = equipment_game_object.AddComponent(equipment_type) as IUpgrade;
-        return (equipment_game_object, equipment);
+        GameObject equipmentGameObject = new GameObject(equipmentType.Name, equipmentType);
+        IUpgrade equipment = equipmentGameObject.AddComponent(equipmentType) as IUpgrade;
+        return (equipmentGameObject, equipment);
     }
     #endregion
 }

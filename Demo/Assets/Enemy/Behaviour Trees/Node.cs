@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public abstract class Node
 {
-    protected NodeState _node_state;
-    public NodeState node_state { get { return _node_state; } }
+    protected NodeState _nodeState;
+    public NodeState nodeState { get { return _nodeState; } }
     public abstract NodeState Evaluate();
 }
 

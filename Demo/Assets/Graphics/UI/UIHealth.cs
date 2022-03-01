@@ -6,62 +6,62 @@ using UnityEngine.UI;
 public class UIHealth : MonoBehaviour
 {
     [SerializeField] private Sprite health;
-    [SerializeField] private Sprite health_missing;
+    [SerializeField] private Sprite healthMissing;
 
-    [SerializeField] private float distance_x_offset;
-    [SerializeField] private float distance_x_offset_recursive;
-    [SerializeField] private float distance_y_offset;
-    [SerializeField] private float distance_y_offset_recursive;
+    [SerializeField] private float distanceXOffset;
+    [SerializeField] private float distanceXOffsetRecursive;
+    [SerializeField] private float distanceYOffset;
+    [SerializeField] private float distanceYOffsetRecursive;
 
     private Image[] images;
-    private int max_health;
+    private int maxHealth;
 
     /// <summary>
     /// Updates max health by creating new health ui elements with right width, height and position.
     /// </summary>
-    public void UpdateMaxHealth(int max_health)
+    public void UpdateMaxHealth(int maxHealth)
     {
-        images = new Image[max_health];
+        images = new Image[maxHealth];
 
         foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
         }
 
-        float x = distance_x_offset;
-        float y = distance_y_offset;
+        float x = distanceXOffset;
+        float y = distanceYOffset;
 
-        for (int i = 0; i < max_health; i++)
+        for (int i = 0; i < maxHealth; i++)
         {
-            GameObject health_border_game_object = new GameObject("HealthImageBorderUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            health_border_game_object.transform.SetParent(transform, false);
-            GameObject health_game_object = new GameObject("HealthImageUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            health_game_object.transform.SetParent(health_border_game_object.transform.transform, false);
+            GameObject healthBorderGameObject = new GameObject("HealthImageBorderUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            healthBorderGameObject.transform.SetParent(transform, false);
+            GameObject healthGameObject = new GameObject("HealthImageUI_" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            healthGameObject.transform.SetParent(healthBorderGameObject.transform.transform, false);
 
-            RectTransform health_border_rect_transform = health_border_game_object.GetComponent<RectTransform>();
-            RectTransform health_rect_transform = health_game_object.GetComponent<RectTransform>();
-            health_border_rect_transform.sizeDelta = new Vector2(13f, 12f);
-            health_border_rect_transform.localPosition = new Vector3(x, y, 0f);
-            health_rect_transform.sizeDelta = new Vector2(13f, 12f);
-            x += distance_x_offset_recursive;
-            y += distance_y_offset_recursive;
+            RectTransform healthBorderRectTransform = healthBorderGameObject.GetComponent<RectTransform>();
+            RectTransform healthRectTransform = healthGameObject.GetComponent<RectTransform>();
+            healthBorderRectTransform.sizeDelta = new Vector2(13f, 12f);
+            healthBorderRectTransform.localPosition = new Vector3(x, y, 0f);
+            healthRectTransform.sizeDelta = new Vector2(13f, 12f);
+            x += distanceXOffsetRecursive;
+            y += distanceYOffsetRecursive;
 
-            health_border_game_object.GetComponent<Image>().sprite = health_missing;
-            images[i] = health_game_object.GetComponent<Image>();
+            healthBorderGameObject.GetComponent<Image>().sprite = healthMissing;
+            images[i] = healthGameObject.GetComponent<Image>();
             images[i].sprite = health;
         }
 
-        this.max_health = max_health;
+        this.maxHealth = maxHealth;
     }
 
     /// <summary>
     /// Changes opacity of fill in heart ui image.
     /// </summary>
-    public void UpdateCurrentHealth(int current_health)
+    public void UpdateCurrentHealth(int currentHealth)
     {
-        for (int i = 0; i < max_health; i++)
+        for (int i = 0; i < maxHealth; i++)
         {
-            images[i].color = current_health <= i ? new Color(0f, 0f, 0f, 0f) : Color.white;
+            images[i].color = currentHealth <= i ? new Color(0f, 0f, 0f, 0f) : Color.white;
         }
     }
 

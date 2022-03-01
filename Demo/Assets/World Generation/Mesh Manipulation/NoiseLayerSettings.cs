@@ -6,32 +6,32 @@ using UnityEngine;
 public class NoiseLayerSettings : ScriptableObject
 {
     [Header("Terrain")]
-    public NoiseLayer[] terrain_noise_layers;
+    public NoiseLayer[] terrainNoiseLayers;
 
     [Header("Materials")]
-    public MaterialWithCurve material_leaf;
-    public MaterialWithCurve material_wood;
+    public MaterialWithCurve materialLeaf;
+    public MaterialWithCurve materialWood;
 
-    public MaterialWithCurve material_stone;
+    public MaterialWithCurve materialStone;
 
-    public MaterialWithCurve material_golem;
-    public MaterialWithCurve material_golem_shoulder;
+    public MaterialWithCurve materialGolem;
+    public MaterialWithCurve materialGolemShoulder;
 
-    public MaterialWithCurve material_static;
+    public MaterialWithCurve materialStatic;
 
     [Header("Foliage")]
-    public Foliage[] random_foliage;
+    public Foliage[] randomFoliage;
 
     [Header("Water")]
     public Water water;
 
     [Header("Clouds")]
-    public MaterialWithCurve material_sun;
-    public MaterialWithCurve material_moon;
+    public MaterialWithCurve materialSun;
+    public MaterialWithCurve materialMoon;
 
     [Header("Spawn")]
-    [Range(0, 0.1f)] public float object_density;
-    public GameObject[] spawn_prefabs;
+    [Range(0, 0.1f)] public float objectDensity;
+    public GameObject[] spawnPrefabs;
 
     [System.Serializable]
     public class NoiseLayer
@@ -39,11 +39,11 @@ public class NoiseLayerSettings : ScriptableObject
         public bool enabled = true;
 
         public General general;
-        public GeneralNoise general_noise;
+        public GeneralNoise generalNoise;
         public Fractal fractal;
         public Cellular cellular;
-        public DomainWarping domain_warp;
-        public DomainWarpingFractal domain_warp_fractal;
+        public DomainWarping domainWarp;
+        public DomainWarpingFractal domainWarpFractal;
 
         [System.Serializable]
         public class General
@@ -51,16 +51,16 @@ public class NoiseLayerSettings : ScriptableObject
             public float amplitude = 0.1f;
             public Vector2 offsett;
 
-            [Min(0f)] public float min_value;
-            [Min(0f)] public float smoothing_min;
-            [Min(0f)] public float max_value;
-            [Min(0f)] public float smoothing_max;
+            [Min(0f)] public float minValue;
+            [Min(0f)] public float smoothingMin;
+            [Min(0f)] public float maxValue;
+            [Min(0f)] public float smoothingMax;
         }
 
         [System.Serializable]
         public class GeneralNoise
         {
-            public FastNoiseLite.NoiseType noise_type = FastNoiseLite.NoiseType.OpenSimplex2;
+            public FastNoiseLite.NoiseType noiseType = FastNoiseLite.NoiseType.OpenSimplex2;
             public int seed = 1337;
             public float frequency = 0.02f;
         }
@@ -68,26 +68,26 @@ public class NoiseLayerSettings : ScriptableObject
         [System.Serializable]
         public class Fractal
         {
-            public FastNoiseLite.FractalType fractal_type = FastNoiseLite.FractalType.None;
+            public FastNoiseLite.FractalType fractalType = FastNoiseLite.FractalType.None;
             [Range(1, 10)] public int octaves = 1;
             public float lacunarity = 2.0f;
             public float gain = 0.5f;
-            public float weighted_strength = 0.0f;
-            public float ping_pong_strength = 2.0f;
+            public float weightedStrength = 0.0f;
+            public float pingPongStrength = 2.0f;
         }
 
         [System.Serializable]
         public class Cellular
         {
-            public FastNoiseLite.CellularDistanceFunction cellular_distance_function = FastNoiseLite.CellularDistanceFunction.Euclidean;
-            public FastNoiseLite.CellularReturnType cellular_return_type = FastNoiseLite.CellularReturnType.CellValue;
+            public FastNoiseLite.CellularDistanceFunction cellularDistanceFunction = FastNoiseLite.CellularDistanceFunction.Euclidean;
+            public FastNoiseLite.CellularReturnType cellularReturnType = FastNoiseLite.CellularReturnType.CellValue;
             public float jitter = 1.0f;
         }
 
         [System.Serializable]
         public class DomainWarping
         {
-            public FastNoiseLite.DomainWarpType domain_warp_type = FastNoiseLite.DomainWarpType.OpenSimplex2;
+            public FastNoiseLite.DomainWarpType domainWarpType = FastNoiseLite.DomainWarpType.OpenSimplex2;
             public float amplitude = 30.0f;
             public float frequency = 0.005f;
         }
@@ -95,7 +95,7 @@ public class NoiseLayerSettings : ScriptableObject
         [System.Serializable]
         public class DomainWarpingFractal
         {
-            public FastNoiseLite.FractalType fractal_type = FastNoiseLite.FractalType.None;
+            public FastNoiseLite.FractalType fractalType = FastNoiseLite.FractalType.None;
             [Range(1, 10)] public int octaves = 5;
             public float lacunarity = 2.0f;
             public float gain = 0.5f;
@@ -107,17 +107,17 @@ public class NoiseLayerSettings : ScriptableObject
     {
         public MaterialWithCurve material;
         public float level;
-        public float bobing_frequency;
-        public float bobing_amplitude;
+        public float bobingFrequency;
+        public float bobingAmplitude;
     }
 
     [System.Serializable]
     public class Curve
     {
-        public string texture_name = "_ColorShading";
-        public AnimationCurve light_curve;
+        public string textureName = "_ColorShading";
+        public AnimationCurve lightCurve;
         public int resolution = 256;
-        public float col_diff;
+        public float colDiff;
     }
 
     [System.Serializable]
@@ -126,10 +126,10 @@ public class NoiseLayerSettings : ScriptableObject
         public GroundMesh.GroundTriangleType type;
         public bool enabled = true;
         public MaterialWithCurve material;
-        public NoiseLayer noise_layer;
-        public Vector2 keep_range_noise;
-        public float keep_range_random_noise;
-        public float keep_range_random;
+        public NoiseLayer noiseLayer;
+        public Vector2 keepRangeNoise;
+        public float keepRangeRandomNoise;
+        public float keepRangeRandom;
     }
 
     [System.Serializable]

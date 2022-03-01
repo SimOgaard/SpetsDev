@@ -7,51 +7,51 @@ using Unity.Collections;
 public class GrassTestingWithDictionary : MonoBehaviour
 {
     public enum GroundType { none = -1, grass, flower };
-    private int ground_subtypes_length;
+    private int groundSubtypesLength;
 
-    private int triangle_amount;
-    private int triangle_corner_amount;
+    private int triangleAmount;
+    private int triangleCornerAmount;
 
     private int[] triangles; // holds every triangle for ground mesh
-    private int[] triangles_types; // holds every triangle state
-    private Vector3[] triangles_mid;
+    private int[] trianglesTypes; // holds every triangle state
+    private Vector3[] trianglesMid;
 
-    private Vector2 min_max_y_mesh;
+    private Vector2 minMaxYMesh;
 
-    private Dictionary<int, int>[] ground_subtypes; // holds one dictionary for each groundtype. holds triangles
-    private bool[] ground_subtypes_changed; // what submesh that needs to be updated
+    private Dictionary<int, int>[] groundSubtypes; // holds one dictionary for each groundtype. holds triangles
+    private bool[] groundSubtypesChanged; // what submesh that needs to be updated
 
-    private Mesh ground_mesh;
+    private Mesh groundMesh;
 
     private void Awake()
     {
-        triangle_amount = resolution.x * resolution.y * 2;
-        triangle_corner_amount = triangle_amount * 3;
-        ground_subtypes_length = GroundType.GetNames(typeof(GroundType)).Length - 1;
+        triangleAmount = resolution.x * resolution.y * 2;
+        triangleCornerAmount = triangleAmount * 3;
+        groundSubtypesLength = GroundType.GetNames(typeof(GroundType)).Length - 1;
 
-        ground_subtypes = new Dictionary<int, int>[ground_subtypes_length];
-        ground_subtypes_changed = new bool[ground_subtypes_length];
-        for (int i = 0; i < ground_subtypes_length; i++)
+        groundSubtypes = new Dictionary<int, int>[groundSubtypesLength];
+        groundSubtypesChanged = new bool[groundSubtypesLength];
+        for (int i = 0; i < groundSubtypesLength; i++)
         {
-            ground_subtypes[i] = new Dictionary<int, int>(triangle_corner_amount);
-            ground_subtypes_changed[i] = false;
+            groundSubtypes[i] = new Dictionary<int, int>(triangleCornerAmount);
+            groundSubtypesChanged[i] = false;
         }
-        triangles_types = new int[triangle_amount];
-        for (int i = 0; i < triangle_amount; i++)
+        trianglesTypes = new int[triangleAmount];
+        for (int i = 0; i < triangleAmount; i++)
         {
-            triangles_types[i] = (int)GroundType.grass;
+            trianglesTypes[i] = (int)GroundType.grass;
         }
 
         CreateMesh();
     }
 
-    [SerializeField] private Vector2 unit_size;
+    [SerializeField] private Vector2 unitSize;
     [SerializeField] private Vector2Int resolution;
-    [SerializeField] private NoiseLayerSettings noise_layer_settings;
+    [SerializeField] private NoiseLayerSettings noiseLayerSettings;
     [SerializeField] private Material[] materials;
     private void CreateMesh()
     {
-        NativeArray<Noise.NoiseLayer> noise_layers_native_array = new NativeArray<Noise.NoiseLayer>(Noise.CreateNoiseLayers(noise_layer_settings), Allocator.Persistent);
+        NativeArray<Noise.NoiseLayer> noiseLayersNativeArray = new NativeArray<Noise.NoiseLayer>(Noise.CreateNoiseLayers(noiseLayerSettings), Allocator.Persistent);
 
         int quadCount = resolution.x * resolution.y;
         int vertexCount = quadCount * 4;
@@ -67,7 +67,7 @@ public class GrassTestingWithDictionary : MonoBehaviour
         {
             meshData = meshData,
             planeSize = resolution,
-            quadSize = unit_size,
+            quadSize = unitSize,
             quadCount = quadCount,
             vertexCount = vertexCount,
             triangleCount = triangleCount
@@ -80,7 +80,7 @@ public class GrassTestingWithDictionary : MonoBehaviour
         {
             vertices = meshData.vertices,
             offset = transform.position,
-            noise_layers = noise_layers_native_array
+            noiseLayers = noiseLayersNativeArray
         };
 
         jobHandle = noiseJob.Schedule();
@@ -102,72 +102,72 @@ public class GrassTestingWithDictionary : MonoBehaviour
         parrent.transform.parent = transform.parent;
         transform.parent = parrent.transform;
 
-        Mesh collider_ground_mesh = new Mesh();
-        collider_ground_mesh.vertices = meshData.vertices.ToArray();
-        collider_ground_mesh.triangles = meshData.triangles.ToArray();
-        collider_ground_mesh.normals = meshData.normals.ToArray();
-        collider_ground_mesh.uv = meshData.uv.ToArray();
-        MeshCollider mesh_collider = parrent.AddComponent<MeshCollider>();
-        mesh_collider.sharedMesh = collider_ground_mesh;
-        parrent.AddComponent<MeshFilter>().sharedMesh = collider_ground_mesh;
+        Mesh colliderGroundMesh = new Mesh();
+        colliderGroundMesh.vertices = meshData.vertices.ToArray();
+        colliderGroundMesh.triangles = meshData.triangles.ToArray();
+        colliderGroundMesh.normals = meshData.normals.ToArray();
+        colliderGroundMesh.uv = meshData.uv.ToArray();
+        MeshCollider meshCollider = parrent.AddComponent<MeshCollider>();
+        meshCollider.sharedMesh = colliderGroundMesh;
+        parrent.AddComponent<MeshFilter>().sharedMesh = colliderGroundMesh;
         parrent.AddComponent<MeshRenderer>();
 
-        ground_mesh = new Mesh();
-        ground_mesh.vertices = meshData.vertices.ToArray();
+        groundMesh = new Mesh();
+        groundMesh.vertices = meshData.vertices.ToArray();
         triangles = meshData.triangles.ToArray();
-        ground_mesh.normals = meshData.normals.ToArray();
-        ground_mesh.uv = meshData.uv.ToArray();
+        groundMesh.normals = meshData.normals.ToArray();
+        groundMesh.uv = meshData.uv.ToArray();
 
-        ground_mesh.subMeshCount = ground_subtypes_length;
-        ground_mesh.SetTriangles(triangles, 0);
-        ground_mesh.SetTriangles(new int[0], 1);
-        ground_mesh.SetTriangles(new int[0], 2);
+        groundMesh.subMeshCount = groundSubtypesLength;
+        groundMesh.SetTriangles(triangles, 0);
+        groundMesh.SetTriangles(new int[0], 1);
+        groundMesh.SetTriangles(new int[0], 2);
 
         meshData.Dispose();
-        noise_layers_native_array.Dispose();
+        noiseLayersNativeArray.Dispose();
 
         // setup mesh
-        MeshFilter mesh_filter = gameObject.AddComponent<MeshFilter>();
-        MeshRenderer mesh_renderer = gameObject.AddComponent<MeshRenderer>();
-        mesh_filter.sharedMesh = ground_mesh;
-        mesh_renderer.sharedMaterials = materials;
+        MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+        MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        meshFilter.sharedMesh = groundMesh;
+        meshRenderer.sharedMaterials = materials;
 
         // set triangle type and midpoint for each triangle
-        triangles_mid = new Vector3[triangles.Length / 3];
+        trianglesMid = new Vector3[triangles.Length / 3];
 
-        min_max_y_mesh = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
+        minMaxYMesh = new Vector2(Mathf.Infinity, Mathf.NegativeInfinity);
 
-        Vector3[] vertices = ground_mesh.vertices;
-        for (int i = 0; i < triangle_amount; i++)
+        Vector3[] vertices = groundMesh.vertices;
+        for (int i = 0; i < triangleAmount; i++)
         {
-            int triangle_point_index = i * 3;
-            triangles_mid[i] = (vertices[triangles[triangle_point_index]] + vertices[triangles[triangle_point_index + 1]] + vertices[triangles[triangle_point_index + 2]]) / 3.0f;
+            int trianglePointIndex = i * 3;
+            trianglesMid[i] = (vertices[triangles[trianglePointIndex]] + vertices[triangles[trianglePointIndex + 1]] + vertices[triangles[trianglePointIndex + 2]]) / 3.0f;
 
-            if (triangles_mid[i].y < min_max_y_mesh.x)
+            if (trianglesMid[i].y < minMaxYMesh.x)
             {
-                min_max_y_mesh.x = triangles_mid[i].y;
+                minMaxYMesh.x = trianglesMid[i].y;
             }
-            if (triangles_mid[i].y > min_max_y_mesh.y)
+            if (trianglesMid[i].y > minMaxYMesh.y)
             {
-                min_max_y_mesh.x = triangles_mid[i].y;
+                minMaxYMesh.x = trianglesMid[i].y;
             }
         }
-        min_max_y_mesh += Vector2.up * transform.position.y;
+        minMaxYMesh += Vector2.up * transform.position.y;
 
-        for (int i = 0; i < triangle_corner_amount; i++)
+        for (int i = 0; i < triangleCornerAmount; i++)
         {
-            ground_subtypes[(int)GroundType.grass][i] = triangles[i];
+            groundSubtypes[(int)GroundType.grass][i] = triangles[i];
         }
     }
 
-    public List<Collider> test_colliders;
+    public List<Collider> testColliders;
     // switches traingles that are in this collider:
     // takes some time
     private void FixedUpdate()
     {
-        foreach (Collider test_collider in test_colliders)
+        foreach (Collider testCollider in testColliders)
         {
-            SwitchTrainglesInCollider(test_collider, (int)GroundType.none);
+            SwitchTrainglesInCollider(testCollider, (int)GroundType.none);
         }
     }
 
@@ -175,15 +175,15 @@ public class GrassTestingWithDictionary : MonoBehaviour
     // goes quickly
     private void LateUpdate()
     {
-        for (int i = 0; i < ground_subtypes_length; i++)
+        for (int i = 0; i < groundSubtypesLength; i++)
         {
-            if (ground_subtypes_changed[i])
+            if (groundSubtypesChanged[i])
             {
-                ground_subtypes_changed[i] = false;
+                groundSubtypesChanged[i] = false;
 
-                int[] triangles_dict_copy = new int[ground_subtypes[i].Count];
-                ground_subtypes[i].Values.CopyTo(triangles_dict_copy, 0);
-                ground_mesh.SetTriangles(triangles_dict_copy, i, false);
+                int[] trianglesDictCopy = new int[groundSubtypes[i].Count];
+                groundSubtypes[i].Values.CopyTo(trianglesDictCopy, 0);
+                groundMesh.SetTriangles(trianglesDictCopy, i, false);
             }
         }
     }
@@ -198,109 +198,109 @@ public class GrassTestingWithDictionary : MonoBehaviour
         return collider.ClosestPoint(point) == point;
     }
 
-    public void SwitchTrainglesInCollider(Collider collider, int ground_type)
+    public void SwitchTrainglesInCollider(Collider collider, int groundType)
     {
-        (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) = ColliderBounds(collider.bounds, unit_size, resolution);
+        (Vector2Int boundsMinToMeshIndex, Vector2Int boundsMaxToMeshIndex, Vector2 minMaxY) = ColliderBounds(collider.bounds, unitSize, resolution);
 
         // if collider is inbetween
-        if (min_max_y_mesh.x > min_max_y.x && min_max_y_mesh.y < min_max_y.x || min_max_y_mesh.x > min_max_y.y && min_max_y_mesh.y < min_max_y.y)
+        if (minMaxYMesh.x > minMaxY.x && minMaxYMesh.y < minMaxY.x || minMaxYMesh.x > minMaxY.y && minMaxYMesh.y < minMaxY.y)
         {
-            int max_x = bounds_max_to_mesh_index.x * 2;
-            int x = bounds_min_to_mesh_index.x * 2;
+            int maxX = boundsMaxToMeshIndex.x * 2;
+            int x = boundsMinToMeshIndex.x * 2;
 
             // if the second for loop is pointless dont do the first
-            if (x >= max_x)
+            if (x >= maxX)
             {
                 return;
             }
 
-            int max_z = bounds_max_to_mesh_index.y * resolution.y * 2;
-            int add_z = resolution.y * 2;
-            int z = bounds_min_to_mesh_index.y * resolution.y * 2;
+            int maxZ = boundsMaxToMeshIndex.y * resolution.y * 2;
+            int addZ = resolution.y * 2;
+            int z = boundsMinToMeshIndex.y * resolution.y * 2;
 
-            for (; z < max_z; z += add_z)
+            for (; z < maxZ; z += addZ)
             {
-                for (; x < max_x; x++)
+                for (; x < maxX; x++)
                 {
                     /*
-                    int triangle_index = z + x;
-                    int single_triangle_index = triangle_index / 3;
-                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
+                    int triangleIndex = z + x;
+                    int singleTriangleIndex = triangleIndex / 3;
+                    SwitchTraingle(groundType, triangleIndex, singleTriangleIndex);
 
-                    single_triangle_index++;
-                    triangle_index += 3;
-                    SwitchTraingle(ground_type, triangle_index, single_triangle_index);
+                    singleTriangleIndex++;
+                    triangleIndex += 3;
+                    SwitchTraingle(groundType, triangleIndex, singleTriangleIndex);
                     */
-                    int triangle_index = z + x;
-                    if (triangles_types[triangle_index] != ground_type && IsInside2(collider, triangles_mid[triangle_index] + transform.position))
+                    int triangleIndex = z + x;
+                    if (trianglesTypes[triangleIndex] != groundType && IsInside2(collider, trianglesMid[triangleIndex] + transform.position))
                     {
-                        SwitchTraingle(ground_type, triangle_index * 3, triangle_index);
+                        SwitchTraingle(groundType, triangleIndex * 3, triangleIndex);
                     }
                 }
             }
         }
     }
 
-    private (Vector2Int bounds_min_to_mesh_index, Vector2Int bounds_max_to_mesh_index, Vector2 min_max_y) ColliderBounds(Bounds bounds, Vector2 unit_size, Vector2Int resolution)
+    private (Vector2Int boundsMinToMeshIndex, Vector2Int boundsMaxToMeshIndex, Vector2 minMaxY) ColliderBounds(Bounds bounds, Vector2 unitSize, Vector2Int resolution)
     {
-        Vector2 mesh_size = Vector2.Scale(unit_size, resolution);
-        Vector3 mesh_size_half = new Vector3(mesh_size.x * 0.5f, 0f, mesh_size.y * 0.5f);
+        Vector2 meshSize = Vector2.Scale(unitSize, resolution);
+        Vector3 meshSizeHalf = new Vector3(meshSize.x * 0.5f, 0f, meshSize.y * 0.5f);
 
-        Vector3 mesh_mid_point = transform.position;
-        Vector3 mesh_origo_point = mesh_mid_point - mesh_size_half;
+        Vector3 meshMidPoint = transform.position;
+        Vector3 meshOrigoPoint = meshMidPoint - meshSizeHalf;
 
-        bounds.center -= mesh_origo_point;
+        bounds.center -= meshOrigoPoint;
 
-        Vector3 bounds_min = bounds.min;
-        Vector3 bounds_max = bounds.max;
+        Vector3 boundsMin = bounds.min;
+        Vector3 boundsMax = bounds.max;
 
-        Vector2Int bounds_min_to_mesh_index = new Vector2Int(
-            Mathf.Clamp(Mathf.RoundToInt(bounds_min.x / unit_size.x), 0, resolution.x),
-            Mathf.Clamp(Mathf.RoundToInt(bounds_min.z / unit_size.y), 0, resolution.y)
+        Vector2Int boundsMinToMeshIndex = new Vector2Int(
+            Mathf.Clamp(Mathf.RoundToInt(boundsMin.x / unitSize.x), 0, resolution.x),
+            Mathf.Clamp(Mathf.RoundToInt(boundsMin.z / unitSize.y), 0, resolution.y)
         );
 
-        Vector2Int bounds_max_to_mesh_index = new Vector2Int(
-            Mathf.Clamp(Mathf.RoundToInt(bounds_max.x / unit_size.x), 0, resolution.x),
-            Mathf.Clamp(Mathf.RoundToInt(bounds_max.z / unit_size.y), 0, resolution.y)
+        Vector2Int boundsMaxToMeshIndex = new Vector2Int(
+            Mathf.Clamp(Mathf.RoundToInt(boundsMax.x / unitSize.x), 0, resolution.x),
+            Mathf.Clamp(Mathf.RoundToInt(boundsMax.z / unitSize.y), 0, resolution.y)
         );
 
-        return (bounds_min_to_mesh_index, bounds_max_to_mesh_index, new Vector2(bounds_min.y, bounds_max.y));
+        return (boundsMinToMeshIndex, boundsMaxToMeshIndex, new Vector2(boundsMin.y, boundsMax.y));
     }
 
-    private void SwitchTraingle(int ground_type, int triangle_corner_index, int triangle_index)
+    private void SwitchTraingle(int groundType, int triangleCornerIndex, int triangleIndex)
     {
         void RemoveTriangle()
         {
             // show that this mesh was updated
-            ground_subtypes_changed[triangles_types[triangle_index]] = true;
+            groundSubtypesChanged[trianglesTypes[triangleIndex]] = true;
 
             // remove triangle from last dict/submesh
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 1);
-            ground_subtypes[triangles_types[triangle_index]].Remove(triangle_corner_index + 2);
+            groundSubtypes[trianglesTypes[triangleIndex]].Remove(triangleCornerIndex);
+            groundSubtypes[trianglesTypes[triangleIndex]].Remove(triangleCornerIndex + 1);
+            groundSubtypes[trianglesTypes[triangleIndex]].Remove(triangleCornerIndex + 2);
         }
 
         void AddTriangle()
         {
             // change triangle type to new
-            triangles_types[triangle_index] = ground_type;
+            trianglesTypes[triangleIndex] = groundType;
 
             // show that this mesh was updated
-            ground_subtypes_changed[ground_type] = true;
+            groundSubtypesChanged[groundType] = true;
 
             // place new triangle in new submesh
-            ground_subtypes[ground_type][triangle_corner_index] = triangles[triangle_corner_index];
-            ground_subtypes[ground_type][triangle_corner_index + 1] = triangles[triangle_corner_index + 1];
-            ground_subtypes[ground_type][triangle_corner_index + 2] = triangles[triangle_corner_index + 2];
+            groundSubtypes[groundType][triangleCornerIndex] = triangles[triangleCornerIndex];
+            groundSubtypes[groundType][triangleCornerIndex + 1] = triangles[triangleCornerIndex + 1];
+            groundSubtypes[groundType][triangleCornerIndex + 2] = triangles[triangleCornerIndex + 2];
         }
 
         // if triangle is not allready in the wanted submesh
-        if (ground_type == (int)GroundType.none)
+        if (groundType == (int)GroundType.none)
         {
             // we should only remove triangle
             RemoveTriangle();
         }
-        else if (triangles_types[triangle_index] == (int)GroundType.none)
+        else if (trianglesTypes[triangleIndex] == (int)GroundType.none)
         {
             // we should only add triangle
             AddTriangle();

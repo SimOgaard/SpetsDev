@@ -12,63 +12,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
   m_Name: sGolem Back Cube Spawn Instruction
   m_EditorClassIdentifier: 
-  parrent_name: 0
-  min_child_amount_required: 0
-  ignore_bounding_boxes: 1
-  spawn_chance: 0.5
-  spawn_range_noise: {x: 0, y: 0}
-  spawn_chance_noise: 1
-  noise_layer:
+  parrentName: 0
+  minChildAmountRequired: 0
+  ignoreBoundingBoxes: 1
+  spawnChance: 0.5
+  spawnRangeNoise: {x: 0, y: 0}
+  spawnChanceNoise: 1
+  noiseLayer:
     enabled: 0
     general:
       amplitude: 0.1
       offsett: {x: 0, y: 0}
-      min_value: 0
-      smoothing_min: 0
-      max_value: 0
-      smoothing_max: 0
-    general_noise:
-      noise_type: 0
+      minValue: 0
+      smoothingMin: 0
+      maxValue: 0
+      smoothingMax: 0
+    generalNoise:
+      noiseType: 0
       seed: 1337
       frequency: 0.02
     fractal:
-      fractal_type: 0
+      fractalType: 0
       octaves: 1
       lacunarity: 2
       gain: 0.5
-      weighted_strength: 0
-      ping_pong_strength: 2
+      weightedStrength: 0
+      pingPongStrength: 2
     cellular:
-      cellular_distance_function: 0
-      cellular_return_type: 0
+      cellularDistanceFunction: 0
+      cellularReturnType: 0
       jitter: 1
-    domain_warp:
-      domain_warp_type: 0
+    domainWarp:
+      domainWarpType: 0
       amplitude: 30
       frequency: 0.005
-    domain_warp_fractal:
-      fractal_type: 0
+    domainWarpFractal:
+      fractalType: 0
       octaves: 5
       lacunarity: 2
       gain: 0.5
-  ray_layer_mask:
+  rayLayerMask:
     serializedVersion: 2
     m_Bits: 262144
-  shared_ray_position: 0
-  min_ray_position: {x: -0.25, y: 0, z: -0.25}
-  max_ray_position: {x: 0.25, y: 0, z: 0.25}
-  global_shared_position: 0
-  min_position: {x: 0, y: 0, z: 0}
-  max_position: {x: 0, y: 0, z: 0}
-  local_shared_position: 0
-  min_position_local: {x: 0, y: 0, z: 0}
-  max_position_local: {x: 0, y: 0, z: 0}
-  rotate_twords_ground_normal: 1
-  reset_rotation: 1
-  rotation_offset: 45
-  rotation_increment: 90
-  max_rotation: 90
-  shared_scales: 2
-  min_scale: {x: 1, y: 1, z: 1}
-  max_scale: {x: 1.3, y: 1.75, z: 1.3}
+  sharedRayPosition: 0
+  minRayPosition: {x: -0.25, y: 0, z: -0.25}
+  maxRayPosition: {x: 0.25, y: 0, z: 0.25}
+  globalSharedPosition: 0
+  minPosition: {x: 0, y: 0, z: 0}
+  maxPosition: {x: 0, y: 0, z: 0}
+  localSharedPosition: 0
+  minPositionLocal: {x: 0, y: 0, z: 0}
+  maxPositionLocal: {x: 0, y: 0, z: 0}
+  rotateTwordsGroundNormal: 1
+  resetRotation: 1
+  rotationOffset: 45
+  rotationIncrement: 90
+  maxRotation: 90
+  sharedScales: 2
+  minScale: {x: 1, y: 1, z: 1}
+  maxScale: {x: 1.3, y: 1.75, z: 1.3}
   density: 1600

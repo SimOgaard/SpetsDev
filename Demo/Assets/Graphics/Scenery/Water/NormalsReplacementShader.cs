@@ -4,37 +4,37 @@ using UnityEngine;
 
 public class NormalsReplacementShader : MonoBehaviour
 {
-    [SerializeField] private Shader normals_shader;
+    [SerializeField] private Shader normalsShader;
 
-    private RenderTexture render_texture;
+    private RenderTexture renderTexture;
     private new Camera camera;
 
     private void Start()
     {
-        PixelPerfectCameraRotation this_camera = GetComponent<PixelPerfectCameraRotation>();
+        PixelPerfectCameraRotation thisCamera = GetComponent<PixelPerfectCameraRotation>();
 
-        render_texture = new RenderTexture((int) PixelPerfectCameraRotation.resolution_extended.x,(int) PixelPerfectCameraRotation.resolution_extended.y, 24);
-        render_texture.filterMode = FilterMode.Point;
-        Shader.SetGlobalTexture("_CameraNormalsTexture", render_texture);
+        renderTexture = new RenderTexture((int) PixelPerfectCameraRotation.resolutionExtended.x,(int) PixelPerfectCameraRotation.resolutionExtended.y, 24);
+        renderTexture.filterMode = FilterMode.Point;
+        Shader.SetGlobalTexture("_CameraNormalsTexture", renderTexture);
 
-        camera = CopyCamera(this_camera, transform.parent, "Normals camera", 2);
-        camera.targetTexture = render_texture;
-        camera.SetReplacementShader(normals_shader, "RenderType");
+        camera = CopyCamera(thisCamera, transform.parent, "Normals camera", 2);
+        camera.targetTexture = renderTexture;
+        camera.SetReplacementShader(normalsShader, "RenderType");
         camera.gameObject.AddComponent<CopyCameraPosition>();
 
-        this_camera.n_camera = camera;
+        thisCamera.nCamera = camera;
     }
 
     /// <summary>
     /// Setup a copy of given camera.
     /// </summary>
-    public static Camera CopyCamera(PixelPerfectCameraRotation reference_camera, Transform parrent, string name, int depth)
+    public static Camera CopyCamera(PixelPerfectCameraRotation referenceCamera, Transform parrent, string name, int depth)
     {
         GameObject copy = new GameObject(name);
         Camera camera = copy.AddComponent<Camera>();
-        camera.CopyFrom(reference_camera.m_camera);
+        camera.CopyFrom(referenceCamera.mCamera);
         camera.transform.SetParent(parrent);
-        camera.depth = reference_camera.m_camera.depth - depth;
+        camera.depth = referenceCamera.mCamera.depth - depth;
         return camera;
     }
 }

@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class BoundingBoxes : MonoBehaviour
 {
-    [SerializeField] private List<Collider> bounding_boxes = new List<Collider>();
-    [SerializeField] private bool destroy_children = false;
+    [SerializeField] private List<Collider> boundingBoxes = new List<Collider>();
+    [SerializeField] private bool destroyChildren = false;
 
     public bool ShouldDestroyChildren()
     {
-        return destroy_children;
+        return destroyChildren;
     }
 
     public List<Collider> GetBoundingBoxes()
     {
-        return bounding_boxes;
+        return boundingBoxes;
     }
 }

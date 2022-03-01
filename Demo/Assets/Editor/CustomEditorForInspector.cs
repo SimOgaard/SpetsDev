@@ -15,16 +15,19 @@ public class CustomEditorForInspector : Editor
     public override void OnInspectorGUI()
     {
         EditorGUILayout.BeginHorizontal();
-        Texture2D[] noise_images = world.GetNoiseTextures();
-        for (int i = 0; i < noise_images.Length; i++)
+        Texture2D[] noiseImages = world.GetNoiseTextures();
+        if (noiseImages != null)
         {
-            if (i % 2 == 0)
+            for (int i = 0; i < noiseImages.Length; i++)
             {
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.BeginHorizontal();
-            }
+                if (i % 2 == 0)
+                {
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.BeginHorizontal();
+                }
 
-            TextureField("Noise_" + i, noise_images[i]);
+                TextureField("Noise_" + i, noiseImages[i]);
+            }
         }
         EditorGUILayout.EndHorizontal();
 

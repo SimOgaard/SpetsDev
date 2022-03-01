@@ -6,22 +6,22 @@ public class ThrowGolemNode : Node
 {
     private Agent agent;
     private EnemyAI ai;
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
 
-    public ThrowGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golem_behaviour)
+    public ThrowGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golemBehaviour)
     {
         this.agent = agent;
         this.ai = ai;
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
     }
 
     public override NodeState Evaluate()
     {
-        agent.desired_speed = 0f;
+        agent.desiredSpeed = 0f;
         ai.SetColor(Color.magenta);
 
         Debug.Log("threw golem");
-        golem_behaviour.has_golem_in_hands = false;
+        golemBehaviour.hasGolemInHands = false;
 
         return NodeState.running;
     }

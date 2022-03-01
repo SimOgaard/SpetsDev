@@ -222,9 +222,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: 93e6348643ee69d4a804f7a5de04c2ac, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: 93e6348643ee69d4a804f7a5de04c2ac, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!114 &5266552240383434020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounding_boxes:
+  boundingBoxes:
   - {fileID: 8939809812184982014}
-  destroy_children: 0
+  destroyChildren: 0

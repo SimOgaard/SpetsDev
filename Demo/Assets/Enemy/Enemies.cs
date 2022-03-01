@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class Enemies : MonoBehaviour
 {
-    public static readonly string[] enemy_names = { "lGolems", "mGolems", "sGolems" };
+    public static readonly string[] enemyNames = { "lGolems", "mGolems", "sGolems" };
 
     /// <summary>
     /// List of all enemies.
     /// </summary>
-    public static List<EnemyAI> all_enemy_ais = new List<EnemyAI>();
+    public static List<EnemyAI> allEnemyAis = new List<EnemyAI>();
 
     /*
     private void AddAllEnemiesInHierarchy(Transform parrent)
     {
         foreach (Transform child in parrent)
         {
-            if (child.TryGetComponent(out EnemyAI enemy_ai))
+            if (child.TryGetComponent(out EnemyAI enemyAi))
             {
-                AddEnemyToList(enemy_ai);
+                AddEnemyToList(enemyAi);
             }
             else
             {
@@ -30,9 +30,9 @@ public class Enemies : MonoBehaviour
 
     private void AddAllEnemiesInHierarchy()
     {
-        for (int i = 0; i < enemy_names.Length; i++)
+        for (int i = 0; i < enemyNames.Length; i++)
         {
-            new GameObject(enemy_names[i]).transform.parent = transform;
+            new GameObject(enemyNames[i]).transform.parent = transform;
         }
     }
 
@@ -42,58 +42,58 @@ public class Enemies : MonoBehaviour
     }
 
     /// <summary>
-    /// Adds EnemyAi component pointer to all_enemy_ais list.
+    /// Adds EnemyAi component pointer to allEnemyAis list.
     /// </summary>
-    public static void AddEnemyToList(EnemyAI enemy_ai)
+    public static void AddEnemyToList(EnemyAI enemyAi)
     {
-        all_enemy_ais.Add(enemy_ai);
+        allEnemyAis.Add(enemyAi);
     }
 
     /// <summary>
-    /// Removes ALL null objects in all_enemy_ais list.
+    /// Removes ALL null objects in allEnemyAis list.
     /// </summary>
     public static void RemoveEnemyFromList()
     {
-        all_enemy_ais.RemoveAll(enemy_ai => enemy_ai == null);
+        allEnemyAis.RemoveAll(enemyAi => enemyAi == null);
     }
     
-    public static void RemoveEnemyFromList(EnemyAI enemy_to_remove)
+    public static void RemoveEnemyFromList(EnemyAI enemyToRemove)
     {
-        all_enemy_ais.Remove(enemy_to_remove);
+        allEnemyAis.Remove(enemyToRemove);
     }
 
-    public static void RemoveEnemyFromList(List<EnemyAI> enemies_to_remove)
+    public static void RemoveEnemyFromList(List<EnemyAI> enemiesToRemove)
     {
-        all_enemy_ais.RemoveAll(enemy => enemies_to_remove.Contains(enemy));
+        allEnemyAis.RemoveAll(enemy => enemiesToRemove.Contains(enemy));
     }
 
     public void MoveParrent()
     {
         string name;
-        foreach (Transform enemy_parrent in transform)
+        foreach (Transform enemyParrent in transform)
         {
-            name = enemy_parrent.name;
+            name = enemyParrent.name;
 
-            foreach (Transform child in enemy_parrent)
+            foreach (Transform child in enemyParrent)
             {
-                Transform new_transform = WorldGenerationManager.ReturnNearestChunk(child.position).transform;
+                Transform newTransform = WorldGenerationManager.ReturnNearestChunk(child.position).transform;
 
-                if (new_transform == null)
+                if (newTransform == null)
                 {
                     Debug.Log("thismofo got shot to infinity");
-                    EnemyAI enemy_ai = child.GetComponent<EnemyAI>();
-                    Enemies.RemoveEnemyFromList(enemy_ai);
+                    EnemyAI enemyAi = child.GetComponent<EnemyAI>();
+                    Enemies.RemoveEnemyFromList(enemyAi);
                     Destroy(child);
                 }
-                else if (new_transform != transform.parent)
+                else if (newTransform != transform.parent)
                 {
-                    child.parent = new_transform.Find("Enemies").Find(name);
+                    child.parent = newTransform.Find("Enemies").Find(name);
                 }
                 else
                 {
-                    EnemyAI enemy_ai = child.GetComponent<EnemyAI>();
-                    enemy_ai.AttendToSound(null, -Mathf.Infinity);
-                    Enemies.RemoveEnemyFromList(enemy_ai);
+                    EnemyAI enemyAi = child.GetComponent<EnemyAI>();
+                    enemyAi.AttendToSound(null, -Mathf.Infinity);
+                    Enemies.RemoveEnemyFromList(enemyAi);
                 }
             }
         }
@@ -101,58 +101,58 @@ public class Enemies : MonoBehaviour
 
     private void OnEnable()
     {
-        foreach (Transform enemy_parrent in transform)
+        foreach (Transform enemyParrent in transform)
         {
-            foreach (Transform child in enemy_parrent)
+            foreach (Transform child in enemyParrent)
             {
                 Enemies.AddEnemyToList(child.GetComponent<EnemyAI>());
             }
         }
     }
 
-    public static void Sound(Transform sound_origin, float sound, float time_span = 1f)
+    public static void Sound(Transform soundOrigin, float sound, float timeSpan = 1f)
     {
         if (sound == 0f)
         {
             return;
         }
-        foreach (EnemyAI enemy_ai in all_enemy_ais)
+        foreach (EnemyAI enemyAi in allEnemyAis)
         {
-            if (enemy_ai.gameObject.activeInHierarchy)
+            if (enemyAi.gameObject.activeInHierarchy)
             {
-                float distance_value = (enemy_ai.transform.position - sound_origin.position).sqrMagnitude + 0.0001f;
-                float sound_level = (sound * enemy_ai.hearing_amplification) / distance_value;
-                enemy_ai.AttendToSound(sound_origin, sound_level, time_span);
+                float distanceValue = (enemyAi.transform.position - soundOrigin.position).sqrMagnitude + 0.0001f;
+                float soundLevel = (sound * enemyAi.hearingAmplification) / distanceValue;
+                enemyAi.AttendToSound(soundOrigin, soundLevel, timeSpan);
             }
         }
     }
 
-    public static void Vision(Transform vision_origin, float visibility, float time_span = 1f)
+    public static void Vision(Transform visionOrigin, float visibility, float timeSpan = 1f)
     {
         if (visibility == 0f)
         {
             return;
         }
-        foreach (EnemyAI enemy_ai in all_enemy_ais)
+        foreach (EnemyAI enemyAi in allEnemyAis)
         {
-            if (enemy_ai.gameObject.activeInHierarchy && enemy_ai.eyes_open)
+            if (enemyAi.gameObject.activeInHierarchy && enemyAi.eyesOpen)
             {
-                Transform enemy_transform = enemy_ai.transform;
-                Vector3 vector_to_origin = vision_origin.position - enemy_transform.position;
-                float dot = Vector3.Dot(enemy_transform.forward, vector_to_origin.normalized);
-                if (dot < enemy_ai.fov - 1f)
+                Transform enemyTransform = enemyAi.transform;
+                Vector3 vectorToOrigin = visionOrigin.position - enemyTransform.position;
+                float dot = Vector3.Dot(enemyTransform.forward, vectorToOrigin.normalized);
+                if (dot < enemyAi.fov - 1f)
                 {
                     continue;
                 }
-                float distance = vector_to_origin.sqrMagnitude;
-                if (distance > enemy_ai.vision_distance)
+                float distance = vectorToOrigin.sqrMagnitude;
+                if (distance > enemyAi.visionDistance)
                 {
                     continue;
                 }
-                if (!Physics.Linecast(enemy_transform.position, vision_origin.position, ~Layer.Mask.player_and_enemy))
+                if (!Physics.Linecast(enemyTransform.position, visionOrigin.position, ~Layer.Mask.playerAndEnemy))
                 {
-                    float vision_level = ((visibility * dot * enemy_ai.vision_amplification) / distance);
-                    enemy_ai.AttendToVision(vision_origin, visibility, time_span);
+                    float visionLevel = ((visibility * dot * enemyAi.visionAmplification) / distance);
+                    enemyAi.AttendToVision(visionOrigin, visibility, timeSpan);
                 }
             }
         }
@@ -161,9 +161,9 @@ public class Enemies : MonoBehaviour
     /*
     private void OnDrawGizmos()
     {
-        foreach (EnemyAI enemy_ai in all_enemy_ais)
+        foreach (EnemyAI enemyAi in allEnemyAis)
         {
-            Gizmos.DrawLine(enemy_ai.transform.position, GameObject.Find("Player").transform.position);
+            Gizmos.DrawLine(enemyAi.transform.position, GameObject.Find("Player").transform.position);
         }
     }
     */

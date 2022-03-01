@@ -3,66 +3,66 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Iterates through all points in all_fire_spots and returns damage if transform is within given distance of point.
+/// Iterates through all points in allFireSpots and returns damage if transform is within given distance of point.
 /// </summary>
 public class DamageByFire : MonoBehaviour
 {
-    public List<Vector3> all_fire_spots;
+    public List<Vector3> allFireSpots;
 
-    [SerializeField] private float fire_distance = 2f;
-    private float fire_damage = 1f;
+    [SerializeField] private float fireDistance = 2f;
+    private float fireDamage = 1f;
 
     /// <summary>
     /// Updates fire distance and invokes DamageClose() repeating with interval between each invoke to minimize compute and damage applied.
     /// </summary>
     private void Start()
     {
-        UpdateFireDistance(fire_distance);
+        UpdateFireDistance(fireDistance);
     }
 
     /// <summary>
     /// Updates the squared fire distance.
     /// </summary>
-    public void UpdateFireDistance(float fire_distance)
+    public void UpdateFireDistance(float fireDistance)
     {
-        this.fire_distance = fire_distance;
+        this.fireDistance = fireDistance;
     }
 
-    public void UpdateFireDamage(float fire_damage)
+    public void UpdateFireDamage(float fireDamage)
     {
-        this.fire_damage = fire_damage;
+        this.fireDamage = fireDamage;
     }
 
     /// <summary>
-    /// Iterates through all points in all_fire_spots and returns combined damage if position with given radius is within distance of point.
+    /// Iterates through all points in allFireSpots and returns combined damage if position with given radius is within distance of point.
     /// </summary>
     public float DamageStacked(Vector3 position, float radius)
     {
         float damage = 0f;
         position.y = 0f;
-        foreach (Vector3 fire_pos in all_fire_spots)
+        foreach (Vector3 firePos in allFireSpots)
         {
-            float distance = (position - fire_pos).magnitude;
-            if (distance - radius < fire_distance)
+            float distance = (position - firePos).magnitude;
+            if (distance - radius < fireDistance)
             {
-                damage += fire_damage;
+                damage += fireDamage;
             }
         }
         return damage;
     }
 
     /// <summary>
-    /// Iterates through all points in all_fire_spots and returns damage if position with given radius is within distance of point.
+    /// Iterates through all points in allFireSpots and returns damage if position with given radius is within distance of point.
     /// </summary>
     public float Damage(Vector3 position, float radius)
     {
         position.y = 0f;
-        foreach (Vector3 fire_pos in all_fire_spots)
+        foreach (Vector3 firePos in allFireSpots)
         {
-            float distance = (position - fire_pos).magnitude;
-            if (distance - radius < fire_distance)
+            float distance = (position - firePos).magnitude;
+            if (distance - radius < fireDistance)
             {
-                return fire_damage;
+                return fireDamage;
             }
         }
         return 0f;

@@ -13,6 +13,6 @@ public class HealthNode : Node
 
     public override NodeState Evaluate()
     {
-        return ai.current_health <= 0f ? NodeState.success : NodeState.failure;
+        return ai.currentHealth <= 0f ? NodeState.success : NodeState.failure;
     }
 }

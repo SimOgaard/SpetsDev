@@ -16,7 +16,7 @@ public class MeshDensity : MonoBehaviour
         return (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
     }
 
-    public static float VolumeOfMesh(Mesh mesh, Vector3 lossy_scale)
+    public static float VolumeOfMesh(Mesh mesh, Vector3 lossyScale)
     {
         float volume = 0;
 
@@ -30,12 +30,12 @@ public class MeshDensity : MonoBehaviour
             Vector3 p3 = vertices[triangles[i + 2]];
             volume += SignedVolumeOfTriangle(p1, p2, p3);
         }
-        volume *= lossy_scale.x * lossy_scale.y * lossy_scale.z;
+        volume *= lossyScale.x * lossyScale.y * lossyScale.z;
         return Mathf.Abs(volume);
     }
 
-    public static float WeightOfMesh(Mesh mesh, Vector3 lossy_scale, Density.DensityValues density)
+    public static float WeightOfMesh(Mesh mesh, Vector3 lossyScale, Density.DensityValues density)
     {
-        return VolumeOfMesh(mesh, lossy_scale) * (float) density * Density.global_density;
+        return VolumeOfMesh(mesh, lossyScale) * (float) density * Density.globalDensity;
     }
 }

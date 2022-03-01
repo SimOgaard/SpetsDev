@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class DropTrigger : MonoBehaviour
 {
-    private bool trigger_enabled = false;
+    private bool triggerEnabled = false;
     private WaitForSeconds TriggerWaitSeconds = new WaitForSeconds(0.1f);
     private IEnumerator TriggerWait()
     {
         yield return TriggerWaitSeconds;
-        trigger_enabled = true;
+        triggerEnabled = true;
     }
 
     private void Awake()
@@ -19,9 +19,9 @@ public class DropTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (trigger_enabled && !collision.isTrigger && Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer))
+        if (triggerEnabled && !collision.isTrigger && Layer.IsInLayer(Layer.Mask.staticGround, collision.gameObject.layer))
         {
-            trigger_enabled = false;
+            triggerEnabled = false;
             transform.GetChild(0).SendMessage("OnGround");
         }
     }

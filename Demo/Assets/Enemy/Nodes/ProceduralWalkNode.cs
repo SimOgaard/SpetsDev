@@ -5,12 +5,12 @@ using UnityEngine;
 public class ProceduralWalkNode : Node
 {
     private Transform target;
-    private float wander_strength;
+    private float wanderStrength;
 
-    public ProceduralWalkNode(Transform target, float wander_strength)
+    public ProceduralWalkNode(Transform target, float wanderStrength)
     {
         this.target = target;
-        this.wander_strength = wander_strength;
+        this.wanderStrength = wanderStrength;
     }
 
     public override NodeState Evaluate()
@@ -19,8 +19,8 @@ public class ProceduralWalkNode : Node
         {
             return NodeState.failure;
         }
-        Vector2 random_point = Random.insideUnitCircle * wander_strength * Time.deltaTime;
-        target.position += new Vector3(random_point.x, 0f, random_point.y);
+        Vector2 randomPoint = Random.insideUnitCircle * wanderStrength * Time.deltaTime;
+        target.position += new Vector3(randomPoint.x, 0f, randomPoint.y);
         return NodeState.success;
     }
 }

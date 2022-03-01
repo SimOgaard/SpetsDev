@@ -7,82 +7,82 @@ using Unity.Collections;
 public class WorldGenerationManager : MonoBehaviour
 {
     public static Chunk[,] chunks = new Chunk[200, 200];
-    public static List<Chunk> chunks_in_loading;
+    public static List<Chunk> chunksInLoading;
 
-    [SerializeField] private NoiseLayerSettings noise_layer_settings;
-    private Noise.NoiseLayer[] noise_layers;
-    private NativeArray<Noise.NoiseLayer> noise_layers_native_array;
+    [SerializeField] private NoiseLayerSettings noiseLayerSettings;
+    private Noise.NoiseLayer[] noiseLayers;
+    private NativeArray<Noise.NoiseLayer> noiseLayersNativeArray;
     private void OnDestroy()
     {
-        if (noise_layers_native_array.IsCreated)
+        if (noiseLayersNativeArray.IsCreated)
         {
-            noise_layers_native_array.Dispose();
+            noiseLayersNativeArray.Dispose();
         }
     }
 
-    public static Vector2 static_chunk_size;
+    public static Vector2 staticChunkSize;
 
     [System.Serializable]
     public struct ChunkDetails
     {
-        [Min(0.01f)] public Vector2 unit_size;
+        [Min(0.01f)] public Vector2 unitSize;
         [Min(2)] public Vector2Int resolution;
-        public float chunk_disable_distance;
-        public float chunk_enable_distance;
-        public int chunk_load_dist;
-        public int max_chunk_load_dist;
-        [Range(0.01f, 1f)] public float chunk_load_speed;
-        public int max_chunk_load_at_a_time_init;
-        public int max_chunk_load_at_a_time;
+        public float chunkDisableDistance;
+        public float chunkEnableDistance;
+        public int chunkLoadDist;
+        public int maxChunkLoadDist;
+        [Range(0.01f, 1f)] public float chunkLoadSpeed;
+        public int maxChunkLoadAtATimeInit;
+        public int maxChunkLoadAtATime;
         [HideInInspector] public Vector2 offset;
     }
-    [SerializeField] private ChunkDetails chunk_details;
+    [SerializeField] private ChunkDetails chunkDetails;
 
-    public Chunk InstanciateChunkGameObject(Vector2 chunk_coord)
+    public Chunk InstanciateChunkGameObject(Vector2 chunkCoord)
     {
-        GameObject chunk_game_object = new GameObject("chunk " + chunk_coord);
-        chunk_game_object.transform.parent = transform;
-        chunk_game_object.transform.localPosition = new Vector3(chunk_coord.x, 0f, chunk_coord.y);
-        Chunk chunk_object = chunk_game_object.AddComponent<Chunk>();
-        return chunk_object;
+        GameObject chunkGameObject = new GameObject("chunk " + chunkCoord);
+        chunkGameObject.transform.parent = transform;
+        chunkGameObject.transform.localPosition = new Vector3(chunkCoord.x, 0f, chunkCoord.y);
+        Chunk chunkObject = chunkGameObject.AddComponent<Chunk>();
+        return chunkObject;
     }
 
     public void StartLoadingChunk(Chunk chunk)
     {
-        if (!chunk.is_loading)
+        if (!chunk.isLoading)
         {
-            StartCoroutine(chunk.LoadChunk(noise_layer_settings, noise_layers_native_array, chunk_details));
+            StartCoroutine(chunk.LoadChunk(noiseLayerSettings, noiseLayersNativeArray, chunkDetails));
         }
     }
 
     public void InstaLoadChunk(Chunk chunk)
     {
-        var load = chunk.LoadChunk(noise_layer_settings, noise_layers_native_array, chunk_details);
+        var load = chunk.LoadChunk(noiseLayerSettings, noiseLayersNativeArray, chunkDetails);
         while (load.MoveNext()) { }
     }
 
     private void AddCurveToAllMaterials()
     {
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_static);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_leaf);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_wood);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_stone);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_golem);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_golem_shoulder);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialStatic);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialLeaf);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialWood);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialStone);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialGolem);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialGolemShoulder);
 
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.water.material);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.water.material);
 
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_sun);
-        CurveCreator.AddCurveTextures(ref noise_layer_settings.material_moon);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialSun);
+        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialMoon);
 
-        foreach (NoiseLayerSettings.Foliage foliage in noise_layer_settings.random_foliage)
+        foreach (NoiseLayerSettings.Foliage foliage in noiseLayerSettings.randomFoliage)
         {
             CurveCreator.AddCurveTextures(ref foliage.material);
         }
 
         // set materials to be globally accesable
-        Global.Materials.stone_material = noise_layer_settings.material_stone.material;
-        Global.Materials.water_material = noise_layer_settings.water.material.material;
+        Global.Materials.stoneMaterial = noiseLayerSettings.materialStone.material;
+        Global.Materials.waterMaterial = noiseLayerSettings.water.material.material;
     }
 
     private void Awake()
@@ -92,21 +92,21 @@ public class WorldGenerationManager : MonoBehaviour
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
 
-        chunks_in_loading = new List<Chunk>();
+        chunksInLoading = new List<Chunk>();
 
         AddCurveToAllMaterials();
 
-        noise_layers = Noise.CreateNoiseLayers(noise_layer_settings);
+        noiseLayers = Noise.CreateNoiseLayers(noiseLayerSettings);
 #if UNITY_EDITOR
         LoadNoiseTextures();
 #endif
 
-        ColliderMeshManipulation.triangle_size_margin = Mathf.Max(chunk_details.unit_size.x, chunk_details.unit_size.y);
-        chunk_details.offset = chunk_details.unit_size * chunk_details.resolution;
-        static_chunk_size = chunk_details.offset;
+        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.unitSize.x, chunkDetails.unitSize.y);
+        chunkDetails.offset = chunkDetails.unitSize * chunkDetails.resolution;
+        staticChunkSize = chunkDetails.offset;
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(noise_layer_settings.water, 350f, 350f, transform);
+        water.Init(noiseLayerSettings.water, 350f, 350f, transform);
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -115,32 +115,32 @@ public class WorldGenerationManager : MonoBehaviour
         }
 #endif
 
-        noise_layers_native_array = new NativeArray<Noise.NoiseLayer>(noise_layers, Allocator.Persistent);
+        noiseLayersNativeArray = new NativeArray<Noise.NoiseLayer>(noiseLayers, Allocator.Persistent);
 
         //LoadNearestChunk(Vector3.zero/*, true*/);
-        LoadNearest(chunk_details.max_chunk_load_at_a_time_init);
+        LoadNearest(chunkDetails.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
     }
 
-    private void LoadNearest(int max_chunk_load_at_a_time)
+    private void LoadNearest(int maxChunkLoadAtATime)
     {
-        int load_dist = Mathf.Min(Mathf.RoundToInt(chunk_details.chunk_load_dist / PixelPerfectCameraRotation.zoom), chunk_details.max_chunk_load_dist);
+        int loadDist = Mathf.Min(Mathf.RoundToInt(chunkDetails.chunkLoadDist / PixelPerfectCameraRotation.zoom), chunkDetails.maxChunkLoadDist);
 
-        for (int x = -load_dist; x <= load_dist; x++)
+        for (int x = -loadDist; x <= loadDist; x++)
         {
-            for (int z = -load_dist; z <= load_dist; z++)
+            for (int z = -loadDist; z <= loadDist; z++)
             {
-                LoadNearestChunk(Global.player_transform.localPosition + new Vector3((float)x * chunk_details.offset.x, 0f, (float)z * chunk_details.offset.y));
+                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3((float)x * chunkDetails.offset.x, 0f, (float)z * chunkDetails.offset.y));
             }
         }
 
-        chunks_in_loading.Sort(delegate (Chunk c1, Chunk c2) { return c1.DistToPlayer().CompareTo(c2.DistToPlayer()); });
+        chunksInLoading.Sort(delegate (Chunk c1, Chunk c2) { return c1.DistToPlayer().CompareTo(c2.DistToPlayer()); });
 
-        for (int i = 0; i < max_chunk_load_at_a_time && i < chunks_in_loading.Count; i++)
+        for (int i = 0; i < maxChunkLoadAtATime && i < chunksInLoading.Count; i++)
         {
-            StartLoadingChunk(chunks_in_loading[i]);
+            StartLoadingChunk(chunksInLoading[i]);
         }
     }
 
@@ -150,7 +150,7 @@ public class WorldGenerationManager : MonoBehaviour
 
         while (true)
         {
-            LoadNearest(chunk_details.max_chunk_load_at_a_time);
+            LoadNearest(chunkDetails.maxChunkLoadAtATime);
             yield return wait;
         }
     }
@@ -162,22 +162,22 @@ public class WorldGenerationManager : MonoBehaviour
     }
 
     [HideInInspector] public bool foldout = true;
-    private Texture2D[] noise_textures;
+    private Texture2D[] noiseTextures;
     private void LoadNoiseTextures()
     {
-        noise_textures = new Texture2D[noise_layers.Length];
-        for (int i = 0; i < noise_textures.Length; i++)
+        noiseTextures = new Texture2D[noiseLayers.Length];
+        for (int i = 0; i < noiseTextures.Length; i++)
         {
-            noise_textures[i] = noise_layers[i].GetNoiseTexture(Vector2Int.one * 100);
+            noiseTextures[i] = noiseLayers[i].GetNoiseTexture(Vector2Int.one * 100);
         }
     }
     public Texture2D[] GetNoiseTextures()
     {
-        return noise_textures;
+        return noiseTextures;
     }
     public NoiseLayerSettings GetNoiseSettings()
     {
-        return noise_layer_settings;
+        return noiseLayerSettings;
     }
     public void UpdateWorld()
     {
@@ -204,45 +204,45 @@ public class WorldGenerationManager : MonoBehaviour
     public static Vector2Int ReturnNearestChunkIndex(Vector3 position)
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
-        Vector2Int nearest_chunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / static_chunk_size.x) + 100,
-            Mathf.RoundToInt(position_2d.y / static_chunk_size.y) + 100
+        Vector2Int nearestChunk = new Vector2Int(
+            Mathf.RoundToInt(position_2d.x / staticChunkSize.x) + 100,
+            Mathf.RoundToInt(position_2d.y / staticChunkSize.y) + 100
         );
-        return nearest_chunk;
+        return nearestChunk;
     }
 
     public static Vector2 ReturnNearestChunkCoord(Vector3 position)
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
-        Vector2Int nearest_chunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / static_chunk_size.x),
-            Mathf.RoundToInt(position_2d.y / static_chunk_size.y)
+        Vector2Int nearestChunk = new Vector2Int(
+            Mathf.RoundToInt(position_2d.x / staticChunkSize.x),
+            Mathf.RoundToInt(position_2d.y / staticChunkSize.y)
         );
-        Vector2 chunk_coord = nearest_chunk * static_chunk_size;
-        return chunk_coord;
+        Vector2 chunkCoord = nearestChunk * staticChunkSize;
+        return chunkCoord;
     }
 
     public static Chunk ReturnNearestChunk(Vector3 position)
     {
-        Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearest_chunk_index = nearest_chunk;
-        return chunks[nearest_chunk_index.x, nearest_chunk_index.y];
+        Vector2Int nearestChunk = ReturnNearestChunkIndex(position);
+        Vector2Int nearestChunkIndex = nearestChunk;
+        return chunks[nearestChunkIndex.x, nearestChunkIndex.y];
     }
 
     public Chunk LoadNearestChunk(Vector3 position)
     {
-        Vector2Int nearest_chunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearest_chunk_index = nearest_chunk;
-        Chunk chunk = chunks[nearest_chunk_index.x, nearest_chunk_index.y];
+        Vector2Int nearestChunk = ReturnNearestChunkIndex(position);
+        Vector2Int nearestChunkIndex = nearestChunk;
+        Chunk chunk = chunks[nearestChunkIndex.x, nearestChunkIndex.y];
 
         if (chunk == null)
         {
             chunk = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
-            chunks[nearest_chunk_index.x, nearest_chunk_index.y] = chunk;
-            chunk.Initialize(chunk_details.chunk_disable_distance, Global.player_transform);
-            chunks_in_loading.Add(chunk);
+            chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
+            chunk.Initialize(chunkDetails.chunkDisableDistance, Global.playerTransform);
+            chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.player_transform.position).magnitude < chunk_details.chunk_enable_distance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.playerTransform.position).magnitude < chunkDetails.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);
@@ -254,25 +254,25 @@ public class WorldGenerationManager : MonoBehaviour
     public static Chunk[] ReturnAllCunksInBounds(Bounds bounds)
     {
         // get nearest chunk for min max coords
-        Vector2Int max_index = ReturnNearestChunkIndex(bounds.max);
-        Vector2Int min_index = ReturnNearestChunkIndex(bounds.min);
+        Vector2Int maxIndex = ReturnNearestChunkIndex(bounds.max);
+        Vector2Int minIndex = ReturnNearestChunkIndex(bounds.min);
 
         // create list of length:
-        Vector2Int diff_index = max_index - min_index + Vector2Int.one;
-        int length = diff_index.x * diff_index.y;
-        Chunk[] chunks_in_bounds = new Chunk[length];
+        Vector2Int diffIndex = maxIndex - minIndex + Vector2Int.one;
+        int length = diffIndex.x * diffIndex.y;
+        Chunk[] chunksInBounds = new Chunk[length];
 
-        // populate list with every chunk between max_index and min_index
+        // populate list with every chunk between maxIndex and minIndex
         int i = 0;
-        for (int x = min_index.x; x <= max_index.x; x++)
+        for (int x = minIndex.x; x <= maxIndex.x; x++)
         {
-            for (int z = min_index.y; z <= max_index.y; z++)
+            for (int z = minIndex.y; z <= maxIndex.y; z++)
             {
-                chunks_in_bounds[i] = chunks[x, z];
+                chunksInBounds[i] = chunks[x, z];
                 i++;
             }
         }
 
-        return chunks_in_bounds;
+        return chunksInBounds;
     }
 }

@@ -5,85 +5,85 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
     public static List<Interactable> interactables = new List<Interactable>();
-    public bool is_in_interactables = false;
+    public bool isInInteractables = false;
     private void OnEnable()
     {
-        if (!is_used)
+        if (!isUsed)
         {
             Enable();
         }
     }
     public virtual void Enable()
     {
-        if (!is_in_interactables)
+        if (!isInInteractables)
         {
-            is_in_interactables = true;
-            interacting_sprite.Active(true);
+            isInInteractables = true;
+            interactingSprite.Active(true);
             interactables.Add(this);
         }
     }
     private void OnDisable()
     {
-        if (!is_used)
+        if (!isUsed)
         {
             Disable();
         }
     }
     public virtual void Disable()
     {
-        if (is_in_interactables)
+        if (isInInteractables)
         {
-            is_in_interactables = false;
-            interacting_sprite.Active(false);
+            isInInteractables = false;
+            interactingSprite.Active(false);
             interactables.Remove(this);
         }
     }
 
-    public SpriteInitializer interacting_sprite;
+    public SpriteInitializer interactingSprite;
 
-    private float _player_min_distance = 10f;
-    public float player_min_distance
+    private float _playerMinDistance = 10f;
+    public float playerMinDistance
     {
-        get { return _player_min_distance; }
-        set { _player_min_distance = value; }
+        get { return _playerMinDistance; }
+        set { _playerMinDistance = value; }
     }
 
-    private bool _allows_interaction = true;
-    public bool allows_interaction
+    private bool _allowsInteraction = true;
+    public bool allowsInteraction
     {
-        get { return _allows_interaction; }
-        set { _allows_interaction = value; }
+        get { return _allowsInteraction; }
+        set { _allowsInteraction = value; }
     }
 
-    private bool _is_used = false;
-    public bool is_used
+    private bool _isUsed = false;
+    public bool isUsed
     {
-        get { return _is_used; }
-        set { _is_used = value; }
+        get { return _isUsed; }
+        set { _isUsed = value; }
     }
 
     public virtual bool CanInteractWith()
     {
-        return allows_interaction && !is_used;
+        return allowsInteraction && !isUsed;
     }
 
     public virtual void InteractWith()
     {
         Disable();
-        is_used = true;
+        isUsed = true;
     }
 
     public virtual void ChangeInteractingSprite(Sprite sprite)
     {
-        if (!is_used)
+        if (!isUsed)
         {
-            interacting_sprite.ChangeRender(sprite);
+            interactingSprite.ChangeRender(sprite);
         }
     }
 
     public virtual void Awake()
     {
-        interacting_sprite = gameObject.AddComponent<SpriteInitializer>();
-        interacting_sprite.Initialize(Global.not_interacting_with_sprite, Quaternion.identity, 5f);
+        interactingSprite = gameObject.AddComponent<SpriteInitializer>();
+        interactingSprite.Initialize(Global.notInteractingWithSprite, Quaternion.identity, 5f);
     }
 }

@@ -8,20 +8,20 @@ using UnityEngine;
 public class FireballProjectileTrigger : MonoBehaviour
 {
     /*
-    private FireballProjectile fireball_projectile;
-    private string damage_id = System.Guid.NewGuid().ToString();
+    private FireballProjectile fireballProjectile;
+    private string damageId = System.Guid.NewGuid().ToString();
 
-    public void Init(FireballProjectile fireball_projectile)
+    public void Init(FireballProjectile fireballProjectile)
     {
-        this.fireball_projectile = fireball_projectile;
+        this.fireballProjectile = fireballProjectile;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (Layer.IsInLayer(Layer.enemy, other.gameObject.layer))
         {
-            other.transform.parent.GetComponent<EnemyAI>().Damage(fireball_projectile.OnHitDamage(), damage_id, 0.25f);
-            fireball_projectile.Explode();
+            other.transform.parent.GetComponent<EnemyAI>().Damage(fireballProjectile.OnHitDamage(), damageId, 0.25f);
+            fireballProjectile.Explode();
             return;
         }
     }

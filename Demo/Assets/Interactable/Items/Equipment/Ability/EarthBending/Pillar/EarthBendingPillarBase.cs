@@ -7,89 +7,89 @@ using UnityEngine;
 /// </summary>
 public class EarthBendingPillarBase : Ability, Equipment.IEquipment
 {
-    private float _current_cooldown;
-    public new float current_cooldown
+    private float _currentCooldown;
+    public new float currentCooldown
     {
-        get { return _current_cooldown; }
-        set { _current_cooldown = Mathf.Max(0f, value); }
+        get { return _currentCooldown; }
+        set { _currentCooldown = Mathf.Max(0f, value); }
     }
 
-    protected float pillar_traverse_time = 0.2f;
-    protected float pillar_growth_speed = 1.25f;
-    protected float pillar_sleep_time = 3.5f;
-    protected float pillar_gap = 3f;
+    protected float pillarTraverseTime = 0.2f;
+    protected float pillarGrowthSpeed = 1.25f;
+    protected float pillarSleepTime = 3.5f;
+    protected float pillarGap = 3f;
 
-    protected int max_pillars = 6;
-    protected int ready_pillars = 6;
+    protected int maxPillars = 6;
+    protected int readyPillars = 6;
     protected Vector3 scale = new Vector3(1.75f, 8f, 1.75f);
 
-    [SerializeField] private float pillar_distance_from_player = 7f;
+    [SerializeField] private float pillarDistanceFromPlayer = 7f;
 
     public override void UsePrimary()
     {
-        if (ready_pillars >= max_pillars)
+        if (readyPillars >= maxPillars)
         {
-            Vector3 player_pos = Global.player_transform.position;
-            Vector3 mouse_pos = MousePoint.MousePositionWorldAndEnemy();
+            Vector3 playerPos = Global.playerTransform.position;
+            Vector3 mousePos = MousePoint.MousePositionWorldAndEnemy();
 
-            Vector3 direction = (mouse_pos - player_pos);
+            Vector3 direction = (mousePos - playerPos);
             direction.y = 0f;
             direction = direction.normalized;
 
-            Vector3 start_point = player_pos + direction * pillar_distance_from_player;
+            Vector3 startPoint = playerPos + direction * pillarDistanceFromPlayer;
 
-            StartCoroutine(SpawnStraight(start_point, direction));
+            StartCoroutine(SpawnStraight(startPoint, direction));
         }
     }
 
     public virtual void Update()
     {
-        if (ready_pillars < max_pillars)
+        if (readyPillars < maxPillars)
         {
-            current_cooldown -= Time.deltaTime;
+            currentCooldown -= Time.deltaTime;
 
-            if (current_cooldown == 0f)
+            if (currentCooldown == 0f)
             {
-                ready_pillars++;
-                current_cooldown = cooldown;
+                readyPillars++;
+                currentCooldown = cooldown;
             }
-            //Debug.Log(current_cooldown);
-            //Debug.Log(ready_pillars);
+            //Debug.Log(currentCooldown);
+            //Debug.Log(readyPillars);
         }
     }
 
-    public IEnumerator SpawnStraight(Vector3 start_point, Vector3 direction)
+    public IEnumerator SpawnStraight(Vector3 startPoint, Vector3 direction)
     {
-        WaitForSeconds wait = new WaitForSeconds(pillar_traverse_time);
+        WaitForSeconds wait = new WaitForSeconds(pillarTraverseTime);
 
-        while (ready_pillars > 0)
+        while (readyPillars > 0)
         {
-            Vector3 new_point = start_point + direction * pillar_gap * (max_pillars - ready_pillars);
-            SpawnRock(new_point);
+            Vector3 newPoint = startPoint + direction * pillarGap * (maxPillars - readyPillars);
+            SpawnRock(newPoint);
 
-            ready_pillars--;
+            readyPillars--;
             yield return wait;
         }
     }
 
     public EarthBendingRockScale SpawnRock(Vector3 position)
     {
-        GameObject earth_bending_rock_game_object = new GameObject("pillar");
-        EarthBendingRockScale earth_bending_rock_script = earth_bending_rock_game_object.AddComponent<EarthBendingRockScale>();
-        earth_bending_rock_script.growth_speed = pillar_growth_speed;
-        earth_bending_rock_script.sleep_time = pillar_sleep_time;
-        earth_bending_rock_script.PlacePillar(position, Quaternion.identity, scale);
-        return earth_bending_rock_script;
+        GameObject earthBendingRockGameObject = new GameObject("pillar");
+        EarthBendingRockScale earthBendingRockScript = earthBendingRockGameObject.AddComponent<EarthBendingRockScale>();
+        earthBendingRockScript.growthSpeed = pillarGrowthSpeed;
+        earthBendingRockScript.sleepTime = pillarSleepTime;
+        earthBendingRockScript.PlacePillar(position, Quaternion.identity, scale);
+        return earthBendingRockScript;
     }
 
     /*
     private void Update()
     {
-        current_cooldown -= Time.deltaTime;
-        if (current_cooldown == 0f && current_pillar_amount < pillar_amount && !is_casting)
+        currentCooldown -= Time.deltaTime;
+        if (currentCooldown == 0f && currentPillarAmount < pillarAmount && !isCasting)
         {
-            current_pillar_amount++;
-            current_cooldown = ultimate_cooldown / pillar_amount;
+            currentPillarAmount++;
+            currentCooldown = ultimateCooldown / pillarAmount;
         }
     }
     */
@@ -98,27 +98,27 @@ public class EarthBendingPillarBase : Ability, Equipment.IEquipment
     private float _cooldown;
     public new float cooldown
     {
-        get { return _cooldown / pillar_amount; }
+        get { return _cooldown / pillarAmount; }
         set { _cooldown = value; }
     }
-    private float _current_cooldown;
-    public new float current_cooldown
+    private float _currentCooldown;
+    public new float currentCooldown
     {
-        get { return ultimate_cooldown - (current_pillar_amount * (ultimate_cooldown / pillar_amount)) + current_cooldown; }
-        set { _current_cooldown = value; }
+        get { return ultimateCooldown - (currentPillarAmount * (ultimateCooldown / pillarAmount)) + currentCooldown; }
+        set { _currentCooldown = value; }
     }
     */
 
     public override void UpdateUI()
     {
         base.UpdateUI();
-        UIInventory.current_ability_UI_image.sprite = icon_sprite;
+        UIInventory.currentAbility_UIImage.sprite = iconSprite;
     }
 
     public override void Awake()
     {
         base.Awake();
         cooldown = 0.4f;
-        icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
+        iconSprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
     }
 }

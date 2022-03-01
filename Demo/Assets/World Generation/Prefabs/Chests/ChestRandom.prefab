@@ -160,9 +160,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: ef2437d2987944b4cac2b0e4ac8d229c, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: ef2437d2987944b4cac2b0e4ac8d229c, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!65 &8218052109670770207
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -188,14 +188,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b639cca58d1d6b941b63b4aef8d12543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  is_in_interactables: 0
-  interacting_sprite: {fileID: 0}
-  chest_equipment_game_object: {fileID: 0}
-  chest_upgrade_game_object: {fileID: 0}
+  isInInteractables: 0
+  interactingSprite: {fileID: 0}
+  chestEquipmentGameObject: {fileID: 0}
+  chestUpgradeGameObject: {fileID: 0}
   radius: 0
   power: 65
-  upwards_modifier: 5
-  explosion_offset: 5
+  upwardsModifier: 5
+  explosionOffset: 5
 --- !u!114 &-5646793820301839702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,9 +208,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounding_boxes:
+  boundingBoxes:
   - {fileID: 8218052109670770207}
-  destroy_children: 0
+  destroyChildren: 0
 --- !u!33 &3547390256783959480
 MeshFilter:
   m_ObjectHideFlags: 0

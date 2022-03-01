@@ -6,70 +6,70 @@ using Unity.Collections;
 
 public class Chunk : MonoBehaviour
 {
-    public bool is_loading;
-    public bool is_loaded;
-    private float chunk_disable_distance;
-    private Transform player_transform;
+    public bool isLoading;
+    public bool isLoaded;
+    private float chunkDisableDistance;
+    private Transform playerTransform;
     private Enemies enemies;
-    public GroundMesh ground_mesh;
+    public GroundMesh groundMesh;
 
-    public void Initialize(float chunk_disable_distance, Transform player_transform)
+    public void Initialize(float chunkDisableDistance, Transform playerTransform)
     {
-        is_loading = false;
-        is_loaded = false;
-        gameObject.layer = Layer.game_world;
-        this.chunk_disable_distance = chunk_disable_distance;
-        this.player_transform = player_transform;
+        isLoading = false;
+        isLoaded = false;
+        gameObject.layer = Layer.gameWorld;
+        this.chunkDisableDistance = chunkDisableDistance;
+        this.playerTransform = playerTransform;
     }
 
-    public IEnumerator LoadChunk(NoiseLayerSettings noise_layer_settings, NativeArray<Noise.NoiseLayer> noise_layers_native_array, WorldGenerationManager.ChunkDetails chunk_details/*, int[] triangles*/)
+    public IEnumerator LoadChunk(NoiseLayerSettings noiseLayerSettings, NativeArray<Noise.NoiseLayer> noiseLayersNativeArray, WorldGenerationManager.ChunkDetails chunkDetails/*, int[] triangles*/)
     {
         WaitForFixedUpdate wait = new WaitForFixedUpdate();
 
         // initilize variables
-        is_loading = true;
+        isLoading = true;
 
         // create ground
-        GameObject ground_game_object = new GameObject("Ground");
-        ground_game_object.transform.parent = transform;
-        ground_game_object.transform.localPosition = Vector3.zero;
-        ground_game_object.layer = Layer.game_world;
-        ground_mesh = ground_game_object.AddComponent<GroundMesh>();
-        yield return ground_mesh.CreateGround(wait, chunk_details.unit_size, chunk_details.resolution, noise_layers_native_array, noise_layer_settings.material_static.material, noise_layer_settings.random_foliage);
+        GameObject groundGameObject = new GameObject("Ground");
+        groundGameObject.transform.parent = transform;
+        groundGameObject.transform.localPosition = Vector3.zero;
+        groundGameObject.layer = Layer.gameWorld;
+        groundMesh = groundGameObject.AddComponent<GroundMesh>();
+        yield return groundMesh.CreateGround(wait, chunkDetails.unitSize, chunkDetails.resolution, noiseLayersNativeArray, noiseLayerSettings.materialStatic.material, noiseLayerSettings.randomFoliage);
 
         // initilizes all parrent objects of prefabs
-        GameObject land_marks_game_object;
-        WorldGenerationManager.InitNewChild(out land_marks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.land_marks);
-        GameObject rocks_game_object;
-        WorldGenerationManager.InitNewChild(out rocks_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
-        GameObject trees_game_object;
-        WorldGenerationManager.InitNewChild(out trees_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
-        GameObject chests_game_object;
-        WorldGenerationManager.InitNewChild(out chests_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.chests);
-        GameObject enemies_game_object;
-        WorldGenerationManager.InitNewChild(out enemies_game_object, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies);
-        enemies = enemies_game_object.AddComponent<Enemies>();
+        GameObject landMarksGameObject;
+        WorldGenerationManager.InitNewChild(out landMarksGameObject, transform, SpawnInstruction.PlacableGameObjectsParrent.landMarks);
+        GameObject rocksGameObject;
+        WorldGenerationManager.InitNewChild(out rocksGameObject, transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
+        GameObject treesGameObject;
+        WorldGenerationManager.InitNewChild(out treesGameObject, transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
+        GameObject chestsGameObject;
+        WorldGenerationManager.InitNewChild(out chestsGameObject, transform, SpawnInstruction.PlacableGameObjectsParrent.chests);
+        GameObject enemiesGameObject;
+        WorldGenerationManager.InitNewChild(out enemiesGameObject, transform, SpawnInstruction.PlacableGameObjectsParrent.enemies);
+        enemies = enemiesGameObject.AddComponent<Enemies>();
 
         // spawns prefabss
-        SpawnPrefabs spawn_prefabs = gameObject.AddComponent<SpawnPrefabs>();
-        yield return StartCoroutine(spawn_prefabs.Spawn(wait, noise_layer_settings.spawn_prefabs, noise_layer_settings.object_density, chunk_details.offset));
+        SpawnPrefabs spawnPrefabs = gameObject.AddComponent<SpawnPrefabs>();
+        yield return StartCoroutine(spawnPrefabs.Spawn(wait, noiseLayerSettings.spawnPrefabs, noiseLayerSettings.objectDensity, chunkDetails.offset));
 
         PlaceInWorld.SetRecursiveToGameWorld(gameObject);
 
-        ground_game_object.layer = Layer.game_world_static;
-        is_loading = false;
-        is_loaded = true;
-        WorldGenerationManager.chunks_in_loading.Remove(this);
+        groundGameObject.layer = Layer.gameWorldStatic;
+        isLoading = false;
+        isLoaded = true;
+        WorldGenerationManager.chunksInLoading.Remove(this);
     }
    
     public float DistToPlayer()
     {
-        return (transform.position - player_transform.position).magnitude;
+        return (transform.position - playerTransform.position).magnitude;
     }
 
     private void Update()
     {
-        if (DistToPlayer() > chunk_disable_distance / PixelPerfectCameraRotation.zoom && is_loaded)
+        if (DistToPlayer() > chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

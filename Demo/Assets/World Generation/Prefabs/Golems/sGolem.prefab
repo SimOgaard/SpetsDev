@@ -417,9 +417,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!65 &1307761397180186379
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -558,9 +558,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!65 &7356843328584790670
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1887,9 +1887,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: e62c0320c43c6ac4d8e6a1e855d76431, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!65 &7041509659564448015
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3259,9 +3259,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: 63e3fe81a207ddf4990ba7f3916eb680, type: 2}
-  child_instruction: {fileID: 0}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: 63e3fe81a207ddf4990ba7f3916eb680, type: 2}
+  childInstruction: {fileID: 0}
+  childTransformAmount: 0
 --- !u!114 &8923356299403897493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3287,26 +3287,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
-  player_transform: {fileID: 0}
-  chase_transform: {fileID: 0}
-  old_chase_position: {x: 0, y: 0, z: 0}
-  health_remove_speed: 0.5
-  starting_health: 80
+  chaseTransform: {fileID: 0}
+  oldChasePosition: {x: 0, y: 0, z: 0}
+  healthRemoveSpeed: 0.5
+  startingHealth: 80
   damage: 12
-  hearing_amplification: 1
-  hearing_threshold: 0.001
-  attention_decrease_factor: 0.2
-  max_attentiveness: 2
-  eyes_open: 0
+  hearingAmplification: 1
+  hearingThreshold: 0.001
+  attentionDecreaseFactor: 0.2
+  maxAttentiveness: 22
+  eyesOpen: 0
   fov: 1
-  vision_distance: 2500
-  vision_amplification: 1
-  vision_threshold: 0.001
-  change_chase_transform_threshold: 0.001
-  current_attention: 0
-  canvas_game_object: {fileID: 8753429037676097398}
-  health_bar_game_object: {fileID: 3693897617396723407}
-  health_bar_pixel_size: {x: 16, y: 1}
+  visionDistance: 2500
+  visionAmplification: 1
+  visionThreshold: 0.001
+  changeChaseTransformThreshold: 0.001
+  currentAttention: 0
+  canvasGameObject: {fileID: 8753429037676097398}
+  healthBarGameObject: {fileID: 3693897617396723407}
+  healthBarPixelSize: {x: 16, y: 1}
 --- !u!114 &1323705643777353973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3319,18 +3318,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38cef95254190b946afe004895f7868c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  golem_type: 0
-  meele_transform: {fileID: 592589403147669395}
-  meele_range: 2.5
-  wander_strength: 35
-  has_golem_in_hands: 0
-  closest_golem: {fileID: 0}
-  golem_pickup_range: 0
-  throw_range: 0
-  golem_find_range: 0
-  golem_find_range_overide: 0
-  repeating_damage_radius: 2.5
-  is_buried: 1
+  golemType: 0
+  meeleTransform: {fileID: 592589403147669395}
+  meeleRange: 2.5
+  wanderStrength: 35
+  hasGolemInHands: 0
+  closestGolem: {fileID: 0}
+  golemPickupRange: 0
+  throwRange: 0
+  golemFindRange: 0
+  golemFindRangeOveride: 0
+  repeatingDamageRadius: 2.5
+  isBuried: 1
 --- !u!114 &8724186405840053940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3345,20 +3344,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 5788927642745492188}
   grounded: 0
-  ground_raycast_offset: {x: 0, y: 0, z: 0}
-  ground_distance: 0
-  max_slope_angle: 90
-  hover_height: 2.75
-  ride_spring_strenght: 25000
-  ride_spring_damper: 2500
-  upright_joint_spring_strength: 7500
-  upright_joint_spring_damper: 1000
-  xy_rotation_scale: 0
-  desired_heading: {x: 0, y: 0, z: 1}
-  desired_speed: 0
-  speed_factor: 1
+  groundRaycastOffset: {x: 0, y: 0, z: 0}
+  groundDistance: 0
+  maxSlopeAngle: 90
+  hoverHeight: 2.75
+  rideSpringStrenght: 25000
+  rideSpringDamper: 2500
+  uprightJointSpringStrength: 7500
+  uprightJointSpringDamper: 1000
+  xyRotationScale: 0
+  desiredHeading: {x: 0, y: 0, z: 1}
+  desiredSpeed: 0
+  speedFactor: 1
   acceleration: 0
-  acceleration_factor_from_dot:
+  accelerationFactorFromDot:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -3382,22 +3381,40 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  max_acceleration_force: 100
-  max_acceleration_force_factor_from_dot:
+  maxAccelerationForce: 100
+  maxAccelerationForceFactorFromDot:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  force_scale: {x: 1, y: 1, z: 1}
-  gravity_scale_drop: 0
-  max_velocity: Infinity
-  max_angular_velocity: 2
-  rigidbody_max_angular_velocity: 10
+  forceScale: {x: 1, y: 1, z: 1}
+  gravityScaleDrop: 0
+  maxVelocity: Infinity
+  maxAngularVelocity: 2
+  rigidbodyMaxAngularVelocity: 10
   tumbling: 0
-  walk_speed: 0
-  sprint_speed: 0
-  explosion_up_modifier: 0
+  walkSpeed: 0
+  sprintSpeed: 0
+  explosionUpModifier: 0
 --- !u!114 &8420093585059234348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3410,9 +3427,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounding_boxes:
+  boundingBoxes:
   - {fileID: 6993579910334811173}
-  destroy_children: 0
+  destroyChildren: 0
 --- !u!54 &5788927642745492188
 Rigidbody:
   m_ObjectHideFlags: 0

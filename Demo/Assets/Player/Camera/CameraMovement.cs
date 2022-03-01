@@ -7,32 +7,32 @@ using UnityEngine;
 /// </summary>
 public class CameraMovement : MonoBehaviour
 {
-    private Rigidbody player_rigidbody;
-    private Vector3 smoothed_position;
+    private Rigidbody playerRigidbody;
+    private Vector3 smoothedPosition;
 
     [Header("Focus Point Position")]
-    [SerializeField] private float max_distance;
-    [SerializeField] private float smooth_speed;
-    [SerializeField] [Range(0f, 1f)] private float player_position_diff_amplitude;
-    [SerializeField] private float player_heading_xz_amplitude;
-    [SerializeField] private float player_heading_y_amplitude;
-    [SerializeField] [Range(0f, 0.2f)] private float player_looking_plane_amplitude;
-    [SerializeField] private Vector2 player_looking_plane_amplitude_xy;
-    [SerializeField] [Range(0f, 0.2f)] private float player_looking_3d_amplitude;
-    [SerializeField] private float player_y_offset;
+    [SerializeField] private float maxDistance;
+    [SerializeField] private float smoothSpeed;
+    [SerializeField] [Range(0f, 1f)] private float playerPositionDiffAmplitude;
+    [SerializeField] private float playerHeadingXzAmplitude;
+    [SerializeField] private float playerHeadingYAmplitude;
+    [SerializeField] [Range(0f, 0.2f)] private float playerLookingPlaneAmplitude;
+    [SerializeField] private Vector2 playerLookingPlaneAmplitudeXy;
+    [SerializeField] [Range(0f, 0.2f)] private float playerLooking_3dAmplitude;
+    [SerializeField] private float playerYOffset;
 
     [Header("Focus Point Rotation")]
-    [SerializeField] private AnimationCurve rotation_curve;
-    [SerializeField] private float y_axis_rotation;
-    [SerializeField] private float x_axis_time;
-    [SerializeField] private float snap_increment;
-    //[SerializeField] [Range(0.5f, 1f)] private float reccursive_rotation_threshold;
-    //[SerializeField] private float last_stopped_rotation;
+    [SerializeField] private AnimationCurve rotationCurve;
+    [SerializeField] private float yAxisRotation;
+    [SerializeField] private float xAxisTime;
+    [SerializeField] private float snapIncrement;
+    //[SerializeField] [Range(0.5f, 1f)] private float reccursiveRotationThreshold;
+    //[SerializeField] private float lastStoppedRotation;
     
     private void Start()
     {
-        player_rigidbody = Global.player_transform.GetComponent<PlayerMovement>()._rigidbody;
-        transform.position = Global.player_transform.position;
+        playerRigidbody = Global.playerTransform.GetComponent<PlayerMovement>()._rigidbody;
+        transform.position = Global.playerTransform.position;
     }
 
     /// <summary>
@@ -40,49 +40,49 @@ public class CameraMovement : MonoBehaviour
     /// </summary>
     private Vector3 GetLookPoint()
     {
-        Vector3 diff = transform.position - Global.player_transform.position;
-        Vector3 player_position_diff = (diff) * player_position_diff_amplitude;
-        //Vector3 player_heading = Vector3.Scale(player_movement.controller.velocity, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
-        //Vector3 player_heading = Vector3.Scale(diff, new Vector3(-player_heading_xz_amplitude, -player_heading_y_amplitude, -player_heading_xz_amplitude));
-        Vector3 player_heading = Vector3.Scale(player_rigidbody.velocity, new Vector3(player_heading_xz_amplitude, player_heading_y_amplitude, player_heading_xz_amplitude));
-        Vector3 player_looking_plane = (MousePoint.MousePositionPlayerPlane(player_looking_plane_amplitude_xy.x, player_looking_plane_amplitude_xy.y) - Global.player_transform.position) * player_looking_plane_amplitude;
-        Vector3 player_looking_3d = (MousePoint.MousePositionWorld() - Global.player_transform.position) * player_looking_3d_amplitude;
+        Vector3 diff = transform.position - Global.playerTransform.position;
+        Vector3 playerPositionDiff = (diff) * playerPositionDiffAmplitude;
+        //Vector3 playerHeading = Vector3.Scale(playerMovement.controller.velocity, new Vector3(playerHeadingXzAmplitude, playerHeadingYAmplitude, playerHeadingXzAmplitude));
+        //Vector3 playerHeading = Vector3.Scale(diff, new Vector3(-playerHeadingXzAmplitude, -playerHeadingYAmplitude, -playerHeadingXzAmplitude));
+        Vector3 playerHeading = Vector3.Scale(playerRigidbody.velocity, new Vector3(playerHeadingXzAmplitude, playerHeadingYAmplitude, playerHeadingXzAmplitude));
+        Vector3 playerLookingPlane = (MousePoint.MousePositionPlayerPlane(playerLookingPlaneAmplitudeXy.x, playerLookingPlaneAmplitudeXy.y) - Global.playerTransform.position) * playerLookingPlaneAmplitude;
+        Vector3 playerLooking_3d = (MousePoint.MousePositionWorld() - Global.playerTransform.position) * playerLooking_3dAmplitude;
 
-        Vector3 clamped_look_point = Vector3.ClampMagnitude(player_position_diff + player_heading + player_looking_plane + player_looking_3d, max_distance);
-        Vector3 scaled_forward = Vector3.Scale(clamped_look_point, Vector3.one + transform.forward * (1f - player_looking_plane_amplitude_xy.y));
-        Vector3 scaled_sideways = Vector3.Scale(clamped_look_point, Vector3.one + transform.right * (1f - player_looking_plane_amplitude_xy.x));
+        Vector3 clampedLookPoint = Vector3.ClampMagnitude(playerPositionDiff + playerHeading + playerLookingPlane + playerLooking_3d, maxDistance);
+        Vector3 scaledForward = Vector3.Scale(clampedLookPoint, Vector3.one + transform.forward * (1f - playerLookingPlaneAmplitudeXy.y));
+        Vector3 scaledSideways = Vector3.Scale(clampedLookPoint, Vector3.one + transform.right * (1f - playerLookingPlaneAmplitudeXy.x));
 
-        return scaled_sideways + new Vector3(0f, player_y_offset, 0f);
+        return scaledSideways + new Vector3(0f, playerYOffset, 0f);
     }
 
     /// <summary>
     /// Liniarly interpolates camera focus point with player position.
     /// </summary>
-    private Vector3 SmoothMovementToPoint(Vector3 focus_point)
+    private Vector3 SmoothMovementToPoint(Vector3 focusPoint)
     {
-        Vector3 smoothed_position = Vector3.Lerp(transform.position, focus_point, smooth_speed * Time.deltaTime);
-        return smoothed_position;
+        Vector3 smoothedPosition = Vector3.Lerp(transform.position, focusPoint, smoothSpeed * Time.deltaTime);
+        return smoothedPosition;
     }
 
-    [SerializeField] private float current_rotation;
-    [SerializeField] private float wanted_rotation;
+    [SerializeField] private float currentRotation;
+    [SerializeField] private float wantedRotation;
     private float disjointment;
     private float offset;
     private float f(float x)
     {
-        return (x - y_axis_rotation * (wanted_rotation + 0.5f)) / y_axis_rotation;
+        return (x - yAxisRotation * (wantedRotation + 0.5f)) / yAxisRotation;
     }
-    private float SampleRotationCurve(float x, float y_offset = 0.5f)
+    private float SampleRotationCurve(float x, float yOffset = 0.5f)
     {
-        return (Mathf.Abs(x - offset) - Mathf.Abs(x + offset) * 0.5f) + x + y_offset;
+        return (Mathf.Abs(x - offset) - Mathf.Abs(x + offset) * 0.5f) + x + yOffset;
     }
     private float SampleDerivative(float x)
     {
         const float h = 0.001f;
-        float rotation_curve_value_1 = SampleRotationCurve(x + h);
-        float rotation_curve_value_2 = SampleRotationCurve(x - h);
+        float rotationCurveValue_1 = SampleRotationCurve(x + h);
+        float rotationCurveValue_2 = SampleRotationCurve(x - h);
 
-        float derivative = (rotation_curve_value_1 - rotation_curve_value_2) / (h * 2f);
+        float derivative = (rotationCurveValue_1 - rotationCurveValue_2) / (h * 2f);
         return derivative;
     }
 
@@ -92,27 +92,27 @@ public class CameraMovement : MonoBehaviour
     private void Update()
     {
         /*
-        float derivative = SampleDerivative(current_rotation);
+        float derivative = SampleDerivative(currentRotation);
         Debug.Log(derivative);            
         return;
         */
-        if (PlayerInput.GetKeyDown(PlayerInput.left_rotation) || (PlayerInput.GetKeyUp(PlayerInput.right_rotation) && PlayerInput.GetKey(PlayerInput.left_rotation)))
+        if (PlayerInput.GetKeyDown(PlayerInput.leftRotation) || (PlayerInput.GetKeyUp(PlayerInput.rightRotation) && PlayerInput.GetKey(PlayerInput.leftRotation)))
         {
-            //wanted_rotation += y_axis_rotation;
+            //wantedRotation += yAxisRotation;
             StopAllCoroutines();
             StartCoroutine(RotateCamera(1));
         }
-        else if (PlayerInput.GetKeyDown(PlayerInput.right_rotation) || (PlayerInput.GetKeyUp(PlayerInput.left_rotation) && PlayerInput.GetKey(PlayerInput.right_rotation)))
+        else if (PlayerInput.GetKeyDown(PlayerInput.rightRotation) || (PlayerInput.GetKeyUp(PlayerInput.leftRotation) && PlayerInput.GetKey(PlayerInput.rightRotation)))
         {
-            //wanted_rotation -= y_axis_rotation;
+            //wantedRotation -= yAxisRotation;
             StopAllCoroutines();
             StartCoroutine(RotateCamera(-1));
         }
     }
 
     [Header("ttesting")]
-    [SerializeField] private float oval_size_large = 1f;
-    [SerializeField] private float oval_size_small = 1f;
+    [SerializeField] private float ovalSizeLarge = 1f;
+    [SerializeField] private float ovalSizeSmall = 1f;
     [SerializeField] private bool move = false;
     public void SmoothPosition()
     {
@@ -126,25 +126,25 @@ public class CameraMovement : MonoBehaviour
         if (false)
         {
             // find mid pixel of player
-            Vector2 player_middle = MousePoint.WorldToViewportPoint(Global.player_transform.position) - new Vector3(0.5f, 0.5f, 0f);
+            Vector2 playerMiddle = MousePoint.WorldToViewportPoint(Global.playerTransform.position) - new Vector3(0.5f, 0.5f, 0f);
 
-            Debug.Log(player_middle);
+            Debug.Log(playerMiddle);
 
             // check if it is outside of squarcircle
-            float squarcircle_value = Mathf.Pow(player_middle.x, 4) + Mathf.Pow(player_middle.y, 4);
-            if (squarcircle_value > Mathf.Pow(oval_size_large, 4))
+            float squarcircleValue = Mathf.Pow(playerMiddle.x, 4) + Mathf.Pow(playerMiddle.y, 4);
+            if (squarcircleValue > Mathf.Pow(ovalSizeLarge, 4))
             {
                 move = true;
             }
-            else if (squarcircle_value < Mathf.Pow(oval_size_small, 4))
+            else if (squarcircleValue < Mathf.Pow(ovalSizeSmall, 4))
             {
                 move = false;
             }
 
             if (move)
             {
-                smoothed_position = SmoothMovementToPoint(Global.player_transform.position);
-                transform.position = smoothed_position;
+                smoothedPosition = SmoothMovementToPoint(Global.playerTransform.position);
+                transform.position = smoothedPosition;
             }
 
             // if it is
@@ -156,80 +156,80 @@ public class CameraMovement : MonoBehaviour
         }
         else
         {
-            smoothed_position = SmoothMovementToPoint(Global.player_transform.position + GetLookPoint());
-            transform.position = smoothed_position;
+            smoothedPosition = SmoothMovementToPoint(Global.playerTransform.position + GetLookPoint());
+            transform.position = smoothedPosition;
         }
 
-        //smoothed_position = SmoothMovementToPoint(player_transform.position + GetLookPoint());
+        //smoothedPosition = SmoothMovementToPoint(playerTransform.position + GetLookPoint());
         //Vector3 screenPos = cam.WorldToScreenPoint(target.position);
     }
 
-    [SerializeField] private float reccursive_rotation_threshold = 0.5f;
-    [SerializeField] private float last_stopped_rotation;
+    [SerializeField] private float reccursiveRotationThreshold = 0.5f;
+    [SerializeField] private float lastStoppedRotation;
     private float C = 0f;
-    private float old_direction_heading = 0f;
-    //private float old_direction = 0f;
+    private float oldDirectionHeading = 0f;
+    //private float oldDirection = 0f;
     private IEnumerator RotateCamera(float direction)
     {
         /*
-        if (old_direction != direction && old_direction != 0f)
+        if (oldDirection != direction && oldDirection != 0f)
         {
             if (direction < 0f)
             {
-                wanted_rotation = current_rotation - current_rotation % y_axis_rotation;
+                wantedRotation = currentRotation - currentRotation % yAxisRotation;
             }
             else
             {
-                wanted_rotation = current_rotation - current_rotation % y_axis_rotation + y_axis_rotation;
+                wantedRotation = currentRotation - currentRotation % yAxisRotation + yAxisRotation;
             }
         }
         else
         {
-            wanted_rotation += direction * y_axis_rotation;
+            wantedRotation += direction * yAxisRotation;
         }
-        old_direction = direction;
+        oldDirection = direction;
         */
-        wanted_rotation += direction * y_axis_rotation;
+        wantedRotation += direction * yAxisRotation;
 
-        float direction_heading = current_rotation < wanted_rotation ? 1f : -1f;
-        if (old_direction_heading != direction_heading && old_direction_heading != 0f)
+        float directionHeading = currentRotation < wantedRotation ? 1f : -1f;
+        if (oldDirectionHeading != directionHeading && oldDirectionHeading != 0f)
         {
-            last_stopped_rotation = current_rotation - (current_rotation % y_axis_rotation) - direction_heading * y_axis_rotation;
+            lastStoppedRotation = currentRotation - (currentRotation % yAxisRotation) - directionHeading * yAxisRotation;
         }
-        old_direction_heading = direction_heading;
+        oldDirectionHeading = directionHeading;
 
-        float A = direction_heading * y_axis_rotation * 0.5f + last_stopped_rotation;
-        float B = wanted_rotation - direction_heading * y_axis_rotation * 0.5f;
+        float A = directionHeading * yAxisRotation * 0.5f + lastStoppedRotation;
+        float B = wantedRotation - directionHeading * yAxisRotation * 0.5f;
 
         float h = 0.001f;
-        float rate_of_change_middle = ((rotation_curve.Evaluate(0.5f + h) - rotation_curve.Evaluate(0.5f - h)) / (h * 2f * x_axis_time)) * y_axis_rotation;
+        float rateOfChangeMiddle = ((rotationCurve.Evaluate(0.5f + h) - rotationCurve.Evaluate(0.5f - h)) / (h * 2f * xAxisTime)) * yAxisRotation;
 
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
-        while (wanted_rotation != current_rotation)
+        while (wantedRotation != currentRotation)
         {
-            if (C < A && direction_heading > 0f || C > A && direction_heading < 0f)
+            if (C < A && directionHeading > 0f || C > A && directionHeading < 0f)
             {
-                C += direction_heading * ((Time.deltaTime / x_axis_time) * y_axis_rotation);
-                float x_time = direction_heading * (C - last_stopped_rotation) / y_axis_rotation;
-                float curve_rotation_value = rotation_curve.Evaluate(x_time);
-                current_rotation = last_stopped_rotation + direction_heading * curve_rotation_value * y_axis_rotation;
+                C += directionHeading * ((Time.deltaTime / xAxisTime) * yAxisRotation);
+                float xTime = directionHeading * (C - lastStoppedRotation) / yAxisRotation;
+                float curveRotationValue = rotationCurve.Evaluate(xTime);
+                currentRotation = lastStoppedRotation + directionHeading * curveRotationValue * yAxisRotation;
             }
-            else if (C > B && direction_heading > 0f || C < B && direction_heading < 0f)
+            else if (C > B && directionHeading > 0f || C < B && directionHeading < 0f)
             {
-                float b = wanted_rotation - direction_heading * y_axis_rotation;
-                C += direction_heading * ((Time.deltaTime / x_axis_time) * y_axis_rotation);
-                float x_time = (direction_heading * (C - B) / y_axis_rotation) + 0.5f;
-                float curve_rotation_value = rotation_curve.Evaluate(x_time);
+                float b = wantedRotation - directionHeading * yAxisRotation;
+                C += directionHeading * ((Time.deltaTime / xAxisTime) * yAxisRotation);
+                float xTime = (directionHeading * (C - B) / yAxisRotation) + 0.5f;
+                float curveRotationValue = rotationCurve.Evaluate(xTime);
 
-                bool left = PlayerInput.GetKey(PlayerInput.left_rotation);
-                bool right = PlayerInput.GetKey(PlayerInput.right_rotation);
+                bool left = PlayerInput.GetKey(PlayerInput.leftRotation);
+                bool right = PlayerInput.GetKey(PlayerInput.rightRotation);
                 if (left && !right)
                 {
-                    current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
-                    C = current_rotation;
-                    transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+                    currentRotation += directionHeading * rateOfChangeMiddle * Time.deltaTime;
+                    C = currentRotation;
+                    transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
 
-                    if (x_time > reccursive_rotation_threshold)
+                    if (xTime > reccursiveRotationThreshold)
                     {
                         StartCoroutine(RotateCamera(1));
                         yield break;
@@ -239,11 +239,11 @@ public class CameraMovement : MonoBehaviour
                 }
                 if (right && !left)
                 {
-                    current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
-                    C = current_rotation;
-                    transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+                    currentRotation += directionHeading * rateOfChangeMiddle * Time.deltaTime;
+                    C = currentRotation;
+                    transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
 
-                    if (x_time > reccursive_rotation_threshold)
+                    if (xTime > reccursiveRotationThreshold)
                     {
                         StartCoroutine(RotateCamera(-1));
                         yield break;
@@ -252,19 +252,19 @@ public class CameraMovement : MonoBehaviour
                     continue;
                 }
 
-                current_rotation = b + direction_heading * curve_rotation_value * y_axis_rotation;
+                currentRotation = b + directionHeading * curveRotationValue * yAxisRotation;
             }
             else
             {
-                current_rotation += direction_heading * rate_of_change_middle * Time.deltaTime;
-                C = current_rotation;
+                currentRotation += directionHeading * rateOfChangeMiddle * Time.deltaTime;
+                C = currentRotation;
             }
 
-            transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+            transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
             yield return wait;
         }
-        last_stopped_rotation = current_rotation;
-        C = current_rotation;
+        lastStoppedRotation = currentRotation;
+        C = currentRotation;
     }
 
 
@@ -272,38 +272,38 @@ public class CameraMovement : MonoBehaviour
     {
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
 
-        float old_max_distance = max_distance;
-        max_distance = 0f;
+        float oldMaxDistance = maxDistance;
+        maxDistance = 0f;
 
-        float curve_time_end = curve[curve.length - 1].time;
-        float curve_time_current = 0f;
+        float curveTimeEnd = curve[curve.length - 1].time;
+        float curveTimeCurrent = 0f;
 
-        while (curve_time_current < curve_time_end)
+        while (curveTimeCurrent < curveTimeEnd)
         {
-            curve_time_current += Time.deltaTime;
-            Debug.Log(curve_time_current);
-            Debug.Log(curve.Evaluate(curve_time_current));
-            transform.rotation = Quaternion.Euler(0f, curve.Evaluate(curve_time_current), 0f);
+            curveTimeCurrent += Time.deltaTime;
+            Debug.Log(curveTimeCurrent);
+            Debug.Log(curve.Evaluate(curveTimeCurrent));
+            transform.rotation = Quaternion.Euler(0f, curve.Evaluate(curveTimeCurrent), 0f);
             yield return wait;
         }
-        max_distance = old_max_distance;
+        maxDistance = oldMaxDistance;
     }
 
     private IEnumerator RotateCameraAfterCurveContinue(AnimationCurve curve)
     {
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
 
-        float curve_time_end = curve[curve.length - 1].time;
-        float curve_time_current = 0f;
+        float curveTimeEnd = curve[curve.length - 1].time;
+        float curveTimeCurrent = 0f;
 
-        float current_rotation = transform.rotation.eulerAngles.y;
+        float currentRotation = transform.rotation.eulerAngles.y;
 
-        while (curve_time_current < curve_time_end)
+        while (curveTimeCurrent < curveTimeEnd)
         {
             yield return wait;
-            curve_time_current += Time.deltaTime;
-            current_rotation += curve.Evaluate(curve_time_current);
-            transform.rotation = Quaternion.Euler(0f, current_rotation, 0f);
+            curveTimeCurrent += Time.deltaTime;
+            currentRotation += curve.Evaluate(curveTimeCurrent);
+            transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
         }
     }
 }

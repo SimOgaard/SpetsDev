@@ -13,22 +13,22 @@ public class Sequence : Node
 
     public override NodeState Evaluate()
     {
-        bool is_any_node_running = false;
+        bool isAnyNodeRunning = false;
         foreach (var node in nodes)
         {
             switch (node.Evaluate())
             {
                 case NodeState.running:
-                    is_any_node_running = true;
+                    isAnyNodeRunning = true;
                     break;
                 case NodeState.success:
                     break;
                 case NodeState.failure:
-                    _node_state = NodeState.failure;
-                    return _node_state;
+                    _nodeState = NodeState.failure;
+                    return _nodeState;
             }
         }
-        _node_state = is_any_node_running ? NodeState.running : NodeState.success;
-        return _node_state;
+        _nodeState = isAnyNodeRunning ? NodeState.running : NodeState.success;
+        return _nodeState;
     }
 }

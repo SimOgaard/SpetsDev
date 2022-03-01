@@ -20,12 +20,12 @@ public class HammerWeapon : Weapon, Equipment.IEquipment
     public override void UpdateUI()
     {
         base.UpdateUI();
-        UIInventory.current_weapon_UI_image.sprite = icon_sprite;
+        UIInventory.currentWeapon_UIImage.sprite = iconSprite;
     }
 
     public override void Awake()
     {
         base.Awake();
-        icon_sprite = Resources.Load<Sprite>("Sprites/UI/hammer");
+        iconSprite = Resources.Load<Sprite>("Sprites/UI/hammer");
     }
 }

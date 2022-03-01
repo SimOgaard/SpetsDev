@@ -10,24 +10,24 @@ public class Agent : FloatingCapsule
     public bool tumbling = false;
 
     [Header("Movement")]
-    public float walk_speed;
-    public float sprint_speed;
+    public float walkSpeed;
+    public float sprintSpeed;
 
     [Header("Rigid Body")]
-    [SerializeField] private float explosion_up_modifier;
+    [SerializeField] private float explosionUpModifier;
 
-    public void AddExplosionForce(float force, Vector3 explosion_pos, float explosion_radius, float explosion_up_modifier, ForceMode force_mode)
+    public void AddExplosionForce(float force, Vector3 explosionPos, float explosionRadius, float explosionUpModifier, ForceMode forceMode)
     {
-        _rigidbody.AddExplosionForce(force, explosion_pos, explosion_radius, this.explosion_up_modifier * explosion_up_modifier, force_mode);
+        _rigidbody.AddExplosionForce(force, explosionPos, explosionRadius, this.explosionUpModifier * explosionUpModifier, forceMode);
     }
 
-    public void AddForce(Vector3 direction_and_magnitude, ForceMode force_mode)
+    public void AddForce(Vector3 directionAndMagnitude, ForceMode forceMode)
     {
-        _rigidbody.AddForce(750f * transform.up, force_mode);
+        _rigidbody.AddForce(750f * transform.up, forceMode);
     }
 
     /// <summary>
-    /// Moves controller in slope_move_direction_normalized direction dependent on move_speed.
+    /// Moves controller in slopeMoveDirectionNormalized direction dependent on moveSpeed.
     /// Applies gravity and checks for ground.
     /// Is in FixedUpdate because it is physics based.
     /// </summary>
@@ -38,7 +38,7 @@ public class Agent : FloatingCapsule
             return;
         }
         Upright();
-        Vector3 ground_velocity = Hover();
-        Move(ground_velocity);
+        Vector3 groundVelocity = Hover();
+        Move(groundVelocity);
     }
 }

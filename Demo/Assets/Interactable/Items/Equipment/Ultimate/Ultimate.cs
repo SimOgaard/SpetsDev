@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// This script is parent component of the Equipment hierarchy.
-/// Is one of the three Equipments and routes further all calls regarding its child component (current_ultimate).
+/// Is one of the three Equipments and routes further all calls regarding its child component (currentUltimate).
 /// Holds all shared functions for Equipment "Ultimate".
 /// </summary>
 public class Ultimate : Equipment
@@ -15,7 +15,7 @@ public class Ultimate : Equipment
         base.InteractWith();
         if (PlayerInventory.ultimate != null)
         {
-            PlayerInventory.ultimate.Drop(Global.player_transform.position, PlayerInventory.ultimate.Thrust(360f, Vector3.zero));
+            PlayerInventory.ultimate.Drop(Global.playerTransform.position, PlayerInventory.ultimate.Thrust(360f, Vector3.zero));
         }
         PlayerInventory.ultimate = this as Equipment.IEquipment;
     }
@@ -23,12 +23,12 @@ public class Ultimate : Equipment
 
     public override void UpdateUI()
     {
-        UIInventory.current_ultimate_UI_image.color = Color.white;
+        UIInventory.currentUltimate_UIImage.color = Color.white;
     }
 
-    public new static System.Type[] equipment_types = { typeof(TelekinesisUltimate) };
+    public new static System.Type[] equipmentTypes = { typeof(TelekinesisUltimate) };
     public new static System.Type RandomEquipment()
     {
-        return equipment_types[Random.Range(0, equipment_types.Length)];
+        return equipmentTypes[Random.Range(0, equipmentTypes.Length)];
     }
 }

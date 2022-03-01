@@ -13,10 +13,10 @@ public class GridOfGrassTestingWithArray : MonoBehaviour
         {
             for (int y = -grid.y; y <= grid.y; y++)
             {
-                GameObject new_game_object = new GameObject();
+                GameObject newGameObject = new GameObject();
 
-                new_game_object.transform.parent = transform;
-                new_game_object.transform.localPosition = Vector3.Scale(size, new Vector3(x, 0f, y));
+                newGameObject.transform.parent = transform;
+                newGameObject.transform.localPosition = Vector3.Scale(size, new Vector3(x, 0f, y));
             }
         }
     }

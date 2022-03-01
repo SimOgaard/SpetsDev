@@ -6,8 +6,8 @@ public class JoinMeshes : MonoBehaviour
 {
     private GameObject _gameObject = null;
     //private Material material;
-    private bool is_collider = false;
-    private bool merge_all_children = true;
+    private bool isCollider = false;
+    private bool mergeAllChildren = true;
     /*
     public void SetMaterial(Material material)
     {
@@ -17,12 +17,12 @@ public class JoinMeshes : MonoBehaviour
 
     public void SetCollider()
     {
-        is_collider = true;
+        isCollider = true;
     }
 
-    public void SetMergeByTags(bool merge_by_tags)
+    public void SetMergeByTags(bool mergeByTags)
     {
-        merge_all_children = !merge_by_tags;
+        mergeAllChildren = !mergeByTags;
     }
 
     public void SetGameObjectToHoldJoinedMeshes(GameObject gameObject)
@@ -30,12 +30,12 @@ public class JoinMeshes : MonoBehaviour
         _gameObject = gameObject;
     }
 
-    public static UnityEngine.Component GetAddComponent(GameObject gameObject, System.Type component_to_get)
+    public static UnityEngine.Component GetAddComponent(GameObject gameObject, System.Type componentToGet)
     {
-        UnityEngine.Component component = gameObject.GetComponent(component_to_get);
+        UnityEngine.Component component = gameObject.GetComponent(componentToGet);
         if (component == null)
         {
-            component = gameObject.AddComponent(component_to_get);
+            component = gameObject.AddComponent(componentToGet);
         }
 
         return component;
@@ -57,7 +57,7 @@ public class JoinMeshes : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            if (merge_all_children || Tag.IsTaggedWith(child.tag, Tag.merge))
+            if (mergeAllChildren || Tag.IsTaggedWith(child.tag, Tag.merge))
             {
                 Destroy(child.gameObject);
             }
@@ -77,13 +77,13 @@ public class JoinMeshes : MonoBehaviour
             _gameObject = gameObject;
         }
 
-        MeshRenderer mesh_renderer = GetAddComponent(_gameObject, typeof(MeshRenderer)) as MeshRenderer;
-        MeshFilter mesh_filter = GetAddComponent(_gameObject, typeof(MeshFilter)) as MeshFilter;
-        MeshCollider mesh_collider = is_collider ? GetAddComponent(_gameObject, typeof(MeshCollider)) as MeshCollider : null;
+        MeshRenderer meshRenderer = GetAddComponent(_gameObject, typeof(MeshRenderer)) as MeshRenderer;
+        MeshFilter meshFilter = GetAddComponent(_gameObject, typeof(MeshFilter)) as MeshFilter;
+        MeshCollider meshCollider = isCollider ? GetAddComponent(_gameObject, typeof(MeshCollider)) as MeshCollider : null;
 
-        Vector3 old_scale = transform.localScale;
-        Quaternion old_rot = transform.rotation;
-        Vector3 old_pos = transform.position;
+        Vector3 oldScale = transform.localScale;
+        Quaternion oldRot = transform.rotation;
+        Vector3 oldPos = transform.position;
         transform.localScale = new Vector3(1f, 1f, 1f);
         transform.rotation = Quaternion.identity;
         transform.position = Vector3.zero;
@@ -92,31 +92,31 @@ public class JoinMeshes : MonoBehaviour
         ArrayList combineInstanceArrays = new ArrayList();
         MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
 
-        foreach (MeshFilter meshFilter in meshFilters)
+        foreach (MeshFilter _meshFilter in meshFilters)
         {
-            if (merge_all_children || Tag.IsTaggedWith(meshFilter.tag, Tag.merge))
+            if (mergeAllChildren || Tag.IsTaggedWith(_meshFilter.tag, Tag.merge))
             {
-                MeshRenderer meshRenderer = meshFilter.GetComponent<MeshRenderer>();
+                MeshRenderer _meshRenderer = _meshFilter.GetComponent<MeshRenderer>();
 
-                if (!meshRenderer || !meshFilter.sharedMesh || meshRenderer.sharedMaterials.Length != meshFilter.sharedMesh.subMeshCount)
+                if (!_meshRenderer || !_meshFilter.sharedMesh || _meshRenderer.sharedMaterials.Length != _meshFilter.sharedMesh.subMeshCount)
                 {
                     continue;
                 }
 
-                for (int s = 0; s < meshFilter.sharedMesh.subMeshCount; s++)
+                for (int s = 0; s < _meshFilter.sharedMesh.subMeshCount; s++)
                 {
-                    int materialArrayIndex = Contains(materials, meshRenderer.sharedMaterials[s].name);
+                    int materialArrayIndex = Contains(materials, _meshRenderer.sharedMaterials[s].name);
                     if (materialArrayIndex == -1)
                     {
-                        materials.Add(meshRenderer.sharedMaterials[s]);
+                        materials.Add(_meshRenderer.sharedMaterials[s]);
                         materialArrayIndex = materials.Count - 1;
                     }
                     combineInstanceArrays.Add(new ArrayList());
 
                     CombineInstance combineInstance = new CombineInstance();
-                    combineInstance.transform = meshRenderer.transform.localToWorldMatrix;
+                    combineInstance.transform = _meshRenderer.transform.localToWorldMatrix;
                     combineInstance.subMeshIndex = s;
-                    combineInstance.mesh = meshFilter.sharedMesh;
+                    combineInstance.mesh = _meshFilter.sharedMesh;
                     (combineInstanceArrays[materialArrayIndex] as ArrayList).Add(combineInstance);
                 }
             }
@@ -139,23 +139,23 @@ public class JoinMeshes : MonoBehaviour
         }
 
         // Combine into one
-        mesh_filter.sharedMesh = new Mesh()
+        meshFilter.sharedMesh = new Mesh()
         {
             indexFormat = UnityEngine.Rendering.IndexFormat.UInt16
         };
-        mesh_filter.sharedMesh.CombineMeshes(combineInstances, false, false);
-        if (is_collider)
+        meshFilter.sharedMesh.CombineMeshes(combineInstances, false, false);
+        if (isCollider)
         {
-            mesh_collider.sharedMesh = mesh_filter.sharedMesh;
+            meshCollider.sharedMesh = meshFilter.sharedMesh;
         }
 
         // Assign materials
         Material[] materialsArray = materials.ToArray(typeof(Material)) as Material[];
-        mesh_renderer.materials = materialsArray;
+        meshRenderer.materials = materialsArray;
 
-        transform.localScale = old_scale;
-        transform.rotation = old_rot;
-        transform.position = old_pos;
+        transform.localScale = oldScale;
+        transform.rotation = oldRot;
+        transform.position = oldPos;
 
         RecursiveDestroy(transform);
         Destroy(this);

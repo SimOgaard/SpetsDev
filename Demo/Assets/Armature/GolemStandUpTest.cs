@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class GolemStandUpTest : MonoBehaviour
 {
-    [SerializeField] private Bone arm_l;
-    [SerializeField] private Bone arm_r;
-    [SerializeField] private Bone leg_l;
-    [SerializeField] private Bone leg_r;
+    [SerializeField] private Bone armL;
+    [SerializeField] private Bone armR;
+    [SerializeField] private Bone legL;
+    [SerializeField] private Bone legR;
 
     [Header("Body")]
-    [SerializeField] private Transform body_ik;
-    [SerializeField] private float body_lerp_time;
-    private Vector3 saved_body_position;
-    private Vector3 saved_body_position_world;
+    [SerializeField] private Transform bodyIk;
+    [SerializeField] private float bodyLerpTime;
+    private Vector3 savedBodyPosition;
+    private Vector3 savedBodyPositionWorld;
 
     [Header("lol")]
     [SerializeField] private PathCreation.PathCreator pathCreator;
@@ -28,10 +28,10 @@ public class GolemStandUpTest : MonoBehaviour
     private void OnDrawGizmos()
     {
         /*
-        arm_l.DrawGUI(transform);
-        arm_r.DrawGUI(transform);
-        leg_l.DrawGUI(transform);
-        leg_l.DrawGUI(transform);
+        armL.DrawGUI(transform);
+        armR.DrawGUI(transform);
+        legL.DrawGUI(transform);
+        legL.DrawGUI(transform);
         */
     }
 #endif
@@ -46,38 +46,38 @@ public class GolemStandUpTest : MonoBehaviour
     
     public void DigUnderGround()
     {
-        Vector3 hand_ray_offset = transform.rotation * (hand_ray_offset_to_origo * transform.lossyScale.x);
-        Vector3 hand_ray_offset_mirror = Vector3.Reflect(hand_ray_offset, transform.right);
+        Vector3 handRayOffset = transform.rotation * (handRayOffsetToOrigo * transform.lossyScale.x);
+        Vector3 handRayOffsetMirror = Vector3.Reflect(handRayOffset, transform.right);
 
-        Vector3 foot_ray_offset = transform.rotation * (foot_ray_offset_to_origo * transform.lossyScale.x);
-        Vector3 foot_ray_offset_mirror = Vector3.Reflect(foot_ray_offset, transform.right);
+        Vector3 footRayOffset = transform.rotation * (footRayOffsetToOrigo * transform.lossyScale.x);
+        Vector3 footRayOffsetMirror = Vector3.Reflect(footRayOffset, transform.right);
 
-        RaycastHit hand_ray_info;
-        RaycastHit hand_ray_info_mirror;
-        RaycastHit foot_ray_info;
-        RaycastHit foot_ray_info_mirror;
+        RaycastHit handRayInfo;
+        RaycastHit handRayInfoMirror;
+        RaycastHit footRayInfo;
+        RaycastHit footRayInfoMirror;
 
-        Physics.Raycast(transform.position + hand_ray_offset, Vector3.down, out hand_ray_info, hand_ray_distance, Layer.Mask.ground_enemy);
-        Physics.Raycast(transform.position + hand_ray_offset_mirror, Vector3.down, out hand_ray_info_mirror, hand_ray_distance, Layer.Mask.ground_enemy);
-        Physics.Raycast(transform.position + foot_ray_offset, Vector3.down, out foot_ray_info, foot_ray_distance, Layer.Mask.ground_enemy);
-        Physics.Raycast(transform.position + foot_ray_offset_mirror, Vector3.down, out foot_ray_info_mirror, foot_ray_distance, Layer.Mask.ground_enemy);
+        Physics.Raycast(transform.position + handRayOffset, Vector3.down, out handRayInfo, handRayDistance, Layer.Mask.groundEnemy);
+        Physics.Raycast(transform.position + handRayOffsetMirror, Vector3.down, out handRayInfoMirror, handRayDistance, Layer.Mask.groundEnemy);
+        Physics.Raycast(transform.position + footRayOffset, Vector3.down, out footRayInfo, footRayDistance, Layer.Mask.groundEnemy);
+        Physics.Raycast(transform.position + footRayOffsetMirror, Vector3.down, out footRayInfoMirror, footRayDistance, Layer.Mask.groundEnemy);
 
-        hand_ik_r.position = hand_ray_info.point;
-        hand_ik_l.position = hand_ray_info_mirror.point;
-        foot_ik_r.position = foot_ray_info.point;
-        foot_ik_l.position = foot_ray_info_mirror.point;
+        handIkR.position = handRayInfo.point;
+        handIkL.position = handRayInfoMirror.point;
+        footIkR.position = footRayInfo.point;
+        footIkL.position = footRayInfoMirror.point;
 
-        Vector3 arm_target_offset = transform.rotation * (arm_target_offset_to_origo_point * transform.lossyScale.x);
-        Vector3 arm_target_offset_mirror = Vector3.Reflect(arm_target_offset, transform.right);
+        Vector3 armTargetOffset = transform.rotation * (armTargetOffsetToOrigoPoint * transform.lossyScale.x);
+        Vector3 armTargetOffsetMirror = Vector3.Reflect(armTargetOffset, transform.right);
 
-        arm_target_l.position = transform.position + arm_target_offset;
-        arm_target_r.position = transform.position + arm_target_offset_mirror;
+        armTargetL.position = transform.position + armTargetOffset;
+        armTargetR.position = transform.position + armTargetOffsetMirror;
 
-        Vector3 knee_target_offset = transform.rotation * (knee_target_offset_to_origo_point * transform.lossyScale.x);
-        Vector3 knee_target_offset_mirror = Vector3.Reflect(knee_target_offset, transform.right);
+        Vector3 kneeTargetOffset = transform.rotation * (kneeTargetOffsetToOrigoPoint * transform.lossyScale.x);
+        Vector3 kneeTargetOffsetMirror = Vector3.Reflect(kneeTargetOffset, transform.right);
 
-        knee_target_l.position = transform.position + knee_target_offset;
-        knee_target_r.position = transform.position + knee_target_offset_mirror;
+        kneeTargetL.position = transform.position + kneeTargetOffset;
+        kneeTargetR.position = transform.position + kneeTargetOffsetMirror;
     }
 
     public IEnumerator RaiseOverGround()
@@ -90,28 +90,28 @@ public class GolemStandUpTest : MonoBehaviour
 
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
 
-        float speed = distance / body_lerp_time;
+        float speed = distance / bodyLerpTime;
         while (distanceTravelled <= distance)
         {
-            Vector3 arm_target_add = Vector3.up * arm_target_lerp_distance * (Time.deltaTime / body_lerp_time);
-            arm_target_l.localPosition += arm_target_add;
-            arm_target_r.localPosition += arm_target_add;
+            Vector3 armTargetAdd = Vector3.up * armTargetLerpDistance * (Time.deltaTime / bodyLerpTime);
+            armTargetL.localPosition += armTargetAdd;
+            armTargetR.localPosition += armTargetAdd;
 
             
             //knee placement should be the same from the start
-            //knee_target_l.localPosition += Vector3.up * time_change * body_lerp_distance;
-            //knee_target_r.localPosition += Vector3.up * time_change * body_lerp_distance;
+            //kneeTargetL.localPosition += Vector3.up * timeChange * bodyLerpDistance;
+            //kneeTargetR.localPosition += Vector3.up * timeChange * bodyLerpDistance;
             
 
             distanceTravelled += Time.deltaTime * speed;
-            body_ik.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
-            body_ik.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction);
+            bodyIk.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
+            bodyIk.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction);
 
             yield return wait;
         }
 
         // reset positions
-        transform.position += (body_ik.position - saved_body_position_world);
+        transform.position += (bodyIk.position - savedBodyPositionWorld);
         GoToSavedPosition();
 
         // set arm poles to side and back of hands target
@@ -123,48 +123,48 @@ public class GolemStandUpTest : MonoBehaviour
 
     public void SavePosition()
     {
-        saved_body_position = body_ik.localPosition;
-        saved_body_position_world = body_ik.position;
+        savedBodyPosition = bodyIk.localPosition;
+        savedBodyPositionWorld = bodyIk.position;
 
-        saved_arm_target_l_position = arm_target_l.localPosition;
-        saved_arm_target_r_position = arm_target_r.localPosition;
-        saved_knee_target_l_position = knee_target_l.localPosition;
-        saved_knee_target_r_position = knee_target_r.localPosition;
+        savedArmTargetLPosition = armTargetL.localPosition;
+        savedArmTargetRPosition = armTargetR.localPosition;
+        savedKneeTargetLPosition = kneeTargetL.localPosition;
+        savedKneeTargetRPosition = kneeTargetR.localPosition;
 
-        saved_hand_ik_l_position = hand_ik_l.localPosition;
-        saved_hand_ik_r_position = hand_ik_r.localPosition;
-        saved_foot_ik_l_position = foot_ik_l.localPosition;
-        saved_foot_ik_r_position = foot_ik_r.localPosition;
+        savedHandIkLPosition = handIkL.localPosition;
+        savedHandIkRPosition = handIkR.localPosition;
+        savedFootIkLPosition = footIkL.localPosition;
+        savedFootIkRPosition = footIkR.localPosition;
     }
 
     public void GoToSavedPosition()
     {
-        body_ik.localPosition = saved_body_position;
+        bodyIk.localPosition = savedBodyPosition;
 
-        arm_target_l.localPosition = saved_arm_target_l_position;
-        arm_target_r.localPosition = saved_arm_target_r_position;
-        knee_target_l.localPosition = saved_knee_target_l_position;
-        knee_target_r.localPosition = saved_knee_target_r_position;
+        armTargetL.localPosition = savedArmTargetLPosition;
+        armTargetR.localPosition = savedArmTargetRPosition;
+        kneeTargetL.localPosition = savedKneeTargetLPosition;
+        kneeTargetR.localPosition = savedKneeTargetRPosition;
 
-        hand_ik_l.localPosition = saved_hand_ik_l_position;
-        hand_ik_r.localPosition = saved_hand_ik_r_position;
-        foot_ik_l.localPosition = saved_foot_ik_l_position;
-        foot_ik_r.localPosition = saved_foot_ik_r_position;
+        handIkL.localPosition = savedHandIkLPosition;
+        handIkR.localPosition = savedHandIkRPosition;
+        footIkL.localPosition = savedFootIkLPosition;
+        footIkR.localPosition = savedFootIkRPosition;
     }
 
     public void LerpToSavedPosition()
     {
-        body_ik.localPosition = saved_body_position;
+        bodyIk.localPosition = savedBodyPosition;
 
-        arm_target_l.localPosition = saved_arm_target_l_position;
-        arm_target_r.localPosition = saved_arm_target_r_position;
-        knee_target_l.localPosition = saved_knee_target_l_position;
-        knee_target_r.localPosition = saved_knee_target_r_position;
+        armTargetL.localPosition = savedArmTargetLPosition;
+        armTargetR.localPosition = savedArmTargetRPosition;
+        kneeTargetL.localPosition = savedKneeTargetLPosition;
+        kneeTargetR.localPosition = savedKneeTargetRPosition;
 
-        hand_ik_l.localPosition = saved_hand_ik_l_position;
-        hand_ik_r.localPosition = saved_hand_ik_r_position;
-        foot_ik_l.localPosition = saved_foot_ik_l_position;
-        foot_ik_r.localPosition = saved_foot_ik_r_position;
+        handIkL.localPosition = savedHandIkLPosition;
+        handIkR.localPosition = savedHandIkRPosition;
+        footIkL.localPosition = savedFootIkLPosition;
+        footIkR.localPosition = savedFootIkRPosition;
     }
     */
 }

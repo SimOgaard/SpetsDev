@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Density : MonoBehaviour
 {
-    public const float global_density = 0.001f;
+    public const float globalDensity = 0.001f;
     public enum DensityValues
     {
         ignore = 0,

@@ -6,20 +6,20 @@ public class GoToGolemNode : Node
 {
     private Agent agent;
     private EnemyAI ai;
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
     private float speed;
 
-    public GoToGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golem_behaviour, float speed)
+    public GoToGolemNode(Agent agent, EnemyAI ai, GolemBehaviour golemBehaviour, float speed)
     {
         this.agent = agent;
         this.ai = ai;
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
         this.speed = speed;
     }
 
     public override NodeState Evaluate()
     {
-        Transform golem = golem_behaviour.GetClosestGolem();
+        Transform golem = golemBehaviour.GetClosestGolem();
         if (golem == null)
         {
             return NodeState.failure;
@@ -30,13 +30,13 @@ public class GoToGolemNode : Node
         float distance = heading.sqrMagnitude;
         if (distance > 1f)
         {
-            agent.desired_speed = speed;
-            agent.desired_heading = heading.normalized;
+            agent.desiredSpeed = speed;
+            agent.desiredHeading = heading.normalized;
             return NodeState.running;
         }
         else
         {
-            agent.desired_speed = 0;
+            agent.desiredSpeed = 0;
             return NodeState.success;
         }
     }

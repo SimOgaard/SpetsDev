@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class HasGolemInHandsNode : Node
 {
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
 
-    public HasGolemInHandsNode(GolemBehaviour golem_behaviour)
+    public HasGolemInHandsNode(GolemBehaviour golemBehaviour)
     {
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
     }
 
     public override NodeState Evaluate()
     {
-        if (golem_behaviour.has_golem_in_hands)
+        if (golemBehaviour.hasGolemInHands)
         {
             return NodeState.success;
         }

@@ -16,41 +16,41 @@ public class EarthBendingPillarControllable : EarthBendingPillarBase, Equipment.
     
     private IEnumerator FollowMouse()
     {
-        if (ready_pillars <= 0)
+        if (readyPillars <= 0)
         {
             yield break;
         }
 
-        WaitForSeconds wait = new WaitForSeconds(pillar_traverse_time);
-        WaitForEndOfFrame wait_frame = new WaitForEndOfFrame();
+        WaitForSeconds wait = new WaitForSeconds(pillarTraverseTime);
+        WaitForEndOfFrame waitFrame = new WaitForEndOfFrame();
 
-        Vector3 mouse_point = MousePoint.MousePositionWorldAndEnemy();
-        Vector3 last_pillar_point = mouse_point;
-        SpawnRock(mouse_point);
-        ready_pillars--;
+        Vector3 mousePoint = MousePoint.MousePositionWorldAndEnemy();
+        Vector3 lastPillarPoint = mousePoint;
+        SpawnRock(mousePoint);
+        readyPillars--;
 
-        while (ready_pillars > 0)
+        while (readyPillars > 0)
         {
             yield return wait;
 
             while (true)
             {
-                mouse_point = MousePoint.MousePositionPlane(mouse_point);
-                if ((mouse_point - last_pillar_point).sqrMagnitude > pillar_gap)
+                mousePoint = MousePoint.MousePositionPlane(mousePoint);
+                if ((mousePoint - lastPillarPoint).sqrMagnitude > pillarGap)
                 {
                     break;
                 }
-                yield return wait_frame;
+                yield return waitFrame;
             }
 
-            Vector3 direction = (mouse_point - last_pillar_point);
+            Vector3 direction = (mousePoint - lastPillarPoint);
             direction.y = 0f;
             direction = direction.normalized;
 
-            last_pillar_point = last_pillar_point + direction * pillar_gap;
+            lastPillarPoint = lastPillarPoint + direction * pillarGap;
 
-            SpawnRock(last_pillar_point);
-            ready_pillars--;
+            SpawnRock(lastPillarPoint);
+            readyPillars--;
         }
     }
 }

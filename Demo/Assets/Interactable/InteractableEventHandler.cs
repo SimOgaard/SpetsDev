@@ -7,45 +7,45 @@ using UnityEngine;
 /// </summary>
 public class InteractableEventHandler : MonoBehaviour
 {
-    private Interactable nearest_interactable = null;
+    private Interactable nearestInteractable = null;
 
     /// <summary>
     /// Iterates all interactable game objects and returns closest object to player within distance threshold.
     /// </summary>
     private Interactable GetNearestInteractable()
     {
-        Interactable closest_interactable = null;
-        Interactable closest_not_interactable = null;
-        float min_distance_interactable = Mathf.Infinity;
-        float min_distance_not_interactable = Mathf.Infinity;
+        Interactable closestInteractable = null;
+        Interactable closestNotInteractable = null;
+        float minDistanceInteractable = Mathf.Infinity;
+        float minDistanceNotInteractable = Mathf.Infinity;
 
         foreach (Interactable interactable in Interactable.interactables)
         {
-            Transform interactable_transform = interactable.transform;
-            float current_distance = (interactable_transform.position - Global.player_transform.position).magnitude;
-            if (current_distance > interactable.player_min_distance)
+            Transform interactableTransform = interactable.transform;
+            float currentDistance = (interactableTransform.position - Global.playerTransform.position).magnitude;
+            if (currentDistance > interactable.playerMinDistance)
             {
                 continue;
             }
-            if (interactable.allows_interaction && current_distance < min_distance_interactable)
+            if (interactable.allowsInteraction && currentDistance < minDistanceInteractable)
             {
-                closest_interactable = interactable;
-                min_distance_interactable = current_distance;
+                closestInteractable = interactable;
+                minDistanceInteractable = currentDistance;
             }
-            else if (current_distance < min_distance_not_interactable)
+            else if (currentDistance < minDistanceNotInteractable)
             {
-                closest_not_interactable = interactable;
-                min_distance_not_interactable = current_distance;
+                closestNotInteractable = interactable;
+                minDistanceNotInteractable = currentDistance;
             }
         }
 
-        if (closest_interactable != null)
+        if (closestInteractable != null)
         {
-            return closest_interactable;
+            return closestInteractable;
         }
-        else if (closest_not_interactable != null)
+        else if (closestNotInteractable != null)
         {
-            return closest_not_interactable;
+            return closestNotInteractable;
         }
         return null;
     }
@@ -55,27 +55,27 @@ public class InteractableEventHandler : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        Interactable new_nearest_interactable = GetNearestInteractable();
-        if (nearest_interactable != new_nearest_interactable)
+        Interactable newNearestInteractable = GetNearestInteractable();
+        if (nearestInteractable != newNearestInteractable)
         {
-            if (nearest_interactable != null)
+            if (nearestInteractable != null)
             {
-                nearest_interactable.ChangeInteractingSprite(Global.not_interacting_with_sprite);
+                nearestInteractable.ChangeInteractingSprite(Global.notInteractingWithSprite);
             }
-            if (new_nearest_interactable != null)
+            if (newNearestInteractable != null)
             {
-                new_nearest_interactable.ChangeInteractingSprite(Global.interacting_with_sprite);
+                newNearestInteractable.ChangeInteractingSprite(Global.interactingWithSprite);
             }
-            nearest_interactable = new_nearest_interactable;
+            nearestInteractable = newNearestInteractable;
         }
 
-        if (nearest_interactable != null)
+        if (nearestInteractable != null)
         {
-            if (PlayerInput.GetKeyDown(PlayerInput.interact_key))
+            if (PlayerInput.GetKeyDown(PlayerInput.interactKey))
             {
-                if (nearest_interactable.CanInteractWith())
+                if (nearestInteractable.CanInteractWith())
                 {
-                    nearest_interactable.InteractWith();
+                    nearestInteractable.InteractWith();
                 }
             }
         }
@@ -83,6 +83,6 @@ public class InteractableEventHandler : MonoBehaviour
 
     private void Awake()
     {
-         Item.dropped_shader_prefab = Resources.Load<GameObject>("DroppedShader/Default") as GameObject;
+         Item.droppedShaderPrefab = Resources.Load<GameObject>("DroppedShader/Default") as GameObject;
     }
 }

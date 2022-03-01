@@ -20,12 +20,12 @@ public class TelekinesisUltimate : Ultimate
     public override void UpdateUI()
     {
         base.UpdateUI();
-        UIInventory.current_ultimate_UI_image.sprite = icon_sprite;
+        UIInventory.currentUltimate_UIImage.sprite = iconSprite;
     }
 
     public override void Awake()
     {
         base.Awake();
-        icon_sprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
+        iconSprite = Resources.Load<Sprite>("Sprites/UI/earthbending");
     }
 }

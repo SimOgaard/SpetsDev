@@ -4,56 +4,56 @@ using UnityEngine;
 
 public class ColliderMeshManipulation : MonoBehaviour
 {
-    protected Bounds old_bounds;
+    protected Bounds oldBounds;
     protected Collider _collider;
 
     /// <summary>
     /// Float that represent smallest position delta between any two triangles on our mesh
     /// Gets set from GroundMesh ChunkDetails UnitSize
     /// </summary>
-    protected static float _triangle_size_margin;
-    protected static float triangle_size_margin_squared;
-    public static float triangle_size_margin
+    protected static float _triangleSizeMargin;
+    protected static float triangleSizeMarginSquared;
+    public static float triangleSizeMargin
     {
         get
         {
-            return _triangle_size_margin;
+            return _triangleSizeMargin;
         }
         set
         {
             // add to the margin to reduce SwitchTriangles calls
             value *= 1.1f;
-            triangle_size_margin_squared = value * value;
-            _triangle_size_margin = value;
+            triangleSizeMarginSquared = value * value;
+            _triangleSizeMargin = value;
         }
     }
 
-    public GroundMesh.MeshManipulationState mesh_manipulation;
+    public GroundMesh.MeshManipulationState meshManipulation;
 
     protected virtual void Start()
     {
-        //for (int i = 0; i < mesh_manipulations.Length; i++)
+        //for (int i = 0; i < meshManipulations.Length; i++)
         //{
-        //    mesh_manipulations[i].change_to_index = GroundMesh.MeshManipulationState.GroundTriangleTypeIndex((int)mesh_manipulations[i].change_to);
+        //    meshManipulations[i].changeToIndex = GroundMesh.MeshManipulationState.GroundTriangleTypeIndex((int)meshManipulations[i].changeTo);
         //}
-        mesh_manipulation.change_to = mesh_manipulation.change_to;
+        meshManipulation.changeTo = meshManipulation.changeTo;
 
-        Debug.Log((int)mesh_manipulation.change_from);
+        Debug.Log((int)meshManipulation.changeFrom);
         _collider = gameObject.GetComponent<Collider>();
-        old_bounds = _collider.bounds;
+        oldBounds = _collider.bounds;
     }
 
     protected virtual void FixedUpdate()
     {
         // if bounds has not grown or changed position given triangle margin that would make it possible to hit another triangle it has not been on before
         if (
-            (old_bounds.center - _collider.bounds.center).sqrMagnitude > triangle_size_margin_squared ||
-            Mathf.Abs(old_bounds.extents.x - _collider.bounds.extents.x) > _triangle_size_margin ||
-            Mathf.Abs(old_bounds.extents.y - _collider.bounds.extents.y) > _triangle_size_margin ||
-            Mathf.Abs(old_bounds.extents.z - _collider.bounds.extents.z) > _triangle_size_margin
+            (oldBounds.center - _collider.bounds.center).sqrMagnitude > triangleSizeMarginSquared ||
+            Mathf.Abs(oldBounds.extents.x - _collider.bounds.extents.x) > _triangleSizeMargin ||
+            Mathf.Abs(oldBounds.extents.y - _collider.bounds.extents.y) > _triangleSizeMargin ||
+            Mathf.Abs(oldBounds.extents.z - _collider.bounds.extents.z) > _triangleSizeMargin
             )
         {
-            old_bounds = _collider.bounds;
+            oldBounds = _collider.bounds;
             SwitchTriangles();
         }
     }
@@ -61,12 +61,12 @@ public class ColliderMeshManipulation : MonoBehaviour
     protected virtual void SwitchTriangles()
     {
         Debug.Log("SwitchTriangles");
-        Chunk[] chunks = WorldGenerationManager.ReturnAllCunksInBounds(old_bounds);
+        Chunk[] chunks = WorldGenerationManager.ReturnAllCunksInBounds(oldBounds);
         for (int i = 0; i < chunks.Length; i++)
         {
-            if (chunks[i] != null && chunks[i].is_loaded)
+            if (chunks[i] != null && chunks[i].isLoaded)
             {
-                chunks[i].ground_mesh.SwitchTrainglesInCollider(_collider, mesh_manipulation);
+                chunks[i].groundMesh.SwitchTrainglesInCollider(_collider, meshManipulation);
             }
         }
     }

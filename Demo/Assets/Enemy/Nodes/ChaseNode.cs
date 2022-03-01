@@ -20,17 +20,17 @@ public class ChaseNode : Node
     public override NodeState Evaluate()
     {
         ai.SetColor(Color.yellow);
-        Vector3 heading = (ai.chase_transform.position - transform.position);
+        Vector3 heading = (ai.chaseTransform.position - transform.position);
         float distance = heading.sqrMagnitude;
         if (distance > 1f)
         {
-            agent.desired_speed = speed;
-            agent.desired_heading = heading.normalized;
+            agent.desiredSpeed = speed;
+            agent.desiredHeading = heading.normalized;
             return NodeState.running;
         }
         else
         {
-            agent.desired_speed = 0f;
+            agent.desiredSpeed = 0f;
             return NodeState.success;
         }
     }

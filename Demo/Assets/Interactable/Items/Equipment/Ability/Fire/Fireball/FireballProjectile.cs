@@ -8,36 +8,36 @@ using UnityEngine;
 public class FireballProjectile : MonoBehaviour
 {
     /*
-    private string damage_id = System.Guid.NewGuid().ToString();
+    private string damageId = System.Guid.NewGuid().ToString();
 
-    private FireballAbility fireball_ability;
-    private Rigidbody rigid_body;
-    private MeshRenderer mesh_renderer;
+    private FireballAbility fireballAbility;
+    private Rigidbody rigidBody;
+    private MeshRenderer meshRenderer;
 
-    [SerializeField] private Vector3 fire_heat_lift_force = new Vector3(0f, 25f, 0f);
-    [SerializeField] private float air_effect_magnitude = 0.1f;
-    public bool is_burned_out = false;
+    [SerializeField] private Vector3 fireHeatLiftForce = new Vector3(0f, 25f, 0f);
+    [SerializeField] private float airEffectMagnitude = 0.1f;
+    public bool isBurnedOut = false;
 
-    private Vector3 last_burn_contact_point = Vector3.zero;
+    private Vector3 lastBurnContactPoint = Vector3.zero;
 
-    private bool has_exploded = false;
+    private bool hasExploded = false;
 
     /// <summary>
     /// Returns ability on hit damage.
     /// </summary>
     public float OnHitDamage()
     {
-        return is_burned_out ? fireball_ability.on_collision_damage_burned_out : fireball_ability.on_collision_damage;
+        return isBurnedOut ? fireballAbility.onCollisionDamageBurnedOut : fireballAbility.onCollisionDamage;
     }
 
     /// <summary>
     /// Set variables when initializing fireball in FireballAbility.
     /// </summary>
-    public void InitVar(FireballAbility fireball_ability, Rigidbody rigid_body, MeshRenderer mesh_renderer)
+    public void InitVar(FireballAbility fireballAbility, Rigidbody rigidBody, MeshRenderer meshRenderer)
     {
-        this.fireball_ability = fireball_ability;
-        this.rigid_body = rigid_body;
-        this.mesh_renderer = mesh_renderer;
+        this.fireballAbility = fireballAbility;
+        this.rigidBody = rigidBody;
+        this.meshRenderer = meshRenderer;
     }
 
     /// <summary>
@@ -45,10 +45,10 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void UpgradeVar()
     {
-        gameObject.layer = fireball_ability.penetrate_enemies ? Layer.ignore_enemy_collision : Layer.ignore_player_collision;
-        rigid_body.drag = fireball_ability.rigidbody_drag;
-        rigid_body.angularDrag = fireball_ability.rigidbody_angular_drag;
-        rigid_body.mass = fireball_ability.rigidbody_mass;
+        gameObject.layer = fireballAbility.penetrateEnemies ? Layer.ignoreEnemyCollision : Layer.ignorePlayerCollision;
+        rigidBody.drag = fireballAbility.rigidbodyDrag;
+        rigidBody.angularDrag = fireballAbility.rigidbodyAngularDrag;
+        rigidBody.mass = fireballAbility.rigidbodyMass;
     }
 
     /// <summary>
@@ -70,9 +70,9 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void StartBurning()
     {
-        mesh_renderer.material = fireball_ability.fireball_material;
-        is_burned_out = false;
-        StartCoroutine(BurnOut(Random.Range(fireball_ability.fireball_fire_time_min, fireball_ability.fireball_fire_time_max)));
+        meshRenderer.material = fireballAbility.fireballMaterial;
+        isBurnedOut = false;
+        StartCoroutine(BurnOut(Random.Range(fireballAbility.fireballFireTimeMin, fireballAbility.fireballFireTimeMax)));
     }
 
     /// <summary>
@@ -80,8 +80,8 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void ApplyVelocity(Vector3 vel)
     {
-        has_exploded = false;
-        rigid_body.velocity = vel;
+        hasExploded = false;
+        rigidBody.velocity = vel;
     }
 
     /// <summary>
@@ -89,16 +89,16 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (transform.position.y < Water.water_level && !is_burned_out)
+        if (transform.position.y < Water.waterLevel && !isBurnedOut)
         {
-            is_burned_out = true;
+            isBurnedOut = true;
             StopAllCoroutines();
             StartCoroutine(BurnOut(0f));
-            StartCoroutine(BurnedOut(fireball_ability.fireball_active_time));
+            StartCoroutine(BurnedOut(fireballAbility.fireballActiveTime));
         }
 
-        mesh_renderer.material.SetVector("_FireBallCentre", transform.position);
-        mesh_renderer.material.SetVector("_FireDirection", rigid_body.velocity * air_effect_magnitude - fire_heat_lift_force);
+        meshRenderer.material.SetVector("_FireBallCentre", transform.position);
+        meshRenderer.material.SetVector("_FireDirection", rigidBody.velocity * airEffectMagnitude - fireHeatLiftForce);
     }
 
     /// <summary>
@@ -106,35 +106,35 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     public void Explode()
     {
-        if (!is_burned_out && !has_exploded && fireball_ability.explode_on_first_hit)
+        if (!isBurnedOut && !hasExploded && fireballAbility.explodeOnFirstHit)
         {
-            Enemies.Sound(transform, fireball_ability.explosion_sound);
+            Enemies.Sound(transform, fireballAbility.explosionSound);
 
-            Vector3 fireball_pos = transform.position;
-            Collider[] all_collisions = Physics.OverlapSphere(fireball_pos, fireball_ability.explosion_radius);
-            foreach (Collider collider in all_collisions)
+            Vector3 fireballPos = transform.position;
+            Collider[] allCollisions = Physics.OverlapSphere(fireballPos, fireballAbility.explosionRadius);
+            foreach (Collider collider in allCollisions)
             {
-                if (collider.gameObject == gameObject || Layer.IsInLayer(Layer.ignore_external_forces, collider.gameObject.layer))
+                if (collider.gameObject == gameObject || Layer.IsInLayer(Layer.ignoreExternalForces, collider.gameObject.layer))
                 {
                     continue;
                 }
                 if (Layer.IsInLayer(Layer.enemy, collider.gameObject.layer))
                 {
                     Transform parent = collider.transform.parent;
-                    if(parent.GetComponent<EnemyAI>().Damage(fireball_ability.explosion_damage, damage_id, 0.1f))
+                    if(parent.GetComponent<EnemyAI>().Damage(fireballAbility.explosionDamage, damageId, 0.1f))
                     {
-                        parent.GetComponent<Agent>().AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, 1f, ForceMode.Impulse);
+                        parent.GetComponent<Agent>().AddExplosionForce(fireballAbility.explosionForce, fireballPos, 0f, 1f, ForceMode.Impulse);
                     }
                 }
-                else if (collider.TryGetComponent(out Rigidbody rigid_body))
+                else if (collider.TryGetComponent(out Rigidbody rigidBody))
                 {
-                    rigid_body.AddExplosionForce(fireball_ability.explosion_force, fireball_pos, 0f, fireball_ability.explosion_upwards_modifier, ForceMode.Impulse);
+                    rigidBody.AddExplosionForce(fireballAbility.explosionForce, fireballPos, 0f, fireballAbility.explosionUpwardsModifier, ForceMode.Impulse);
                 }
             }
-            fireball_ability.explosion_prefab.transform.position = transform.position;
-            fireball_ability.explosion_prefab.SetActive(false);
-            fireball_ability.explosion_prefab.SetActive(true);
-            has_exploded = true;
+            fireballAbility.explosionPrefab.transform.position = transform.position;
+            fireballAbility.explosionPrefab.SetActive(false);
+            fireballAbility.explosionPrefab.SetActive(true);
+            hasExploded = true;
 
             StartCoroutine(RaycastFibonacciSphere(100, 0.75f, 2f, 0.0075f, 0.025f));
         }
@@ -143,18 +143,18 @@ public class FireballProjectile : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    private IEnumerator RaycastFibonacciSphere(int amount, float cutoff, float y_offset, float time_between, float time_begining)
+    private IEnumerator RaycastFibonacciSphere(int amount, float cutoff, float yOffset, float timeBetween, float timeBegining)
     {
-        Vector3 start_point = transform.position + Vector3.up * y_offset;
+        Vector3 startPoint = transform.position + Vector3.up * yOffset;
 
         float phi = Mathf.PI * (3.0f - Mathf.Sqrt(5.0f));
 
-        yield return new WaitForSeconds(time_begining);
-        WaitForSeconds wait_between = new WaitForSeconds(time_between);
+        yield return new WaitForSeconds(timeBegining);
+        WaitForSeconds waitBetween = new WaitForSeconds(timeBetween);
 
         for (int i = amount; i > amount * cutoff; i--)
         {
-            yield return wait_between;
+            yield return waitBetween;
 
             float y = 1f - (i / (amount - 1f)) * 2f;
             float radius = Mathf.Sqrt(1f - y * y);
@@ -167,15 +167,15 @@ public class FireballProjectile : MonoBehaviour
             Vector3 point = new Vector3(x, y, z);
 
             RaycastHit hit;
-            if (Physics.Raycast(start_point, point, out hit, fireball_ability.explosion_radius, Layer.Mask.static_ground))
+            if (Physics.Raycast(startPoint, point, out hit, fireballAbility.explosionRadius, Layer.Mask.staticGround))
             {
                 if (Tag.IsTaggedWith(hit.collider.tag, Tag.flammable))
                 {
-                    fireball_ability.set_fire.UpdateFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min, fireball_ability.ground_fire_time_max));
+                    fireballAbility.setFire.UpdateFlammableFire(hit.point, hit.normal, Random.Range(fireballAbility.groundFireTimeMin, fireballAbility.groundFireTimeMax));
                 }
                 else
                 {
-                    fireball_ability.set_fire.UpdateNonFlammableFire(hit.point, hit.normal, Random.Range(fireball_ability.ground_fire_time_min / fireball_ability.ground_none_flammable_time_decreesement, fireball_ability.ground_fire_time_max / fireball_ability.ground_none_flammable_time_decreesement));
+                    fireballAbility.setFire.UpdateNonFlammableFire(hit.point, hit.normal, Random.Range(fireballAbility.groundFireTimeMin / fireballAbility.groundNoneFlammableTimeDecreesement, fireballAbility.groundFireTimeMax / fireballAbility.groundNoneFlammableTimeDecreesement));
                 }
             }
         }
@@ -191,28 +191,28 @@ public class FireballProjectile : MonoBehaviour
     /// </summary>
     private void OnCollisionStay(Collision collision)
     {
-        float sound = rigid_body.velocity.magnitude * fireball_ability.friction_sound;
+        float sound = rigidBody.velocity.magnitude * fireballAbility.frictionSound;
         Enemies.Sound(transform, sound, Time.fixedDeltaTime);
 
-        if (is_burned_out || !Layer.IsInLayer(Layer.Mask.static_ground, collision.gameObject.layer))
+        if (isBurnedOut || !Layer.IsInLayer(Layer.Mask.staticGround, collision.gameObject.layer))
         {
             return;
         }
 
-        ContactPoint contact_point = collision.GetContact(0);
-        Vector3 new_burn_contact_point = contact_point.point;
-        Vector3 normal = contact_point.normal;
-        if ((last_burn_contact_point - new_burn_contact_point).sqrMagnitude > 3f)
+        ContactPoint contactPoint = collision.GetContact(0);
+        Vector3 newBurnContactPoint = contactPoint.point;
+        Vector3 normal = contactPoint.normal;
+        if ((lastBurnContactPoint - newBurnContactPoint).sqrMagnitude > 3f)
         {
             if (Tag.IsTaggedWith(collision.gameObject.tag, Tag.flammable))
             {
-                fireball_ability.set_fire.UpdateFlammableFire(new_burn_contact_point, normal, Random.Range(fireball_ability.ground_fire_time_min, fireball_ability.ground_fire_time_max));
+                fireballAbility.setFire.UpdateFlammableFire(newBurnContactPoint, normal, Random.Range(fireballAbility.groundFireTimeMin, fireballAbility.groundFireTimeMax));
             }
             else
             {
-                fireball_ability.set_fire.UpdateNonFlammableFire(new_burn_contact_point, normal, Random.Range(fireball_ability.ground_fire_time_min / fireball_ability.ground_none_flammable_time_decreesement, fireball_ability.ground_fire_time_max / fireball_ability.ground_none_flammable_time_decreesement));
+                fireballAbility.setFire.UpdateNonFlammableFire(newBurnContactPoint, normal, Random.Range(fireballAbility.groundFireTimeMin / fireballAbility.groundNoneFlammableTimeDecreesement, fireballAbility.groundFireTimeMax / fireballAbility.groundNoneFlammableTimeDecreesement));
             }
-            last_burn_contact_point = new_burn_contact_point;
+            lastBurnContactPoint = newBurnContactPoint;
         }
     }
 
@@ -222,9 +222,9 @@ public class FireballProjectile : MonoBehaviour
     private IEnumerator BurnOut(float time)
     {
         yield return new WaitForSeconds(time);
-        is_burned_out = true;
-        mesh_renderer.material = fireball_ability.fireball_burned_out_material;
-        StartCoroutine(BurnedOut(fireball_ability.fireball_active_time));
+        isBurnedOut = true;
+        meshRenderer.material = fireballAbility.fireballBurnedOutMaterial;
+        StartCoroutine(BurnedOut(fireballAbility.fireballActiveTime));
     }
 
     /// <summary>

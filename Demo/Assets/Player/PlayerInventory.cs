@@ -7,8 +7,8 @@ using UnityEngine;
 /// <para>Equipment, Weapon, Weapon.IWeapon, Ability, Ability.IAbility, Ultimate, Ultimate.IUltimate.</para>
 /// 
 /// Example use:
-/// <para>if (PlayerInventory.weapon_equipment != null) PlayerInventory.weapon_equipment.DropEquipment();</para>
-/// <para>if (PlayerInventory.weapon_parrent != null) PlayerInventory.weapon_parrent.GetDroppedItemShaderStruct();</para>
+/// <para>if (PlayerInventory.weaponEquipment != null) PlayerInventory.weaponEquipment.DropEquipment();</para>
+/// <para>if (PlayerInventory.weaponParrent != null) PlayerInventory.weaponParrent.GetDroppedItemShaderStruct();</para>
 /// <para>if (PlayerInventory.weapon != null) PlayerInventory.weapon.UsePrimary();</para>
 /// </summary>
 public class PlayerInventory : MonoBehaviour
@@ -36,11 +36,11 @@ public class PlayerInventory : MonoBehaviour
         StartWith(typeof(EarthSpikesBase));
     }
 
-    private void StartWith(System.Type equipment_type)
+    private void StartWith(System.Type equipmentType)
     {
         GameObject gm;
         Equipment.IEquipment eq;
-        (gm, eq) = Equipment.CreateRandomEquipment(equipment_type);
+        (gm, eq) = Equipment.CreateRandomEquipment(equipmentType);
         eq.InteractWith();
     }
 }

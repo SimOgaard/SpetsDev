@@ -8,17 +8,17 @@ using UnityEngine;
 public class Chest : Interactable
 {
     // Specifies what Equipment this chest contains.
-    [SerializeField] private Equipment.IEquipment chest_equipment;
-    [SerializeField] private GameObject chest_equipment_game_object;
-    [SerializeField] private Upgrade.IUpgrade chest_upgrade;
-    [SerializeField] private GameObject chest_upgrade_game_object;
+    [SerializeField] private Equipment.IEquipment chestEquipment;
+    [SerializeField] private GameObject chestEquipmentGameObject;
+    [SerializeField] private Upgrade.IUpgrade chestUpgrade;
+    [SerializeField] private GameObject chestUpgradeGameObject;
 
-    private GameObject chest_top;
+    private GameObject chestTop;
 
     [SerializeField] private float radius = 0f;
     [SerializeField] private float power = 25f;
-    [SerializeField] private float upwards_modifier = 5f;
-    [SerializeField] private float explosion_offset = 5f;
+    [SerializeField] private float upwardsModifier = 5f;
+    [SerializeField] private float explosionOffset = 5f;
 
     /// <summary>
     /// Handles InteractWith function call that is received from InteractableEventHandler.
@@ -27,14 +27,14 @@ public class Chest : Interactable
     {
         void CreateChestItem()
         {
-            if (chest_equipment == null)
+            if (chestEquipment == null)
             {
-                System.Type equipment_type = Equipment.RandomEquipment();
-                (chest_equipment_game_object, chest_equipment) = Equipment.CreateRandomEquipment(equipment_type);
+                System.Type equipmentType = Equipment.RandomEquipment();
+                (chestEquipmentGameObject, chestEquipment) = Equipment.CreateRandomEquipment(equipmentType);
 
-                if (chest_upgrade == null)
+                if (chestUpgrade == null)
                 {
-                    //(chest_upgrade_game_object, chest_upgrade) = Upgrade.CreateRandomUpgrade(equipment_type);
+                    //(chestUpgradeGameObject, chestUpgrade) = Upgrade.CreateRandomUpgrade(equipmentType);
                 }
             }
         }
@@ -45,25 +45,25 @@ public class Chest : Interactable
             Vector3 forward = -Camera.main.transform.forward;
             forward.y = 0f;
 
-            if (chest_equipment != null)
+            if (chestEquipment != null)
             {
-                chest_equipment.Drop(transform.position, chest_equipment.Thrust(rotation, forward));
+                chestEquipment.Drop(transform.position, chestEquipment.Thrust(rotation, forward));
             }
-            if (chest_upgrade != null)
+            if (chestUpgrade != null)
             {
-                //chest_upgrade.Drop(transform.position, chest_equipment.Thrust(rotation, forward));
+                //chestUpgrade.Drop(transform.position, chestEquipment.Thrust(rotation, forward));
             }
         }
 
         void ChestOpeningAnimation()
         {
-            gameObject.layer = Layer.game_world;
-            chest_top.layer = Layer.game_world_moving;
+            gameObject.layer = Layer.gameWorld;
+            chestTop.layer = Layer.gameWorldMoving;
 
             Enemies.Sound(transform, 200f);
 
-            Rigidbody chest_top_rigidbody = RigidbodySetup.AddRigidbody(chest_top);
-            chest_top_rigidbody.AddExplosionForce(power, chest_top.transform.position + new Vector3(Random.Range(-explosion_offset, explosion_offset), 0f, Random.Range(-explosion_offset, explosion_offset)), radius, upwards_modifier, ForceMode.VelocityChange);
+            Rigidbody chestTopRigidbody = RigidbodySetup.AddRigidbody(chestTop);
+            chestTopRigidbody.AddExplosionForce(power, chestTop.transform.position + new Vector3(Random.Range(-explosionOffset, explosionOffset), 0f, Random.Range(-explosionOffset, explosionOffset)), radius, upwardsModifier, ForceMode.VelocityChange);
         }
 
         if (CanInteractWith())
@@ -78,11 +78,11 @@ public class Chest : Interactable
     public override void Awake()
     {
         base.Awake();
-        chest_top = transform.GetChild(0).gameObject;
+        chestTop = transform.GetChild(0).gameObject;
     }
 
     public void Lock(bool state)
     {
-        allows_interaction = state;
+        allowsInteraction = state;
     }
 }

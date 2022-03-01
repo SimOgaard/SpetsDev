@@ -7,8 +7,8 @@ public class GridOfColliders : MonoBehaviour
     [SerializeField] private Vector3 size;
     [SerializeField] private Vector2Int grid;
 
-    [SerializeField] private Transform dictionary_testing_transform;
-    [SerializeField] private Transform array_testing_transform;
+    [SerializeField] private Transform dictionaryTestingTransform;
+    [SerializeField] private Transform arrayTestingTransform;
 
     private void Start()
     {
@@ -17,23 +17,23 @@ public class GridOfColliders : MonoBehaviour
             for (int y = -grid.y; y <= grid.y; y++)
             {
 
-                GameObject new_game_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Collider col = new_game_object.GetComponent<Collider>();
+                GameObject newGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                Collider col = newGameObject.GetComponent<Collider>();
                 col.isTrigger = true;
-                new_game_object.GetComponent<MeshRenderer>().enabled = false;
+                newGameObject.GetComponent<MeshRenderer>().enabled = false;
 
-                new_game_object.transform.parent = transform;
-                new_game_object.transform.localPosition = Vector3.Scale(size, new Vector3(x, 0f, y));
-                new_game_object.transform.localScale = size;
+                newGameObject.transform.parent = transform;
+                newGameObject.transform.localPosition = Vector3.Scale(size, new Vector3(x, 0f, y));
+                newGameObject.transform.localScale = size;
 
-                foreach (Transform child in dictionary_testing_transform)
+                foreach (Transform child in dictionaryTestingTransform)
                 {
-                    child.GetChild(0).GetComponent<GrassTestingWithDictionary>().test_colliders.Add(col);
+                    child.GetChild(0).GetComponent<GrassTestingWithDictionary>().testColliders.Add(col);
                 }
-                foreach (Transform child in array_testing_transform)
+                foreach (Transform child in arrayTestingTransform)
                 {
 
-                    child.GetChild(0).GetComponent<GrassTestingWithArray>().test_colliders.Add(col);
+                    child.GetChild(0).GetComponent<GrassTestingWithArray>().testColliders.Add(col);
                 }
             }
         }

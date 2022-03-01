@@ -7,13 +7,13 @@ public class GameManager : MonoBehaviour
 {
     private void Awake()
     {
-        Global.Materials.sprite_renderer_material = Resources.Load<Material>("Sprites/Sprte Billboard Material");
+        Global.Materials.spriteRendererMaterial = Resources.Load<Material>("Sprites/Sprte Billboard Material");
 
-        Global.interacting_with_sprite = Resources.Load<Sprite>("Interactables/interacting_with_sprite");
-        Global.not_interacting_with_sprite = Resources.Load<Sprite>("Interactables/not_interacting_with_sprite");
+        Global.interactingWithSprite = Resources.Load<Sprite>("Interactables/interactingWithSprite");
+        Global.notInteractingWithSprite = Resources.Load<Sprite>("Interactables/notInteractingWithSprite");
 
-        Global.camera_focus_point_transform = GameObject.Find("camera_focus_point").transform;
-        Global.player_transform = GameObject.Find("Player").transform;
-        Global.equipments_in_inventory = GameObject.Find("EquipmentsInInventory").transform;
+        Global.cameraFocusPointTransform = GameObject.Find("cameraFocusPoint").transform;
+        Global.playerTransform = GameObject.Find("Player").transform;
+        Global.equipmentsInInventory = GameObject.Find("EquipmentsInInventory").transform;
     }
 }

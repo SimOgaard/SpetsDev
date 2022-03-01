@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class SetAsEnemy : MonoBehaviour
 {
-    private void RecursiveEnemy(GameObject game_object)
+    private void RecursiveEnemy(GameObject gameObject)
     {
-        if (Layer.IsInLayer(Layer.spawned_game_world_higher_priority, game_object.layer))
+        if (Layer.IsInLayer(Layer.spawnedGameWorldHigherPriority, gameObject.layer))
         {
-            Collider[] colliders = game_object.GetComponents<Collider>();
+            Collider[] colliders = gameObject.GetComponents<Collider>();
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].isTrigger)
@@ -22,9 +22,9 @@ public class SetAsEnemy : MonoBehaviour
             }
         }
 
-        game_object.layer = Layer.enemy;
+        gameObject.layer = Layer.enemy;
 
-        foreach (Transform child in game_object.transform)
+        foreach (Transform child in gameObject.transform)
         {
             RecursiveEnemy(child.gameObject);
         }
@@ -33,14 +33,14 @@ public class SetAsEnemy : MonoBehaviour
     public void Init()
     {
         /*
-        JoinMeshes join_meshes = gameObject.AddComponent<JoinMeshes>();
-        join_meshes.SetCollider();
-        join_meshes.SetMergeByTags(true);
+        JoinMeshes joinMeshes = gameObject.AddComponent<JoinMeshes>();
+        joinMeshes.SetCollider();
+        joinMeshes.SetMergeByTags(true);
         */
-        SoundCollider sound_collider = gameObject.AddComponent<SoundCollider>();
-        sound_collider.sound_amplifier = 7.5f;
-        sound_collider.min_sound = 50f;
-        sound_collider.AddRigidbody(GetComponent<Agent>()._rigidbody);
+        SoundCollider soundCollider = gameObject.AddComponent<SoundCollider>();
+        soundCollider.soundAmplifier = 7.5f;
+        soundCollider.minSound = 50f;
+        soundCollider.AddRigidbody(GetComponent<Agent>()._rigidbody);
 
         Enemies.AddEnemyToList(GetComponent<EnemyAI>());
 

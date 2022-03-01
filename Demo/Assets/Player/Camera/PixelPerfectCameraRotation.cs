@@ -10,41 +10,41 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCameraRotation : MonoBehaviour
 {
-    [SerializeField] private Vector3 camera_rotation_init = new Vector3(30f, 0f, 0f);
-    [SerializeField] private float camera_distance = 100f;
-    [SerializeField] private float camera_far_clipping_plane = 300f;
-    [SerializeField] private float shadow_distance = 300f;
-    private float _camera_far_clipping_plane;
-    private float _camera_distance;
+    [SerializeField] private Vector3 cameraRotationInit = new Vector3(30f, 0f, 0f);
+    [SerializeField] private float cameraDistance = 100f;
+    [SerializeField] private float cameraFarClippingPlane = 300f;
+    [SerializeField] private float shadowDistance = 300f;
+    private float _cameraFarClippingPlane;
+    private float _cameraDistance;
 
     public static Vector2 resolution
     {
         get { return new Vector2(480f, 270f); }
     }
-    public static Vector2 resolution_extended
+    public static Vector2 resolutionExtended
     {
         get { return new Vector2(512f, 288f); }
     }
 
-    public const float units_per_pixel_world = 1f / 5f;
-    public const float units_per_pixel_camera = (270f / 5f) / 288f;
-    public const float pixels_per_unit = 5f;
+    public const float unitsPerPixelWorld = 1f / 5f;
+    public const float unitsPerPixelCamera = (270f / 5f) / 288f;
+    public const float pixelsPerUnit = 5f;
 
     private Vector3 offset;
 
-    private CameraMovement camera_focus_point_script;
-    [HideInInspector] public Camera m_camera;
-    [HideInInspector] public Camera n_camera;
-    [HideInInspector] public Camera r_camera;
+    private CameraMovement cameraFocusPointScript;
+    [HideInInspector] public Camera mCamera;
+    [HideInInspector] public Camera nCamera;
+    [HideInInspector] public Camera rCamera;
     private RenderTexture rt;
 
-    public static Vector2 camera_offset;
+    public static Vector2 cameraOffset;
 
-    private PlanarReflectionManager planar_reflection_manager;
+    private PlanarReflectionManager planarReflectionManager;
 
-    [SerializeField] private DayNightCycle day_night_cycle;
-    [SerializeField] private CloudShadows sun_cloud_shadows;
-    [SerializeField] private CloudShadows moon_cloud_shadows;
+    [SerializeField] private DayNightCycle dayNightCycle;
+    [SerializeField] private CloudShadows sunCloudShadows;
+    [SerializeField] private CloudShadows moonCloudShadows;
 
     private static float _zoom = 0.5f;
     public static float zoom
@@ -58,12 +58,12 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     public static Vector3 RoundToPixel(Vector3 position)
     {
-        float zoomed_units_per_pixel_world = units_per_pixel_world / zoom;
+        float zoomedUnitsPerPixelWorld = unitsPerPixelWorld / zoom;
 
         Vector3 result;
-        result.x = Mathf.Round(position.x / zoomed_units_per_pixel_world) * zoomed_units_per_pixel_world;
-        result.y = Mathf.Round(position.y / zoomed_units_per_pixel_world) * zoomed_units_per_pixel_world;
-        result.z = Mathf.Round(position.z / zoomed_units_per_pixel_world) * zoomed_units_per_pixel_world;
+        result.x = Mathf.Round(position.x / zoomedUnitsPerPixelWorld) * zoomedUnitsPerPixelWorld;
+        result.y = Mathf.Round(position.y / zoomedUnitsPerPixelWorld) * zoomedUnitsPerPixelWorld;
+        result.z = Mathf.Round(position.z / zoomedUnitsPerPixelWorld) * zoomedUnitsPerPixelWorld;
 
         return result;
     }
@@ -71,23 +71,23 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// <summary>
     /// Snap camera position to pixel grid using Camera.worldToCameraMatrix. 
     /// </summary>
-    public static Vector2 PixelSnap(ref Camera m_camera)
+    public static Vector2 PixelSnap(ref Camera mCamera)
     {
-        Vector3 camera_position = Quaternion.Inverse(m_camera.transform.rotation) * m_camera.transform.position;
-        Vector3 rounded_camera_position = RoundToPixel(camera_position);
-        Vector3 offset = rounded_camera_position - camera_position;
+        Vector3 cameraPosition = Quaternion.Inverse(mCamera.transform.rotation) * mCamera.transform.position;
+        Vector3 roundedCameraPosition = RoundToPixel(cameraPosition);
+        Vector3 offset = roundedCameraPosition - cameraPosition;
         offset.z = -offset.z;
-        Matrix4x4 offset_matrix = Matrix4x4.TRS(-offset, Quaternion.identity, new Vector3(1.0f, 1.0f, -1.0f));
+        Matrix4x4 offsetMatrix = Matrix4x4.TRS(-offset, Quaternion.identity, new Vector3(1.0f, 1.0f, -1.0f));
 
-        m_camera.worldToCameraMatrix = offset_matrix * m_camera.transform.worldToLocalMatrix;
+        mCamera.worldToCameraMatrix = offsetMatrix * mCamera.transform.worldToLocalMatrix;
 
         // Translate offset.xy to render texture uv cordinates.
-        float to_positive = (units_per_pixel_camera * 0.5f) / zoom;
-        float x_divider = pixels_per_unit / resolution.x * zoom;
-        float y_divider = pixels_per_unit / resolution.y * zoom;
-        Vector2 camera_offset = new Vector2((-offset.x + to_positive) * x_divider, (-offset.y + to_positive) * y_divider);
+        float toPositive = (unitsPerPixelCamera * 0.5f) / zoom;
+        float xDivider = pixelsPerUnit / resolution.x * zoom;
+        float yDivider = pixelsPerUnit / resolution.y * zoom;
+        Vector2 cameraOffset = new Vector2((-offset.x + toPositive) * xDivider, (-offset.y + toPositive) * yDivider);
 
-        return camera_offset;
+        return cameraOffset;
     }
 
     /// <summary>
@@ -96,20 +96,20 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void SetCameraNearClippingPlane()
     {
-        Vector3 direction = m_camera.transform.forward;
+        Vector3 direction = mCamera.transform.forward;
         direction.y = 0f;
-        Vector4 clipPlaneWorldSpace = new Vector4(direction.x, direction.y, direction.z, Vector3.Dot(m_camera.transform.position, -direction));
-        Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(m_camera.cameraToWorldMatrix) * clipPlaneWorldSpace;
-        m_camera.projectionMatrix = m_camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
+        Vector4 clipPlaneWorldSpace = new Vector4(direction.x, direction.y, direction.z, Vector3.Dot(mCamera.transform.position, -direction));
+        Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(mCamera.cameraToWorldMatrix) * clipPlaneWorldSpace;
+        mCamera.projectionMatrix = mCamera.CalculateObliqueMatrix(clipPlaneCameraSpace);
     }
 
     /// <summary>
     /// Moves camera to given focus point to reduce flickering
     /// </summary>
-    public static void MoveCamera(ref Camera m_camera, Transform camera_focus_point, Vector3 x_rot, float dist)
+    public static void MoveCamera(ref Camera mCamera, Transform cameraFocusPoint, Vector3 xRot, float dist)
     {
-        m_camera.transform.rotation = camera_focus_point.rotation * Quaternion.Euler(x_rot);
-        m_camera.transform.position = camera_focus_point.position - m_camera.transform.forward * dist;
+        mCamera.transform.rotation = cameraFocusPoint.rotation * Quaternion.Euler(xRot);
+        mCamera.transform.position = cameraFocusPoint.position - mCamera.transform.forward * dist;
     }
 
     private void Awake()
@@ -121,17 +121,17 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
 #endif
 
-        Shader.SetGlobalFloat("pixels_per_unit", pixels_per_unit);
-        Shader.SetGlobalFloat("y_scale", SpriteInitializer.y_scale);
+        Shader.SetGlobalFloat("pixelsPerUnit", pixelsPerUnit);
+        Shader.SetGlobalFloat("yScale", SpriteInitializer.yScale);
 
-        camera_focus_point_script = Global.camera_focus_point_transform.GetComponent<CameraMovement>();
-        m_camera = GetComponent<Camera>();
+        cameraFocusPointScript = Global.cameraFocusPointTransform.GetComponent<CameraMovement>();
+        mCamera = GetComponent<Camera>();
     }
 
     private void Start()
     {
         UpdateZoomValues(Mathf.NegativeInfinity);
-        ZoomCamera(ref m_camera);
+        ZoomCamera(ref mCamera);
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -139,40 +139,40 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return;
         }
 #endif
-        planar_reflection_manager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
-        day_night_cycle = GameObject.Find("DayNightCycle").GetComponent<DayNightCycle>();
+        planarReflectionManager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
+        dayNightCycle = GameObject.Find("DayNightCycle").GetComponent<DayNightCycle>();
     }
 
-    private void UpdateZoomValues(float scroll_offset = 0f)
+    private void UpdateZoomValues(float scrollOffset = 0f)
     {
-        float scroll = PlayerInput.mouse_scroll_value - scroll_offset;
+        float scroll = PlayerInput.mouseScrollValue - scrollOffset;
         if (scroll == 0f)
         {
             return;
         }
 
         zoom += scroll;
-        if (sun_cloud_shadows != null)
+        if (sunCloudShadows != null)
         {
-            sun_cloud_shadows.UpdateLightProperties(zoom);
+            sunCloudShadows.UpdateLightProperties(zoom);
         }
-        if (moon_cloud_shadows != null)
+        if (moonCloudShadows != null)
         {
-            moon_cloud_shadows.UpdateLightProperties(zoom);
+            moonCloudShadows.UpdateLightProperties(zoom);
         }
-        _camera_distance = camera_distance / zoom;
-        _camera_far_clipping_plane = camera_far_clipping_plane / zoom;
-        QualitySettings.shadowDistance = shadow_distance / zoom;
+        _cameraDistance = cameraDistance / zoom;
+        _cameraFarClippingPlane = cameraFarClippingPlane / zoom;
+        QualitySettings.shadowDistance = shadowDistance / zoom;
     }
-    private void ZoomCamera(ref Camera camera, float far_clip_plane_factor = 1f)
+    private void ZoomCamera(ref Camera camera, float farClipPlaneFactor = 1f)
     {
-        camera.orthographicSize = (resolution_extended.y / (5f * 2f)) / zoom;
-        camera.farClipPlane = _camera_far_clipping_plane * far_clip_plane_factor;
+        camera.orthographicSize = (resolutionExtended.y / (5f * 2f)) / zoom;
+        camera.farClipPlane = _cameraFarClippingPlane * farClipPlaneFactor;
     }
 
     private void Update()
     {
-        if (GameTime.is_paused)
+        if (GameTime.isPaused)
         {
             return;
         }
@@ -189,33 +189,33 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
 #endif
 
-        ZoomCamera(ref m_camera);
-        ZoomCamera(ref n_camera);
-        ZoomCamera(ref r_camera, 0.75f);
+        ZoomCamera(ref mCamera);
+        ZoomCamera(ref nCamera);
+        ZoomCamera(ref rCamera, 0.75f);
 
         // Check if camera sees an unloaded chunk
-        GameTime.is_paused = SeesUnloaded();
-        if (GameTime.is_paused)
+        GameTime.isPaused = SeesUnloaded();
+        if (GameTime.isPaused)
         {
             return;
         }
 
-        camera_focus_point_script.SmoothPosition();
+        cameraFocusPointScript.SmoothPosition();
 
-        MoveCamera(ref m_camera, Global.camera_focus_point_transform, camera_rotation_init, _camera_distance);
-        Shader.SetGlobalVector("_CameraOffset", new Vector4(camera_offset.x, camera_offset.y, 0f, 0f));
-        camera_offset = PixelSnap(ref m_camera);
+        MoveCamera(ref mCamera, Global.cameraFocusPointTransform, cameraRotationInit, _cameraDistance);
+        Shader.SetGlobalVector("_CameraOffset", new Vector4(cameraOffset.x, cameraOffset.y, 0f, 0f));
+        cameraOffset = PixelSnap(ref mCamera);
         SetCameraNearClippingPlane();
 
         // Create rays for bottom corners of the camera
-        Ray bot_right_ray = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
-        Ray bot_left_ray = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+        Ray botRightRay = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray botLeftRay = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
         
         // Move camera after main camera
-        planar_reflection_manager.ConstructMatrix4X4Ortho(bot_right_ray, bot_left_ray, 2f * m_camera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
-        planar_reflection_manager.SetCameraNearClippingPlane();
+        planarReflectionManager.ConstructMatrix4X4Ortho(botRightRay, botLeftRay, 2f * mCamera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
+        planarReflectionManager.SetCameraNearClippingPlane();
 
-        day_night_cycle.UpdatePos();
+        dayNightCycle.UpdatePos();
     }
 
     private bool SeesUnloaded()
@@ -226,20 +226,20 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return false;
         }
 #endif
-        Plane plane = new Plane(Vector3.up, -Water.water_level);
+        Plane plane = new Plane(Vector3.up, -Water.waterLevel);
 
         for (float x = -0.25f; x < 2f; x += 1.5f)
         {
             for (float y = -0.25f; y < 2f; y += 1.5f)
             {
-                Ray camera_corner_ray = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
+                Ray cameraCornerRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
 
                 float distance;
-                plane.Raycast(camera_corner_ray, out distance);
-                Vector3 plane_point = camera_corner_ray.GetPoint(distance);
-                Chunk chunk = WorldGenerationManager.ReturnNearestChunk(plane_point);
+                plane.Raycast(cameraCornerRay, out distance);
+                Vector3 planePoint = cameraCornerRay.GetPoint(distance);
+                Chunk chunk = WorldGenerationManager.ReturnNearestChunk(planePoint);
                 
-                if (chunk == null || !chunk.is_loaded)
+                if (chunk == null || !chunk.isLoaded)
                 {
                     return true;
                 }
@@ -253,8 +253,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void OnPreRender()
     {
-        rt = RenderTexture.GetTemporary((int) resolution_extended.x, (int) resolution_extended.y, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
-        m_camera.targetTexture = rt;
+        rt = RenderTexture.GetTemporary((int) resolutionExtended.x, (int) resolutionExtended.y, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        mCamera.targetTexture = rt;
     }
 
     /// <summary>
@@ -264,10 +264,10 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     {
         src.filterMode = FilterMode.Point;
 
-        Vector2 camera_scale = new Vector2(resolution.x / resolution_extended.x, resolution.y / resolution_extended.y);
+        Vector2 cameraScale = new Vector2(resolution.x / resolutionExtended.x, resolution.y / resolutionExtended.y);
 
-        Graphics.Blit(src, dest, camera_scale, camera_offset);
-        //Graphics.Blit(src, dest, camera_scale, Vector2.zero);
+        Graphics.Blit(src, dest, cameraScale, cameraOffset);
+        //Graphics.Blit(src, dest, cameraScale, Vector2.zero);
 
         RenderTexture.ReleaseTemporary(rt);
     }
@@ -277,7 +277,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void OnPostRender()
     {
-        m_camera.targetTexture = null;
+        mCamera.targetTexture = null;
         RenderTexture.active = null;
     }
 
@@ -285,54 +285,54 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Construct plane representing the water level
-        Plane plane = new Plane(Vector3.up, -Water.water_level);
+        Plane plane = new Plane(Vector3.up, -Water.waterLevel);
 
         // Create rays for bottom corners of the camera
-        Ray bot_right_ray = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
-        Ray bot_left_ray = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+        Ray botRightRay = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray botLeftRay = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
 
         // Assign floats of ray distance for bottom corners
-        float bot_right_distance;
-        float bot_left_distance;
+        float botRightDistance;
+        float botLeftDistance;
 
         // Raycast to plain
-        plane.Raycast(bot_right_ray, out bot_right_distance);
-        plane.Raycast(bot_left_ray, out bot_left_distance);
+        plane.Raycast(botRightRay, out botRightDistance);
+        plane.Raycast(botLeftRay, out botLeftDistance);
 
         // Get each position of all four camera corners where they hit the water plain
-        Vector3 top_right_position = bot_right_ray.GetPoint(bot_right_distance);
-        Vector3 top_left_position = bot_left_ray.GetPoint(bot_left_distance);
+        Vector3 topRightPosition = botRightRay.GetPoint(botRightDistance);
+        Vector3 topLeftPosition = botLeftRay.GetPoint(botLeftDistance);
 
         // Draw red raycasts twords those points
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(bot_right_ray.origin, bot_right_ray.direction * bot_right_distance);
-        Gizmos.DrawRay(bot_left_ray.origin, bot_left_ray.direction * bot_left_distance);
+        Gizmos.DrawRay(botRightRay.origin, botRightRay.direction * botRightDistance);
+        Gizmos.DrawRay(botLeftRay.origin, botLeftRay.direction * botLeftDistance);
 
         // Draw a yellow sphere at the hit location
         Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(top_right_position, 1);
-        Gizmos.DrawSphere(top_left_position, 1);
+        Gizmos.DrawSphere(topRightPosition, 1);
+        Gizmos.DrawSphere(topLeftPosition, 1);
 
         // Get height of orthographic camera
-        float camera_height = 2f * m_camera.orthographicSize;
+        float cameraHeight = 2f * mCamera.orthographicSize;
 
         // Get sidebar of new camera
-        Vector3 camera_sidebar_direction = transform.rotation * Quaternion.Euler(-60f, 0f, 0f) * Vector3.down;
-        Vector3 camera_sidebar = camera_sidebar_direction * camera_height;
+        Vector3 cameraSidebarDirection = transform.rotation * Quaternion.Euler(-60f, 0f, 0f) * Vector3.down;
+        Vector3 cameraSidebar = cameraSidebarDirection * cameraHeight;
 
         // Continue drawing magenta raycast that represent the bottom screen edges
         Gizmos.color = Color.magenta;
-        Gizmos.DrawRay(top_right_position, camera_sidebar);
-        Gizmos.DrawRay(top_left_position, camera_sidebar);
+        Gizmos.DrawRay(topRightPosition, cameraSidebar);
+        Gizmos.DrawRay(topLeftPosition, cameraSidebar);
 
         // Create the vectors representing each corner of our new worldToCameraMatrix.
-        Vector3 bot_right_position = top_right_position + camera_sidebar;
-        Vector3 bot_left_position = top_left_position + camera_sidebar;
+        Vector3 botRightPosition = topRightPosition + cameraSidebar;
+        Vector3 botLeftPosition = topLeftPosition + cameraSidebar;
 
         // Draw 
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(bot_right_position, 1);
-        Gizmos.DrawSphere(bot_left_position, 1);
+        Gizmos.DrawSphere(botRightPosition, 1);
+        Gizmos.DrawSphere(botLeftPosition, 1);
 
         // Yellow points are now representing the top right and top left corners of our new camera whilst the green points represent bottom right and bottom left corners.
     }

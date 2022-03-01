@@ -32,6 +32,7 @@
 
 ## Bugs that needs to be fixed:
 
+* Sprite of equipment going through the air is visually interactable, when it shouldnt be
 * Någon del i pixel perfect scropt leder till förg fuckip när du klickar utanför, jag vet det för samma sak hände på Combitech Simulation 
 * Wind map for current grass is not correct? https://discord.com/channels/695162838712582215/804311516282224711/921862951030386808 
 * Pause doesnt stop all rigid bodies (make it so that you save their velocities and set them to zero without gravity)

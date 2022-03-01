@@ -9,7 +9,7 @@ public unsafe class ListTesting : MonoBehaviour
     void Start()
     {
         testing.Add(0);
-//        int* pointer_to_list_value = testing[0];
+//        int* pointerToListValue = testing[0];
         testing.Add(1);
         testing.Add(2);
     }

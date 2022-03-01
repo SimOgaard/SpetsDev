@@ -6,28 +6,28 @@ using UnityEngine;
 public class CloudShadows : MonoBehaviour
 {
     [SerializeField] private Light _light;
-    [SerializeField] private RenderTexture shadow_render_texture;
-    [SerializeField] private Material cloud_shadow_material;
+    [SerializeField] private RenderTexture shadowRenderTexture;
+    [SerializeField] private Material cloudShadowMaterial;
 
-    private const float cookie_size = 175;
-    private const int shadow_render_texutre_resolution = 512;
+    private const float cookieSize = 175;
+    private const int shadowRenderTexutreResolution = 512;
 
     private void Awake()
     {
         _light = GetComponent<Light>();
-        shadow_render_texture = CreateShadowRenderTexture(shadow_render_texutre_resolution);
-        _light.cookie = shadow_render_texture;
-        cloud_shadow_material.SetFloat("_CookieSize", cookie_size);
+        shadowRenderTexture = CreateShadowRenderTexture(shadowRenderTexutreResolution);
+        _light.cookie = shadowRenderTexture;
+        cloudShadowMaterial.SetFloat("_CookieSize", cookieSize);
         UpdateLightProperties(1f);
     }
 
     private RenderTexture CreateShadowRenderTexture(int resolution)
     {
-        RenderTexture render_texture = new RenderTexture(resolution, resolution, 0);
-        render_texture.wrapMode = TextureWrapMode.Clamp;
-        render_texture.filterMode = FilterMode.Bilinear;
+        RenderTexture renderTexture = new RenderTexture(resolution, resolution, 0);
+        renderTexture.wrapMode = TextureWrapMode.Clamp;
+        renderTexture.filterMode = FilterMode.Bilinear;
 
-        return render_texture;
+        return renderTexture;
     }
 
     public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
@@ -40,7 +40,7 @@ public class CloudShadows : MonoBehaviour
         return rotation * (point - pivot) + pivot;
     }
 
-    [SerializeField] private Vector3 inverse_light_pos;
+    [SerializeField] private Vector3 inverseLightPos;
     [SerializeField] private float angleToHorizon;
     public void UpdatePos()
     {
@@ -48,23 +48,23 @@ public class CloudShadows : MonoBehaviour
         angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
 
         // Set remaining material properties.
-        cloud_shadow_material.SetFloat("_AngleToHorizon", angleToHorizon);
+        cloudShadowMaterial.SetFloat("_AngleToHorizon", angleToHorizon);
 
-        inverse_light_pos = RotatePointAroundPivot(transform.position, Vector3.zero, Quaternion.Inverse(transform.rotation));
+        inverseLightPos = RotatePointAroundPivot(transform.position, Vector3.zero, Quaternion.Inverse(transform.rotation));
 
-        cloud_shadow_material.SetVector("_LightPosition", inverse_light_pos);
+        cloudShadowMaterial.SetVector("_LightPosition", inverseLightPos);
 
-        Vector3 cloud_stretch_offset = (transform.up + transform.right);
-        cloud_stretch_offset = Vector3.Scale(cloud_stretch_offset, cloud_stretch_offset);
-        cloud_shadow_material.SetVector("_CloudStrechOffset", cloud_stretch_offset);
+        Vector3 cloudStretchOffset = (transform.up + transform.right);
+        cloudStretchOffset = Vector3.Scale(cloudStretchOffset, cloudStretchOffset);
+        cloudShadowMaterial.SetVector("_CloudStrechOffset", cloudStretchOffset);
 
         // Blit using material.
-        Graphics.Blit(null, shadow_render_texture, cloud_shadow_material);
+        Graphics.Blit(null, shadowRenderTexture, cloudShadowMaterial);
     }
 
     public void UpdateLightProperties(float zoom)
     {
-        _light.cookieSize = cookie_size / zoom;
-        cloud_shadow_material.SetFloat("_Zoom", zoom);
+        _light.cookieSize = cookieSize / zoom;
+        cloudShadowMaterial.SetFloat("_Zoom", zoom);
     }
 }

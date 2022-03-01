@@ -20,12 +20,12 @@ public class FireballAbility : Ability, Equipment.IEquipment
     public override void UpdateUI()
     {
         base.UpdateUI();
-        UIInventory.current_ability_UI_image.sprite = icon_sprite;
+        UIInventory.currentAbility_UIImage.sprite = iconSprite;
     }
 
     public override void Awake()
     {
         base.Awake();
-        icon_sprite = Resources.Load<Sprite>("Sprites/UI/fireball");
+        iconSprite = Resources.Load<Sprite>("Sprites/UI/fireball");
     }
 }

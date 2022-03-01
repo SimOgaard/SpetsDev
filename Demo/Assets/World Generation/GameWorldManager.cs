@@ -4,48 +4,48 @@ using UnityEngine;
 
 public class GameWorldManager : MonoBehaviour
 {
-    [SerializeField] private float player_max_distance_from_origo = 50f;
-    private CharacterController player_character_controller;
+    [SerializeField] private float playerMaxDistanceFromOrigo = 50f;
+    private CharacterController playerCharacterController;
 
-    public static Vector3 world_offset;
+    public static Vector3 worldOffset;
 
     private void Awake()
     {
-        player_character_controller = Global.player_transform.GetComponent<CharacterController>();
+        playerCharacterController = Global.playerTransform.GetComponent<CharacterController>();
     }
 
     private void MoveDirection(Vector3 direction)
     {
-        direction *= player_max_distance_from_origo;
+        direction *= playerMaxDistanceFromOrigo;
 
-        world_offset += direction;
-        Shader.SetGlobalVector("_WorldOffset", world_offset);
+        worldOffset += direction;
+        Shader.SetGlobalVector("_WorldOffset", worldOffset);
 
-        player_character_controller.enabled = false;
+        playerCharacterController.enabled = false;
         foreach (Transform child in transform)
         {
             child.localPosition += direction;
         }
-        player_character_controller.enabled = true;
+        playerCharacterController.enabled = true;
     }
 
     private void Update()
     {
         return;
 
-        if (Global.player_transform.position.x > player_max_distance_from_origo)
+        if (Global.playerTransform.position.x > playerMaxDistanceFromOrigo)
         {
             MoveDirection(Vector3.left);
         }
-        else if (Global.player_transform.position.x < -player_max_distance_from_origo)
+        else if (Global.playerTransform.position.x < -playerMaxDistanceFromOrigo)
         {
             MoveDirection(Vector3.right);
         }
-        else if (Global.player_transform.position.z > player_max_distance_from_origo)
+        else if (Global.playerTransform.position.z > playerMaxDistanceFromOrigo)
         {
             MoveDirection(Vector3.back);
         }
-        if (Global.player_transform.position.z < -player_max_distance_from_origo)
+        if (Global.playerTransform.position.z < -playerMaxDistanceFromOrigo)
         {
             MoveDirection(Vector3.forward);
         }

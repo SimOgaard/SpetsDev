@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class CopyCameraPosition : MonoBehaviour
 {
-    private Camera camera_to_copy;
-    private Camera this_camera;
+    private Camera cameraToCopy;
+    private Camera thisCamera;
 
     private void Start()
     {
-        camera_to_copy = Camera.main;
-        this_camera = GetComponent<Camera>();
+        cameraToCopy = Camera.main;
+        thisCamera = GetComponent<Camera>();
     }
 
     private void OnPreCull()
     {
-        transform.localRotation = camera_to_copy.transform.rotation;
-        transform.position = camera_to_copy.transform.position;
-        this_camera.worldToCameraMatrix = camera_to_copy.worldToCameraMatrix;
+        transform.localRotation = cameraToCopy.transform.rotation;
+        transform.position = cameraToCopy.transform.position;
+        thisCamera.worldToCameraMatrix = cameraToCopy.worldToCameraMatrix;
     }
 
     /*
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        Graphics.Blit(src, dest, new Vector2(1f, 1f), PixelPerfectCameraRotation.camera_offset);
+        Graphics.Blit(src, dest, new Vector2(1f, 1f), PixelPerfectCameraRotation.cameraOffset);
     }
     */
 }

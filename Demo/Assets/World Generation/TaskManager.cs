@@ -18,8 +18,8 @@
 ///   }
 ///
 ///   // From anywhere
-///   Task my_task = new Task(MyAwesomeTask());
-///   new Task(TaskKiller(5, my_task));
+///   Task myTask = new Task(MyAwesomeTask());
+///   new Task(TaskKiller(5, myTask));
 ///
 /// The code above will schedule MyAwesomeTask() and keep it running
 /// concurrently until either it terminates on its own, or 5 seconds elapses

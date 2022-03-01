@@ -45,9 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65840efe90e09a645af5101ac195c893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  this_instruction: {fileID: 11400000, guid: 80331a45f30d0d24da1011215751350c, type: 2}
-  child_instruction: {fileID: 11400000, guid: 6ea0e161139110a459b541428a873963, type: 2}
-  child_transform_amount: 0
+  thisInstruction: {fileID: 11400000, guid: 80331a45f30d0d24da1011215751350c, type: 2}
+  childInstruction: {fileID: 11400000, guid: 6ea0e161139110a459b541428a873963, type: 2}
+  childTransformAmount: 0
 --- !u!1 &2656273715037982385
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,9 +170,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounding_boxes:
-  - {fileID: 688736349145372891}
-  destroy_children: 0
+  boundingBoxes: []
+  destroyChildren: 0
 --- !u!1 &2656273715755329116
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,6 +294,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974f9c2dc822c5f478a565abd011ab26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounding_boxes:
-  - {fileID: 936761307721830807}
-  destroy_children: 0
+  boundingBoxes: []
+  destroyChildren: 0

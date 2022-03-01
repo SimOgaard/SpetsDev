@@ -5,17 +5,17 @@ using UnityEngine;
 public class GolemRangeNode : Node
 {
     private float range;
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
 
-    public GolemRangeNode(float range, GolemBehaviour golem_behaviour)
+    public GolemRangeNode(float range, GolemBehaviour golemBehaviour)
     {
         this.range = range * range;
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
     }
 
     public override NodeState Evaluate()
     {
-        float distance = (golem_behaviour.GetClosestGolem().position - golem_behaviour.transform.position).sqrMagnitude;
+        float distance = (golemBehaviour.GetClosestGolem().position - golemBehaviour.transform.position).sqrMagnitude;
         return distance <= range ? NodeState.success : NodeState.failure;
     }
 }

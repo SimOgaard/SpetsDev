@@ -8,38 +8,38 @@ using UnityEngine;
 public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 {
     public enum GolemType { Small, Medium, Large };
-    public GolemType golem_type;
+    public GolemType golemType;
 
-    [SerializeField] private Transform meele_transform;
+    [SerializeField] private Transform meeleTransform;
 
-    private Node top_node;
-    private EnemyAI enemy_ai;
+    private Node topNode;
+    private EnemyAI enemyAi;
 
     /// <summary>
     /// Range where enemy will try to hit the player.
     /// Will try to minimize distance between meele transform and player transform.
     /// </summary>
-    [SerializeField] private float meele_range;
+    [SerializeField] private float meeleRange;
 
     /// <summary>
     /// How much enemy should walk around where they think player is.
     /// </summary>
-    [SerializeField] private float wander_strength;
+    [SerializeField] private float wanderStrength;
     // Node that makes agent go to point and walk around near point for x amount of time.
 
-    public bool has_golem_in_hands;
-    [SerializeField] private Transform closest_golem;
-    [HideInInspector] private Transform throwable_parrent_transform;
+    public bool hasGolemInHands;
+    [SerializeField] private Transform closestGolem;
+    [HideInInspector] private Transform throwableParrentTransform;
 
-    [SerializeField] private float golem_pickup_range;
+    [SerializeField] private float golemPickupRange;
 
-    [SerializeField] private float throw_range;
-    [SerializeField] private float golem_find_range;
-    [SerializeField] private float golem_find_range_overide;
+    [SerializeField] private float throwRange;
+    [SerializeField] private float golemFindRange;
+    [SerializeField] private float golemFindRangeOveride;
 
-    public Node ConstructBehaviourTree(GolemType golem_type)
+    public Node ConstructBehaviourTree(GolemType golemType)
     {
-        switch (golem_type)
+        switch (golemType)
         {
             case GolemType.Small:
                 return SmallGolemBehaviourTree();
@@ -54,183 +54,183 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
     private Node SmallGolemBehaviourTree()
     {
         // Unburies self
-        IsBuriedNode is_buried = new IsBuriedNode(this);
-        TransformNotNullNode not_null = new TransformNotNullNode(enemy_ai);
-        RunFunctionNode un_bury_self = new RunFunctionNode(UnBurySelf);
-        Sequence un_bury = new Sequence(new List<Node> { is_buried, not_null, un_bury_self });
+        IsBuriedNode isBuried = new IsBuriedNode(this);
+        TransformNotNullNode notNull = new TransformNotNullNode(enemyAi);
+        RunFunctionNode unBurySelf = new RunFunctionNode(UnBurySelf);
+        Sequence unBury = new Sequence(new List<Node> { isBuried, notNull, unBurySelf });
 
         // Buries self
-        RunFunctionNode bury_self = new RunFunctionNode(BurySelf);
+        RunFunctionNode burySelf = new RunFunctionNode(BurySelf);
 
-        ChaseNode chase = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
-        Sequence chase_sequence = new Sequence(new List<Node> { not_null, chase });
+        ChaseNode chase = new ChaseNode(enemyAi.agent, enemyAi, meeleTransform, enemyAi.agent.sprintSpeed);
+        Sequence chaseSequence = new Sequence(new List<Node> { notNull, chase });
 
         // Patroll
-        RandomWalkNode random_walk = new RandomWalkNode(enemy_ai, wander_strength);
-        ChaseVectorNode chase_vector = new ChaseVectorNode(enemy_ai, enemy_ai.agent, meele_transform, enemy_ai.agent.walk_speed);
-        Sequence patroll_sequence = new Sequence(new List<Node> { not_null, chase });
+        RandomWalkNode randomWalk = new RandomWalkNode(enemyAi, wanderStrength);
+        ChaseVectorNode chaseVector = new ChaseVectorNode(enemyAi, enemyAi.agent, meeleTransform, enemyAi.agent.walkSpeed);
+        Sequence patrollSequence = new Sequence(new List<Node> { notNull, chase });
 
         ///
-        /// If chase_transform != player_transform act curious
+        /// If chaseTransform != playerTransform act curious
         /// 
         ///
         /// Else try to kill the player
         /// 
 
-        //ProceduralWalkNode procedural_walk = new ProceduralWalkNode(enemy_ai.chase_transform, wander_strength);
+        //ProceduralWalkNode proceduralWalk = new ProceduralWalkNode(enemyAi.chaseTransform, wanderStrength);
 
 
         // Controlls spawned enemy in ground
-        //Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        //Sequence hideSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        //RangeNode meele_range_node = new RangeNode(meele_range, enemy_ai.player_transform, meele_transform);
-        //MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
-        //Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
+        //RangeNode meeleRangeNode = new RangeNode(meeleRange, enemyAi.playerTransform, meeleTransform);
+        //MeeleNode meeleNode = new MeeleNode(enemyAi.agent, enemyAi);
+        //Sequence meeleSequence = new Sequence(new List<Node> { meeleRangeNode, meeleNode });
 
         // Chases player
-        //RangeNode chasing_range_node = new RangeNode(chasing_range, enemy_ai.player_transform, meele_transform);
-        //ChaseNode chase_node = new ChaseNode(enemy_ai.player_transform, enemy_ai.agent, enemy_ai);
-        //Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
+        //RangeNode chasingRangeNode = new RangeNode(chasingRange, enemyAi.playerTransform, meeleTransform);
+        //ChaseNode chaseNode = new ChaseNode(enemyAi.playerTransform, enemyAi.agent, enemyAi);
+        //Sequence chaseSequence = new Sequence(new List<Node> { chasingRangeNode, chaseNode });
 
         // Searches for player
         // NOT YET IMPLEMENTED
-        //Sequence search_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        //Sequence searchSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
-        return new Selector(new List<Node> { un_bury, is_buried, bury_self, chase_sequence, patroll_sequence });
+        return new Selector(new List<Node> { unBury, isBuried, burySelf, chaseSequence, patrollSequence });
     }
 
     private Node MediumGolemBehaviourTree()
     {
-        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.player_transform, transform);
+        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.playerTransform, transform);
 
         // Controlls when ai dies
-        HealthNode health_node = new HealthNode(enemy_ai);
-        DeathNode death_node = new DeathNode(enemy_ai);
-        Sequence health_sequence = new Sequence(new List<Node> { health_node, death_node });
+        HealthNode healthNode = new HealthNode(enemyAi);
+        DeathNode deathNode = new DeathNode(enemyAi);
+        Sequence healthSequence = new Sequence(new List<Node> { healthNode, deathNode });
 
         // Controlls spawned enemy in ground
         // NOT YET IMPLEMENTED
-        Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        Sequence hideSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        RangeNode meele_range_node = new RangeNode(meele_range, Global.player_transform, meele_transform);
-        MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
-        Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
+        RangeNode meeleRangeNode = new RangeNode(meeleRange, Global.playerTransform, meeleTransform);
+        MeeleNode meeleNode = new MeeleNode(enemyAi.agent, enemyAi);
+        Sequence meeleSequence = new Sequence(new List<Node> { meeleRangeNode, meeleNode });
 
         // Picks up golem and throws them at player
-        HasGolemInHandsNode has_golem_in_hands_node = new HasGolemInHandsNode(this);
-        RangeNode throw_range_node = new RangeNode(throw_range, Global.player_transform, transform);
-        ThrowGolemNode throw_golem_node = new ThrowGolemNode(enemy_ai.agent, enemy_ai, this);
-        Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
+        HasGolemInHandsNode hasGolemInHandsNode = new HasGolemInHandsNode(this);
+        RangeNode throwRangeNode = new RangeNode(throwRange, Global.playerTransform, transform);
+        ThrowGolemNode throwGolemNode = new ThrowGolemNode(enemyAi.agent, enemyAi, this);
+        Sequence throwGolemInHandsSequence = new Sequence(new List<Node> { hasGolemInHandsNode, throwRangeNode, throwGolemNode });
 
-        GolemRangeNode golem_go_to_range_node = new GolemRangeNode(golem_find_range, this);
-        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this, enemy_ai.agent.walk_speed);
-        Sequence go_to_golem_sequence = new Sequence(new List<Node> { golem_go_to_range_node, go_to_golem_node });
+        GolemRangeNode golemGoToRangeNode = new GolemRangeNode(golemFindRange, this);
+        GoToGolemNode goToGolemNode = new GoToGolemNode(enemyAi.agent, enemyAi, this, enemyAi.agent.walkSpeed);
+        Sequence goToGolemSequence = new Sequence(new List<Node> { golemGoToRangeNode, goToGolemNode });
 
-        GolemRangeNode golem_pickup_range_node = new GolemRangeNode(golem_pickup_range, this);
-        PickupGolemNode pickup_golem_node = new PickupGolemNode(this);
-        Sequence pick_up_golem_sequence = new Sequence(new List<Node> { golem_pickup_range_node, pickup_golem_node });
+        GolemRangeNode golemPickupRangeNode = new GolemRangeNode(golemPickupRange, this);
+        PickupGolemNode pickupGolemNode = new PickupGolemNode(this);
+        Sequence pickUpGolemSequence = new Sequence(new List<Node> { golemPickupRangeNode, pickupGolemNode });
 
-        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, Global.player_transform, transform);
-        Inverter player_to_close_ignore_node_inverter = new Inverter(player_to_close_ignore_node);
-        IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(throwable_parrent_transform, this);
-        Selector go_to_golem_selector = new Selector(new List<Node> { pick_up_golem_sequence, go_to_golem_sequence });
-        Sequence find_golem_sequence = new Sequence(new List<Node> { player_to_close_ignore_node_inverter, is_golem_available_node, go_to_golem_selector });
+        RangeNode playerToCloseIgnoreNode = new RangeNode(golemFindRangeOveride, Global.playerTransform, transform);
+        Inverter playerToCloseIgnoreNodeInverter = new Inverter(playerToCloseIgnoreNode);
+        IsGolemAvailableNode isGolemAvailableNode = new IsGolemAvailableNode(throwableParrentTransform, this);
+        Selector goToGolemSelector = new Selector(new List<Node> { pickUpGolemSequence, goToGolemSequence });
+        Sequence findGolemSequence = new Sequence(new List<Node> { playerToCloseIgnoreNodeInverter, isGolemAvailableNode, goToGolemSelector });
 
-        Selector throw_selector = new Selector(new List<Node> { throw_golem_in_hands_sequence, find_golem_sequence });
+        Selector throwSelector = new Selector(new List<Node> { throwGolemInHandsSequence, findGolemSequence });
 
         // Chases player
-        float chasing_range = 0f;
-        RangeNode chasing_range_node = new RangeNode(chasing_range, Global.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
-        Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
+        float chasingRange = 0f;
+        RangeNode chasingRangeNode = new RangeNode(chasingRange, Global.playerTransform, transform);
+        ChaseNode chaseNode = new ChaseNode(enemyAi.agent, enemyAi, meeleTransform, enemyAi.agent.sprintSpeed);
+        Sequence chaseSequence = new Sequence(new List<Node> { chasingRangeNode, chaseNode });
 
         // Searches for player
         // NOT YET IMPLEMENTED
-        Sequence search_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        Sequence searchSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
-        return new Selector(new List<Node> { health_sequence, hide_sequence, meele_sequence, throw_selector, chase_sequence, search_sequence });
+        return new Selector(new List<Node> { healthSequence, hideSequence, meeleSequence, throwSelector, chaseSequence, searchSequence });
     }
 
     private Node LargeGolemBehaviourTree()
     {
-        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.player_transform, transform);
+        RangeNode NOT_YET_IMPLEMENTED = new RangeNode(0f, Global.playerTransform, transform);
 
         // Controlls when ai dies
-        HealthNode health_node = new HealthNode(enemy_ai);
-        DeathNode death_node = new DeathNode(enemy_ai);
-        Sequence health_sequence = new Sequence(new List<Node> { health_node, death_node });
+        HealthNode healthNode = new HealthNode(enemyAi);
+        DeathNode deathNode = new DeathNode(enemyAi);
+        Sequence healthSequence = new Sequence(new List<Node> { healthNode, deathNode });
 
         // Controlls spawned enemy in ground
         // NOT YET IMPLEMENTED
-        Sequence hide_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        Sequence hideSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
         // Hits player
-        RangeNode meele_range_node = new RangeNode(meele_range, Global.player_transform, meele_transform);
-        MeeleNode meele_node = new MeeleNode(enemy_ai.agent, enemy_ai);
-        Sequence meele_sequence = new Sequence(new List<Node> { meele_range_node, meele_node });
+        RangeNode meeleRangeNode = new RangeNode(meeleRange, Global.playerTransform, meeleTransform);
+        MeeleNode meeleNode = new MeeleNode(enemyAi.agent, enemyAi);
+        Sequence meeleSequence = new Sequence(new List<Node> { meeleRangeNode, meeleNode });
 
         // Picks up golem and throws them at player
-        HasGolemInHandsNode has_golem_in_hands_node = new HasGolemInHandsNode(this);
-        RangeNode throw_range_node = new RangeNode(throw_range, Global.player_transform, transform);
-        ThrowGolemNode throw_golem_node = new ThrowGolemNode(enemy_ai.agent, enemy_ai, this);
-        Sequence throw_golem_in_hands_sequence = new Sequence(new List<Node> { has_golem_in_hands_node, throw_range_node, throw_golem_node });
+        HasGolemInHandsNode hasGolemInHandsNode = new HasGolemInHandsNode(this);
+        RangeNode throwRangeNode = new RangeNode(throwRange, Global.playerTransform, transform);
+        ThrowGolemNode throwGolemNode = new ThrowGolemNode(enemyAi.agent, enemyAi, this);
+        Sequence throwGolemInHandsSequence = new Sequence(new List<Node> { hasGolemInHandsNode, throwRangeNode, throwGolemNode });
 
-        GolemRangeNode golem_go_to_range_node = new GolemRangeNode(golem_find_range, this);
-        GoToGolemNode go_to_golem_node = new GoToGolemNode(enemy_ai.agent, enemy_ai, this, enemy_ai.agent.walk_speed);
-        Sequence go_to_golem_sequence = new Sequence(new List<Node> { golem_go_to_range_node, go_to_golem_node });
+        GolemRangeNode golemGoToRangeNode = new GolemRangeNode(golemFindRange, this);
+        GoToGolemNode goToGolemNode = new GoToGolemNode(enemyAi.agent, enemyAi, this, enemyAi.agent.walkSpeed);
+        Sequence goToGolemSequence = new Sequence(new List<Node> { golemGoToRangeNode, goToGolemNode });
 
-        GolemRangeNode golem_pickup_range_node = new GolemRangeNode(golem_pickup_range, this);
-        PickupGolemNode pickup_golem_node = new PickupGolemNode(this);
-        Sequence pick_up_golem_sequence = new Sequence(new List<Node> { golem_pickup_range_node, pickup_golem_node });
+        GolemRangeNode golemPickupRangeNode = new GolemRangeNode(golemPickupRange, this);
+        PickupGolemNode pickupGolemNode = new PickupGolemNode(this);
+        Sequence pickUpGolemSequence = new Sequence(new List<Node> { golemPickupRangeNode, pickupGolemNode });
 
-        RangeNode player_to_close_ignore_node = new RangeNode(golem_find_range_overide, Global.player_transform, transform);
-        Inverter player_to_close_ignore_node_inverter = new Inverter(player_to_close_ignore_node);
-        IsGolemAvailableNode is_golem_available_node = new IsGolemAvailableNode(throwable_parrent_transform, this);
-        Selector go_to_golem_selector = new Selector(new List<Node> { pick_up_golem_sequence, go_to_golem_sequence });
-        Sequence find_golem_sequence = new Sequence(new List<Node> { player_to_close_ignore_node_inverter, is_golem_available_node, go_to_golem_selector });
+        RangeNode playerToCloseIgnoreNode = new RangeNode(golemFindRangeOveride, Global.playerTransform, transform);
+        Inverter playerToCloseIgnoreNodeInverter = new Inverter(playerToCloseIgnoreNode);
+        IsGolemAvailableNode isGolemAvailableNode = new IsGolemAvailableNode(throwableParrentTransform, this);
+        Selector goToGolemSelector = new Selector(new List<Node> { pickUpGolemSequence, goToGolemSequence });
+        Sequence findGolemSequence = new Sequence(new List<Node> { playerToCloseIgnoreNodeInverter, isGolemAvailableNode, goToGolemSelector });
 
-        Selector throw_selector = new Selector(new List<Node> { throw_golem_in_hands_sequence, find_golem_sequence });
+        Selector throwSelector = new Selector(new List<Node> { throwGolemInHandsSequence, findGolemSequence });
 
         // Chases player
-        float chasing_range = 0f;
-        RangeNode chasing_range_node = new RangeNode(chasing_range, Global.player_transform, transform);
-        ChaseNode chase_node = new ChaseNode(enemy_ai.agent, enemy_ai, meele_transform, enemy_ai.agent.sprint_speed);
-        Sequence chase_sequence = new Sequence(new List<Node> { chasing_range_node, chase_node });
+        float chasingRange = 0f;
+        RangeNode chasingRangeNode = new RangeNode(chasingRange, Global.playerTransform, transform);
+        ChaseNode chaseNode = new ChaseNode(enemyAi.agent, enemyAi, meeleTransform, enemyAi.agent.sprintSpeed);
+        Sequence chaseSequence = new Sequence(new List<Node> { chasingRangeNode, chaseNode });
 
         // Searches for player
         // NOT YET IMPLEMENTED
-        Sequence search_sequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
+        Sequence searchSequence = new Sequence(new List<Node> { NOT_YET_IMPLEMENTED });
 
-        return new Selector(new List<Node> { health_sequence, hide_sequence, meele_sequence, throw_selector, chase_sequence, search_sequence });
+        return new Selector(new List<Node> { healthSequence, hideSequence, meeleSequence, throwSelector, chaseSequence, searchSequence });
     }
 
     private void LateUpdate()
     {
 //#if UNITY_EDITOR
-//        top_node = ConstructBehaviourTree(golem_type);
+//        topNode = ConstructBehaviourTree(golemType);
 //#endif
-        top_node.Evaluate();
-        if (top_node.node_state == NodeState.failure)
+        topNode.Evaluate();
+        if (topNode.nodeState == NodeState.failure)
         {
-            enemy_ai.SetColor(Color.magenta);
+            enemyAi.SetColor(Color.magenta);
         }
     }
 
-    [SerializeField] private float repeating_damage_radius;
-    private DamageByFire damage_by_fire;
+    [SerializeField] private float repeatingDamageRadius;
+    private DamageByFire damageByFire;
 
     private void Awake()
     {
-        throwable_parrent_transform = GetThrowableTransform(golem_type);
-        damage_by_fire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
-        enemy_ai = GetComponent<EnemyAI>();
+        throwableParrentTransform = GetThrowableTransform(golemType);
+        damageByFire = GameObject.Find("Flammable").GetComponent<DamageByFire>();
+        enemyAi = GetComponent<EnemyAI>();
     }
 
-    private Transform GetThrowableTransform(GolemType golem_type)
+    private Transform GetThrowableTransform(GolemType golemType)
     {
-        switch (golem_type)
+        switch (golemType)
         {
             case GolemType.Small:
                 return null;
@@ -244,7 +244,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
     private void Start()
     {
-        top_node = ConstructBehaviourTree(golem_type);
+        topNode = ConstructBehaviourTree(golemType);
         InvokeRepeating("DamageCheckInterval", 0.25f, 0.25f);
     }
 
@@ -253,7 +253,7 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
     /// </summary>
     private void DamageCheckInterval()
     {
-        enemy_ai.Damage(damage_by_fire.DamageStacked(transform.position, repeating_damage_radius));
+        enemyAi.Damage(damageByFire.DamageStacked(transform.position, repeatingDamageRadius));
     }
 
     /// <summary>
@@ -261,20 +261,20 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
     /// </summary>
     public Transform GetClosestGolem()
     {
-        return closest_golem;
+        return closestGolem;
     }
 
     public void PlaceGolemInHands()
     {
-        Transform hand_transform = transform.Find("Golem").Find("Hand.R");
-        closest_golem.transform.parent = hand_transform;
-        closest_golem.transform.localPosition = Vector3.zero;
-        //closest_golem.GetComponent<Agent>().Tumble();
+        Transform handTransform = transform.Find("Golem").Find("Hand.R");
+        closestGolem.transform.parent = handTransform;
+        closestGolem.transform.localPosition = Vector3.zero;
+        //closestGolem.GetComponent<Agent>().Tumble();
     }
 
-    public void SetClosestGolem(Transform closest_golem)
+    public void SetClosestGolem(Transform closestGolem)
     {
-        this.closest_golem = closest_golem;
+        this.closestGolem = closestGolem;
     }
 
     public void Die()
@@ -282,14 +282,14 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
         this.enabled = false;
     }
 
-    public bool is_buried = true;
+    public bool isBuried = true;
     public NodeState BurySelf()
     {
-        if (enemy_ai.current_attention <= 0f)
+        if (enemyAi.currentAttention <= 0f)
         {
-            enemy_ai.agent.enabled = false;
-            enemy_ai.eyes_open = false;
-            is_buried = true;
+            enemyAi.agent.enabled = false;
+            enemyAi.eyesOpen = false;
+            isBuried = true;
 
             transform.position += Vector3.down * 3.7f;
 
@@ -300,9 +300,9 @@ public class GolemBehaviour : MonoBehaviour, EnemyAI.IAIBehaviour
 
     public NodeState UnBurySelf()
     {
-        enemy_ai.agent.enabled = true;
-        enemy_ai.eyes_open = true;
-        is_buried = false;
+        enemyAi.agent.enabled = true;
+        enemyAi.eyesOpen = true;
+        isBuried = false;
 
         transform.position += Vector3.up * 3.7f;
 

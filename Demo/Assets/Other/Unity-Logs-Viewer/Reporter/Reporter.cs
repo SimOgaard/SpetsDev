@@ -56,9 +56,9 @@ public class Images
 	public Texture2D errorImage;
 
 	public Texture2D barImage;
-	public Texture2D button_activeImage;
-	public Texture2D even_logImage;
-	public Texture2D odd_logImage;
+	public Texture2D buttonActiveImage;
+	public Texture2D evenLogImage;
+	public Texture2D oddLogImage;
 	public Texture2D selectedImage;
 
 	public GUISkin reporterScrollerSkin;
@@ -408,30 +408,30 @@ public class Reporter : MonoBehaviour
 		errorContent = new GUIContent("", images.errorImage, "show or hide errors");
 
 
-		currentView = (ReportView)PlayerPrefs.GetInt("Reporter_currentView", 1);
-		show = (PlayerPrefs.GetInt("Reporter_show") == 1) ? true : false;
-		collapse = (PlayerPrefs.GetInt("Reporter_collapse") == 1) ? true : false;
-		clearOnNewSceneLoaded = (PlayerPrefs.GetInt("Reporter_clearOnNewSceneLoaded") == 1) ? true : false;
-		showTime = (PlayerPrefs.GetInt("Reporter_showTime") == 1) ? true : false;
-		showScene = (PlayerPrefs.GetInt("Reporter_showScene") == 1) ? true : false;
-		showMemory = (PlayerPrefs.GetInt("Reporter_showMemory") == 1) ? true : false;
-		showFps = (PlayerPrefs.GetInt("Reporter_showFps") == 1) ? true : false;
-		showGraph = (PlayerPrefs.GetInt("Reporter_showGraph") == 1) ? true : false;
-		showLog = (PlayerPrefs.GetInt("Reporter_showLog", 1) == 1) ? true : false;
-		showWarning = (PlayerPrefs.GetInt("Reporter_showWarning", 1) == 1) ? true : false;
-		showError = (PlayerPrefs.GetInt("Reporter_showError", 1) == 1) ? true : false;
-		filterText = PlayerPrefs.GetString("Reporter_filterText");
-		size.x = size.y = PlayerPrefs.GetFloat("Reporter_size", 32);
+		currentView = (ReportView)PlayerPrefs.GetInt("ReporterCurrentView", 1);
+		show = (PlayerPrefs.GetInt("ReporterShow") == 1) ? true : false;
+		collapse = (PlayerPrefs.GetInt("ReporterCollapse") == 1) ? true : false;
+		clearOnNewSceneLoaded = (PlayerPrefs.GetInt("ReporterClearOnNewSceneLoaded") == 1) ? true : false;
+		showTime = (PlayerPrefs.GetInt("ReporterShowTime") == 1) ? true : false;
+		showScene = (PlayerPrefs.GetInt("ReporterShowScene") == 1) ? true : false;
+		showMemory = (PlayerPrefs.GetInt("ReporterShowMemory") == 1) ? true : false;
+		showFps = (PlayerPrefs.GetInt("ReporterShowFps") == 1) ? true : false;
+		showGraph = (PlayerPrefs.GetInt("ReporterShowGraph") == 1) ? true : false;
+		showLog = (PlayerPrefs.GetInt("ReporterShowLog", 1) == 1) ? true : false;
+		showWarning = (PlayerPrefs.GetInt("ReporterShowWarning", 1) == 1) ? true : false;
+		showError = (PlayerPrefs.GetInt("ReporterShowError", 1) == 1) ? true : false;
+		filterText = PlayerPrefs.GetString("ReporterFilterText");
+		size.x = size.y = PlayerPrefs.GetFloat("ReporterSize", 32);
 
 
-		showClearOnNewSceneLoadedButton = (PlayerPrefs.GetInt("Reporter_showClearOnNewSceneLoadedButton", 1) == 1) ? true : false;
-		showTimeButton = (PlayerPrefs.GetInt("Reporter_showTimeButton", 1) == 1) ? true : false;
-		showSceneButton = (PlayerPrefs.GetInt("Reporter_showSceneButton", 1) == 1) ? true : false;
-		showMemButton = (PlayerPrefs.GetInt("Reporter_showMemButton", 1) == 1) ? true : false;
-		showFpsButton = (PlayerPrefs.GetInt("Reporter_showFpsButton", 1) == 1) ? true : false;
-		showSearchText = (PlayerPrefs.GetInt("Reporter_showSearchText", 1) == 1) ? true : false;
-        showCopyButton = (PlayerPrefs.GetInt("Reporter_showCopyButton", 1) == 1) ? true : false;
-        showSaveButton = (PlayerPrefs.GetInt("Reporter_showSaveButton", 1) == 1) ? true : false;
+		showClearOnNewSceneLoadedButton = (PlayerPrefs.GetInt("ReporterShowClearOnNewSceneLoadedButton", 1) == 1) ? true : false;
+		showTimeButton = (PlayerPrefs.GetInt("ReporterShowTimeButton", 1) == 1) ? true : false;
+		showSceneButton = (PlayerPrefs.GetInt("ReporterShowSceneButton", 1) == 1) ? true : false;
+		showMemButton = (PlayerPrefs.GetInt("ReporterShowMemButton", 1) == 1) ? true : false;
+		showFpsButton = (PlayerPrefs.GetInt("ReporterShowFpsButton", 1) == 1) ? true : false;
+		showSearchText = (PlayerPrefs.GetInt("ReporterShowSearchText", 1) == 1) ? true : false;
+        showCopyButton = (PlayerPrefs.GetInt("ReporterShowCopyButton", 1) == 1) ? true : false;
+        showSaveButton = (PlayerPrefs.GetInt("ReporterShowSaveButton", 1) == 1) ? true : false;
 
 
         initializeStyle();
@@ -476,7 +476,7 @@ public class Reporter : MonoBehaviour
 		barStyle = new GUIStyle();
 		barStyle.border = new RectOffset(1, 1, 1, 1);
 		barStyle.normal.background = images.barImage;
-		barStyle.active.background = images.button_activeImage;
+		barStyle.active.background = images.buttonActiveImage;
 		barStyle.alignment = TextAnchor.MiddleCenter;
 		barStyle.margin = new RectOffset(1, 1, 1, 1);
 
@@ -488,19 +488,19 @@ public class Reporter : MonoBehaviour
 
 		buttonActiveStyle = new GUIStyle();
 		buttonActiveStyle.border = new RectOffset(1, 1, 1, 1);
-		buttonActiveStyle.normal.background = images.button_activeImage;
+		buttonActiveStyle.normal.background = images.buttonActiveImage;
 		buttonActiveStyle.alignment = TextAnchor.MiddleCenter;
 		buttonActiveStyle.margin = new RectOffset(1, 1, 1, 1);
 		//buttonActiveStyle.padding = new RectOffset(4,4,4,4);
 		buttonActiveStyle.fontSize = (int)(size.y / 2);
 
 		backStyle = new GUIStyle();
-		backStyle.normal.background = images.even_logImage;
+		backStyle.normal.background = images.evenLogImage;
 		backStyle.clipping = TextClipping.Clip;
 		backStyle.fontSize = (int)(size.y / 2);
 
 		evenLogStyle = new GUIStyle();
-		evenLogStyle.normal.background = images.even_logImage;
+		evenLogStyle.normal.background = images.evenLogImage;
 		evenLogStyle.fixedHeight = size.y;
 		evenLogStyle.clipping = TextClipping.Clip;
 		evenLogStyle.alignment = TextAnchor.UpperLeft;
@@ -509,7 +509,7 @@ public class Reporter : MonoBehaviour
 		//evenLogStyle.wordWrap = true;
 
 		oddLogStyle = new GUIStyle();
-		oddLogStyle.normal.background = images.odd_logImage;
+		oddLogStyle.normal.background = images.oddLogImage;
 		oddLogStyle.fixedHeight = size.y;
 		oddLogStyle.clipping = TextClipping.Clip;
 		oddLogStyle.alignment = TextAnchor.UpperLeft;
@@ -875,7 +875,7 @@ public class Reporter : MonoBehaviour
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();*/
 
-		drawInfo_enableDisableToolBarButtons();
+		drawInfoEnableDisableToolBarButtons();
 
 		GUILayout.FlexibleSpace();
 
@@ -907,7 +907,7 @@ public class Reporter : MonoBehaviour
 	}
 
 
-	void drawInfo_enableDisableToolBarButtons()
+	void drawInfoEnableDisableToolBarButtons()
 	{
 		GUILayout.BeginHorizontal();
 		GUILayout.Space(size.x);
@@ -2039,27 +2039,27 @@ public class Reporter : MonoBehaviour
 	//save user config
 	void OnApplicationQuit()
 	{
-		PlayerPrefs.SetInt("Reporter_currentView", (int)currentView);
-		PlayerPrefs.SetInt("Reporter_show", (show == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_collapse", (collapse == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_clearOnNewSceneLoaded", (clearOnNewSceneLoaded == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showTime", (showTime == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showScene", (showScene == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showMemory", (showMemory == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showFps", (showFps == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showGraph", (showGraph == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showLog", (showLog == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showWarning", (showWarning == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showError", (showError == true) ? 1 : 0);
-		PlayerPrefs.SetString("Reporter_filterText", filterText);
-		PlayerPrefs.SetFloat("Reporter_size", size.x);
+		PlayerPrefs.SetInt("ReporterCurrentView", (int)currentView);
+		PlayerPrefs.SetInt("ReporterShow", (show == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterCollapse", (collapse == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterClearOnNewSceneLoaded", (clearOnNewSceneLoaded == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowTime", (showTime == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowScene", (showScene == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowMemory", (showMemory == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowFps", (showFps == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowGraph", (showGraph == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowLog", (showLog == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowWarning", (showWarning == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowError", (showError == true) ? 1 : 0);
+		PlayerPrefs.SetString("ReporterFilterText", filterText);
+		PlayerPrefs.SetFloat("ReporterSize", size.x);
 
-		PlayerPrefs.SetInt("Reporter_showClearOnNewSceneLoadedButton", (showClearOnNewSceneLoadedButton == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showTimeButton", (showTimeButton == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showSceneButton", (showSceneButton == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showMemButton", (showMemButton == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showFpsButton", (showFpsButton == true) ? 1 : 0);
-		PlayerPrefs.SetInt("Reporter_showSearchText", (showSearchText == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowClearOnNewSceneLoadedButton", (showClearOnNewSceneLoadedButton == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowTimeButton", (showTimeButton == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowSceneButton", (showSceneButton == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowMemButton", (showMemButton == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowFpsButton", (showFpsButton == true) ? 1 : 0);
+		PlayerPrefs.SetInt("ReporterShowSearchText", (showSearchText == true) ? 1 : 0);
 
 		PlayerPrefs.Save();
 	}
@@ -2067,7 +2067,7 @@ public class Reporter : MonoBehaviour
 	//read build information 
 	IEnumerator readInfo()
 	{
-		string prefFile = "build_info"; 
+		string prefFile = "buildInfo"; 
 		string url = prefFile; 
 
 		if (prefFile.IndexOf("://") == -1) {

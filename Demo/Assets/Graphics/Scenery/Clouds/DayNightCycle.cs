@@ -5,29 +5,29 @@ using UnityEngine;
 public class DayNightCycle : MonoBehaviour
 {
     [SerializeField] private float ambient;
-    [SerializeField] private AnimationCurve ambient_light;
+    [SerializeField] private AnimationCurve ambientLight;
 
     [SerializeField] private float darkest;
-    [SerializeField] private AnimationCurve darkest_value;
+    [SerializeField] private AnimationCurve darkestValue;
 
-    [SerializeField] private float water_offset;
-    [SerializeField] private AnimationCurve water_col_offset;
+    [SerializeField] private float waterOffset;
+    [SerializeField] private AnimationCurve waterColOffset;
 
-    [SerializeField] private Vector3 rotation_speed;
-    [SerializeField] private Vector3 rotation_snap;
-    public Vector3 current_rotation_euler;
+    [SerializeField] private Vector3 rotationSpeed;
+    [SerializeField] private Vector3 rotationSnap;
+    public Vector3 currentRotationEuler;
 
     private GameObject sun;
-    private CloudShadows sun_cloud_shadows;
+    private CloudShadows sunCloudShadows;
     private GameObject moon;
-    private CloudShadows moon_cloud_shadows;
+    private CloudShadows moonCloudShadows;
 
     private void Start()
     {
         sun = transform.GetChild(0).gameObject;
-        sun_cloud_shadows = sun.GetComponent<CloudShadows>();
+        sunCloudShadows = sun.GetComponent<CloudShadows>();
         moon = transform.GetChild(1).gameObject;
-        moon_cloud_shadows = moon.GetComponent<CloudShadows>();
+        moonCloudShadows = moon.GetComponent<CloudShadows>();
     }
 
     public static Vector3 DivideVector3(Vector3 numerator, Vector3 denominator)
@@ -37,36 +37,36 @@ public class DayNightCycle : MonoBehaviour
 
     public void UpdatePos()
     {
-        current_rotation_euler += rotation_speed * Time.deltaTime;
-        if (rotation_snap != Vector3.zero)
+        currentRotationEuler += rotationSpeed * Time.deltaTime;
+        if (rotationSnap != Vector3.zero)
         {
-            Vector3 rounded_rotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(current_rotation_euler, rotation_snap)), rotation_snap);
-            transform.rotation = Quaternion.Euler(rounded_rotation);
+            Vector3 roundedRotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(currentRotationEuler, rotationSnap)), rotationSnap);
+            transform.rotation = Quaternion.Euler(roundedRotation);
         }
         else
         {
-            transform.rotation = Quaternion.Euler(current_rotation_euler);
+            transform.rotation = Quaternion.Euler(currentRotationEuler);
         }
 
         // Reposition directional light to be over player to keep shadows
-        transform.position = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.camera_focus_point_transform.position, transform.forward);
+        transform.position = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.cameraFocusPointTransform.position, transform.forward);
 
         float x = Vector3.Dot(transform.forward, Vector3.up);
-        ambient = ambient_light.Evaluate(x);
+        ambient = ambientLight.Evaluate(x);
         Shader.SetGlobalFloat("_Ambient", ambient);
 
-        darkest = darkest_value.Evaluate(x);
+        darkest = darkestValue.Evaluate(x);
         Shader.SetGlobalFloat("_Darkest", darkest);
 
         //Debug.Log($"ambient {ambient}");
         //Debug.Log($"darkest {darkest}");
 
-        water_offset = water_col_offset.Evaluate(x);
-        Global.Materials.water_material.SetFloat("_WaterColOffset", water_offset);
+        waterOffset = waterColOffset.Evaluate(x);
+        Global.Materials.waterMaterial.SetFloat("_WaterColOffset", waterOffset);
 
         if (sun.transform.forward.y < 0)
         {
-            sun_cloud_shadows.UpdatePos();
+            sunCloudShadows.UpdatePos();
 
             if (!sun.activeInHierarchy)
             {
@@ -76,7 +76,7 @@ public class DayNightCycle : MonoBehaviour
         }
         else if (moon.transform.forward.y < 0)
         {
-            moon_cloud_shadows.UpdatePos();
+            moonCloudShadows.UpdatePos();
 
             if (!moon.activeInHierarchy)
             {

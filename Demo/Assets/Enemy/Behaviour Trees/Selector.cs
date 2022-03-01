@@ -18,16 +18,16 @@ public class Selector : Node
             switch (node.Evaluate())
             {
                 case NodeState.running:
-                    _node_state = NodeState.running;
-                    return _node_state;
+                    _nodeState = NodeState.running;
+                    return _nodeState;
                 case NodeState.success:
-                    _node_state = NodeState.success;
-                    return _node_state;
+                    _nodeState = NodeState.success;
+                    return _nodeState;
                 case NodeState.failure:
                     break;
             }
         }
-        _node_state = NodeState.failure;
-        return _node_state;
+        _nodeState = NodeState.failure;
+        return _nodeState;
     }
 }

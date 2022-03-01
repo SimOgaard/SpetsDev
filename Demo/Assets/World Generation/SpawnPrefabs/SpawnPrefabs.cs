@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class SpawnPrefabs : MonoBehaviour
 {
-    [SerializeField] private List<Collider> bounding_boxes;
+    [SerializeField] private List<Collider> boundingBoxes;
 
     private void AddToBoundingBoxes(List<Collider> colliders)
     {
-        bounding_boxes.AddRange(colliders);
+        boundingBoxes.AddRange(colliders);
     }
 
     private List<Collider> GetBoundingBoxes()
     {
-        return bounding_boxes;
+        return boundingBoxes;
     }
 
 
-    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float object_density, Vector2 area)
+    public IEnumerator Spawn(WaitForFixedUpdate wait, GameObject[] prefabs, float objectDensity, Vector2 area)
     {
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -26,36 +26,36 @@ public class SpawnPrefabs : MonoBehaviour
         }
 #endif
 
-        int prefab_length = prefabs.Length;
-        if (prefab_length == 0)
+        int prefabLength = prefabs.Length;
+        if (prefabLength == 0)
         {
             yield break;
         }
 
         List<Task> tasks = new List<Task>();
 
-        float object_amount = object_density * area.x * area.y;
-        bounding_boxes = new List<Collider>();
-        for (int i = 0; i < object_amount; i++)
+        float objectAmount = objectDensity * area.x * area.y;
+        boundingBoxes = new List<Collider>();
+        for (int i = 0; i < objectAmount; i++)
         {
             float x = Random.Range(-0.5f, 0.5f) * area.x;
             float z = Random.Range(-0.5f, 0.5f) * area.y;
-            int prefab_index = Mathf.RoundToInt(Random.value * (prefabs.Length - 1));
+            int prefabIndex = Mathf.RoundToInt(Random.value * (prefabs.Length - 1));
 
-            if (prefabs[prefab_index] == null)
+            if (prefabs[prefabIndex] == null)
             {
                 continue;
             }
-            GameObject new_game_object = Instantiate(prefabs[prefab_index], transform.position, Quaternion.identity, transform.parent.parent);
-            PlaceInWorld place = new_game_object.GetComponent<PlaceInWorld>();
+            GameObject newGameObject = Instantiate(prefabs[prefabIndex], transform.position, Quaternion.identity, transform.parent.parent);
+            PlaceInWorld place = newGameObject.GetComponent<PlaceInWorld>();
 
             yield return place.InitAsParrent(wait, AddToBoundingBoxes, GetBoundingBoxes, x, z, transform);
         }
 
-        foreach (Collider collider in bounding_boxes)
+        foreach (Collider collider in boundingBoxes)
         {
             Destroy(collider);
         }
-        bounding_boxes = null;
+        boundingBoxes = null;
     }
 }

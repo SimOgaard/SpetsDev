@@ -1,5 +1,5 @@
-float y_scale;
-float pixels_per_unit;
+float yScale;
+float pixelsPerUnit;
 
 float3 GetLookVector()
 {
@@ -27,7 +27,7 @@ void Get3VectorsUp(float3 center, float pixelSize, out float4 vectors[3])
 
 	float3 look = GetLookVectorUp();
 	float3 right = GetRightVector(look) * pixelSize;
-	float3 up = float3(0, pixelSize * y_scale, 0);
+	float3 up = float3(0, pixelSize * yScale, 0);
 	
 	vectors[0] = float4(center + right - up, 1.0f);
 	vectors[1] = float4(center + up, 1.0f);
@@ -40,7 +40,7 @@ void Get4VectorsUp(float3 center, float pixelSize, out float4 vectors[4])
 
 	float3 look = GetLookVector();
 	float3 right = mul((float3x3)unity_WorldToObject,GetRightVector(look) * pixelSize);
-	float3 up = mul((float3x3)unity_WorldToObject,float3(0, pixelSize * y_scale, 0));
+	float3 up = mul((float3x3)unity_WorldToObject,float3(0, pixelSize * yScale, 0));
 
 	vectors[0] = float4(center + right - up, 1.0f);
 	vectors[1] = float4(center + right + up, 1.0f);

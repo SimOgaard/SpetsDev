@@ -5,10 +5,10 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Water : MonoBehaviour
 {
-    public static float water_level = 0f;
-    public static float buoyancy_force = 1f;
+    public static float waterLevel = 0f;
+    public static float buoyancyForce = 1f;
 
-    private NoiseLayerSettings.Water water_settings;
+    private NoiseLayerSettings.Water waterSettings;
 
     private void LateUpdate()
     {
@@ -18,12 +18,12 @@ public class Water : MonoBehaviour
             return;
         }
 #endif
-        float water_level_wave = water_settings.bobing_amplitude * Mathf.Sin(Time.time * water_settings.bobing_frequency);
-        Water.water_level = water_settings.level + water_level_wave;
+        float waterLevelWave = waterSettings.bobingAmplitude * Mathf.Sin(Time.time * waterSettings.bobingFrequency);
+        Water.waterLevel = waterSettings.level + waterLevelWave;
 
-        Vector3 new_pos = Global.camera_focus_point_transform.position;
-        new_pos.y = water_level;
-        transform.position = new_pos;
+        Vector3 newPos = Global.cameraFocusPointTransform.position;
+        newPos.y = waterLevel;
+        transform.position = newPos;
     }
 
     private static Mesh BuildQuad(float width, float height)
@@ -65,24 +65,24 @@ public class Water : MonoBehaviour
         return mesh;
     }
 
-    public void Init(NoiseLayerSettings.Water water_settings, float width, float height, Transform parrent)
+    public void Init(NoiseLayerSettings.Water waterSettings, float width, float height, Transform parrent)
     {
-        this.water_settings = water_settings;
+        this.waterSettings = waterSettings;
         /*
-        CurveCreator.AddCurveTexture(ref material, curve_color, "_WaterCurveTexture");
-        Texture2D alpha_texture = CurveCreator.CreateCurveTexture(curve_alpha);
-        material.SetTexture("_WaterCurveAlpha", alpha_texture);
+        CurveCreator.AddCurveTexture(ref material, curveColor, "_WaterCurveTexture");
+        Texture2D alphaTexture = CurveCreator.CreateCurveTexture(curveAlpha);
+        material.SetTexture("_WaterCurveAlpha", alphaTexture);
         */
         gameObject.name = "water";
         transform.parent = parrent;
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-        Water.water_level = water_settings.level;
+        Water.waterLevel = waterSettings.level;
         gameObject.AddComponent<MeshFilter>().mesh = BuildQuad(width, height);
-        MeshRenderer mesh_renderer = gameObject.AddComponent<MeshRenderer>();
-        mesh_renderer.material = water_settings.material.material;
-        mesh_renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        mesh_renderer.receiveShadows = false;
+        MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        meshRenderer.material = waterSettings.material.material;
+        meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        meshRenderer.receiveShadows = false;
         //this.material = material;
     }
 }

@@ -4,38 +4,38 @@ using UnityEngine;
 
 public class EarthBendingPillarDirectional : EarthBendingPillarBase , Equipment.IEquipment
 {
-    private Vector3 start_point;
+    private Vector3 startPoint;
 
     public override void UsePrimary()
     {
-        if (ready_pillars >= max_pillars)
+        if (readyPillars >= maxPillars)
         {
-            start_point = MousePoint.MousePositionWorldAndEnemy();
+            startPoint = MousePoint.MousePositionWorldAndEnemy();
         }
     }
 
     public override void StopPrimary()
     {
-        Vector3 end_point = MousePoint.MousePositionPlane(start_point);
-        Vector3 direction = (end_point - start_point);
+        Vector3 endPoint = MousePoint.MousePositionPlane(startPoint);
+        Vector3 direction = (endPoint - startPoint);
         direction.y = 0f;
         direction = direction.normalized;
-        StartCoroutine(SpawnStraight(start_point, direction));
+        StartCoroutine(SpawnStraight(startPoint, direction));
     }
 
     /*
     public override void StopPrimary()
     {
-        Vector3 end_point = MousePoint.MousePositionPlane(start_point);
+        Vector3 endPoint = MousePoint.MousePositionPlane(startPoint);
 
-        Vector3 mid_point = Vector3.Lerp(start_point, end_point, 0.5f);
+        Vector3 midPoint = Vector3.Lerp(startPoint, endPoint, 0.5f);
 
-        Vector3 direction = (end_point - start_point);
+        Vector3 direction = (endPoint - startPoint);
         direction.y = 0f;
         direction = direction.normalized;
 
-        StartCoroutine(SpawnStraight(mid_point + direction * 0.5f, -direction));
-        StartCoroutine(SpawnStraight(mid_point - direction * 0.5f, direction));
+        StartCoroutine(SpawnStraight(midPoint + direction * 0.5f, -direction));
+        StartCoroutine(SpawnStraight(midPoint - direction * 0.5f, direction));
     }
     */
 }

@@ -12,59 +12,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55ae5074aaf1f94e98ec99586640a35, type: 3}
   m_Name: Rock Cluster Spawn Instruction
   m_EditorClassIdentifier: 
-  parrent_name: 3
-  min_child_amount_required: 1
-  ignore_bounding_boxes: 0
-  spawn_chance: 0.125
-  spawn_range_noise: {x: 0.75, y: 1}
-  spawn_chance_noise: 0.25
-  noise_layer:
-    enabled: 1
+  parrentName: 3
+  minChildAmountRequired: 1
+  ignoreBoundingBoxes: 0
+  spawnChance: 0.125
+  spawnRangeNoise: {x: 0.75, y: 1}
+  spawnChanceNoise: 0.25
+  noiseLayer:
+    enabled: 0
     general:
-      amplitude: 1
+      amplitude: 0.1
       offsett: {x: 0, y: 0}
-      min_value: 0
-      smoothing_min: 0
-      max_value: 1
-      smoothing_max: 0
-    general_noise:
-      noise_type: 0
-      seed: 128
-      frequency: 0.01
+      minValue: 0
+      smoothingMin: 0
+      maxValue: 0
+      smoothingMax: 0
+    generalNoise:
+      noiseType: 0
+      seed: 1337
+      frequency: 0.02
     fractal:
-      fractal_type: 1
-      octaves: 3
+      fractalType: 0
+      octaves: 1
       lacunarity: 2
       gain: 0.5
-      weighted_strength: 0
-      ping_pong_strength: 2
+      weightedStrength: 0
+      pingPongStrength: 2
     cellular:
-      cellular_distance_function: 0
-      cellular_return_type: 0
+      cellularDistanceFunction: 0
+      cellularReturnType: 0
       jitter: 1
-    domain_warp:
-      domain_warp_type: 0
+    domainWarp:
+      domainWarpType: 0
       amplitude: 30
       frequency: 0.005
-    domain_warp_fractal:
-      fractal_type: 0
+    domainWarpFractal:
+      fractalType: 0
       octaves: 5
       lacunarity: 2
       gain: 0.5
-  ray_layer_mask:
+  rayLayerMask:
     serializedVersion: 2
     m_Bits: 65536
-  shared_ray_position: 0
-  min_ray_position: {x: 0, y: 0, z: 0}
-  max_ray_position: {x: 0, y: 0, z: 0}
-  shared_position: 0
-  min_position: {x: 0, y: 0, z: 0}
-  max_position: {x: 0, y: 0, z: 0}
-  rotate_twords_ground_normal: 0
-  reset_rotation: 1
-  rotation_offset: 0
-  rotation_increment: 22.5
-  max_rotation: 180
-  shared_scales: 0
-  min_scale: {x: 1, y: 1, z: 1}
-  max_scale: {x: 1, y: 1, z: 1}
+  sharedRayPosition: 0
+  minRayPosition: {x: 0, y: 0, z: 0}
+  maxRayPosition: {x: 0, y: 0, z: 0}
+  globalSharedPosition: 0
+  minPosition: {x: 0, y: 0, z: 0}
+  maxPosition: {x: 0, y: 0, z: 0}
+  localSharedPosition: 0
+  minPositionLocal: {x: 0, y: 0, z: 0}
+  maxPositionLocal: {x: 0, y: 0, z: 0}
+  rotateTwordsGroundNormal: 0
+  resetRotation: 1
+  rotationOffset: 0
+  rotationIncrement: 22.5
+  maxRotation: 90
+  sharedScales: 0
+  minScale: {x: 1, y: 1, z: 1}
+  maxScale: {x: 1, y: 1, z: 1}
+  density: 0

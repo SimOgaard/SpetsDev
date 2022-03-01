@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class PickupGolemNode : Node
 {
-    private GolemBehaviour golem_behaviour;
+    private GolemBehaviour golemBehaviour;
 
-    public PickupGolemNode(GolemBehaviour golem_behaviour)
+    public PickupGolemNode(GolemBehaviour golemBehaviour)
     {
-        this.golem_behaviour = golem_behaviour;
+        this.golemBehaviour = golemBehaviour;
     }
 
     public override NodeState Evaluate()
     {
-        golem_behaviour.has_golem_in_hands = true;
-        golem_behaviour.PlaceGolemInHands();
+        golemBehaviour.hasGolemInHands = true;
+        golemBehaviour.PlaceGolemInHands();
         return NodeState.success;
     }
 }
