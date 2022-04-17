@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -10,25 +11,99 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCameraRotation : MonoBehaviour
 {
+    // Aspects
+    public float pixelScale = 1f;
+    //public const int targetPixelCount = (16 * 9) * 32; // https://pacoup.com/2011/06/12/list-of-true-169-resolutions/
+
+    public static int screenResolutionWidth = -1;
+    public static int screenResolutionHeight = -1;
+    public static float dpi;
+    public static float aspect;
+
+    public static int width = 512;
+    public static int height = 288;
+    public static int widthExtended = width + 16;
+    public static int heightExtended = height + 9;
+    public static float cameraScaleWidth = (float)width / widthExtended;
+    public static float cameraScaleHeight = (float)height / heightExtended;
+    public static float cameraScaleWidthOffset = (1f - cameraScaleWidth) * 0.5f;
+    public static float cameraScaleHeightOffset = (1f - cameraScaleHeight) * 0.5f;
+
+    public static float unitsPerPixelCamera = (height / 5f) / heightExtended;
+    public static float unitsPerPixelWorld = 1f / 5f;
+    public static float pixelsPerUnit = 5f;
+
+    /// <summary>
+    /// Initilizes game resolution from given screen
+    /// </summary>
+    public void CalculateResolution()
+    {
+        // if the resolution has changed
+        if (screenResolutionWidth == Screen.width && screenResolutionHeight == Screen.height)
+            return;
+
+        // tryget dpi otherwise use common dpi value
+        if (Screen.dpi != 0)
+        {
+            dpi = Screen.dpi;
+        }
+        else
+        {
+            dpi = 81f;
+            Debug.LogWarning($"We were not able to fetch dpi of screen, using default value: {dpi}");
+        }
+
+        void UpdateCamera(ref Camera camera, float aspect)
+        {
+            camera.aspect = aspect;
+        }
+
+        // remember current game render resolution
+        screenResolutionWidth = Screen.width;
+        screenResolutionHeight = Screen.height;
+
+        // calculate best target resolution from given dpi and screen resolution
+        
+
+        width = Mathf.RoundToInt(screenResolutionWidth / pixelScale);
+        height = Mathf.RoundToInt(screenResolutionHeight / pixelScale);
+        // extend resolution so we can move camera over subpixels in all 4 directions
+        widthExtended = width + 2;
+        heightExtended = height + 2;
+        // add +1 on the sides that need a fraction of a pixel to be rendered
+
+        // get aspect ratio of extended screen resolution
+        aspect = (float)widthExtended / (float)heightExtended;
+
+
+        // we need the scaling to render width * height and not widthExtended * heightExtended
+
+        // we need the constant offset for the +1 pixel so that the fractional pixel is on the right side of screen
+
+
+        cameraScaleWidth = (float)width / widthExtended;
+        cameraScaleHeight = (float)height / heightExtended;
+        cameraScaleWidthOffset = (1f - cameraScaleWidth) * 0.5f;
+        cameraScaleHeightOffset = (1f - cameraScaleHeight) * 0.5f;
+        unitsPerPixelCamera = (height / 5f) / heightExtended;
+
+        planarReflectionManager.UpdateRenderTexture();
+        dayNightCycle.UpdateRenderTexture();
+
+
+        UpdateCamera(ref mCamera, aspect);
+        UpdateCamera(ref nCamera, aspect);
+        UpdateCamera(ref rCamera, aspect);
+
+        //Debug.Log($"{Screen.width} : {Screen.height} = {pixelDensity}");
+    }
+
     [SerializeField] private Vector3 cameraRotationInit = new Vector3(30f, 0f, 0f);
     [SerializeField] private float cameraDistance = 100f;
     [SerializeField] private float cameraFarClippingPlane = 300f;
     [SerializeField] private float shadowDistance = 300f;
     private float _cameraFarClippingPlane;
     private float _cameraDistance;
-
-    public static Vector2 resolution
-    {
-        get { return new Vector2(480f, 270f); }
-    }
-    public static Vector2 resolutionExtended
-    {
-        get { return new Vector2(512f, 288f); }
-    }
-
-    public const float unitsPerPixelWorld = 1f / 5f;
-    public const float unitsPerPixelCamera = (270f / 5f) / 288f;
-    public const float pixelsPerUnit = 5f;
 
     private Vector3 offset;
 
@@ -83,9 +158,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         // Translate offset.xy to render texture uv cordinates.
         float toPositive = (unitsPerPixelCamera * 0.5f) / zoom;
-        float xDivider = pixelsPerUnit / resolution.x * zoom;
-        float yDivider = pixelsPerUnit / resolution.y * zoom;
-        Vector2 cameraOffset = new Vector2((-offset.x + toPositive) * xDivider, (-offset.y + toPositive) * yDivider);
+        float xDivider = pixelsPerUnit / width * zoom;
+        float yDivider = pixelsPerUnit / height * zoom;
+        Vector2 cameraOffset = new Vector2((-offset.x + toPositive) * xDivider + cameraScaleWidthOffset, (-offset.y + toPositive) * yDivider + cameraScaleHeightOffset);
 
         return cameraOffset;
     }
@@ -139,8 +214,11 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return;
         }
 #endif
-        planarReflectionManager = GameObject.Find("ReflectionCamera").GetComponent<PlanarReflectionManager>();
-        dayNightCycle = GameObject.Find("DayNightCycle").GetComponent<DayNightCycle>();
+
+        planarReflectionManager = GameObjectFunctions.GetComponentFromGameObjectName<PlanarReflectionManager>("ReflectionCamera");
+        dayNightCycle = GameObjectFunctions.GetComponentFromGameObjectName<DayNightCycle>("DayNightCycle");
+
+        CalculateResolution();
     }
 
     private void UpdateZoomValues(float scrollOffset = 0f)
@@ -166,7 +244,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     }
     private void ZoomCamera(ref Camera camera, float farClipPlaneFactor = 1f)
     {
-        camera.orthographicSize = (resolutionExtended.y / (5f * 2f)) / zoom;
+        camera.orthographicSize = (heightExtended / (5f * 2f)) / zoom;
         camera.farClipPlane = _cameraFarClippingPlane * farClipPlaneFactor;
     }
 
@@ -177,6 +255,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return;
         }
 
+        CalculateResolution();
         UpdateZoomValues(Mathf.NegativeInfinity);
     }
 
@@ -215,6 +294,12 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         planarReflectionManager.ConstructMatrix4X4Ortho(botRightRay, botLeftRay, 2f * mCamera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
         planarReflectionManager.SetCameraNearClippingPlane();
 
+#if UNITY_EDITOR
+        if (dayNightCycle == null)
+        {
+            return;
+        }
+#endif
         dayNightCycle.UpdatePos();
     }
 
@@ -253,7 +338,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     /// </summary>
     private void OnPreRender()
     {
-        rt = RenderTexture.GetTemporary((int) resolutionExtended.x, (int) resolutionExtended.y, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        rt = RenderTexture.GetTemporary(widthExtended, heightExtended, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
         mCamera.targetTexture = rt;
     }
 
@@ -264,9 +349,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     {
         src.filterMode = FilterMode.Point;
 
-        Vector2 cameraScale = new Vector2(resolution.x / resolutionExtended.x, resolution.y / resolutionExtended.y);
-
-        Graphics.Blit(src, dest, cameraScale, cameraOffset);
+        Graphics.Blit(src, dest, new Vector2(cameraScaleWidth, cameraScaleHeight), cameraOffset);
         //Graphics.Blit(src, dest, cameraScale, Vector2.zero);
 
         RenderTexture.ReleaseTemporary(rt);
@@ -335,6 +418,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         Gizmos.DrawSphere(botLeftPosition, 1);
 
         // Yellow points are now representing the top right and top left corners of our new camera whilst the green points represent bottom right and bottom left corners.
+
+        // Draw middle ray;
+        Gizmos.DrawRay(transform.position, transform.forward * 300f);
     }
 #endif
 }

@@ -95,28 +95,28 @@ public class CreateMesh : MonoBehaviour
 
         public void Execute()
         {
-            var halfWidth = (planeSize.x * quadSize.x) * .5f;
-            var halfLength = (planeSize.y * quadSize.y) * .5f;
+            float halfWidth = (planeSize.x * quadSize.x) * .5f;
+            float halfLength = (planeSize.y * quadSize.y) * .5f;
 
             for (int i = 0; i < quadCount; i++)
             {
-                var x = i % planeSize.x;
-                var z = i / planeSize.x;
+                int x = i % planeSize.x;
+                int z = i / planeSize.x;
 
-                var left = (x * quadSize.x) - halfWidth;
-                var right = (left + quadSize.x);
+                float left = (x * quadSize.x) - halfWidth;
+                float right = (left + quadSize.x);
 
-                var bottom = (z * quadSize.y) - halfLength;
-                var top = (bottom + quadSize.y);
+                float bottom = (z * quadSize.y) - halfLength;
+                float top = (bottom + quadSize.y);
 
-                var v = i * 4;
+                int v = i * 4;
 
                 meshData.vertices[v + 0] = new Vector3(left, 0, bottom);
                 meshData.vertices[v + 1] = new Vector3(left, 0, top);
                 meshData.vertices[v + 2] = new Vector3(right, 0, top);
                 meshData.vertices[v + 3] = new Vector3(right, 0, bottom);
 
-                var t = i * 6;
+                int t = i * 6;
 
                 meshData.triangles[t + 0] = v + 0;
                 meshData.triangles[t + 1] = v + 1;

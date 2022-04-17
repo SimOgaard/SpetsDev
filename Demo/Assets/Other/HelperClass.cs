@@ -332,3 +332,16 @@ public static class GameTime
         Time.timeScale = timeScale;
     }
 }
+
+public static class GameObjectFunctions
+{
+    public static T GetComponentFromGameObjectName<T>(string name)
+    {
+        GameObject gameObject = GameObject.Find(name);
+        if (gameObject != null)
+        {
+            return (T) gameObject.GetComponent<T>();
+        }
+        return default(T);
+    }
+}

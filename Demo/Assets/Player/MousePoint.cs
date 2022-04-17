@@ -18,8 +18,7 @@ public class MousePoint : MonoBehaviour
         inputMousePositionRaw.x *= widthScale;
         inputMousePositionRaw.y *= heightScale;
 
-        Vector2 inputMousePositionOffset = new Vector2(PixelPerfectCameraRotation.resolution.x / PixelPerfectCameraRotation.resolutionExtended.x, PixelPerfectCameraRotation.resolution.y / PixelPerfectCameraRotation.resolutionExtended.y);
-        return new Vector3(inputMousePositionRaw.x * inputMousePositionOffset.x, inputMousePositionRaw.y * inputMousePositionOffset.y, 0f);
+        return new Vector3(inputMousePositionRaw.x * PixelPerfectCameraRotation.cameraScaleWidth, inputMousePositionRaw.y * PixelPerfectCameraRotation.cameraScaleHeight, 0f);
     }
 
     public static Vector3 WorldToViewportPoint(Vector3 point)

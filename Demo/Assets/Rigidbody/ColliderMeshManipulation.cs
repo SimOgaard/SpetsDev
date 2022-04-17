@@ -28,17 +28,15 @@ public class ColliderMeshManipulation : MonoBehaviour
         }
     }
 
-    public GroundMesh.MeshManipulationState meshManipulation;
+    public GroundMesh.MeshManipulationState[] meshManipulations;
 
     protected virtual void Start()
     {
-        //for (int i = 0; i < meshManipulations.Length; i++)
-        //{
-        //    meshManipulations[i].changeToIndex = GroundMesh.MeshManipulationState.GroundTriangleTypeIndex((int)meshManipulations[i].changeTo);
-        //}
-        meshManipulation.changeTo = meshManipulation.changeTo;
+        for (int i = 0; i < meshManipulations.Length; i++)
+        {
+            meshManipulations[i].changeTo = meshManipulations[i].changeTo;
+        }
 
-        Debug.Log((int)meshManipulation.changeFrom);
         _collider = gameObject.GetComponent<Collider>();
         oldBounds = _collider.bounds;
     }
@@ -60,13 +58,14 @@ public class ColliderMeshManipulation : MonoBehaviour
 
     protected virtual void SwitchTriangles()
     {
-        Debug.Log("SwitchTriangles");
+        //Debug.Log("SwitchTriangles");
         Chunk[] chunks = WorldGenerationManager.ReturnAllCunksInBounds(oldBounds);
         for (int i = 0; i < chunks.Length; i++)
         {
             if (chunks[i] != null && chunks[i].isLoaded)
             {
-                chunks[i].groundMesh.SwitchTrainglesInCollider(_collider, meshManipulation);
+                Debug.Log(chunks[i]);
+                chunks[i].groundMesh.SwitchTrainglesInCollider(_collider, meshManipulations);
             }
         }
     }

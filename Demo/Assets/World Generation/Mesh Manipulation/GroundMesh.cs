@@ -223,7 +223,6 @@ public class GroundMesh : MonoBehaviour
 
         // create mesh for ground
         Mesh colliderGroundMesh = new Mesh();
-        colliderGroundMesh.MarkDynamic();
         colliderGroundMesh.vertices = meshData.vertices.ToArray();
         colliderGroundMesh.triangles = meshData.triangles.ToArray();
         colliderGroundMesh.normals = meshData.normals.ToArray();
@@ -291,10 +290,8 @@ public class GroundMesh : MonoBehaviour
 
             int cornerTriangle = i * 3;
             groundSubtypes[groundTypeIndexNativeArray[i]][cornerTriangle] = triangles[cornerTriangle];
-            cornerTriangle++;
-            groundSubtypes[groundTypeIndexNativeArray[i]][cornerTriangle] = triangles[cornerTriangle];
-            cornerTriangle++;
-            groundSubtypes[groundTypeIndexNativeArray[i]][cornerTriangle] = triangles[cornerTriangle];
+            groundSubtypes[groundTypeIndexNativeArray[i]][cornerTriangle + 1] = triangles[cornerTriangle + 1];
+            groundSubtypes[groundTypeIndexNativeArray[i]][cornerTriangle + 2] = triangles[cornerTriangle + 2];
         }
         // dispose of native arrays
         groundTypeNativeArray.Dispose();

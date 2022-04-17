@@ -13,7 +13,7 @@ public class NormalsReplacementShader : MonoBehaviour
     {
         PixelPerfectCameraRotation thisCamera = GetComponent<PixelPerfectCameraRotation>();
 
-        renderTexture = new RenderTexture((int) PixelPerfectCameraRotation.resolutionExtended.x,(int) PixelPerfectCameraRotation.resolutionExtended.y, 24);
+        renderTexture = new RenderTexture(PixelPerfectCameraRotation.widthExtended, PixelPerfectCameraRotation.heightExtended, 24);
         renderTexture.filterMode = FilterMode.Point;
         Shader.SetGlobalTexture("_CameraNormalsTexture", renderTexture);
 

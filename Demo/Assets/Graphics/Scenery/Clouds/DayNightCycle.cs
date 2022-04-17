@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -85,5 +86,10 @@ public class DayNightCycle : MonoBehaviour
             }
         }
 
+    }
+
+    internal void UpdateRenderTexture()
+    {
+        throw new NotImplementedException();
     }
 }

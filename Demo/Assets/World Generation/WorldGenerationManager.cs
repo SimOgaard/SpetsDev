@@ -21,6 +21,13 @@ public class WorldGenerationManager : MonoBehaviour
     }
 
     public static Vector2 staticChunkSize;
+    private void OnValidate()
+    {
+        AddCurveToAllMaterials();
+        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.unitSize.x, chunkDetails.unitSize.y);
+        chunkDetails.offset = chunkDetails.unitSize * chunkDetails.resolution;
+        staticChunkSize = chunkDetails.offset;
+    }
 
     [System.Serializable]
     public struct ChunkDetails
@@ -156,11 +163,6 @@ public class WorldGenerationManager : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private void Update()
-    {
-        AddCurveToAllMaterials();
-    }
-
     [HideInInspector] public bool foldout = true;
     private Texture2D[] noiseTextures;
     private void LoadNoiseTextures()
@@ -184,6 +186,7 @@ public class WorldGenerationManager : MonoBehaviour
         LoadNoiseTextures();
     }
 #endif
+
     public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
     {
         child = new GameObject(SpawnInstruction.GetHierarchyName(name));
@@ -208,6 +211,7 @@ public class WorldGenerationManager : MonoBehaviour
             Mathf.RoundToInt(position_2d.x / staticChunkSize.x) + 100,
             Mathf.RoundToInt(position_2d.y / staticChunkSize.y) + 100
         );
+
         return nearestChunk;
     }
 

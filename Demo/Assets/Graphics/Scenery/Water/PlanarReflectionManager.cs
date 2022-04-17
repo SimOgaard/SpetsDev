@@ -55,4 +55,17 @@ public class PlanarReflectionManager : MonoBehaviour
 
         //Matrix4x4 worldToCameraMatrix = Matrix4x4.Ortho(-10, 10, -10, 10, 0, 10); // You could probably create an ortho matrix from theese cords but i do not now how
     }
+
+    public void UpdateRenderTexture()
+    {
+        if (reflectionCamera.targetTexture != null)
+        {
+            reflectionCamera.targetTexture.Release();
+        }
+
+        RenderTexture renderTextureTarget = new RenderTexture(PixelPerfectCameraRotation.widthExtended, PixelPerfectCameraRotation.heightExtended, 24, RenderTextureFormat.Default);
+        renderTextureTarget.filterMode = FilterMode.Point;
+        Shader.SetGlobalTexture("_WaterReflectionTexture", renderTextureTarget);
+        reflectionCamera.targetTexture = renderTextureTarget;
+    }
 }
