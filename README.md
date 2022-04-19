@@ -4,10 +4,17 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
-We want to rework the chunk ground mesh system, it is badly written
-Create a mesh of wanted size 
+We want to rework the chunk ground mesh system, it is badly written:
+1. Rework Settings. We want:
+    NoiseSettings   ->  spawnSettings   ->  biomeSettings   ->  worldGenerationSettings
 
+    WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending.
 
+This would be a cool video:
+You are in a wheat field sneeking with the trampled wheat trail going parralell up twords the top of the camera. You are hiding and after a second or so stop sneeking and do the minecraft peace sign. then you start running and after halfway to running take out your sword to cut wheat. Then you stop and do some combos.
+For this to be done you need to rework world creation system, triangle swap, fix wheat visual, fix static collider ground mesh visual with dirty/gravely/clay visual, finnish character, build on sword weapon, add cut grass, cut wheat, burnt grass, burnt wheat.
+
+dictionary<int, triangle> vs itterating the whole array
 CreatePlaneJob should create a mesh that have no overlapping vertices
 Since this mesh is constant throughout the whole game, we should be able to remove a triangle 
 
@@ -100,7 +107,7 @@ public struct CreatePlaneJob : IJob
 }
 ```
 
-* Pixel perfect camera for all resolutions
+* Pixel perfect camera for all resolutions using dpi and aspect ratio
 * Update resolution of clouds dependent on screen resolution
 * add damage taken under enemy health bar bottom left like elden ring
 

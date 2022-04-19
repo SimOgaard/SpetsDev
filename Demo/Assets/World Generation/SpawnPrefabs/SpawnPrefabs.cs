@@ -32,8 +32,6 @@ public class SpawnPrefabs : MonoBehaviour
             yield break;
         }
 
-        List<Task> tasks = new List<Task>();
-
         float objectAmount = objectDensity * area.x * area.y;
         boundingBoxes = new List<Collider>();
         for (int i = 0; i < objectAmount; i++)

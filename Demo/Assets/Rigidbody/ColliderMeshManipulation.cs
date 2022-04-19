@@ -65,7 +65,7 @@ public class ColliderMeshManipulation : MonoBehaviour
             if (chunks[i] != null && chunks[i].isLoaded)
             {
                 Debug.Log(chunks[i]);
-                chunks[i].groundMesh.SwitchTrainglesInCollider(_collider, meshManipulations);
+                //chunks[i].SwitchTrainglesInCollider(_collider, meshManipulations);
             }
         }
     }

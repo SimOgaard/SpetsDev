@@ -11,39 +11,52 @@ public class WorldGenerationManager : MonoBehaviour
 
     [SerializeField] private NoiseLayerSettings noiseLayerSettings;
     private Noise.NoiseLayer[] noiseLayers;
-    private NativeArray<Noise.NoiseLayer> noiseLayersNativeArray;
-    private void OnDestroy()
-    {
-        if (noiseLayersNativeArray.IsCreated)
-        {
-            noiseLayersNativeArray.Dispose();
-        }
-    }
-
-    public static Vector2 staticChunkSize;
-    private void OnValidate()
-    {
-        AddCurveToAllMaterials();
-        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.unitSize.x, chunkDetails.unitSize.y);
-        chunkDetails.offset = chunkDetails.unitSize * chunkDetails.resolution;
-        staticChunkSize = chunkDetails.offset;
-    }
 
     [System.Serializable]
     public struct ChunkDetails
     {
-        [Min(0.01f)] public Vector2 unitSize;
-        [Min(2)] public Vector2Int resolution;
-        public float chunkDisableDistance;
-        public float chunkEnableDistance;
-        public int chunkLoadDist;
+        [Min(0.01f)] public Vector2 chunkSize;
+        [Min(1)] public Vector2Int quadAmount;
+
         public int maxChunkLoadDist;
+        public int chunkLoadDist;
+        public float chunkEnableDistance;
+        public float chunkDisableDistance;
+
         [Range(0.01f, 1f)] public float chunkLoadSpeed;
         public int maxChunkLoadAtATimeInit;
         public int maxChunkLoadAtATime;
-        [HideInInspector] public Vector2 offset;
     }
     [SerializeField] private ChunkDetails chunkDetails;
+    public static ChunkDetails chunkDetailsStatic;
+
+    private void OnValidate()
+    {
+        Debug.Log("OnValidate");
+
+        // uppdate all material properties
+        AddCurveToAllMaterials();
+
+        // make a static version of chunk details
+        chunkDetailsStatic = chunkDetails;
+
+        // update triangle size margin for mesh manipulation
+        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.chunkSize.x / (float)chunkDetails.quadAmount.x, chunkDetails.chunkSize.y / (float)chunkDetails.quadAmount.y);
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+#endif
+        // update static chunk ground
+        Chunk.groundMeshConst.Update(noiseLayerSettings);
+    }
+
+    private void OnDestroy()
+    {
+        Chunk.groundMeshConst.Destroy();
+    }
 
     public Chunk InstanciateChunkGameObject(Vector2 chunkCoord)
     {
@@ -58,13 +71,13 @@ public class WorldGenerationManager : MonoBehaviour
     {
         if (!chunk.isLoading)
         {
-            StartCoroutine(chunk.LoadChunk(noiseLayerSettings, noiseLayersNativeArray, chunkDetails));
+            StartCoroutine(chunk.LoadChunk(noiseLayerSettings));
         }
     }
 
     public void InstaLoadChunk(Chunk chunk)
     {
-        var load = chunk.LoadChunk(noiseLayerSettings, noiseLayersNativeArray, chunkDetails);
+        var load = chunk.LoadChunk(noiseLayerSettings);
         while (load.MoveNext()) { }
     }
 
@@ -100,17 +113,13 @@ public class WorldGenerationManager : MonoBehaviour
         }
 
         chunksInLoading = new List<Chunk>();
-
-        AddCurveToAllMaterials();
-
         noiseLayers = Noise.CreateNoiseLayers(noiseLayerSettings);
+
 #if UNITY_EDITOR
         LoadNoiseTextures();
 #endif
 
-        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.unitSize.x, chunkDetails.unitSize.y);
-        chunkDetails.offset = chunkDetails.unitSize * chunkDetails.resolution;
-        staticChunkSize = chunkDetails.offset;
+        OnValidate();
 
         Water water = new GameObject().AddComponent<Water>();
         water.Init(noiseLayerSettings.water, 350f, 350f, transform);
@@ -122,9 +131,6 @@ public class WorldGenerationManager : MonoBehaviour
         }
 #endif
 
-        noiseLayersNativeArray = new NativeArray<Noise.NoiseLayer>(noiseLayers, Allocator.Persistent);
-
-        //LoadNearestChunk(Vector3.zero/*, true*/);
         LoadNearest(chunkDetails.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
@@ -139,7 +145,7 @@ public class WorldGenerationManager : MonoBehaviour
         {
             for (int z = -loadDist; z <= loadDist; z++)
             {
-                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3((float)x * chunkDetails.offset.x, 0f, (float)z * chunkDetails.offset.y));
+                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3((float)x * chunkDetails.chunkSize.x, 0f, (float)z * chunkDetails.chunkSize.y));
             }
         }
 
@@ -187,29 +193,68 @@ public class WorldGenerationManager : MonoBehaviour
     }
 #endif
 
+    #region InitGameObjects
+    public static GameObject InitNewChild(Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
+    {
+        return InitNewChild(parrent, SpawnInstruction.GetHierarchyName(name));
+    }
+
+    public static GameObject InitNewChild(Transform parrent, string name)
+    {
+        GameObject gameObject;
+        InitNewChild(out gameObject, parrent, name);
+        return gameObject;
+    }
+
     public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
     {
-        child = new GameObject(SpawnInstruction.GetHierarchyName(name));
+        InitNewChild(out child, parrent, SpawnInstruction.GetHierarchyName(name));
+    }
+
+    public static void InitNewChild(out GameObject child, Transform parrent, string name)
+    {
+        child = new GameObject(name);
         child.transform.parent = parrent;
+        child.transform.localPosition = Vector3.zero;
+    }
+
+    public static GameObject InitNewChild(Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
+    {
+        return InitNewChild(parrent, SpawnInstruction.GetHierarchyName(name), components);
+    }
+
+    public static GameObject InitNewChild(Transform parrent, string name, params System.Type[] components)
+    {
+        GameObject gameObject;
+        InitNewChild(out gameObject, parrent, name, components);
+        return gameObject;
     }
 
     public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
     {
-        child = new GameObject(SpawnInstruction.GetHierarchyName(name));
+        InitNewChild(out child, parrent, SpawnInstruction.GetHierarchyName(name), components);
+    }
+
+    public static void InitNewChild(out GameObject child, Transform parrent, string name, params System.Type[] components)
+    {
+        child = new GameObject(name);
         child.transform.parent = parrent;
+        child.transform.localPosition = Vector3.zero;
 
         for (int i = 0; i < components.Length; i++)
         {
             child.AddComponent(components[i]);
         }
     }
+    #endregion
 
+    #region ChunkFunctions
     public static Vector2Int ReturnNearestChunkIndex(Vector3 position)
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / staticChunkSize.x) + 100,
-            Mathf.RoundToInt(position_2d.y / staticChunkSize.y) + 100
+            Mathf.RoundToInt(position_2d.x / chunkDetailsStatic.chunkSize.x) + 100,
+            Mathf.RoundToInt(position_2d.y / chunkDetailsStatic.chunkSize.y) + 100
         );
 
         return nearestChunk;
@@ -219,10 +264,10 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / staticChunkSize.x),
-            Mathf.RoundToInt(position_2d.y / staticChunkSize.y)
+            Mathf.RoundToInt(position_2d.x / chunkDetailsStatic.chunkSize.x),
+            Mathf.RoundToInt(position_2d.y / chunkDetailsStatic.chunkSize.y)
         );
-        Vector2 chunkCoord = nearestChunk * staticChunkSize;
+        Vector2 chunkCoord = nearestChunk * chunkDetailsStatic.chunkSize;
         return chunkCoord;
     }
 
@@ -237,13 +282,13 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2Int nearestChunk = ReturnNearestChunkIndex(position);
         Vector2Int nearestChunkIndex = nearestChunk;
+        
         Chunk chunk = chunks[nearestChunkIndex.x, nearestChunkIndex.y];
 
         if (chunk == null)
         {
             chunk = InstanciateChunkGameObject(ReturnNearestChunkCoord(position));
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
-            chunk.Initialize(chunkDetails.chunkDisableDistance, Global.playerTransform);
             chunksInLoading.Add(chunk);
         }
         else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.playerTransform.position).magnitude < chunkDetails.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
@@ -279,4 +324,5 @@ public class WorldGenerationManager : MonoBehaviour
 
         return chunksInBounds;
     }
+    #endregion
 }

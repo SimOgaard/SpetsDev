@@ -1,0 +1,50 @@
+// kernel 0 for offsetting given mesh in y direction given fastnoiselite settings
+#pragma kernel MeshNoise
+// kernel 1 for calculating each vericee normal
+#pragma kernel NormalizeMesh
+// kernel 2 that calculates triangle midpoint y and uses triangle midpoint xyz for updating triangle type, it also saves the largest and smallest y value for that thread so that we only need to itterate a 2*sqrt(triangleSize) list of y values to find the largest and smallest for this mesh, it does the same for triangle type count so we only need to add dispatchSize * triangleType.Length integers on the cpu
+#pragma kernel TriangleType
+
+// include fastnoise lite
+#include "Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
+
+// constants of mesh data
+int verticeWidth;
+int verticeHeight;
+int verticeAmount;
+
+int quadAmount;
+int triangleAmount;
+int triangleIndexAmount;
+// constants of mesh data
+
+// xz position of current mesh
+float2 meshXZPos;
+// xz position for vertice
+Buffer<float2> vertXZPos;
+// y position for vertices, that is read write (write only doesnt excist)
+RWBuffer<float> vertYPos;
+
+[numthreads(100, 1, 1)]
+void MeshNoise(uint3 id : SV_DispatchThreadID)
+{
+    for (uint y = 0; y < verticeHeight; y++)
+    {
+
+    }
+
+    float x = meshXZPos.x + id.x;
+    // offsets y value of all vertices of mesh given noise functions from fast noise lite
+}
+
+[numthreads(100, 1, 1)]
+void NormalizeMesh(uint3 id : SV_DispatchThreadID)
+{
+    // calculates the normal for each vertice of mesh
+}
+
+[numthreads(100, 1, 1)]
+void TriangleType(uint3 id : SV_DispatchThreadID)
+{
+    // calculates the appropiate triangle type for each triangle of mesh given noise functions from fast noise lite
+}
