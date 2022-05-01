@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu]
-public class SpawnInstruction : ScriptableObject
+public class InstantiateInstruction : ScriptableObject
 {
     public enum SharedXYZ { none, xy, xz, yz, xyz }
     public enum PlacableGameObjectsParrent { keep, groundMesh, landMarks, rocks, trees, chests, enemies, lgolems, mgolems, sgolems }

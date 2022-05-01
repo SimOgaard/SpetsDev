@@ -24,7 +24,7 @@ public class CurveCreator : MonoBehaviour
         */
     }
 
-    private static Texture2D CreateTexture(Vector2Int resolution)
+    public static Texture2D CreateTexture(Vector2Int resolution)
     {
         Texture2D curveTexture = new Texture2D(resolution.x, resolution.y, TextureFormat.R8, false);
         curveTexture.filterMode = FilterMode.Point;

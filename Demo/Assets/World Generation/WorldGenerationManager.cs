@@ -6,51 +6,45 @@ using Unity.Collections;
 [ExecuteInEditMode]
 public class WorldGenerationManager : MonoBehaviour
 {
-    public static Chunk[,] chunks = new Chunk[200, 200];
+    public static Chunk[,] chunks;
     public static List<Chunk> chunksInLoading;
 
-    [SerializeField] private NoiseLayerSettings noiseLayerSettings;
-    private Noise.NoiseLayer[] noiseLayers;
+    public WorldGenerationSettings worldGenerationSettings;
+    [HideInInspector] public bool foldout;
 
-    [System.Serializable]
-    public struct ChunkDetails
+    [ContextMenu("Regenerate")]
+    private void Regenerate()
     {
-        [Min(0.01f)] public Vector2 chunkSize;
-        [Min(1)] public Vector2Int quadAmount;
-
-        public int maxChunkLoadDist;
-        public int chunkLoadDist;
-        public float chunkEnableDistance;
-        public float chunkDisableDistance;
-
-        [Range(0.01f, 1f)] public float chunkLoadSpeed;
-        public int maxChunkLoadAtATimeInit;
-        public int maxChunkLoadAtATime;
-    }
-    [SerializeField] private ChunkDetails chunkDetails;
-    public static ChunkDetails chunkDetailsStatic;
-
-    private void OnValidate()
-    {
-        Debug.Log("OnValidate");
-
-        // uppdate all material properties
-        AddCurveToAllMaterials();
-
-        // make a static version of chunk details
-        chunkDetailsStatic = chunkDetails;
-
-        // update triangle size margin for mesh manipulation
-        ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkDetails.chunkSize.x / (float)chunkDetails.quadAmount.x, chunkDetails.chunkSize.y / (float)chunkDetails.quadAmount.y);
-
-#if UNITY_EDITOR
         if (!Application.isPlaying)
         {
             return;
         }
-#endif
-        // update static chunk ground
-        Chunk.groundMeshConst.Update(noiseLayerSettings);
+
+        // Re-run this like it was game start
+        Awake();
+
+        // Wait for game to not be paused and then place player on chunk
+        StartCoroutine(PlacePlayer(Global.playerTransform.position));
+
+        Debug.Log("Regenerated world");
+    }
+
+    public static IEnumerator PlacePlayer(Vector3 position)
+    {
+        // place player at wanted position
+        Global.playerTransform.position = position;
+        yield return new WaitForEndOfFrame();
+
+        // wait for game to not be paused
+        while (GameTime.isPaused)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
+        // raycast position downwards to place player on world to not clip
+        RaycastHit hit;
+        Physics.SphereCast(position + Vector3.up * 10_000f, 5f, Vector3.down, out hit, float.MaxValue, Layer.gameWorld);
+        Global.playerTransform.position = hit.point + Vector3.up * 5f;
     }
 
     private void OnDestroy()
@@ -71,58 +65,42 @@ public class WorldGenerationManager : MonoBehaviour
     {
         if (!chunk.isLoading)
         {
-            StartCoroutine(chunk.LoadChunk(noiseLayerSettings));
+            StartCoroutine(chunk.LoadChunk(worldGenerationSettings));
         }
     }
 
     public void InstaLoadChunk(Chunk chunk)
     {
-        var load = chunk.LoadChunk(noiseLayerSettings);
+        var load = chunk.LoadChunk(worldGenerationSettings);
         while (load.MoveNext()) { }
-    }
-
-    private void AddCurveToAllMaterials()
-    {
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialStatic);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialLeaf);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialWood);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialStone);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialGolem);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialGolemShoulder);
-
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.water.material);
-
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialSun);
-        CurveCreator.AddCurveTextures(ref noiseLayerSettings.materialMoon);
-
-        foreach (NoiseLayerSettings.Foliage foliage in noiseLayerSettings.randomFoliage)
-        {
-            CurveCreator.AddCurveTextures(ref foliage.material);
-        }
-
-        // set materials to be globally accesable
-        Global.Materials.stoneMaterial = noiseLayerSettings.materialStone.material;
-        Global.Materials.waterMaterial = noiseLayerSettings.water.material.material;
     }
 
     private void Awake()
     {
+        // destroy all child gameobjects
         while (transform.childCount != 0)
         {
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
 
-        chunksInLoading = new List<Chunk>();
-        noiseLayers = Noise.CreateNoiseLayers(noiseLayerSettings);
+        // dispose of computebuffers
+        Chunk.groundMeshConst.Destroy();
 
+        // update all assets
+        worldGenerationSettings.Update();
+
+        // create chunk lists
+        chunksInLoading = new List<Chunk>();
+        chunks = new Chunk[200, 200];
+
+        /*
 #if UNITY_EDITOR
         LoadNoiseTextures();
 #endif
-
-        OnValidate();
+        */
 
         Water water = new GameObject().AddComponent<Water>();
-        water.Init(noiseLayerSettings.water, 350f, 350f, transform);
+        water.Init(worldGenerationSettings.waterSettings, 350f, 350f, transform);
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -131,7 +109,7 @@ public class WorldGenerationManager : MonoBehaviour
         }
 #endif
 
-        LoadNearest(chunkDetails.maxChunkLoadAtATimeInit);
+        LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
@@ -139,18 +117,38 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void LoadNearest(int maxChunkLoadAtATime)
     {
-        int loadDist = Mathf.Min(Mathf.RoundToInt(chunkDetails.chunkLoadDist / PixelPerfectCameraRotation.zoom), chunkDetails.maxChunkLoadDist);
-
-        for (int x = -loadDist; x <= loadDist; x++)
+        void sunflower(int n, float alpha)
         {
-            for (int z = -loadDist; z <= loadDist; z++)
+            float radius(int k, int n, int b)
             {
-                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3((float)x * chunkDetails.chunkSize.x, 0f, (float)z * chunkDetails.chunkSize.y));
+                if (k > n - b)
+                {
+                    return worldGenerationSettings.chunkSettings.chunkLoadDist; // put on the boundary
+                }
+                else
+                {
+                    return worldGenerationSettings.chunkSettings.chunkLoadDist * (Mathf.Sqrt(k - 1 / 2) / Mathf.Sqrt(n - (b + 1) / 2)); // apply square root
+                }
+            }
+
+            int b = Mathf.RoundToInt(alpha * Mathf.Sqrt(n)); // number of boundary points
+            float phi = (Mathf.Sqrt(5) + 1) / 2; // golden ratio
+            for (int k = 1; k <= n; k++)
+            {
+                float r = radius(k, n, b);
+                float theta = 2 * Mathf.PI * k / Mathf.Pow(phi, 2);
+
+                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3(r * Mathf.Cos(theta), 0f, r * Mathf.Sin(theta)));
             }
         }
 
+        // start loading in sunflower orientation
+        sunflower(worldGenerationSettings.chunkSettings.chunkLoadPrecision, 0f);
+
+        // sort the chunks that are supposed to be loading
         chunksInLoading.Sort(delegate (Chunk c1, Chunk c2) { return c1.DistToPlayer().CompareTo(c2.DistToPlayer()); });
 
+        // start loading the closests chunks
         for (int i = 0; i < maxChunkLoadAtATime && i < chunksInLoading.Count; i++)
         {
             StartLoadingChunk(chunksInLoading[i]);
@@ -163,11 +161,12 @@ public class WorldGenerationManager : MonoBehaviour
 
         while (true)
         {
-            LoadNearest(chunkDetails.maxChunkLoadAtATime);
+            LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATime);
             yield return wait;
         }
     }
 
+    /*
 #if UNITY_EDITOR
     [HideInInspector] public bool foldout = true;
     private Texture2D[] noiseTextures;
@@ -192,11 +191,12 @@ public class WorldGenerationManager : MonoBehaviour
         LoadNoiseTextures();
     }
 #endif
+    */
 
     #region InitGameObjects
-    public static GameObject InitNewChild(Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
+    public static GameObject InitNewChild(Transform parrent, InstantiateInstruction.PlacableGameObjectsParrent name)
     {
-        return InitNewChild(parrent, SpawnInstruction.GetHierarchyName(name));
+        return InitNewChild(parrent, InstantiateInstruction.GetHierarchyName(name));
     }
 
     public static GameObject InitNewChild(Transform parrent, string name)
@@ -206,9 +206,9 @@ public class WorldGenerationManager : MonoBehaviour
         return gameObject;
     }
 
-    public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name)
+    public static void InitNewChild(out GameObject child, Transform parrent, InstantiateInstruction.PlacableGameObjectsParrent name)
     {
-        InitNewChild(out child, parrent, SpawnInstruction.GetHierarchyName(name));
+        InitNewChild(out child, parrent, InstantiateInstruction.GetHierarchyName(name));
     }
 
     public static void InitNewChild(out GameObject child, Transform parrent, string name)
@@ -218,9 +218,9 @@ public class WorldGenerationManager : MonoBehaviour
         child.transform.localPosition = Vector3.zero;
     }
 
-    public static GameObject InitNewChild(Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
+    public static GameObject InitNewChild(Transform parrent, InstantiateInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
     {
-        return InitNewChild(parrent, SpawnInstruction.GetHierarchyName(name), components);
+        return InitNewChild(parrent, InstantiateInstruction.GetHierarchyName(name), components);
     }
 
     public static GameObject InitNewChild(Transform parrent, string name, params System.Type[] components)
@@ -230,9 +230,9 @@ public class WorldGenerationManager : MonoBehaviour
         return gameObject;
     }
 
-    public static void InitNewChild(out GameObject child, Transform parrent, SpawnInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
+    public static void InitNewChild(out GameObject child, Transform parrent, InstantiateInstruction.PlacableGameObjectsParrent name, params System.Type[] components)
     {
-        InitNewChild(out child, parrent, SpawnInstruction.GetHierarchyName(name), components);
+        InitNewChild(out child, parrent, InstantiateInstruction.GetHierarchyName(name), components);
     }
 
     public static void InitNewChild(out GameObject child, Transform parrent, string name, params System.Type[] components)
@@ -253,8 +253,8 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / chunkDetailsStatic.chunkSize.x) + 100,
-            Mathf.RoundToInt(position_2d.y / chunkDetailsStatic.chunkSize.y) + 100
+            Mathf.RoundToInt(position_2d.x / Chunk.groundMeshConst.chunkSize.x) + 100,
+            Mathf.RoundToInt(position_2d.y / Chunk.groundMeshConst.chunkSize.y) + 100
         );
 
         return nearestChunk;
@@ -264,24 +264,22 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / chunkDetailsStatic.chunkSize.x),
-            Mathf.RoundToInt(position_2d.y / chunkDetailsStatic.chunkSize.y)
+            Mathf.RoundToInt(position_2d.x / Chunk.groundMeshConst.chunkSize.x),
+            Mathf.RoundToInt(position_2d.y / Chunk.groundMeshConst.chunkSize.y)
         );
-        Vector2 chunkCoord = nearestChunk * chunkDetailsStatic.chunkSize;
+        Vector2 chunkCoord = nearestChunk * Chunk.groundMeshConst.chunkSize;
         return chunkCoord;
     }
 
     public static Chunk ReturnNearestChunk(Vector3 position)
     {
-        Vector2Int nearestChunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearestChunkIndex = nearestChunk;
+        Vector2Int nearestChunkIndex = ReturnNearestChunkIndex(position);
         return chunks[nearestChunkIndex.x, nearestChunkIndex.y];
     }
 
     public Chunk LoadNearestChunk(Vector3 position)
     {
-        Vector2Int nearestChunk = ReturnNearestChunkIndex(position);
-        Vector2Int nearestChunkIndex = nearestChunk;
+        Vector2Int nearestChunkIndex = ReturnNearestChunkIndex(position);
         
         Chunk chunk = chunks[nearestChunkIndex.x, nearestChunkIndex.y];
 
@@ -291,7 +289,7 @@ public class WorldGenerationManager : MonoBehaviour
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
             chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.playerTransform.position).magnitude < chunkDetails.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.playerTransform.position).magnitude < Chunk.groundMeshConst.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

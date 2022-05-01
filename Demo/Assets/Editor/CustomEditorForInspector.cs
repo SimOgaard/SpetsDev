@@ -6,9 +6,10 @@ using UnityEditor;
 /// <summary>
 /// Changes Unity Inspector window to show Scriptable Object fields and allow for drop down view
 /// </summary>
-[CustomEditor(typeof(WorldGenerationManager))]
+//[CustomEditor(typeof(WorldGenerationManager))]
 public class CustomEditorForInspector : Editor
 {
+    /*
     private WorldGenerationManager world;
     private Editor editor;
 
@@ -84,4 +85,5 @@ public class CustomEditorForInspector : Editor
     {
         world = (WorldGenerationManager)target;
     }
+    */
 }

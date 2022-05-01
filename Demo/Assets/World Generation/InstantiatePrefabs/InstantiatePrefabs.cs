@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnPrefabs : MonoBehaviour
+public class InstantiatePrefabs : MonoBehaviour
 {
     [SerializeField] private List<Collider> boundingBoxes;
 

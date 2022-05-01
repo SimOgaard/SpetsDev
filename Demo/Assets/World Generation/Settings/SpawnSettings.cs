@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Defines how a singular game object should spawn.
+/// Defines rules for the player spawn area/position. Difficulity radius, spawn items, guide, etc.
 /// </summary>
 [CreateAssetMenu()]
+[System.Serializable]
 public class SpawnSettings : ScriptableObject
 {
 

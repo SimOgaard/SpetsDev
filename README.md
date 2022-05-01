@@ -4,11 +4,13 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
+We need more than one pixel on each side since we distort water reflection image a lot, also if we want to add quarts/crystals/glass that offsets pixels by min(maxOffset, offsetAmplitude * distanceToGround)
+
 We want to rework the chunk ground mesh system, it is badly written:
 1. Rework Settings. We want:
     NoiseSettings   ->  spawnSettings   ->  biomeSettings   ->  worldGenerationSettings
 
-    WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending.
+    WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending, they should also keep a initilized version at runtime that is hidden in inspector so nothing has to be done when sampeling noise.
 
 This would be a cool video:
 You are in a wheat field sneeking with the trampled wheat trail going parralell up twords the top of the camera. You are hiding and after a second or so stop sneeking and do the minecraft peace sign. then you start running and after halfway to running take out your sword to cut wheat. Then you stop and do some combos.
@@ -18,8 +20,11 @@ dictionary<int, triangle> vs itterating the whole array
 CreatePlaneJob should create a mesh that have no overlapping vertices
 Since this mesh is constant throughout the whole game, we should be able to remove a triangle 
 
+to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames
 
 * Triangles of type x after deletion and addition of same type x gets turnt upside down. So if i delete 100 grass and 10 flower, then go from nothing to flower 10 flowers will be upside down:
+
+directory to array doesnt keep the sort
 
 there is therefor a difference between:
 ```
@@ -129,6 +134,9 @@ Make player character fluid and finnished.
 * dash like sekiro (no iframes, just a quick way to get to running speed)
 * jump also like sekriro (no iframes) ?!?!?!!?
 
+https://64.media.tumblr.com/a9ead6db48fb68bdf6ac996322955666/e79456eee010c491-30/s540x810/fd7599da16640d7f2c9927ab9343dd158b130e34.gifv
+https://www.google.com/url?sa=i&url=https%3A%2F%2Finsigniagame.tumblr.com%2Fpost%2F177615337006%2Fhweat&psig=AOvVaw2YWdDbosHSP2SQOUcZvM6B&ust=1651422038482000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCNiYuNGYvPcCFQAAAAAdAAAAABAi
+https://uploads.dailydot.com/c76/29/tumblr_mrcdipCOP41scncwdo1_500.gif?auto=compress&fm=gif&ixlib=php-3.3.0
 
 # Other:
 * unity 2021 lts

@@ -7,21 +7,29 @@ using UnityEngine.Rendering;
 
 public class Chunk : MonoBehaviour
 {    
-    public struct Ground
+    public class Ground
     {
-        public void Update(NoiseLayerSettings noiseLayerSettings)
+        public void Update(ChunkSettings chunkSettings)
         {
+            chunkSize = chunkSettings.chunkSize;
+            quadAmount = chunkSettings.quadAmount;
+
+            chunkLoadDist = chunkSettings.chunkLoadDist;
+            chunkDisableDistance = chunkSettings.chunkDisableDistance;
+            chunkEnableDistance = chunkSettings.chunkEnableDistance;
+
+
             // read in the correct compute shader that has multiple kernels to reduce the amount of buffers that need to be set
             computeShader = Resources.Load<ComputeShader>("ComputeShaders/ChunkGround");
             computeShaderOccupied = false;
 
             // get mesh sizes
-            verticeWidth = WorldGenerationManager.chunkDetailsStatic.quadAmount.x + 1;
-            verticeHeight = WorldGenerationManager.chunkDetailsStatic.quadAmount.y + 1;
+            verticeWidth = quadAmount.x + 1;
+            verticeHeight = quadAmount.y + 1;
             verticeAmount = verticeWidth * verticeHeight;
 
-            quadAmount = WorldGenerationManager.chunkDetailsStatic.quadAmount.x * WorldGenerationManager.chunkDetailsStatic.quadAmount.y;
-            triangleAmount = quadAmount * 2;
+            quadAmountInt = quadAmount.x * quadAmount.y;
+            triangleAmount = quadAmountInt * 2;
             triangleIndexAmount = triangleAmount * 3;
 
             // set new vertices and triangles from newly calculated sizes
@@ -32,11 +40,11 @@ public class Chunk : MonoBehaviour
             triangles = new Triangle[triangleAmount];
 
             // populate vertices starting from bottom left with an offset of chunkSize * 0.5f
-            float constOffsetX = -WorldGenerationManager.chunkDetailsStatic.chunkSize.x * 0.5f;
-            float constOffsetZ = -WorldGenerationManager.chunkDetailsStatic.chunkSize.y * 0.5f;
+            float constOffsetX = -chunkSize.x * 0.5f;
+            float constOffsetZ = -chunkSize.y * 0.5f;
 
-            float iterativeOffsetX = WorldGenerationManager.chunkDetailsStatic.chunkSize.x / WorldGenerationManager.chunkDetailsStatic.quadAmount.x;
-            float iterativeOffsetZ = WorldGenerationManager.chunkDetailsStatic.chunkSize.y / WorldGenerationManager.chunkDetailsStatic.quadAmount.y;
+            float iterativeOffsetX = chunkSize.x / quadAmount.x;
+            float iterativeOffsetZ = chunkSize.y / quadAmount.y;
 
             for (int z = 0; z < verticeHeight; z++)
             {
@@ -49,12 +57,12 @@ public class Chunk : MonoBehaviour
             }
 
             // itterate every quad and populate the triangles with correct vertice indecees for that quad
-            for (int z = 0; z < WorldGenerationManager.chunkDetailsStatic.quadAmount.y; z++)
+            for (int z = 0; z < quadAmount.y; z++)
             {
-                for (int x = 0; x < WorldGenerationManager.chunkDetailsStatic.quadAmount.x; x++)
+                for (int x = 0; x < quadAmount.x; x++)
                 {
                     // get all the correct indicees
-                    int quadIndex = (z * WorldGenerationManager.chunkDetailsStatic.quadAmount.x) + x;
+                    int quadIndex = (z * quadAmount.x) + x;
                     int quadTriangleIndex = quadIndex * 2;
                     int quadTriangleVertIndex = quadTriangleIndex * 3;
 
@@ -128,6 +136,13 @@ public class Chunk : MonoBehaviour
             }
         }
 
+        public Vector2 chunkSize;
+        public Vector2Int quadAmount;
+
+        public float chunkLoadDist;
+        public float chunkDisableDistance;
+        public float chunkEnableDistance;
+
         public int[] trianglesMesh;
 
         public Vector3[] verticesMesh;
@@ -155,11 +170,11 @@ public class Chunk : MonoBehaviour
             set { _verticeAmount = value; computeShader.SetInt("verticeAmount", value); }
         }
 
-        private int _quadAmount;
-        public int quadAmount
+        private int _quadAmountInt;
+        public int quadAmountInt
         {
-            get { return _quadAmount; }
-            set { _quadAmount = value; computeShader.SetInt("quadAmount", value); }
+            get { return _quadAmountInt; }
+            set { _quadAmountInt = value; computeShader.SetInt("quadAmount", value); }
         }
         private int _triangleAmount;
         public int triangleAmount
@@ -180,10 +195,10 @@ public class Chunk : MonoBehaviour
         public ComputeBuffer RWBufferVerticeY; // is writeonly and holds all vertices y values for this mesh, is later read from the gpu to create the mesh
         //public ComputeBuffer computeBufferTriangles; // holds all triangles for this mesh
     }
-    public static Ground groundMeshConst;
+    public static Ground groundMeshConst = new Ground();
     
     #region Init
-    public IEnumerator LoadChunk(NoiseLayerSettings noiseLayerSettings)
+    public IEnumerator LoadChunk(WorldGenerationSettings worldGenerationSetting)
     {
         // initilize variables
         isLoading = true;
@@ -231,7 +246,7 @@ public class Chunk : MonoBehaviour
         {
             vertices = groundMeshConst.verticesMesh,
             triangles = groundMeshConst.trianglesMesh,
-            bounds = new Bounds(Vector3.zero, new Vector3(WorldGenerationManager.chunkDetailsStatic.chunkSize.x, 10f, WorldGenerationManager.chunkDetailsStatic.chunkSize.y))
+            bounds = new Bounds(Vector3.zero, new Vector3(groundMeshConst.chunkSize.x, 10f, groundMeshConst.chunkSize.y))
         };
         // get the largest and smallest y values from the rows for this mesh, do this before specifying bounds size
 
@@ -248,7 +263,7 @@ public class Chunk : MonoBehaviour
         MeshFilter staticMeshFilter = groundGameObject.AddComponent<MeshFilter>();
         MeshCollider staticMeshCollider = groundGameObject.AddComponent<MeshCollider>();
 
-        //staticMeshRenderer.material
+        staticMeshRenderer.material = worldGenerationSetting.defaultBiomeMaterials.biomeMaterial.biomeMaterial.material;
         staticMeshFilter.mesh = groundMesh;
         staticMeshCollider.sharedMesh = groundMesh;
 
@@ -257,16 +272,16 @@ public class Chunk : MonoBehaviour
         // copy ground mesh to foliage game object
 
         // initilizes all parrent objects of prefabs
-        GameObject landMarksGameObject = WorldGenerationManager.InitNewChild(transform, SpawnInstruction.PlacableGameObjectsParrent.landMarks);
-        GameObject rocksGameObject = WorldGenerationManager.InitNewChild(transform, SpawnInstruction.PlacableGameObjectsParrent.rocks);
-        GameObject treesGameObject = WorldGenerationManager.InitNewChild(transform, SpawnInstruction.PlacableGameObjectsParrent.trees);
-        GameObject chestsGameObject = WorldGenerationManager.InitNewChild(transform, SpawnInstruction.PlacableGameObjectsParrent.chests);
-        GameObject enemiesGameObject = WorldGenerationManager.InitNewChild(transform, SpawnInstruction.PlacableGameObjectsParrent.enemies);
+        GameObject landMarksGameObject = WorldGenerationManager.InitNewChild(transform, InstantiateInstruction.PlacableGameObjectsParrent.landMarks);
+        GameObject rocksGameObject = WorldGenerationManager.InitNewChild(transform, InstantiateInstruction.PlacableGameObjectsParrent.rocks);
+        GameObject treesGameObject = WorldGenerationManager.InitNewChild(transform, InstantiateInstruction.PlacableGameObjectsParrent.trees);
+        GameObject chestsGameObject = WorldGenerationManager.InitNewChild(transform, InstantiateInstruction.PlacableGameObjectsParrent.chests);
+        GameObject enemiesGameObject = WorldGenerationManager.InitNewChild(transform, InstantiateInstruction.PlacableGameObjectsParrent.enemies);
         enemies = enemiesGameObject.AddComponent<Enemies>();
 
         // spawns prefabs
-        SpawnPrefabs spawnPrefabs = gameObject.AddComponent<SpawnPrefabs>();
-        yield return StartCoroutine(spawnPrefabs.Spawn(new WaitForFixedUpdate(), noiseLayerSettings.spawnPrefabs, noiseLayerSettings.objectDensity, WorldGenerationManager.chunkDetailsStatic.chunkSize));
+        InstantiatePrefabs spawnPrefabs = gameObject.AddComponent<InstantiatePrefabs>();
+        //yield return StartCoroutine(spawnPrefabs.Spawn(new WaitForFixedUpdate(), noiseLayerSettings.spawnPrefabs, noiseLayerSettings.objectDensity, groundMeshConst.chunkSize));
 
         // set layer to gameworld
         PlaceInWorld.SetRecursiveToGameWorld(gameObject);
@@ -291,7 +306,7 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if (DistToPlayer() > WorldGenerationManager.chunkDetailsStatic.chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
+        if (DistToPlayer() > groundMeshConst.chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

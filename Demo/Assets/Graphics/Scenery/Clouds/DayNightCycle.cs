@@ -5,17 +5,8 @@ using UnityEngine;
 
 public class DayNightCycle : MonoBehaviour
 {
-    [SerializeField] private float ambient;
-    [SerializeField] private AnimationCurve ambientLight;
+    [HideInInspector] public DayNightCycleSettings dayNightCycleSettings;
 
-    [SerializeField] private float darkest;
-    [SerializeField] private AnimationCurve darkestValue;
-
-    [SerializeField] private float waterOffset;
-    [SerializeField] private AnimationCurve waterColOffset;
-
-    [SerializeField] private Vector3 rotationSpeed;
-    [SerializeField] private Vector3 rotationSnap;
     public Vector3 currentRotationEuler;
 
     private GameObject sun;
@@ -38,10 +29,10 @@ public class DayNightCycle : MonoBehaviour
 
     public void UpdatePos()
     {
-        currentRotationEuler += rotationSpeed * Time.deltaTime;
-        if (rotationSnap != Vector3.zero)
+        currentRotationEuler += dayNightCycleSettings.rotationSpeed * Time.deltaTime;
+        if (dayNightCycleSettings.rotationSnap != Vector3.zero)
         {
-            Vector3 roundedRotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(currentRotationEuler, rotationSnap)), rotationSnap);
+            Vector3 roundedRotation = Vector3.Scale(Vector3Int.RoundToInt(DivideVector3(currentRotationEuler, dayNightCycleSettings.rotationSnap)), dayNightCycleSettings.rotationSnap);
             transform.rotation = Quaternion.Euler(roundedRotation);
         }
         else
@@ -53,17 +44,17 @@ public class DayNightCycle : MonoBehaviour
         transform.position = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.cameraFocusPointTransform.position, transform.forward);
 
         float x = Vector3.Dot(transform.forward, Vector3.up);
-        ambient = ambientLight.Evaluate(x);
-        Shader.SetGlobalFloat("_Ambient", ambient);
+        dayNightCycleSettings.ambient = dayNightCycleSettings.ambientLight.Evaluate(x);
+        Shader.SetGlobalFloat("_Ambient", dayNightCycleSettings.ambient);
 
-        darkest = darkestValue.Evaluate(x);
-        Shader.SetGlobalFloat("_Darkest", darkest);
+        dayNightCycleSettings.darkest = dayNightCycleSettings.darkestValue.Evaluate(x);
+        Shader.SetGlobalFloat("_Darkest", dayNightCycleSettings.darkest);
 
         //Debug.Log($"ambient {ambient}");
         //Debug.Log($"darkest {darkest}");
 
-        waterOffset = waterColOffset.Evaluate(x);
-        Global.Materials.waterMaterial.SetFloat("_WaterColOffset", waterOffset);
+        dayNightCycleSettings.waterOffset = dayNightCycleSettings.waterColOffset.Evaluate(x);
+        Global.Materials.waterMaterial.SetFloat("_WaterColOffset", dayNightCycleSettings.waterOffset);
 
         if (sun.transform.forward.y < 0)
         {
@@ -88,8 +79,8 @@ public class DayNightCycle : MonoBehaviour
 
     }
 
-    internal void UpdateRenderTexture()
+    public void UpdateRenderTexture()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 }

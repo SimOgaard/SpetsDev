@@ -55,7 +55,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         void UpdateCamera(ref Camera camera, float aspect)
         {
-            camera.aspect = aspect;
+            if (camera != null)
+                camera.aspect = aspect;
         }
 
         // remember current game render resolution
@@ -87,9 +88,10 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         cameraScaleHeightOffset = (1f - cameraScaleHeight) * 0.5f;
         unitsPerPixelCamera = (height / 5f) / heightExtended;
 
-        planarReflectionManager.UpdateRenderTexture();
-        dayNightCycle.UpdateRenderTexture();
-
+        if (planarReflectionManager != null)
+            planarReflectionManager.UpdateRenderTexture();
+        if (dayNightCycle != null)
+            dayNightCycle.UpdateRenderTexture();
 
         UpdateCamera(ref mCamera, aspect);
         UpdateCamera(ref nCamera, aspect);
@@ -216,7 +218,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 #endif
 
         planarReflectionManager = GameObjectFunctions.GetComponentFromGameObjectName<PlanarReflectionManager>("ReflectionCamera");
-        dayNightCycle = GameObjectFunctions.GetComponentFromGameObjectName<DayNightCycle>("DayNightCycle");
+        //dayNightCycle = GameObjectFunctions.GetComponentFromGameObjectName<DayNightCycle>("DayNightCycle");
 
         CalculateResolution();
     }
@@ -303,6 +305,9 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         dayNightCycle.UpdatePos();
     }
 
+    /// <summary>
+    /// Returns true if a unloaded chunk is visible in camera plane
+    /// </summary>
     private bool SeesUnloaded()
     {
 #if UNITY_EDITOR
@@ -311,17 +316,18 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return false;
         }
 #endif
-        Plane plane = new Plane(Vector3.up, -Water.waterLevel);
+        Plane plane = new Plane(Vector3.up, 0f);
 
-        for (float x = -0.25f; x < 2f; x += 1.5f)
+        // raycast uniformaly in a grid around camera
+        for (float x = -0.25f; x <= 1.25f; x += 0.75f)
         {
-            for (float y = -0.25f; y < 2f; y += 1.5f)
+            for (float y = -0.25f; y <= 1.25f; y += 0.75f)
             {
-                Ray cameraCornerRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
+                Ray cameraRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
 
                 float distance;
-                plane.Raycast(cameraCornerRay, out distance);
-                Vector3 planePoint = cameraCornerRay.GetPoint(distance);
+                plane.Raycast(cameraRay, out distance);
+                Vector3 planePoint = cameraRay.GetPoint(distance);
                 Chunk chunk = WorldGenerationManager.ReturnNearestChunk(planePoint);
                 
                 if (chunk == null || !chunk.isLoaded)

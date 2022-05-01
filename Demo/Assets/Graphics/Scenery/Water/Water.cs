@@ -8,7 +8,7 @@ public class Water : MonoBehaviour
     public static float waterLevel = 0f;
     public static float buoyancyForce = 1f;
 
-    private NoiseLayerSettings.Water waterSettings;
+    [HideInInspector] public WaterSettings waterSettings;
 
     private void LateUpdate()
     {
@@ -65,7 +65,7 @@ public class Water : MonoBehaviour
         return mesh;
     }
 
-    public void Init(NoiseLayerSettings.Water waterSettings, float width, float height, Transform parrent)
+    public void Init(WaterSettings waterSettings, float width, float height, Transform parrent)
     {
         this.waterSettings = waterSettings;
         /*
@@ -80,7 +80,7 @@ public class Water : MonoBehaviour
         Water.waterLevel = waterSettings.level;
         gameObject.AddComponent<MeshFilter>().mesh = BuildQuad(width, height);
         MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = waterSettings.material.material;
+        meshRenderer.material = waterSettings.waterMaterial.material;
         meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         meshRenderer.receiveShadows = false;
         //this.material = material;

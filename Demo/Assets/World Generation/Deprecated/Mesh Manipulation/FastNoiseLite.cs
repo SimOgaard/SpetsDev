@@ -81,7 +81,12 @@ public struct FastNoiseLite
         None,
         FBm,
         Ridged,
-        PingPong,
+        PingPong
+    };
+
+    public enum WarpFractalType
+    {
+        None,
         DomainWarpProgressive,
         DomainWarpIndependent
     };
@@ -107,6 +112,7 @@ public struct FastNoiseLite
 
     public enum DomainWarpType
     {
+        None,
         OpenSimplex2,
         OpenSimplex2Reduced,
         BasicGrid
@@ -126,6 +132,7 @@ public struct FastNoiseLite
     private RotationType3D mRotationType3D;
     private TransformType3D mTransformType3D;
 
+    private WarpFractalType mWarpFractalType;
     private FractalType mFractalType;
     private int mOctaves;
     private float mLacunarity;
@@ -193,6 +200,15 @@ public struct FastNoiseLite
     /// Note: FractalType.DomainWarp... only affects DomainWarp(...)
     /// </remarks>
     public void SetFractalType(FractalType fractalType) { mFractalType = fractalType; }
+
+    /// <summary>
+    /// Sets method for combining octaves in all fractal noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: None
+    /// Note: FractalType.DomainWarp... only affects DomainWarp(...)
+    /// </remarks>
+    public void SetWarpFractalType(WarpFractalType fractalType) { mWarpFractalType = fractalType; }
 
     /// <summary>
     /// Sets octave count for all fractal noise types 
@@ -352,15 +368,15 @@ public struct FastNoiseLite
     [MethodImpl(OPTIMISE)]
     public void DomainWarp(ref FNLfloat x, ref FNLfloat y)
     {
-        switch (mFractalType)
+        switch (mWarpFractalType)
         {
             default:
                 DomainWarpSingle(ref x, ref y);
                 break;
-            case FractalType.DomainWarpProgressive:
+            case WarpFractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y);
                 break;
-            case FractalType.DomainWarpIndependent:
+            case WarpFractalType.DomainWarpIndependent:
                 DomainWarpFractalIndependent(ref x, ref y);
                 break;
         }
@@ -377,15 +393,15 @@ public struct FastNoiseLite
     [MethodImpl(OPTIMISE)]
     public void DomainWarp(ref FNLfloat x, ref FNLfloat y, ref FNLfloat z)
     {
-        switch (mFractalType)
+        switch (mWarpFractalType)
         {
             default:
                 DomainWarpSingle(ref x, ref y, ref z);
                 break;
-            case FractalType.DomainWarpProgressive:
+            case WarpFractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y, ref z);
                 break;
-            case FractalType.DomainWarpIndependent:
+            case WarpFractalType.DomainWarpIndependent:
                 DomainWarpFractalIndependent(ref x, ref y, ref z);
                 break;
         }
