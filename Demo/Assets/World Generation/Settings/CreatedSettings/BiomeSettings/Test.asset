@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a02a418384d21f47a32650bc306df32, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  spawnPosition:
-  - {fileID: 11400000, guid: cd8f5205c5920c048815fecef11de063, type: 2}
+  spawnPosition: []
   groundNoise:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 1391ea0eb82d6c54f984b54a5d1070c3, type: 2}
   prefabInstances: []
   biomeMaterials: {fileID: 11400000, guid: ca5729800f07c494ea9ca82f0684a240, type: 2}

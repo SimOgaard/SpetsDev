@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cad9a1f1008c7c4fb43ec499b06088d, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  ambient: 0.0080035515
+  ambient: -0.057255715
   ambientLight:
     serializedVersion: 2
     m_Curve:
@@ -46,7 +46,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  darkest: 0.39878175
+  darkest: 0.07057932
   darkestValue:
     serializedVersion: 2
     m_Curve:
@@ -80,7 +80,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  waterOffset: 0.0012477835
+  waterOffset: -0.37807545
   waterColOffset:
     serializedVersion: 2
     m_Curve:
@@ -114,5 +114,5 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  rotationSpeed: {x: 1, y: 0, z: 0}
+  rotationSpeed: {x: 0, y: 0, z: 0}
   rotationSnap: {x: 0, y: 0, z: 0}

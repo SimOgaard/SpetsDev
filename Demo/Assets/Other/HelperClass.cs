@@ -40,6 +40,19 @@ public static class Tag
 public static class Layer
 {
     /// <summary>
+    /// Sets gameobject and all its children to specified layer
+    /// </summary>
+    public static void SetRecursiveTo(GameObject gameObject, int layer)
+    {
+        gameObject.layer = layer;
+
+        foreach (Transform child in gameObject.transform)
+        {
+            SetRecursiveTo(child.gameObject, layer);
+        }
+    }
+
+    /// <summary>
     /// Default layer index.
     /// </summary>
     public static int default_
@@ -210,7 +223,7 @@ public static class Layer
     /// </summary>
     public static bool IsInLayer(int layerValue, GameObject obj)
     {
-        return (layerValue & 1 << obj.layer) != 0;
+        return layerValue == obj.layer;
     }
 
     /// <summary>

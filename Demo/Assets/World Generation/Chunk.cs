@@ -9,15 +9,14 @@ public class Chunk : MonoBehaviour
 {    
     public class Ground
     {
-        public void Update(ChunkSettings chunkSettings)
+        public void Update(WorldGenerationSettings worldGenerationSettings)
         {
-            chunkSize = chunkSettings.chunkSize;
-            quadAmount = chunkSettings.quadAmount;
+            chunkSize = worldGenerationSettings.chunkSettings.chunkSize;
+            quadAmount = worldGenerationSettings.chunkSettings.quadAmount;
 
-            chunkLoadDist = chunkSettings.chunkLoadDist;
-            chunkDisableDistance = chunkSettings.chunkDisableDistance;
-            chunkEnableDistance = chunkSettings.chunkEnableDistance;
-
+            chunkLoadDist = worldGenerationSettings.chunkSettings.chunkLoadDist;
+            chunkDisableDistance = worldGenerationSettings.chunkSettings.chunkDisableDistance;
+            chunkEnableDistance = worldGenerationSettings.chunkSettings.chunkEnableDistance;
 
             // read in the correct compute shader that has multiple kernels to reduce the amount of buffers that need to be set
             computeShader = Resources.Load<ComputeShader>("ComputeShaders/ChunkGround");
@@ -34,6 +33,7 @@ public class Chunk : MonoBehaviour
 
             // set new vertices and triangles from newly calculated sizes
             trianglesMesh = new int[triangleIndexAmount];
+            normals = new Vector3[triangleAmount];
             verticesMesh = new Vector3[verticeAmount];
             verticesMesh2D = new Vector2[verticeAmount];
             verticesMeshY = new float[verticeAmount];
@@ -89,6 +89,8 @@ public class Chunk : MonoBehaviour
 
                     triangles[quadTriangleIndex].midPoint = (verticesMesh[verticeIndexBL] + verticesMesh[verticeIndexTL] + verticesMesh[verticeIndexBR]) / 3f;
 
+                    normals[quadTriangleIndex] = Vector3.up;
+
                     // popultae topright triangle
                     trianglesMesh[quadTriangleVertIndex + 3] = verticeIndexTL;
                     trianglesMesh[quadTriangleVertIndex + 4] = verticeIndexTR;
@@ -100,6 +102,8 @@ public class Chunk : MonoBehaviour
                     triangles[quadTriangleIndex].t2 = verticeIndexBR;
 
                     triangles[quadTriangleIndex].midPoint = (verticesMesh[verticeIndexTL] + verticesMesh[verticeIndexTR] + verticesMesh[verticeIndexBR]) / 3f;
+
+                    normals[quadTriangleIndex] = Vector3.up;
                 }
             }
 
@@ -107,9 +111,9 @@ public class Chunk : MonoBehaviour
             // Therefore only need to change the y value of verticees and triangles.midPoint as well as triangle type
 
             // set constant vertex xz position
-            BufferVertice = new ComputeBuffer(verticeAmount, sizeof(float) * 2, ComputeBufferType.Constant);
+            BufferVertice = new ComputeBuffer(verticeAmount, sizeof(float) * 2);
             BufferVertice.SetData(verticesMesh2D);
-            computeShader.SetConstantBuffer("vertXZPos", BufferVertice, verticeAmount, sizeof(float) * 2);
+            computeShader.SetBuffer(0, "vertXZPos", BufferVertice);
 
             // set read write buffer for vertex y values, needs to be available on all three kernels
             RWBufferVerticeY = new ComputeBuffer(verticeAmount, sizeof(float)); // is constant the size of the buffer or is the values constant?
@@ -118,8 +122,16 @@ public class Chunk : MonoBehaviour
                 computeShader.SetBuffer(i, "vertYPos", RWBufferVerticeY);
             }
 
-            // add all noiselayers to compute shader
+            // set readback buffer size
+            ReadBackBuffer = new NativeArray<float>(verticeAmount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
+            List<NoiseSettings.fnl_state> fnl_States = new List<NoiseSettings.fnl_state>();
+            fnl_States.Add(new NoiseSettings.fnl_state(worldGenerationSettings.biomes[0].groundNoise[0], 0, false));
+
+            // we require a const structured buffer of fnl_state for each biomes noiseSettings
+            FNLStateBuffer = new ComputeBuffer(1, NoiseSettings.fnl_state.size);
+            FNLStateBuffer.SetData<NoiseSettings.fnl_state>(fnl_States);
+            computeShader.SetBuffer(0, "FNLStateBuffer", FNLStateBuffer);
         }
 
         public void Destroy()
@@ -134,6 +146,15 @@ public class Chunk : MonoBehaviour
                 BufferVertice.Dispose();
                 BufferVertice = null;
             }
+            if (FNLStateBuffer != null)
+            {
+                FNLStateBuffer.Dispose();
+                FNLStateBuffer = null;
+            }
+            if (ReadBackBuffer.IsCreated)
+            {
+                ReadBackBuffer.Dispose();
+            }
         }
 
         public Vector2 chunkSize;
@@ -145,6 +166,7 @@ public class Chunk : MonoBehaviour
 
         public int[] trianglesMesh;
 
+        public Vector3[] normals;
         public Vector3[] verticesMesh;
         public Vector2[] verticesMesh2D;
         public float[] verticesMeshY;
@@ -193,16 +215,34 @@ public class Chunk : MonoBehaviour
         public ComputeShader computeShader; // compute shader that is used to generate mesh
         public ComputeBuffer BufferVertice; // is readonly (constant) and holds all vertice xz values for this mesh, is used to get 2d noise
         public ComputeBuffer RWBufferVerticeY; // is writeonly and holds all vertices y values for this mesh, is later read from the gpu to create the mesh
+        public ComputeBuffer FNLStateBuffer; // contains the fast noise lite states
         //public ComputeBuffer computeBufferTriangles; // holds all triangles for this mesh
+        public NativeArray<float> ReadBackBuffer;
+        public bool CanReadBackBuffer;
     }
     public static Ground groundMeshConst = new Ground();
     
+    /// <summary>
+    /// One static triangle in chunk ground mesh
+    /// </summary>
+    public struct StaticTriangle
+    {
+        /// <summary>
+        /// One of the static biome indices defined at worldGenerationSettings.Update();
+        /// </summary>
+        public int biome;
+    }
+
     #region Init
     public IEnumerator LoadChunk(WorldGenerationSettings worldGenerationSetting)
     {
         // initilize variables
         isLoading = true;
 
+
+
+
+        /*
         // init ground type enum values
         groundTriangleTypesArray = GroundTriangleType.GetValues(typeof(GroundTriangleType)) as GroundTriangleType[];
         groundTriangleTypeLength = groundTriangleTypesArray.Length;
@@ -219,6 +259,7 @@ public class Chunk : MonoBehaviour
                 typeIndex = MeshManipulationState.GroundTriangleTypeIndex((int)groundTriangleTypesArray[i])
             };
         }
+        */
 
         // now we need to start doing some work on the gpu, but to do that we need to wait for the computeshader to finnish
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
@@ -228,11 +269,34 @@ public class Chunk : MonoBehaviour
         }
         // here we have the whole shader to ourselves >:)
         groundMeshConst.computeShaderOccupied = true;
+        
+        // start by setting values specific for this/the next dispatch
+        groundMeshConst.computeShader.SetFloats("meshXZPos", transform.position.x, transform.position.z);
 
-        // start by dispatching the mesh noise kernel
+        // and then dispatch the mesh noise kernel
         groundMeshConst.computeShader.Dispatch(0, groundMeshConst.verticeWidth, 1, 1);
 
-        // copy over height to cpu (Should be done with AsyncGPUReadback, but im lazy)
+        // copy over height to cpu with AsyncGPUReadback
+        /*
+        void OnCompleteReadback(AsyncGPUReadbackRequest request)
+        {
+            if (request.hasError || !request.done)
+            {
+                Debug.Log("Lamaop");
+                groundMeshConst.CanReadBackBuffer = false;
+                return;
+            }
+
+            groundMeshConst.CanReadBackBuffer = true;
+            groundMeshConst.RWBufferVerticeY.GetData(groundMeshConst.verticesMeshY);
+        }
+        do
+        {
+            yield return wait;
+            AsyncGPUReadback.Request(groundMeshConst.RWBufferVerticeY, OnCompleteReadback);
+        }
+        while (!groundMeshConst.CanReadBackBuffer);
+        */
         groundMeshConst.RWBufferVerticeY.GetData(groundMeshConst.verticesMeshY);
 
         // set final y values to mesh vertices
@@ -253,9 +317,13 @@ public class Chunk : MonoBehaviour
         // signal that we no longer need the compute shader
         groundMeshConst.computeShaderOccupied = false;
 
-        //.CopyTo(, 0);
+        // wait to offset the next lag spike
+        yield return wait;
+        yield return wait;
 
-        
+        //.CopyTo(, 0);
+        groundMesh.RecalculateNormals(); // do not do this, calculate it on gpu, then you can also account for triangles outside the corners to get the normal, this is to remove the seam between chunks
+
         // create ground game object
         GameObject groundGameObject = WorldGenerationManager.InitNewChild(transform, "Ground");
         // create a mesh renderer, mesh filter and collider to the ground game object
@@ -284,7 +352,7 @@ public class Chunk : MonoBehaviour
         //yield return StartCoroutine(spawnPrefabs.Spawn(new WaitForFixedUpdate(), noiseLayerSettings.spawnPrefabs, noiseLayerSettings.objectDensity, groundMeshConst.chunkSize));
 
         // set layer to gameworld
-        PlaceInWorld.SetRecursiveToGameWorld(gameObject);
+        Layer.SetRecursiveTo(gameObject, Layer.gameWorldStatic);
 
         // signal that this chunk is done loading
         isLoading = false;
@@ -301,7 +369,7 @@ public class Chunk : MonoBehaviour
 
     public float DistToPlayer()
     {
-        return (transform.position - Global.playerTransform.position).magnitude;
+        return (transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude;
     }
 
     private void Update()

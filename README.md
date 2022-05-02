@@ -4,6 +4,11 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
+
+Each triangle for each chunk should be evaluated to be a biome based on noise, we can use RaycastHit.triangleIndex to instanciate prefabs.
+
+
+
 We need more than one pixel on each side since we distort water reflection image a lot, also if we want to add quarts/crystals/glass that offsets pixels by min(maxOffset, offsetAmplitude * distanceToGround)
 
 We want to rework the chunk ground mesh system, it is badly written:

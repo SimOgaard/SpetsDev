@@ -87,8 +87,8 @@ public struct FastNoiseLite
     public enum WarpFractalType
     {
         None,
-        DomainWarpProgressive,
-        DomainWarpIndependent
+        DomainWarpProgressive = 4,
+        DomainWarpIndependent = 5
     };
 
     public enum CellularDistanceFunction
@@ -112,10 +112,10 @@ public struct FastNoiseLite
 
     public enum DomainWarpType
     {
-        None,
-        OpenSimplex2,
-        OpenSimplex2Reduced,
-        BasicGrid
+        None = -1,
+        OpenSimplex2 = 0,
+        OpenSimplex2Reduced = 1,
+        BasicGrid = 2
     };
 
     private enum TransformType3D

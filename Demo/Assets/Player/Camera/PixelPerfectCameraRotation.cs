@@ -305,6 +305,22 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         dayNightCycle.UpdatePos();
     }
 
+    public static Vector3 CameraRayHitPlane(float x = 0.5f, float y = 0.5f)
+    {
+        Plane plane = new Plane(Vector3.up, 0f);
+        Ray cameraRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
+
+        float distance;
+        plane.Raycast(cameraRay, out distance);
+        return cameraRay.GetPoint(distance);
+    }
+
+    public static Chunk CameraRayHitChunk(float x, float y)
+    {
+        Vector3 planePoint = CameraRayHitPlane(x, y);
+        return WorldGenerationManager.ReturnNearestChunk(planePoint);
+    }
+
     /// <summary>
     /// Returns true if a unloaded chunk is visible in camera plane
     /// </summary>
@@ -316,22 +332,20 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return false;
         }
 #endif
-        Plane plane = new Plane(Vector3.up, 0f);
 
         // raycast uniformaly in a grid around camera
         for (float x = -0.25f; x <= 1.25f; x += 0.75f)
         {
             for (float y = -0.25f; y <= 1.25f; y += 0.75f)
             {
-                Ray cameraRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
+                Chunk rayChunk = CameraRayHitChunk(x, y);
 
-                float distance;
-                plane.Raycast(cameraRay, out distance);
-                Vector3 planePoint = cameraRay.GetPoint(distance);
-                Chunk chunk = WorldGenerationManager.ReturnNearestChunk(planePoint);
-                
-                if (chunk == null || !chunk.isLoaded)
+                if (rayChunk == null || !rayChunk.isLoaded || !rayChunk.gameObject.activeInHierarchy)
                 {
+                    if (!rayChunk.isLoading)
+                    {
+                        StartCoroutine(rayChunk.LoadChunk(GameObject.FindObjectOfType<WorldGenerationManager>().worldGenerationSettings));
+                    }
                     return true;
                 }
             }

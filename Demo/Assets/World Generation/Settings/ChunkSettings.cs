@@ -53,8 +53,6 @@ public class ChunkSettings : ScriptableObject
     /// </summary>
     public void Update()
     {
-        Chunk.groundMeshConst.Update(this);
-
         // update triangle size margin for mesh manipulation
         ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkSize.x / quadAmount.x, chunkSize.y / quadAmount.y);
     }

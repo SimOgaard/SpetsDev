@@ -8,14 +8,17 @@
 // include fastnoise lite
 #include "Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
-// constants of mesh data
-int verticeWidth;
-int verticeHeight;
-int verticeAmount;
+// all fnlStates
+StructuredBuffer<fnl_state> FNLStateBuffer;
 
-int quadAmount;
-int triangleAmount;
-int triangleIndexAmount;
+// constants of mesh data
+uint verticeWidth;
+uint verticeHeight;
+uint verticeAmount;
+
+uint quadAmount;
+uint triangleAmount;
+uint triangleIndexAmount;
 // constants of mesh data
 
 // xz position of current mesh
@@ -25,15 +28,46 @@ Buffer<float2> vertXZPos;
 // y position for vertices, that is read write (write only doesnt excist)
 RWBuffer<float> vertYPos;
 
+void SmoothMin(fnl_state noise_state, inout float a)
+{
+    float k = max(0, noise_state.smoothing_max);
+    float h = max(0.0f, min(1.0f, (noise_state.max_value - a + k) / (2.0f * k)));
+    a = a * h + noise_state.max_value * (1.0f - h) - k * h * (1.0f - h);
+}
+void SmoothMax(fnl_state noise_state, inout float a)
+{
+    float k = min(0, -noise_state.smoothing_min);
+    float h = max(0.0f, min(1.0f, (noise_state.min_value - a + k) / (2.0f * k)));
+    a = a * h + noise_state.min_value * (1.0f - h) - k * h * (1.0f - h);
+}
+
+float SampleNoise(fnl_state noise_state, float x, float z)
+{
+    // sample noise
+    float noiseValue = fnlGetNoise2D(noise_state, x, z);
+    // smooth out noise
+    SmoothMin(noise_state, noiseValue);
+    SmoothMax(noise_state, noiseValue);
+
+    return noiseValue * noise_state.amplitude;
+}
+
 [numthreads(100, 1, 1)]
 void MeshNoise(uint3 id : SV_DispatchThreadID)
 {
+    uint verticeIndexX = id.x * verticeHeight;
+
     for (uint y = 0; y < verticeHeight; y++)
     {
+        uint verticeIndex = verticeIndexX + y;
 
+        float x = vertXZPos[verticeIndex].x + meshXZPos.x;
+        float z = vertXZPos[verticeIndex].y + meshXZPos.y;
+
+        vertYPos[verticeIndex] = SampleNoise(FNLStateBuffer[0], x, z);
     }
 
-    float x = meshXZPos.x + id.x;
+    //float x = meshXZPos.x + id.x;
     // offsets y value of all vertices of mesh given noise functions from fast noise lite
 }
 

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   chunkSize: {x: 100, y: 100}
-  quadAmount: {x: 100, y: 100}
+  quadAmount: {x: 50, y: 50}
   chunkLoadDist: 300
   chunkDisableDistance: 250
   chunkEnableDistance: 200
   prefabSpawnSpeed: 1
-  maxChunkLoadAtATimeInit: 9
+  maxChunkLoadAtATimeInit: 81
   maxChunkLoadAtATime: 3
-  chunkLoadPrecision: 25
+  chunkLoadPrecision: 200

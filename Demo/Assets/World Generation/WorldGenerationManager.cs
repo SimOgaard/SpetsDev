@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
+using System.Linq;
 
 [ExecuteInEditMode]
 public class WorldGenerationManager : MonoBehaviour
@@ -35,16 +36,33 @@ public class WorldGenerationManager : MonoBehaviour
         Global.playerTransform.position = position;
         yield return new WaitForEndOfFrame();
 
-        // wait for game to not be paused
-        while (GameTime.isPaused)
+        // wait for ground to be on the same place as player
+        RaycastHit hit = new RaycastHit();
+        while (true)
         {
+            RaycastHit[] hits = Physics.SphereCastAll(position + Vector3.up * 10_000f, 5f, Vector3.down, float.MaxValue).OrderBy(h => h.distance).ToArray();
+            bool didHit = false;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (Layer.IsInLayer(Layer.gameWorldStatic, hits[i].transform.gameObject.layer))
+                {
+                    hit = hits[i];
+                    didHit = true;
+                    break;
+                }
+            }
+
+            if (didHit)
+            {
+                break;
+            }
+
             yield return new WaitForFixedUpdate();
         }
 
         // raycast position downwards to place player on world to not clip
-        RaycastHit hit;
-        Physics.SphereCast(position + Vector3.up * 10_000f, 5f, Vector3.down, out hit, float.MaxValue, Layer.gameWorld);
-        Global.playerTransform.position = hit.point + Vector3.up * 5f;
+        Global.playerTransform.position = hit.point + Vector3.up * 10f;
     }
 
     private void OnDestroy()
@@ -109,7 +127,7 @@ public class WorldGenerationManager : MonoBehaviour
         }
 #endif
 
-        LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATimeInit);
+        //LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
@@ -138,7 +156,7 @@ public class WorldGenerationManager : MonoBehaviour
                 float r = radius(k, n, b);
                 float theta = 2 * Mathf.PI * k / Mathf.Pow(phi, 2);
 
-                LoadNearestChunk(Global.playerTransform.localPosition + new Vector3(r * Mathf.Cos(theta), 0f, r * Mathf.Sin(theta)));
+                LoadNearestChunk(PixelPerfectCameraRotation.CameraRayHitPlane() + new Vector3(r * Mathf.Cos(theta), 0f, r * Mathf.Sin(theta)));
             }
         }
 
@@ -289,7 +307,7 @@ public class WorldGenerationManager : MonoBehaviour
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
             chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - Global.playerTransform.position).magnitude < Chunk.groundMeshConst.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude < Chunk.groundMeshConst.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

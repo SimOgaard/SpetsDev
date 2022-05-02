@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   waterMaterial: {fileID: 11400000, guid: 3dc9939726485aa4bb2ac64b349de454, type: 2}
-  level: 5.5
+  level: -5.5
   bobingFrequency: 0.5
   bobingAmplitude: 0.25

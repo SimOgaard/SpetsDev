@@ -71,5 +71,7 @@ public class WorldGenerationSettings : ScriptableObject
         {
             biomes[i].Update();
         }
+
+        Chunk.groundMeshConst.Update(this);
     }
 }

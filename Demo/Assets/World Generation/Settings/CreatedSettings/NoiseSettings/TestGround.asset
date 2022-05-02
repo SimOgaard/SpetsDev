@@ -18,10 +18,10 @@ MonoBehaviour:
   offsett: {x: 0, y: 0}
   value:
     amplitude: 10
-    minValue: 0
-    smoothingMin: 0.75
-    maxValue: 1
-    smoothingMax: 0.5
+    minValue: -0.5
+    smoothingMin: 1
+    maxValue: 0.5
+    smoothingMax: 1.25
   general:
     noiseType: 0
     rotationType3D: 0
