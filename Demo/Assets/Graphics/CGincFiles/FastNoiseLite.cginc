@@ -47,7 +47,7 @@
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
-// [branch] switch between using floats or doubles for input position
+// switch between using floats or doubles for input position
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
@@ -195,34 +195,51 @@ struct fnl_state
     float domain_warp_amp;
 
     /**
-     * The index this noise correspond to
+     * The noise scalar value
      */
     float amplitude;
 
     /**
-     * The index this noise correspond to
+     * The min value
      */
     float min_value;
 
     /**
-     * The index this noise correspond to
+     * The smoothing min value
      */
     float smoothing_min;
 
     /**
-     * The index this noise correspond to
+     * The max value
      */
     float max_value;
 
     /**
-     * The index this noise correspond to
+     * The smoothing max value
      */
     float smoothing_max;
 
     /**
-     * The index this noise correspond to
+     * Should we invert the value?
+     */
+    int invert;
+
+    /// BIOME SPECIFIC ONLY
+    /**
+     * the min noisevalue that this biome triggers on
+     */
+    float threshold_min;
+
+    /**
+     * the max noisevalue that this biome triggers on
+     */
+    float threshold_max;
+
+    /**
+     * The biome index this noise correspond to
      */
     int index;
+    /// BIOME SPECIFIC ONLY
 };
 
 /**
@@ -264,6 +281,48 @@ void fnlDomainWarp2D(fnl_state state, inout FNLfloat x, inout FNLfloat y);
  * ```
  */
 void fnlDomainWarp3D(fnl_state state, inout FNLfloat x, inout FNLfloat y, inout FNLfloat z);
+
+// extended fastnoise lite function that smooths min value float a given noise_state
+void SmoothMin(fnl_state noise_state, inout FNLfloat a)
+{
+    FNLfloat k = max(0, noise_state.smoothing_max);
+    FNLfloat h = max(0.0f, min(1.0f, (noise_state.max_value - a + k) / (2.0f * k)));
+    a = a * h + noise_state.max_value * (1.0f - h) - k * h * (1.0f - h);
+}
+// extended fastnoise lite function that smooths max value float a given noise_state
+void SmoothMax(fnl_state noise_state, inout FNLfloat a)
+{
+    FNLfloat k = min(0, -noise_state.smoothing_min);
+    FNLfloat h = max(0.0f, min(1.0f, (noise_state.min_value - a + k) / (2.0f * k)));
+    a = a * h + noise_state.min_value * (1.0f - h) - k * h * (1.0f - h);
+}
+// extended fastnoise lite function that samples noise_state at x,z
+FNLfloat SampleNoise2D(fnl_state noise_state, FNLfloat x, FNLfloat z)
+{
+    // sample noise
+    FNLfloat noiseValue = noise_state.invert ? -fnlGetNoise2D(noise_state, x, z) : fnlGetNoise2D(noise_state, x, z);
+    // smooth out noise
+    SmoothMin(noise_state, noiseValue);
+    SmoothMax(noise_state, noiseValue);
+    // retun with right noise scale
+    return noiseValue * noise_state.amplitude;
+}
+// extended fastnoise lite function that samples noise_state at x,y,z
+FNLfloat SampleNoise3D(fnl_state noise_state, FNLfloat x, FNLfloat y, FNLfloat z)
+{
+    // sample noise
+    FNLfloat noiseValue = noise_state.invert ? -fnlGetNoise3D(noise_state, x, y, z) : fnlGetNoise3D(noise_state, x, y, z);
+    // smooth out noise
+    SmoothMin(noise_state, noiseValue);
+    SmoothMax(noise_state, noiseValue);
+    // retun with right noise scale
+    return noiseValue * noise_state.amplitude;
+}
+// extended fastnoise lite function that remaps noisevalue from -1-1 to 0-1
+FNLfloat remap01(FNLfloat v, fnl_state noise_state)
+{
+	return saturate((v + noise_state.amplitude) * 0.5f);
+}
 
 // From here on, this is private implementation
 

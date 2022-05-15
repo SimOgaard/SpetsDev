@@ -44,10 +44,10 @@ public class WorldGenerationSettings : ScriptableObject
     /// <summary>
     /// All BiomeMaterials for all BiomeMaterialSettings that are null references back to this
     /// </summary>
-    public BiomeMaterialSettings defaultBiomeMaterials; 
+    public BiomeMaterialSettings defaultBiomeMaterials;
 
     /// <summary>
-    /// The biomes that should spawn
+    /// The biomes that should spawn, the priority of each biome is represented by its index
     /// </summary>
     public BiomeSettings[] biomes;
 
@@ -72,6 +72,123 @@ public class WorldGenerationSettings : ScriptableObject
             biomes[i].Update();
         }
 
-        Chunk.groundMeshConst.Update(this);
+        Ground.Update(this);
+    }
+
+    /// <summary>
+    /// clears all data that has no gc collect like computebuffers
+    /// </summary>
+    public void Destroy()
+    {
+        dayNightCycleSettings.Destroy();
+    }
+
+    /// <summary>
+    /// Get all FNL (fast noise lite) states that says which triangle should be in which biome
+    /// </summary>
+    public List<NoiseSettings.fnl_state> GetBiomeFNLStates()
+    {
+        List<NoiseSettings.fnl_state> fnlStates = new List<NoiseSettings.fnl_state>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            for (int q = 0; q < biomes[i].spawnPosition.Length; q++)
+            {
+                fnlStates.Add(biomes[i].spawnPosition[q].ToFNLState(i, false));
+            }
+        }
+
+        return fnlStates;
+    }
+
+    /// <summary>
+    /// Get all FNL (fast noise lite) warp states that says which triangle should be in which biome
+    /// </summary>
+    public List<NoiseSettings.fnl_state> GetBiomeFNLWarpStates()
+    {
+        List<NoiseSettings.fnl_state> fnlStates = new List<NoiseSettings.fnl_state>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            for (int q = 0; q < biomes[i].spawnPosition.Length; q++)
+            {
+                fnlStates.Add(biomes[i].spawnPosition[q].ToFNLState(i, true));
+            }
+        }
+
+        return fnlStates;
+    }
+
+    /// <summary>
+    /// Get all FNL (fast noise lite) states that offsets the vertices
+    /// </summary>
+    public List<NoiseSettings.fnl_state> GetVerticeOffsetFNLStates()
+    {
+        List<NoiseSettings.fnl_state> fnlStates = new List<NoiseSettings.fnl_state>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            for (int q = 0; q < biomes[i].verticeOffset.Length; q++)
+            {
+                fnlStates.Add(biomes[i].verticeOffset[q].ToFNLState(i, false));
+            }
+        }
+
+        return fnlStates;
+    }
+
+    /// <summary>
+    /// Get all FNL (fast noise lite) warp states that offsets the vertices
+    /// </summary>
+    public List<NoiseSettings.fnl_state> GetVerticeOffsetFNLWarpStates()
+    {
+        List<NoiseSettings.fnl_state> fnlStates = new List<NoiseSettings.fnl_state>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            for (int q = 0; q < biomes[i].verticeOffset.Length; q++)
+            {
+                fnlStates.Add(biomes[i].verticeOffset[q].ToFNLState(i, true));
+            }
+        }
+
+        return fnlStates;
+    }
+
+    /// <summary>
+    /// Get all static materials
+    /// </summary>
+    public List<Material> GetStaticMaterials()
+    {
+        List<Material> materials = new List<Material>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            for (int q = 0; q < biomes[i].materialSettings.biomeMaterialsCondition.Length; q++)
+            {
+                materials.Add(biomes[i].materialSettings.biomeMaterialsCondition[q].biomeMaterial.material);
+            }
+        }
+
+        // remove duplicates
+
+        return materials;
+    }
+
+    /// <summary>
+    /// Get main static material from each biome
+    /// </summary>
+    public List<Material> GetMainStaticMaterials()
+    {
+        List<Material> materials = new List<Material>();
+
+        for (int i = 0; i < biomes.Length; i++)
+        {
+            materials.Add(biomes[i].materialSettings.biomeMaterial.materialSettings.material);
+        }
+
+        // remove duplicates
+
+        return materials;
     }
 }

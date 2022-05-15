@@ -110,7 +110,7 @@ public class CameraMovement : MonoBehaviour
         }
     }
 
-    [Header("ttesting")]
+    [Header("testing")]
     [SerializeField] private float ovalSizeLarge = 1f;
     [SerializeField] private float ovalSizeSmall = 1f;
     [SerializeField] private bool move = false;

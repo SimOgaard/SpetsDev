@@ -15,15 +15,20 @@ using UnityEngine;
 public class BiomeSettings : ScriptableObject
 {
     /// <summary>
-    /// Noise layers representing the probability of this biome spawning there
-    /// The highest biome noisevalue for any given mesh triangle defines that triangle's biome
+    /// Seperate noise layers representing the probability of this biome spawning there
     /// </summary>
-    public NoiseSettings[] spawnPosition;
+    public NoiseActivationSettings[] spawnPosition;
 
     /// <summary>
-    /// Noise layers representing the height for any given triangle
+    /// Comunal noise layers representing the probability of this biome spawning there
+    /// All noiselayers gets added before evaluation
     /// </summary>
-    public NoiseSettings[] groundNoise;
+    public NoiseAdditiveActivationSettings[] spawnPositionAddative;
+
+    /// <summary>
+    /// Noise layers representing the height for any given vertice
+    /// </summary>
+    public NoiseSettings[] verticeOffset;
 
     /// <summary>
     /// What prefabs and where they should spawn
@@ -34,7 +39,7 @@ public class BiomeSettings : ScriptableObject
     /// All materials for this biome
     /// Any null material on instance is refered to WorldGenerationSettings default BiomeMaterialSettings 
     /// </summary>
-    public BiomeMaterialSettings biomeMaterials;
+    public BiomeMaterialSettings materialSettings;
 
     /// <summary>
     /// 
@@ -45,10 +50,14 @@ public class BiomeSettings : ScriptableObject
         {
             spawnPosition[i].Update();
         }
-
-        for (int i = 0; i < groundNoise.Length; i++)
+        for (int i = 0; i < spawnPositionAddative.Length; i++)
         {
-            groundNoise[i].Update();
+            spawnPositionAddative[i].Update();
+        }
+
+        for (int i = 0; i < verticeOffset.Length; i++)
+        {
+            verticeOffset[i].Update();
         }
 
         for (int i = 0; i < prefabInstances.Length; i++)
@@ -56,6 +65,6 @@ public class BiomeSettings : ScriptableObject
             prefabInstances[i].Update();
         }
 
-        biomeMaterials.Update();
+        materialSettings.Update();
     }
 }

@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Controlls the day night cycle
+/// </summary>
 public class DayNightCycle : MonoBehaviour
 {
-    [HideInInspector] public DayNightCycleSettings dayNightCycleSettings;
+    private DayNightCycleSettings dayNightCycleSettings;
 
     public Vector3 currentRotationEuler;
 
@@ -54,7 +57,7 @@ public class DayNightCycle : MonoBehaviour
         //Debug.Log($"darkest {darkest}");
 
         dayNightCycleSettings.waterOffset = dayNightCycleSettings.waterColOffset.Evaluate(x);
-        Global.Materials.waterMaterial.SetFloat("_WaterColOffset", dayNightCycleSettings.waterOffset);
+        Global.waterMaterial.SetFloat("_WaterColOffset", dayNightCycleSettings.waterOffset);
 
         if (sun.transform.forward.y < 0)
         {
@@ -77,6 +80,11 @@ public class DayNightCycle : MonoBehaviour
             }
         }
 
+    }
+
+    public void UpdateSettings(DayNightCycleSettings dayNightCycleSettings)
+    {
+        this.dayNightCycleSettings = dayNightCycleSettings;
     }
 
     public void UpdateRenderTexture()

@@ -1,84 +1,393 @@
-// kernel 0 for offsetting given mesh in y direction given fastnoiselite settings
-#pragma kernel MeshNoise
-// kernel 1 for calculating each vericee normal
-#pragma kernel NormalizeMesh
-// kernel 2 that calculates triangle midpoint y and uses triangle midpoint xyz for updating triangle type, it also saves the largest and smallest y value for that thread so that we only need to itterate a 2*sqrt(triangleSize) list of y values to find the largest and smallest for this mesh, it does the same for triangle type count so we only need to add dispatchSize * triangleType.Length integers on the cpu
-#pragma kernel TriangleType
+#pragma kernel TriangleBiomeSelector // kernel 0
+#pragma kernel VerticeBiomeSelector // kernel 1
+#pragma kernel MeshDisplacement // kernel 2
+#pragma kernel NormalizeMeshTriangles // kernel 3
+#pragma kernel NormalizeMeshVertices // kernel 4
+#pragma kernel TriangleMidpointY // kernel 5
+/*
+#pragma kernel StaticTriangleType // kernel 6
+#pragma kernel TriangleType // kernel 7
+*/
 
+// 
+// For all kernels
+//
 // include fastnoise lite
 #include "Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
 
-// all fnlStates
-StructuredBuffer<fnl_state> FNLStateBuffer;
+/// changing values for each dispatch
+float2 meshXZPosition; // xz position of current mesh
 
-// constants of mesh data
-uint verticeWidth;
-uint verticeHeight;
-uint verticeAmount;
+//
+// For all biome kernels
+//
+StructuredBuffer<fnl_state> FNLStateBiomeBuffer; // all fnlStates for biomes
+StructuredBuffer<fnl_state> FNLWarpStateBiomeBuffer; // all fnlWarpStates for biomes
+int biomeBufferLength; // the length of fnl state buffers (they have the same length)
 
-uint quadAmount;
-uint triangleAmount;
-uint triangleIndexAmount;
-// constants of mesh data
+//
+// For all triangle kernels
+//
+StructuredBuffer<float2> trianglesMidPoint; // xz position for triangle midpoint
+int quadCountWidth;
 
-// xz position of current mesh
-float2 meshXZPos;
-// xz position for vertice
-Buffer<float2> vertXZPos;
-// y position for vertices, that is read write (write only doesnt excist)
-RWBuffer<float> vertYPos;
+//
+// For all vertice kernels
+//
+StructuredBuffer<float2> verticesExtendedXZ; // xz position for all vertices
+int verticeCountWidthExtended;
 
-void SmoothMin(fnl_state noise_state, inout float a)
+//
+// For TriangleBiomeSelector
+//
+// RW buffers that is required for TriangleBiomeSelector
+RWBuffer<int> triangleBiome; // the triangles biome index
+
+// calculates the biome for each triangle of mesh
+[numthreads(61, 1, 1)] // id.x = quadCountHeight
+void TriangleBiomeSelector(uint3 id : SV_DispatchThreadID)
 {
-    float k = max(0, noise_state.smoothing_max);
-    float h = max(0.0f, min(1.0f, (noise_state.max_value - a + k) / (2.0f * k)));
-    a = a * h + noise_state.max_value * (1.0f - h) - k * h * (1.0f - h);
-}
-void SmoothMax(fnl_state noise_state, inout float a)
-{
-    float k = min(0, -noise_state.smoothing_min);
-    float h = max(0.0f, min(1.0f, (noise_state.min_value - a + k) / (2.0f * k)));
-    a = a * h + noise_state.min_value * (1.0f - h) - k * h * (1.0f - h);
-}
+    // get triangle index
+    int triangleIndexOffset = id.x * quadCountWidth * 2;
 
-float SampleNoise(fnl_state noise_state, float x, float z)
-{
-    // sample noise
-    float noiseValue = fnlGetNoise2D(noise_state, x, z);
-    // smooth out noise
-    SmoothMin(noise_state, noiseValue);
-    SmoothMax(noise_state, noiseValue);
-
-    return noiseValue * noise_state.amplitude;
-}
-
-[numthreads(100, 1, 1)]
-void MeshNoise(uint3 id : SV_DispatchThreadID)
-{
-    uint verticeIndexX = id.x * verticeHeight;
-
-    for (uint y = 0; y < verticeHeight; y++)
+    for (int x = 0; x < quadCountWidth * 2; x++)
     {
-        uint verticeIndex = verticeIndexX + y;
+        // get triangle index
+        int triangleIndex = triangleIndexOffset + x;
 
-        float x = vertXZPos[verticeIndex].x + meshXZPos.x;
-        float z = vertXZPos[verticeIndex].y + meshXZPos.y;
+        // get triangle midpoint x value (from precalculated vertice array and offset)
+        float x = trianglesMidPoint[triangleIndex].x + meshXZPosition.x;
+        // get triangle midpoint z value (from precalculated vertice array and offset)
+        float z = trianglesMidPoint[triangleIndex].y + meshXZPosition.y;
 
-        vertYPos[verticeIndex] = SampleNoise(FNLStateBuffer[0], x, z);
+        // the warped xz values
+        float xWarped;
+        float zWarped;
+
+        // set triangle biome to default (0)
+        triangleBiome[triangleIndex] = 0;
+
+        // itterate every fnl_state
+        for (int i = 0; i < biomeBufferLength; i++)
+        {
+            // reset xz values
+            xWarped = x;
+            zWarped = z;
+            // and warp them
+            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i], xWarped, zWarped);
+
+            // use warped xz values to get noise value
+            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i], xWarped, zWarped);
+
+            // if this noise value is enough to trigger this triangle as this biome
+            if (noiseValue > FNLStateBiomeBuffer[i].threshold_min && noiseValue < FNLStateBiomeBuffer[i].threshold_max)
+            {
+                // mark this triangle that biome
+                triangleBiome[triangleIndex] = FNLStateBiomeBuffer[i].index;
+                // and break for loop
+                break;
+            }
+        }
     }
-
-    //float x = meshXZPos.x + id.x;
-    // offsets y value of all vertices of mesh given noise functions from fast noise lite
 }
 
-[numthreads(100, 1, 1)]
-void NormalizeMesh(uint3 id : SV_DispatchThreadID)
+//
+// For VerticeBiomeSelector
+//
+// RW buffers that is required for BiomeSelector
+RWBuffer<int> verticeBiome; // the vertices biome index
+
+// calculates the biome for each vertice of mesh
+[numthreads(64, 1, 1)] // id.x = verticeCountHeightExtended
+void VerticeBiomeSelector(uint3 id : SV_DispatchThreadID)
 {
-    // calculates the normal for each vertice of mesh
+    // get vertice index
+    int verticeIndexOffset = id.x * verticeCountWidthExtended;
+
+    for (int x = 0; x < verticeCountWidthExtended; x++)
+    {
+        // get vertice index
+        int verticeIndex = verticeIndexOffset + x;
+
+        // get vertice x value (from precalculated vertice array and offset)
+        float x = verticesExtendedXZ[verticeIndex].x + meshXZPosition.x;
+        // get vertice z value (from precalculated vertice array and offset)
+        float z = verticesExtendedXZ[verticeIndex].y + meshXZPosition.y;
+
+        // the warped xz values
+        float xWarped;
+        float zWarped;
+
+        // set vertice biome to default (0)
+        verticeBiome[verticeIndex] = 0;
+
+        // itterate every fnl_state
+        for (int i = 0; i < biomeBufferLength; i++)
+        {
+            // reset xz values
+            xWarped = x;
+            zWarped = z;
+            // and warp them
+            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i], xWarped, zWarped);
+
+            // use warped xz values to get noise value
+            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i], xWarped, zWarped);
+
+            // if this noise value is enough to trigger this vertice as this biome
+            if (noiseValue > FNLStateBiomeBuffer[i].threshold_min && noiseValue < FNLStateBiomeBuffer[i].threshold_max)
+            {
+                // mark this vertice that biome
+                verticeBiome[verticeIndex] = FNLStateBiomeBuffer[i].index;
+                // and break for loop
+                break;
+            }
+        }
+    }
 }
 
-[numthreads(100, 1, 1)]
+//
+// For MeshDisplacement
+//
+StructuredBuffer<fnl_state> FNLStateVerticeOffsetBuffer; // all fnlStates for vertice offset
+StructuredBuffer<fnl_state> FNLWarpStateVerticeOffsetBuffer; // all fnlWarpStates vertice offset
+int verticeOffsetBufferLength; // the length of fnl state buffers (they have the same length)
+
+// RW buffers that is required for BiomeSelector
+RWBuffer<float> verticesExtendedY; // y position for vertices, that is read write (write only doesnt excist)
+RWBuffer<float> minYValues; // length of verticeCountHeight
+RWBuffer<float> maxYValues; // length of verticeCountHeight
+
+int verticeCountHeightExtended;
+
+// calculates each vertex y-position with a excess ring of vertices (1 more vertex on each side, to account for normal calculation)
+[numthreads(64, 1, 1)] // id.x = verticeCountHeightExtended
+void MeshDisplacement(uint3 id : SV_DispatchThreadID)
+{
+    // get vertice index
+    int verticeIndexOffset = id.x * verticeCountWidthExtended;
+
+    // set minYValue and maxYValue to largest value possible
+    minYValues[id.x] = 3.402823466e+38;
+    maxYValues[id.x] = -3.402823466e+38;
+
+    for (int x = 0; x < verticeCountWidthExtended; x++)
+    {
+        // get vertice index
+        int verticeIndex = verticeIndexOffset + x;
+        
+        // get vertice x value (from precalculated vertice array and offset)
+        float x = verticesExtendedXZ[verticeIndex].x + meshXZPosition.x;
+        // get vertice z value (from precalculated vertice array and offset)
+        float z = verticesExtendedXZ[verticeIndex].y + meshXZPosition.y;
+
+        // the warped xz values
+        float xWarped;
+        float zWarped;
+        
+        // reset verticesExtendedY
+        verticesExtendedY[verticeIndex] = 0;
+        
+        // itterate every fnl_state
+        for (int i = 0; i < verticeOffsetBufferLength; i++)
+        {
+            // if this noise state should be evaluated for this vertice
+            if (FNLStateVerticeOffsetBuffer[i].index == verticeBiome[verticeIndex])
+            {
+                // reset xz values
+                xWarped = x;
+                zWarped = z;
+                // and warp them
+                fnlDomainWarp2D(FNLWarpStateVerticeOffsetBuffer[i], xWarped, zWarped);
+
+                // use warped xz values to get noise value
+                verticesExtendedY[verticeIndex] += SampleNoise2D(FNLStateVerticeOffsetBuffer[i], xWarped, zWarped);
+            }
+        }
+
+        // scale verticesExtendedY by masked noise
+
+        // if we are on corners of vertice continue for loop
+        if (id.x == 0 || id.x == verticeCountHeightExtended - 1 || x == 0 || x == verticeCountWidthExtended - 1)
+        {
+            continue;
+        }
+
+        int minMaxIndex = id.x - 1;
+
+        // if any values are larger than the largest or smaller than the smallest value save it as new value
+        if (verticesExtendedY[verticeIndex] < minYValues[minMaxIndex])
+        {
+            minYValues[minMaxIndex] = verticesExtendedY[verticeIndex];
+        }
+        if (verticesExtendedY[verticeIndex] > maxYValues[minMaxIndex])
+        {
+            maxYValues[minMaxIndex] = verticesExtendedY[verticeIndex];
+        }
+    }
+}
+
+//
+// For NormalizeMeshTriangles
+//
+// RW buffers that is required for NormalizeMeshTriangles
+RWStructuredBuffer<float3> triangleExtendedNormals; // all the triangles normals
+int quadCountWidthExtended;
+
+// calculates the normal for each triangle of extended mesh by getting the 4 vertices that make up this quad
+[numthreads(63, 1, 1)] // id.x = quadCountHeightExtended
+void NormalizeMeshTriangles(uint3 id : SV_DispatchThreadID)
+{
+    // get triangle index
+    int triangleIndexOffset = id.x * quadCountWidthExtended * 2;
+
+    // get the indicees for verticees row
+    int verticeIndexBot = id.x * verticeCountWidthExtended;
+    int verticeIndexTop = (id.x + 1) * verticeCountWidthExtended;
+
+    for (int x = 0; x < quadCountWidthExtended; x++)
+    {
+        // get the indicees for verticees col
+        int verticeIndexLeft = x;
+        int verticeIndexRight = x + 1;
+
+        // using indicees for row and col get verticees indicees for all four corner indices
+        int verticeIndexBL = verticeIndexBot + verticeIndexLeft;
+        int verticeIndexTL = verticeIndexTop + verticeIndexLeft;
+        int verticeIndexBR = verticeIndexBot + verticeIndexRight;
+        int verticeIndexTR = verticeIndexTop + verticeIndexRight;
+
+        // using corner indices get the vertex values
+        float3 verticeBL = float3(verticesExtendedXZ[verticeIndexBL].x, verticesExtendedY[verticeIndexBL], verticesExtendedXZ[verticeIndexBL].y);
+        float3 verticeTL = float3(verticesExtendedXZ[verticeIndexTL].x, verticesExtendedY[verticeIndexTL], verticesExtendedXZ[verticeIndexTL].y);
+        float3 verticeBR = float3(verticesExtendedXZ[verticeIndexBR].x, verticesExtendedY[verticeIndexBR], verticesExtendedXZ[verticeIndexBR].y);
+        float3 verticeTR = float3(verticesExtendedXZ[verticeIndexTR].x, verticesExtendedY[verticeIndexTR], verticesExtendedXZ[verticeIndexTR].y);
+
+        // get both triangle indices for this quad
+        int triangleIndex0 = triangleIndexOffset + x * 2;
+        int triangleIndex1 = triangleIndex0 + 1;
+
+        // using all four corners vertice indices calculate triangle normals for both triangles of quad
+        triangleExtendedNormals[triangleIndex0] = normalize(
+            cross(
+                verticeTL - verticeBL,
+                verticeBR - verticeBL
+            )
+        );
+        triangleExtendedNormals[triangleIndex1] = normalize(
+            cross(
+                verticeTR - verticeTL,
+                verticeBR - verticeTL
+            )
+        );
+    }
+}
+
+//
+// For NormalizeMeshVertices
+//
+// RW buffers that is required for NormalizeMeshVertices
+RWStructuredBuffer<float3> verticesNormals; // all the triangles normals
+int verticeCountWidth;
+
+// takes the average of the 6 neighbouring triangle normals to get vertice normal, ignoring setting normals on the outer ring of vertices
+[numthreads(62, 1, 1)] // id.x = verticeCountHeight
+void NormalizeMeshVertices(uint3 id : SV_DispatchThreadID)
+{
+    // get vertice index
+    int verticeIndexOffset = id.x * verticeCountWidth;
+
+    // get bottom row of triangles index for the 3 bottom half of triangles
+    int triangleBottomIndex = id.x * quadCountWidthExtended * 2;
+
+    // get upper row of triangles index for the 3 upper half of triangles
+    int triangleUpperIndex = (id.x + 1) * quadCountWidthExtended * 2;
+
+    for (int x = 0; x < verticeCountWidth; x++)
+    {
+        // get first triangle index for bottom and upper, the next follow, +1,+2,+3
+        int triangleColStartIndex = x * 2;
+
+        int firstTriangleBottomIndex = triangleBottomIndex + triangleColStartIndex;
+        int firstTriangleUpperIndex = triangleUpperIndex + triangleColStartIndex;
+
+        // get vertice index
+        int verticeIndex = verticeIndexOffset + x;
+
+        // calculate smooth vertice normal by taking the average of the 6 nearby triangle normals and normalize
+        verticesNormals[verticeIndex] = normalize(
+            (
+                triangleExtendedNormals[firstTriangleBottomIndex + 1] +
+                triangleExtendedNormals[firstTriangleBottomIndex + 2] +
+                triangleExtendedNormals[firstTriangleBottomIndex + 3] +
+
+                triangleExtendedNormals[firstTriangleUpperIndex] +
+                triangleExtendedNormals[firstTriangleUpperIndex + 1] +
+                triangleExtendedNormals[firstTriangleUpperIndex + 2]
+            ) / 6.0
+        );
+    }
+}
+
+//
+// For TriangleMidpointY
+//
+// RW buffers that is required for TriangleMidpointY
+RWBuffer<float> triangleMidpointY; // length of triangleCount
+
+// calculates triangle midpoint y and saves the largest and smallest y value for the thread, itterated later on by the cpu to get bounds of mesh
+[numthreads(61, 1, 1)] // id.x = quadCountHeight
+void TriangleMidpointY(uint3 id : SV_DispatchThreadID)
+{
+    // get triangle index
+    int triangleIndexOffset = id.x * quadCountWidth * 2;
+
+    // get the indicees for verticees row
+    int verticeIndexBot = id.x * verticeCountWidthExtended;
+    int verticeIndexTop = (id.x + 1) * verticeCountWidthExtended;
+
+    for (int x = 0; x < quadCountWidth; x++)
+    {
+        // get the indicees for verticees col
+        int verticeIndexLeft = id.x;
+        int verticeIndexRight = id.x + 1;
+
+        // using indicees for row and col get verticees indicees for all four corner indices
+        int verticeIndexBL = verticeIndexBot + verticeIndexLeft;
+        int verticeIndexTL = verticeIndexTop + verticeIndexLeft;
+        int verticeIndexBR = verticeIndexBot + verticeIndexRight;
+        int verticeIndexTR = verticeIndexTop + verticeIndexRight;
+
+        // get both triangle indices for this quad
+        int triangleIndex0 = triangleIndexOffset + x * 2;
+        int triangleIndex1 = triangleIndex0 + 1;
+
+        // using all four corners vertice indices calculate triangle midpoint y for both triangles of quad
+        triangleMidpointY[triangleIndex0] = (
+            verticesExtendedY[verticeIndexBL] + 
+            verticesExtendedY[verticeIndexTL] + 
+            verticesExtendedY[verticeIndexBR]
+        ) / 3.0;
+
+        triangleMidpointY[triangleIndex1] = (
+            verticesExtendedY[verticeIndexBL] + 
+            verticesExtendedY[verticeIndexTL] + 
+            verticesExtendedY[verticeIndexBR]
+        ) / 3.0;
+    }
+}
+
+/*
+// changes the underlying submesh index by triangle normal and y value, used to create mountainous or underwater terrain
+[numthreads(64, 1, 1)]
+void StaticTriangleType(uint3 id : SV_DispatchThreadID)
+{
+
+}
+
+// uses triangle type to get 
+[numthreads(64, 1, 1)]
 void TriangleType(uint3 id : SV_DispatchThreadID)
 {
-    // calculates the appropiate triangle type for each triangle of mesh given noise functions from fast noise lite
+    // uses 
 }
+*/

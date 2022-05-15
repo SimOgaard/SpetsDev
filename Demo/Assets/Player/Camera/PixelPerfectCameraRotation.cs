@@ -198,6 +198,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
 #endif
 
+        Screen.SetResolution(512, 288, true);
+
         Shader.SetGlobalFloat("pixelsPerUnit", pixelsPerUnit);
         Shader.SetGlobalFloat("yScale", SpriteInitializer.yScale);
 

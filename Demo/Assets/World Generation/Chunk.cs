@@ -6,224 +6,9 @@ using Unity.Collections;
 using UnityEngine.Rendering;
 
 public class Chunk : MonoBehaviour
-{    
-    public class Ground
-    {
-        public void Update(WorldGenerationSettings worldGenerationSettings)
-        {
-            chunkSize = worldGenerationSettings.chunkSettings.chunkSize;
-            quadAmount = worldGenerationSettings.chunkSettings.quadAmount;
-
-            chunkLoadDist = worldGenerationSettings.chunkSettings.chunkLoadDist;
-            chunkDisableDistance = worldGenerationSettings.chunkSettings.chunkDisableDistance;
-            chunkEnableDistance = worldGenerationSettings.chunkSettings.chunkEnableDistance;
-
-            // read in the correct compute shader that has multiple kernels to reduce the amount of buffers that need to be set
-            computeShader = Resources.Load<ComputeShader>("ComputeShaders/ChunkGround");
-            computeShaderOccupied = false;
-
-            // get mesh sizes
-            verticeWidth = quadAmount.x + 1;
-            verticeHeight = quadAmount.y + 1;
-            verticeAmount = verticeWidth * verticeHeight;
-
-            quadAmountInt = quadAmount.x * quadAmount.y;
-            triangleAmount = quadAmountInt * 2;
-            triangleIndexAmount = triangleAmount * 3;
-
-            // set new vertices and triangles from newly calculated sizes
-            trianglesMesh = new int[triangleIndexAmount];
-            normals = new Vector3[triangleAmount];
-            verticesMesh = new Vector3[verticeAmount];
-            verticesMesh2D = new Vector2[verticeAmount];
-            verticesMeshY = new float[verticeAmount];
-            triangles = new Triangle[triangleAmount];
-
-            // populate vertices starting from bottom left with an offset of chunkSize * 0.5f
-            float constOffsetX = -chunkSize.x * 0.5f;
-            float constOffsetZ = -chunkSize.y * 0.5f;
-
-            float iterativeOffsetX = chunkSize.x / quadAmount.x;
-            float iterativeOffsetZ = chunkSize.y / quadAmount.y;
-
-            for (int z = 0; z < verticeHeight; z++)
-            {
-                for (int x = 0; x < verticeWidth; x++)
-                {
-                    int vertexIndex = (z * verticeWidth) + x;
-                    verticesMesh[vertexIndex] = new Vector3(constOffsetX + iterativeOffsetX * x, 0f, constOffsetZ + iterativeOffsetZ * z);
-                    verticesMesh2D[vertexIndex] = new Vector2(verticesMesh[vertexIndex].x, verticesMesh[vertexIndex].z);
-                }
-            }
-
-            // itterate every quad and populate the triangles with correct vertice indecees for that quad
-            for (int z = 0; z < quadAmount.y; z++)
-            {
-                for (int x = 0; x < quadAmount.x; x++)
-                {
-                    // get all the correct indicees
-                    int quadIndex = (z * quadAmount.x) + x;
-                    int quadTriangleIndex = quadIndex * 2;
-                    int quadTriangleVertIndex = quadTriangleIndex * 3;
-
-                    // get the indicees for verticees row and col
-                    int verticeIndexBot = z * verticeWidth; // 2 * 4
-                    int verticeIndexTop = (z + 1) * verticeWidth; // 3 * 4
-                    int verticeIndexLeft = x; // 2
-                    int verticeIndexRight = x + 1; // 2 + 1
-
-                    // using indicees for row and col get verticees indicees for all four corners
-                    int verticeIndexBL = verticeIndexBot + verticeIndexLeft; // 2 * 4 + 2 = 10
-                    int verticeIndexTL = verticeIndexTop + verticeIndexLeft; // 3 * 4 + 2 = 14
-                    int verticeIndexBR = verticeIndexBot + verticeIndexRight;// 2 * 4 + 3 = 11
-                    int verticeIndexTR = verticeIndexTop + verticeIndexRight;// 3 * 4 + 3 = 15
-
-                    // populate bottom left triangle
-                    trianglesMesh[quadTriangleVertIndex + 0] = verticeIndexBL;
-                    trianglesMesh[quadTriangleVertIndex + 1] = verticeIndexTL;
-                    trianglesMesh[quadTriangleVertIndex + 2] = verticeIndexBR;
-
-                    triangles[quadTriangleIndex].t0 = verticeIndexBL;
-                    triangles[quadTriangleIndex].t1 = verticeIndexTL;
-                    triangles[quadTriangleIndex].t2 = verticeIndexBR;
-
-                    triangles[quadTriangleIndex].midPoint = (verticesMesh[verticeIndexBL] + verticesMesh[verticeIndexTL] + verticesMesh[verticeIndexBR]) / 3f;
-
-                    normals[quadTriangleIndex] = Vector3.up;
-
-                    // popultae topright triangle
-                    trianglesMesh[quadTriangleVertIndex + 3] = verticeIndexTL;
-                    trianglesMesh[quadTriangleVertIndex + 4] = verticeIndexTR;
-                    trianglesMesh[quadTriangleVertIndex + 5] = verticeIndexBR;
-
-                    quadTriangleIndex++;
-                    triangles[quadTriangleIndex].t0 = verticeIndexTL;
-                    triangles[quadTriangleIndex].t1 = verticeIndexTR;
-                    triangles[quadTriangleIndex].t2 = verticeIndexBR;
-
-                    triangles[quadTriangleIndex].midPoint = (verticesMesh[verticeIndexTL] + verticesMesh[verticeIndexTR] + verticesMesh[verticeIndexBR]) / 3f;
-
-                    normals[quadTriangleIndex] = Vector3.up;
-                }
-            }
-
-            // We now have precalculated triangles and verticees that we can copy over
-            // Therefore only need to change the y value of verticees and triangles.midPoint as well as triangle type
-
-            // set constant vertex xz position
-            BufferVertice = new ComputeBuffer(verticeAmount, sizeof(float) * 2);
-            BufferVertice.SetData(verticesMesh2D);
-            computeShader.SetBuffer(0, "vertXZPos", BufferVertice);
-
-            // set read write buffer for vertex y values, needs to be available on all three kernels
-            RWBufferVerticeY = new ComputeBuffer(verticeAmount, sizeof(float)); // is constant the size of the buffer or is the values constant?
-            for (int i = 0; i < 3; i++)
-            {
-                computeShader.SetBuffer(i, "vertYPos", RWBufferVerticeY);
-            }
-
-            // set readback buffer size
-            ReadBackBuffer = new NativeArray<float>(verticeAmount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-
-            List<NoiseSettings.fnl_state> fnl_States = new List<NoiseSettings.fnl_state>();
-            fnl_States.Add(new NoiseSettings.fnl_state(worldGenerationSettings.biomes[0].groundNoise[0], 0, false));
-
-            // we require a const structured buffer of fnl_state for each biomes noiseSettings
-            FNLStateBuffer = new ComputeBuffer(1, NoiseSettings.fnl_state.size);
-            FNLStateBuffer.SetData<NoiseSettings.fnl_state>(fnl_States);
-            computeShader.SetBuffer(0, "FNLStateBuffer", FNLStateBuffer);
-        }
-
-        public void Destroy()
-        {
-            if (RWBufferVerticeY != null)
-            {
-                RWBufferVerticeY.Dispose();
-                RWBufferVerticeY = null;
-            }
-            if (BufferVertice != null)
-            {
-                BufferVertice.Dispose();
-                BufferVertice = null;
-            }
-            if (FNLStateBuffer != null)
-            {
-                FNLStateBuffer.Dispose();
-                FNLStateBuffer = null;
-            }
-            if (ReadBackBuffer.IsCreated)
-            {
-                ReadBackBuffer.Dispose();
-            }
-        }
-
-        public Vector2 chunkSize;
-        public Vector2Int quadAmount;
-
-        public float chunkLoadDist;
-        public float chunkDisableDistance;
-        public float chunkEnableDistance;
-
-        public int[] trianglesMesh;
-
-        public Vector3[] normals;
-        public Vector3[] verticesMesh;
-        public Vector2[] verticesMesh2D;
-        public float[] verticesMeshY;
-
-        public Triangle[] triangles;
-
-        private int _verticeWidth;
-        public int verticeWidth
-        {
-            get { return _verticeWidth; }
-            set { _verticeWidth = value; computeShader.SetInt("verticeWidth", value); }
-        }
-        private int _verticeHeight;
-        public int verticeHeight
-        {
-            get { return _verticeHeight; }
-            set { _verticeHeight = value; computeShader.SetInt("verticeHeight", value); }
-        }
-        private int _verticeAmount;
-        public int verticeAmount
-        {
-            get { return _verticeAmount; }
-            set { _verticeAmount = value; computeShader.SetInt("verticeAmount", value); }
-        }
-
-        private int _quadAmountInt;
-        public int quadAmountInt
-        {
-            get { return _quadAmountInt; }
-            set { _quadAmountInt = value; computeShader.SetInt("quadAmount", value); }
-        }
-        private int _triangleAmount;
-        public int triangleAmount
-        {
-            get { return _triangleAmount; }
-            set { _triangleAmount = value; computeShader.SetInt("triangleAmount", value); }
-        }
-        private int _triangleIndexAmount;
-        public int triangleIndexAmount
-        {
-            get { return _triangleIndexAmount; }
-            set { _triangleIndexAmount = value; computeShader.SetInt("triangleIndexAmount", value); }
-        }
-
-        public bool computeShaderOccupied; // is the compute shader occupied?
-        public ComputeShader computeShader; // compute shader that is used to generate mesh
-        public ComputeBuffer BufferVertice; // is readonly (constant) and holds all vertice xz values for this mesh, is used to get 2d noise
-        public ComputeBuffer RWBufferVerticeY; // is writeonly and holds all vertices y values for this mesh, is later read from the gpu to create the mesh
-        public ComputeBuffer FNLStateBuffer; // contains the fast noise lite states
-        //public ComputeBuffer computeBufferTriangles; // holds all triangles for this mesh
-        public NativeArray<float> ReadBackBuffer;
-        public bool CanReadBackBuffer;
-    }
-    public static Ground groundMeshConst = new Ground();
-    
+{
     /// <summary>
-    /// One static triangle in chunk ground mesh
+    /// One static triangle in chunk ground mesh, OBS place it inside Ground
     /// </summary>
     public struct StaticTriangle
     {
@@ -263,18 +48,149 @@ public class Chunk : MonoBehaviour
 
         // now we need to start doing some work on the gpu, but to do that we need to wait for the computeshader to finnish
         WaitForEndOfFrame wait = new WaitForEndOfFrame();
-        while (groundMeshConst.computeShaderOccupied)
+        while (Ground.GPUData.computeShaderOccupied)
         {
             yield return wait;
         }
         // here we have the whole shader to ourselves >:)
-        groundMeshConst.computeShaderOccupied = true;
-        
+        Ground.GPUData.computeShaderOccupied = true;
+
         // start by setting values specific for this/the next dispatch
-        groundMeshConst.computeShader.SetFloats("meshXZPos", transform.position.x, transform.position.z);
+        Ground.GPUData.computeShader.SetFloats("meshXZPosition", transform.position.x, transform.position.z);
+
+        // and then dispatch the triangle biome selector kernel
+        Ground.GPUData.computeShader.Dispatch(0, Ground.CPUData.quadCountHeight, 1, 1);
+        /*
+        // copy triangle biomes over to cpu
+        int[] trianglesBiomes = new int[Ground.GPUData.triangleCount];
+        Ground.GPUData.BufferTriangleBiome.GetData(trianglesBiomes);
+
+        for (int i = 0; i < Ground.GPUData.triangleCount; i++)
+        {
+            if (trianglesBiomes[i] == 1)
+                Debug.Log(trianglesBiomes[i]);
+        }
+        // just print it out because debugging
+        */
+
+        // and then dispatch the vertice biome selector kernel
+        Ground.GPUData.computeShader.Dispatch(1, Ground.CPUData.verticeCountHeightExtended, 1, 1);
+        /*
+        // copy triangle biomes over to cpu
+        int[] verticesBiomes = new int[Ground.GPUData.verticeCountExtended];
+        Ground.GPUData.BufferVerticeBiome.GetData(verticesBiomes);
+
+        for (int i = 0; i < Ground.GPUData.verticeCountExtended; i++)
+        {
+            if (verticesBiomes[i] == 0)
+                Debug.Log(verticesBiomes[i]);
+        }
+        // just print it out because debugging
+        */
+
+        // now dispatch the vertice offset kernel that uses each vertices biome for displacement
+        Ground.GPUData.computeShader.Dispatch(2, Ground.CPUData.verticeCountHeightExtended, 1, 1);
+
+        // create mesh bounds using the max and min vertice y value of mesh
+        Ground.GPUData.BufferVerticesMinYValues.GetData(Ground.CPUData.minYArray);
+        Ground.GPUData.BufferVerticesMaxYValues.GetData(Ground.CPUData.maxYArray);
+
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        for (int i = 0; i < Ground.CPUData.verticeCountHeight; i++)
+        {
+            if (Ground.CPUData.minYArray[i] < minY)
+                minY = Ground.CPUData.minYArray[i];
+            if (Ground.CPUData.maxYArray[i] > maxY)
+                maxY = Ground.CPUData.maxYArray[i];
+        }
+
+        float boundsCenterOffset = (minY + maxY) * 0.5f;
+        float boundsHeight = (maxY - minY);
+        Bounds meshBounds = new Bounds(Vector3.up * boundsCenterOffset, new Vector3(Ground.chunkSize.x, boundsHeight, Ground.chunkSize.y));
+
+        // also get the vertice y value
+        Ground.GPUData.BufferVerticesExtendedY.GetData(Ground.CPUData.verticeYArrayExtended);
+
+        // and fill verticeArray y values from extended
+        for (int z = 0; z < Ground.CPUData.verticeCountHeight; z++)
+        {
+            int zExtended = z + 1;
+            for (int x = 0; x < Ground.CPUData.verticeCountWidth; x++)
+            {
+                int xExtended = x + 1;
+
+                int vertexIndex = (z * Ground.CPUData.verticeCountWidth) + x;
+                int vertexIndexExtended = (zExtended * Ground.CPUData.verticeCountWidthExtended) + xExtended;
+         
+                Ground.CPUData.verticeArray[vertexIndex].y = Ground.CPUData.verticeYArrayExtended[vertexIndexExtended];
+            }
+        }
+
+        /*
+        // copy vertice y values over to cpu
+        float[] verticesExtendedY = new float[Ground.GPUData.verticeCountExtended];
+        Vector2[] verticesExtendedXZ = new Vector2[Ground.GPUData.verticeCountExtended];
+        Ground.GPUData.BufferVerticesExtendedY.GetData(verticesExtendedY);
+        Ground.GPUData.BufferVerticesExtendedXZ.GetData(verticesExtendedXZ);
+
+        for (int i = 0; i < Ground.GPUData.verticeCountExtended; i++)
+        {
+            Debug.Log(new Vector3(verticesExtendedXZ[i].x, verticesExtendedY[i], verticesExtendedXZ[i].y));
+        }
+        // just print it out because debugging
+        */
+
+        // now we know xyz of each vertice in the mesh so dispatch the NormalizeMeshTriangles kernel
+        Ground.GPUData.computeShader.Dispatch(3, Ground.CPUData.quadCountHeightExtended, 1, 1);
+        /*
+        // copy triangle normals to cpu
+        Vector3[] trianglesNormals = new Vector3[Ground.CPUData.triangleCountExtended];
+        Ground.GPUData.TriangleExtendedNormalsBuffer.GetData(trianglesNormals);
+
+        for (int h = 0; h < Ground.CPUData.quadCountHeightExtended; h++)
+        {
+            for (int w = 0; w < Ground.CPUData.quadCountWidthExtended; w++)
+            {
+                int triangleIndex = w * 2 + h * Ground.CPUData.quadCountWidthExtended * 2;
+
+                Debug.Log($"{trianglesNormals[triangleIndex].x}, {trianglesNormals[triangleIndex].y}, {trianglesNormals[triangleIndex].z}");
+                Debug.Log($"{trianglesNormals[triangleIndex + 1].x}, {trianglesNormals[triangleIndex + 1].y}, {trianglesNormals[triangleIndex + 1].z}");
+            }
+        }
+        Debug.LogError("We want to pause now sir plz");
+        yield break;
+        // just print it out because debugging
+        */
+
+        // now we need to calculate the mesh normal since nothing more of the mesh vertices will change
+        Ground.GPUData.computeShader.Dispatch(4, Ground.CPUData.verticeCountHeight, 1, 1);
+
+        // get mesh normals
+        Ground.GPUData.VerticesNormalsBuffer.GetData(Ground.CPUData.verticeNormalArray);
+
+        /*
+        // copy vertice normals to cpu
+        Vector3[] verticesNormals = new Vector3[Ground.GPUData.verticeCount];
+        Ground.GPUData.TriangleExtendedNormalsBuffer.GetData(verticesNormals);
+
+        for (int i = 0; i < Ground.GPUData.verticeCount; i++)
+        {
+            Debug.Log(verticesNormals[i]);
+        }
+        // just print it out because debugging
+        */
+
+        // now we calculate the triangles mid points y values
+        Ground.GPUData.computeShader.Dispatch(5, Ground.CPUData.verticeCountHeight, 1, 1);
+
+        // and fetch the largest and smallest values to 
+
+        // now we know each triangles biome for when we will select which triangles are in which submeshes
 
         // and then dispatch the mesh noise kernel
-        groundMeshConst.computeShader.Dispatch(0, groundMeshConst.verticeWidth, 1, 1);
+        //Ground.GPUData.computeShader.Dispatch(0, groundMeshConst.verticeWidth, 1, 1);
 
         // copy over height to cpu with AsyncGPUReadback
         /*
@@ -297,6 +213,7 @@ public class Chunk : MonoBehaviour
         }
         while (!groundMeshConst.CanReadBackBuffer);
         */
+        /*
         groundMeshConst.RWBufferVerticeY.GetData(groundMeshConst.verticesMeshY);
 
         // set final y values to mesh vertices
@@ -304,25 +221,27 @@ public class Chunk : MonoBehaviour
         {
             groundMeshConst.verticesMesh[i].y = groundMeshConst.verticesMeshY[i];
         }
+        */
 
-        // create a mesh using precalculated triangle and vertex xz as well as newly calculated y positions
+        // create a mesh using data fetched from gpu
         Mesh groundMesh = new Mesh()
         {
-            vertices = groundMeshConst.verticesMesh,
-            triangles = groundMeshConst.trianglesMesh,
-            bounds = new Bounds(Vector3.zero, new Vector3(groundMeshConst.chunkSize.x, 10f, groundMeshConst.chunkSize.y))
+            vertices = Ground.CPUData.verticeArray,
+            triangles = Ground.CPUData.triangleArray,
+            normals = Ground.CPUData.verticeNormalArray,
+            bounds = meshBounds,
         };
         // get the largest and smallest y values from the rows for this mesh, do this before specifying bounds size
-
         // signal that we no longer need the compute shader
-        groundMeshConst.computeShaderOccupied = false;
+        Ground.GPUData.computeShaderOccupied = false;
+
 
         // wait to offset the next lag spike
         yield return wait;
         yield return wait;
 
         //.CopyTo(, 0);
-        groundMesh.RecalculateNormals(); // do not do this, calculate it on gpu, then you can also account for triangles outside the corners to get the normal, this is to remove the seam between chunks
+        //groundMesh.RecalculateNormals(); // do not do this, calculate it on gpu, then you can also account for triangles outside the corners to get the normal, this is to remove the seam between chunks
 
         // create ground game object
         GameObject groundGameObject = WorldGenerationManager.InitNewChild(transform, "Ground");
@@ -331,7 +250,7 @@ public class Chunk : MonoBehaviour
         MeshFilter staticMeshFilter = groundGameObject.AddComponent<MeshFilter>();
         MeshCollider staticMeshCollider = groundGameObject.AddComponent<MeshCollider>();
 
-        staticMeshRenderer.material = worldGenerationSetting.defaultBiomeMaterials.biomeMaterial.biomeMaterial.material;
+        staticMeshRenderer.material = worldGenerationSetting.defaultBiomeMaterials.biomeMaterial.materialSettings.material;
         staticMeshFilter.mesh = groundMesh;
         staticMeshCollider.sharedMesh = groundMesh;
 
@@ -374,7 +293,7 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if (DistToPlayer() > groundMeshConst.chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
+        if (DistToPlayer() > Ground.chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);
@@ -384,7 +303,7 @@ public class Chunk : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        var r = GetComponent<MeshRenderer>();
+        var r = gameObject.GetComponentInChildren<MeshRenderer>();
         if (r == null)
             return;
         var bounds = r.bounds;

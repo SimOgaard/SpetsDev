@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 678cfa6da5d32994186daab8d2c10e20, type: 3}
-  m_Name: Test
+  m_Script: {fileID: 11500000, guid: c8f2bd8526e95db4e8b89fe038cd9351, type: 3}
+  m_Name: TestBiomeSpawn2
   m_EditorClassIdentifier: 
-  WindDistortionMap: {fileID: 2800000, guid: 7f2c3958f3cdbb1418d48f6c00d914d4, type: 3}
-  WindDistortionMap_ST: {x: 0.0008, y: 0.0008, z: 0, w: 0}
-  WindFrequency: {x: 0.015, y: 0.015}
-  WindStrength: 1
+  activation:
+    activationMin: 0
+    activationMax: 1
+  noiseSettings: {fileID: 11400000, guid: 1bcbdce312b06e54aae501ecb3fa7867, type: 2}

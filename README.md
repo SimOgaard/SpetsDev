@@ -4,10 +4,26 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
+if you do worldgenerationmanager.regenerate in editor update all material properties to the right values
+
+get multiple static meshes to work for a singular biome
+
+we need to be able to change underlying triangle submesh depending on triangle height and normal
+
+remove duplicates of BiomeMaterials and FoliageSettings etc while keeping the order
+
+create a uniformed distributed raycast for each chunk, get biome ray hit, select random prefab from that biome, check spawn condition, spawn it
+
+add masked noise to noise mesh displacement
+
+earthbending rock needs to grab the material for the biome it hits
 
 Each triangle for each chunk should be evaluated to be a biome based on noise, we can use RaycastHit.triangleIndex to instanciate prefabs.
 
 
+noise for biome can have the same noise for two biomes but one have larger falloff (cubed) or specified value threshold so that  
+
+instead of color gradient beeing a texture, create a class that is a list of colors and convert it to a texture and pass to material
 
 We need more than one pixel on each side since we distort water reflection image a lot, also if we want to add quarts/crystals/glass that offsets pixels by min(maxOffset, offsetAmplitude * distanceToGround)
 
@@ -24,6 +40,12 @@ For this to be done you need to rework world creation system, triangle swap, fix
 dictionary<int, triangle> vs itterating the whole array
 CreatePlaneJob should create a mesh that have no overlapping vertices
 Since this mesh is constant throughout the whole game, we should be able to remove a triangle 
+
+how does constant buffers work, or how do i definy a structuredbuffer of lenth 1 ie just a struct
+
+are draw calls added if there are no triangles in submesh for that material?
+
+distance field slimes with traingle change that paints triangles slime color
 
 to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames
 

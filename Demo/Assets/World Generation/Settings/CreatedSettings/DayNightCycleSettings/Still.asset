@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8cad9a1f1008c7c4fb43ec499b06088d, type: 3}
-  m_Name: Test
+  m_Name: Still
   m_EditorClassIdentifier: 
   ambient: -0.057255715
   ambientLight:
@@ -116,3 +116,5 @@ MonoBehaviour:
     m_RotationOrder: 4
   rotationSpeed: {x: 0, y: 0, z: 0}
   rotationSnap: {x: 0, y: 0, z: 0}
+  sun: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}
+  moon: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}

@@ -15,6 +15,9 @@ public class WindSettings : ScriptableObject
     public Vector2 WindFrequency;
     public float WindStrength;
 
+    public Vector3 cloudSpeed;
+    public NoiseSettings noiseScrollNoise;
+
     public void Update()
     {
         Shader.SetGlobalTexture("_WindDistortionMap", WindDistortionMap);
@@ -22,5 +25,7 @@ public class WindSettings : ScriptableObject
 
         Shader.SetGlobalVector("_WindFrequency", WindFrequency);
         Shader.SetGlobalFloat("_WindStrength", WindStrength);
+
+        Global.windController.UpdateSettings(this);
     }
 }

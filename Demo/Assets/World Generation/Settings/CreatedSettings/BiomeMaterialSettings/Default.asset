@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   biomeMaterial:
-    biomeMaterial: {fileID: 11400000, guid: 82c777531c7b0444184ffe3e805323a5, type: 2}
+    materialSettings: {fileID: 11400000, guid: 82c777531c7b0444184ffe3e805323a5, type: 2}
     biomeFoliages: []
-  stoneMaterial: {fileID: 0}
+  biomeMaterialsCondition: []
+  stoneMaterialSettings: {fileID: 0}

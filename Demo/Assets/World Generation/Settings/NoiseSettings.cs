@@ -13,10 +13,6 @@ public class NoiseSettings : ScriptableObject
     /// <summary>
     /// function that returns a boolean using given settings keep ranges and generated noise
     /// </summary>
-    public Vector2 keepRangeNoise;
-    public float keepRangeRandomNoise;
-    public float keepRangeRandom;
-
     public Vector2 offsett;
 
     public Value value;
@@ -32,12 +28,13 @@ public class NoiseSettings : ScriptableObject
     [System.Serializable]
     public class Value
     {
-        public float amplitude = 0.1f;
+        public bool invert = false;
+        public float amplitude = 1f;
 
-        [Range(-1f, 1f)] public float minValue;
-        public float smoothingMin;
-        [Range(-1f, 1f)] public float maxValue;
-        public float smoothingMax;
+        [Range(-1f, 1f)] public float minValue = -1f;
+        public float smoothingMin = 0f;
+        [Range(-1f, 1f)] public float maxValue = 1f;
+        public float smoothingMax = 0f;
     }
 
     /// <summary>
@@ -123,10 +120,59 @@ public class NoiseSettings : ScriptableObject
     }
     #endregion noise functions
 
+    #region fnl cs
+    public FastNoiseLite ToFNLStateCS(int index, bool warp)
+    {
+        FastNoiseLite fastNoiseLite = new FastNoiseLite();
+
+        if (!warp)
+        {
+            fastNoiseLite.SetFrequency(general.frequency);
+            fastNoiseLite.SetRotationType3D(general.rotationType3D);
+            fastNoiseLite.SetFractalType(fractal.fractalType);
+            fastNoiseLite.SetFractalOctaves(fractal.octaves);
+            fastNoiseLite.SetFractalLacunarity(fractal.lacunarity);
+            fastNoiseLite.SetFractalGain(fractal.gain);
+        }
+        else
+        {
+            fastNoiseLite.SetFrequency(domainWarp.frequency);
+            fastNoiseLite.SetRotationType3D(domainWarp.rotationType3D);
+            fastNoiseLite.SetWarpFractalType(domainWarpFractal.warpFractalType);
+            fastNoiseLite.SetFractalOctaves(domainWarpFractal.octaves);
+            fastNoiseLite.SetFractalLacunarity(domainWarpFractal.lacunarity);
+            fastNoiseLite.SetFractalGain(domainWarpFractal.gain);
+        }
+        fastNoiseLite.SetSeed(general.seed);
+        fastNoiseLite.SetNoiseType(general.noiseType);
+        fastNoiseLite.SetFractalWeightedStrength(fractal.weightedStrength);
+        fastNoiseLite.SetFractalPingPongStrength(fractal.pingPongStrength);
+        fastNoiseLite.SetCellularDistanceFunction(cellular.cellularDistanceFunction);
+        fastNoiseLite.SetCellularReturnType(cellular.cellularReturnType);
+        fastNoiseLite.SetCellularJitter(cellular.jitter);
+        fastNoiseLite.SetDomainWarpType(domainWarp.domainWarpType);
+        fastNoiseLite.SetDomainWarpAmp(domainWarp.amplitude);
+
+        fastNoiseLite.amplitude = value.amplitude;
+        fastNoiseLite.min_value = value.minValue;
+        fastNoiseLite.smoothing_min = value.smoothingMin;
+        fastNoiseLite.max_value = value.maxValue;
+        fastNoiseLite.smoothing_max = value.smoothingMax;
+
+        fastNoiseLite.index = index;
+
+        fastNoiseLite.invert = value.invert;
+
+        return fastNoiseLite;
+    }
+    #endregion
+
     #region cginc
-    /// <summary>
-    /// OBS! DomainWarpType.None might break a lot of things, consider adding default break cases in FastNoiseLite.cginc/cs
-    /// </summary>
+    public fnl_state ToFNLState(int index, bool warp)
+    {
+        return new fnl_state(this, index, warp, new NoiseActivationSettings.Activation());
+    }
+
     public struct fnl_state
     {
         public int seed;
@@ -149,9 +195,12 @@ public class NoiseSettings : ScriptableObject
         public float smoothing_min;
         public float max_value;
         public float smoothing_max;
+        public int invert;
+        public float threshold_min;
+        public float threshold_max;
         public int index;
 
-        public fnl_state(NoiseSettings noiseSettings, int index, bool warp)
+        public fnl_state(NoiseSettings noiseSettings, int index, bool warp, NoiseActivationSettings.Activation activation)
         {
             if (!warp)
             {
@@ -186,12 +235,18 @@ public class NoiseSettings : ScriptableObject
             this.smoothing_min = noiseSettings.value.smoothingMin;
             this.max_value = noiseSettings.value.maxValue;
             this.smoothing_max = noiseSettings.value.smoothingMax;
+
+            this.invert = noiseSettings.value.invert ? 1 : 0;
+
+            // biome specific
+            this.threshold_min = activation.activationMin;
+            this.threshold_max = activation.activationMax;
             this.index = index;
         }
 
         public static int size
         {
-            get { return sizeof(int) * 9 + sizeof(float) * 12; }
+            get { return sizeof(int) * 10 + sizeof(float) * 14; }
         }
     }
     #endregion

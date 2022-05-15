@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eda3a449825e4a41a8754aeda1d6a20, type: 3}
+  m_Name: Sun
+  m_EditorClassIdentifier: 
+  color: {r: 1, g: 0.9372549, b: 0.7607843, a: 1}
+  intensity: 1
+  indirectMultiplier: 1
+  horizonAngleThreshold: 15
+  horizonAngleFade: 15
+  cloudNoise: {fileID: 11400000, guid: ffb2219e1b93c06458fa8bc9bbbb40ac, type: 2}
+  cookieSize: 175
+  shadowRenderTexutreResolution: 512
+  material: {fileID: 11400000, guid: acca145fc07f5864f930a3f6e6ada5c0, type: 2}

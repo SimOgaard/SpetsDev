@@ -69,6 +69,14 @@ public static class Layer
     }
 
     /// <summary>
+    /// Layer index of water.
+    /// </summary>
+    public static int water
+    {
+        get { return LayerMask.NameToLayer("Water"); }
+    }
+
+    /// <summary>
     /// Layer index of all game world objects.
     /// </summary>
     public static int gameWorld
@@ -303,12 +311,8 @@ public static class Copy
 
 public static class Global
 {
-    public struct Materials
-    {
-        public static Material stoneMaterial;
-        public static Material spriteRendererMaterial;
-        public static Material waterMaterial;
-    }
+    public static Material spriteRendererMaterial;
+    public static Material waterMaterial;
 
     public static Sprite interactingWithSprite;
     public static Sprite notInteractingWithSprite;
@@ -316,6 +320,35 @@ public static class Global
     public static Transform cameraFocusPointTransform;
     public static Transform playerTransform;
     public static Transform equipmentsInInventory;
+
+    public static DayNightCycle dayNightCycle;
+
+    public static WindController windController;
+
+    /// <summary>
+    /// What assets need to be loaded in before world is created
+    /// </summary>
+    public static void PreLoad()
+    {
+        spriteRendererMaterial = Resources.Load<Material>("Sprites/Sprte Billboard Material");
+
+        interactingWithSprite = Resources.Load<Sprite>("Interactables/interactingWithSprite");
+        notInteractingWithSprite = Resources.Load<Sprite>("Interactables/notInteractingWithSprite");
+
+        cameraFocusPointTransform = GameObject.Find("cameraFocusPoint").transform;
+        playerTransform = GameObject.Find("Player").transform;
+        equipmentsInInventory = GameObject.Find("EquipmentsInInventory").transform;
+
+        dayNightCycle = GameObject.FindObjectOfType<DayNightCycle>();
+        windController = GameObject.FindObjectOfType<WindController>();
+    }
+
+    /// <summary>
+    /// What assets need to be loaded in after world is created
+    /// </summary>
+    public static void PostLoad()
+    {
+    }
 
     public static Vector3 normalGravity = Physics.gravity;
     public static Vector3 currentGravity = Physics.gravity;

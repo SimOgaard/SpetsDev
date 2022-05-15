@@ -85,7 +85,7 @@ public class EarthBendingRock : MonoBehaviour
         GameObject rock = GameObject.CreatePrimitive(PrimitiveType.Cube);
         rock.transform.parent = transform;
         rock.transform.localPosition = Vector3.up * 0.5f;
-        rock.GetComponent<MeshRenderer>().material = Global.Materials.stoneMaterial;
+        //rock.GetComponent<MeshRenderer>().material = Global.stoneMaterial;
 
         gameObject.layer = Layer.gameWorldMoving;
         rock.layer = Layer.gameWorldMoving;

@@ -49,6 +49,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 // Switch between using floats or doubles for input position
 using FNLfloat = System.Single;
@@ -407,6 +408,57 @@ public struct FastNoiseLite
         }
     }
 
+    public FNLfloat amplitude;
+    public FNLfloat min_value;
+    public FNLfloat smoothing_min;
+    public FNLfloat max_value;
+    public FNLfloat smoothing_max;
+
+    public bool invert;
+
+    public int index;
+
+    // extended fastnoise lite function that smooths min value float a given noise_state
+    void SmoothMin(ref FNLfloat a)
+    {
+        FNLfloat k = Mathf.Max(0, smoothing_max);
+        FNLfloat h = Mathf.Max(0.0f, Mathf.Min(1.0f, (max_value - a + k) / (2.0f * k)));
+        a = a * h + max_value * (1.0f - h) - k * h * (1.0f - h);
+    }
+    // extended fastnoise lite function that smooths max value float a given noise_state
+    void SmoothMax(ref FNLfloat a)
+    {
+        FNLfloat k = Mathf.Min(0, -smoothing_min);
+        FNLfloat h = Mathf.Max(0.0f, Mathf.Min(1.0f, (min_value - a + k) / (2.0f * k)));
+        a = a * h + min_value * (1.0f - h) - k * h * (1.0f - h);
+    }
+    // extended fastnoise lite function that samples noise_state at x,z
+    public float SampleNoise2D(FNLfloat x, FNLfloat z)
+    {
+        // sample noise
+        float noiseValue = invert ? -GetNoise(x, z) : GetNoise(x, z);
+        // smooth out noise
+        SmoothMin(ref noiseValue);
+        SmoothMax(ref noiseValue);
+        // retun with right noise scale
+        return noiseValue * amplitude;
+    }
+    // extended fastnoise lite function that samples noise_state at x,y,z
+    public float SampleNoise3D(FNLfloat x, FNLfloat y, FNLfloat z)
+    {
+        // sample noise
+        float noiseValue = invert ? -GetNoise(x, y, z) : GetNoise(x, y, z);
+        // smooth out noise
+        SmoothMin(ref noiseValue);
+        SmoothMax(ref noiseValue);
+        // retun with right noise scale
+        return noiseValue * amplitude;
+    }
+    // extended fastnoise lite function that remaps noisevalue from -1-1 to 0-1
+    public float remap01(FNLfloat v)
+    {
+        return Mathf.Clamp01((v + amplitude) * 0.5f);
+    }
 
     private static readonly float[] Gradients2D =
     {

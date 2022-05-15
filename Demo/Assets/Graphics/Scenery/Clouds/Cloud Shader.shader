@@ -7,37 +7,7 @@
 		_HorizonAngleThreshold ("Horizon Angle Threshold", Range(0, 90)) = 10
 		_HorizonAngleFade ("Horizon Angle Fade", Range(0, 90)) = 10
 
-		_NoiseScroll ("Noise Scroll", Vector) = (0.035, 0.035, 0.035, 0)
-
 		_ColorShading ("Texture", 2D) = "white" {}
-
-		[Header(Noise settings)]
-		_Noise_Seed("Seed", Int) = 1337
-		_Noise_Frequency("Frequency", Float) = 0.02
-		_Noise_NoiseType("Noise Type", Int) = 1
-		_Noise_RotationType3D("Rotation Type 3D", Int) = 2
-		
-		_Noise_FractalType("Fractal Type", Int) = 1
-        _Noise_FractalOctaves("Fractal Octaves", Int) = 5
-        _Noise_FractalLacunarity("Fractal Lacunarity", Float) = 2
-        _Noise_FractalGain("Fractal Gain", Float) = 0.5
-        _Noise_FractalWeightedStrength("Fractal Weighted Strength", Float) = 0
-        _Noise_FractalPingPongStrength("Fractal PingPong Strength", Float) = 2
-
-        _Noise_CellularDistanceFunction("Cellular Distance Function", Int) = 1
-        _Noise_CellularReturnType("Cellular Return Type", Int) = 1
-        _Noise_CellularJitter("Cellular Jitter", Float) = 1
-
-		[Header(Warp settings)]
-        _Warp_DomainWarpType("Domain Warp Type", Int) = 0
-        _Warp_RotationType3D("Rotation Type 3D", Int) = 0
-        _Warp_DomainWarpAmplitude("Domain Warp Amplitude", Float) = 30
-        _Warp_Frequency("Domain Warp Frequency", Float) = 0.005
-
-        _Warp_FractalType("Rotation Type 3D", Int) = 0
-        _Warp_FractalOctaves("Domain Warp Fractal Octaves", Int) = 5
-        _Warp_FractalLacunarity("Domain Warp Fractal Lacunarity", Float) = 2
-        _Warp_FractalGain("Domain Warp Fractal Gain", Float) = 0.5
     }
 
 	CGINCLUDE
@@ -46,10 +16,7 @@
 
 	sampler2D _MainTex;
 
-	float4 _NoiseScroll;
-
-	float _Opacity;
-	float _Coverage;
+	float3 _WindScroll;
 
 	float _HorizonAngleThreshold;
 	float _HorizonAngleFade;
@@ -66,6 +33,9 @@
 	float3 _WorldOffset;
 	float3 _CloudStrechOffset;
 
+	StructuredBuffer<fnl_state> fnl_warp_state;
+	StructuredBuffer<fnl_state> fnl_noise_state;	
+
 	struct appdata_t
 	{
 		float4 vertex : POSITION;
@@ -76,7 +46,6 @@
 	{
 		float4 vertex : SV_POSITION;
 		float2 texcoord : TEXCOORD0;
-		float2 texcoordClouds : TEXCOORD1;
 	};
 
 	VertexOut Vert (appdata_t v)
@@ -84,59 +53,29 @@
 		VertexOut o;
 		o.vertex = UnityObjectToClipPos(v.vertex);
 		o.texcoord = v.texcoord.xy;
-
-		//o.texcoordClouds = TRANSFORM_TEX(v.texcoord.xy, _LayerTex);
-		//o.texcoordClouds -= _LayerParams.xy;
-
 		return o;
-	}
-
-	float remap01(float v) {
-		return saturate((v + 1) * 0.5);
 	}
 
 	float GetNoiseValue(VertexOut i)
 	{
-		fnl_state noise = fnlCreateState();
-		noise.seed = 1337; //_Noise_Seed;
-		noise.frequency = 6.0 / (_CookieSize); //_Noise_Frequency;
-		noise.noise_type = 1; //_Noise_NoiseType;
-		noise.rotation_type_3d = 2; //_Noise_RotationType3D;
-
-		noise.fractal_type = 1; //_Noise_FractalType;
-		noise.octaves = 5; //_Noise_FractalOctaves;
-		noise.lacunarity = 2.0; //_Noise_FractalLacunarity;
-		noise.gain = 0.5; //_Noise_FractalGain;
-		noise.weighted_strength = 0.0; //_Noise_FractalWeightedStrength;
-		noise.ping_pong_strength = 2.0; //_Noise_FractalPingPongStrength;
-
-		noise.cellular_distance_func = 1; //_Noise_CellularDistanceFunction;
-		noise.cellular_return_type = 1; //_Noise_CellularReturnType;
-		noise.cellular_jitter_mod = 1.0; //_Noise_CellularJitter;
-
-		fnl_state warp = fnlCreateState();
-		warp.domain_warp_type = 0; //_Warp_DomainWarpType;
-		warp.rotation_type_3d = 0; //_Warp_RotationType3D;
-		warp.domain_warp_amp = 30.0; //_Warp_DomainWarpAmplitude;
-		warp.frequency = 0.005 / (_CookieSize); //_Warp_Frequency;
-
-		warp.fractal_type = 0; //_Warp_FractalType;
-		warp.octaves = 5; //_Warp_FractalOctaves;
-		warp.lacunarity = 2.0; //_Warp_FractalLacunarity;
-		warp.gain = 2.0; //_Warp_FractalGain;
-
 		// translate tex pixel coordinates to world local
 		float length = 1. / (2. * _Zoom);
 		float2 worldTexCoord = (((i.texcoord / (_CloudStrechOffset.xz)) * length) + ((1. - length) / 2.)) * _CookieSize;
-
 		//float2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
 
-		float x = worldTexCoord.x + _Time[0] * _NoiseScroll.x + ((_LightPosition.x * 0.5) - _WorldOffset.x) / _CloudStrechOffset.x;
-		float y = _Time[0] * _NoiseScroll.y;
-		float z = worldTexCoord.y + _Time[0] * _NoiseScroll.z + ((_LightPosition.y * 0.5) - _WorldOffset.z) / _CloudStrechOffset.z;
+		// get xyz values
+		float x = worldTexCoord.x + _WindScroll.x + ((_LightPosition.x * 0.5) - _WorldOffset.x) / _CloudStrechOffset.x;
+		float y = _WindScroll.y;
+		float z = worldTexCoord.y + _WindScroll.z + ((_LightPosition.y * 0.5) - _WorldOffset.z) / _CloudStrechOffset.z;
 
-		fnlDomainWarp3D(warp, x, y, z);
-		return remap01(fnlGetNoise3D(noise, x, y, z));
+		// warp xyz values
+		fnlDomainWarp3D(fnl_warp_state[0], x, y, z);
+
+		// get noise
+		float noise_value = SampleNoise3D(fnl_noise_state[0], x, y, z);
+
+		// remap to 0-amplitude and return it
+		return remap01(noise_value, fnl_noise_state[0]);
 	}
 
 	float4 Frag (VertexOut i) : SV_Target

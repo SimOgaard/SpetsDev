@@ -23,6 +23,7 @@ public class WorldGenerationManager : MonoBehaviour
 
         // Re-run this like it was game start
         Awake();
+        Start();
 
         // Wait for game to not be paused and then place player on chunk
         StartCoroutine(PlacePlayer(Global.playerTransform.position));
@@ -67,7 +68,8 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        Chunk.groundMeshConst.Destroy();
+        Ground.GPUData.Destroy();
+        worldGenerationSettings.Destroy();
     }
 
     public Chunk InstanciateChunkGameObject(Vector2 chunkCoord)
@@ -101,8 +103,15 @@ public class WorldGenerationManager : MonoBehaviour
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
 
-        // dispose of computebuffers
-        Chunk.groundMeshConst.Destroy();
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+#endif
+
+        // set global properties
+        Global.PreLoad();
 
         // update all assets
         worldGenerationSettings.Update();
@@ -120,17 +129,16 @@ public class WorldGenerationManager : MonoBehaviour
         Water water = new GameObject().AddComponent<Water>();
         water.Init(worldGenerationSettings.waterSettings, 350f, 350f, transform);
 
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-#endif
-
         //LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
+    }
+
+    private void Start()
+    {
+        // set global properties
+        Global.PostLoad();
     }
 
     private void LoadNearest(int maxChunkLoadAtATime)
@@ -271,8 +279,8 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / Chunk.groundMeshConst.chunkSize.x) + 100,
-            Mathf.RoundToInt(position_2d.y / Chunk.groundMeshConst.chunkSize.y) + 100
+            Mathf.RoundToInt(position_2d.x / Ground.chunkSize.x) + 100,
+            Mathf.RoundToInt(position_2d.y / Ground.chunkSize.y) + 100
         );
 
         return nearestChunk;
@@ -282,10 +290,10 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / Chunk.groundMeshConst.chunkSize.x),
-            Mathf.RoundToInt(position_2d.y / Chunk.groundMeshConst.chunkSize.y)
+            Mathf.RoundToInt(position_2d.x / Ground.chunkSize.x),
+            Mathf.RoundToInt(position_2d.y / Ground.chunkSize.y)
         );
-        Vector2 chunkCoord = nearestChunk * Chunk.groundMeshConst.chunkSize;
+        Vector2 chunkCoord = nearestChunk * Ground.chunkSize;
         return chunkCoord;
     }
 
@@ -307,7 +315,7 @@ public class WorldGenerationManager : MonoBehaviour
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
             chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude < Chunk.groundMeshConst.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude < Ground.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

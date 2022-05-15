@@ -67,6 +67,8 @@ public class Water : MonoBehaviour
 
     public void Init(WaterSettings waterSettings, float width, float height, Transform parrent)
     {
+        gameObject.layer = Layer.water;
+
         this.waterSettings = waterSettings;
         /*
         CurveCreator.AddCurveTexture(ref material, curveColor, "_WaterCurveTexture");

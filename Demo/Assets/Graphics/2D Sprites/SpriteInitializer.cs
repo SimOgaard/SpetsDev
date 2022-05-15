@@ -41,7 +41,7 @@ public class SpriteInitializer : MonoBehaviour
         spriteRenderer = spriteGameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = sprite;
         spriteRenderer.sortingOrder = renderOrder;
-        spriteRenderer.material = Global.Materials.spriteRendererMaterial;
+        spriteRenderer.material = Global.spriteRendererMaterial;
         animator = null;
 
         // Applies scale to gameobject to correct camera rotation
@@ -61,7 +61,7 @@ public class SpriteInitializer : MonoBehaviour
 
         spriteRenderer = spriteGameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sortingOrder = renderOrder;
-        spriteRenderer.material = Global.Materials.spriteRendererMaterial;
+        spriteRenderer.material = Global.spriteRendererMaterial;
         animator = spriteGameObject.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
 

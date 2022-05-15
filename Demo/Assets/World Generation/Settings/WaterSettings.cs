@@ -21,6 +21,6 @@ public class WaterSettings : ScriptableObject
     {
         waterMaterial.Update();
 
-        Global.Materials.waterMaterial = waterMaterial.material;
+        Global.waterMaterial = waterMaterial.material;
     }
 }
