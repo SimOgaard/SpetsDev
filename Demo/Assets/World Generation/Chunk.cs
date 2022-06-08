@@ -288,12 +288,12 @@ public class Chunk : MonoBehaviour
 
     public float DistToPlayer()
     {
-        return (transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude;
+        return (transform.position - MainCamera.CameraRayHitPlane()).magnitude;
     }
 
     private void Update()
     {
-        if (DistToPlayer() > Ground.chunkDisableDistance / PixelPerfectCameraRotation.zoom && isLoaded)
+        if (DistToPlayer() > Ground.chunkDisableDistance && isLoaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

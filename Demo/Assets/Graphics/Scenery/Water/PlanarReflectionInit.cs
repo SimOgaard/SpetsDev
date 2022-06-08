@@ -11,7 +11,6 @@ public class PlanarReflectionInit : MonoBehaviour
         reflectionCamera.nearClipPlane = 0f;
 
         PlanarReflectionManager planarReflectionManager = reflectionCamera.gameObject.AddComponent<PlanarReflectionManager>();
-        planarReflectionManager.UpdateRenderTexture();
         thisCamera.rCamera = reflectionCamera;
     }
 }

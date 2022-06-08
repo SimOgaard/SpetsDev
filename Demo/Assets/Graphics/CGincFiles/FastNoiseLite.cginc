@@ -47,7 +47,7 @@
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
-// switch between using floats or doubles for input position
+// [branch] switch between using floats or doubles for input position
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
@@ -298,7 +298,7 @@ void SmoothMax(fnl_state noise_state, inout FNLfloat a)
 }
 // extended fastnoise lite function that samples noise_state at x,z
 FNLfloat SampleNoise2D(fnl_state noise_state, FNLfloat x, FNLfloat z)
-{
+{ 
     // sample noise
     FNLfloat noiseValue = noise_state.invert ? -fnlGetNoise2D(noise_state, x, z) : fnlGetNoise2D(noise_state, x, z);
     // smooth out noise

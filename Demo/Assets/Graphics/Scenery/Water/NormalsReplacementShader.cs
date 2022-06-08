@@ -9,20 +9,28 @@ public class NormalsReplacementShader : MonoBehaviour
     private RenderTexture renderTexture;
     private new Camera camera;
 
-    private void Start()
+    private void Awake()
     {
         PixelPerfectCameraRotation thisCamera = GetComponent<PixelPerfectCameraRotation>();
 
-        renderTexture = new RenderTexture(PixelPerfectCameraRotation.widthExtended, PixelPerfectCameraRotation.heightExtended, 24);
-        renderTexture.filterMode = FilterMode.Point;
-        Shader.SetGlobalTexture("_CameraNormalsTexture", renderTexture);
-
         camera = CopyCamera(thisCamera, transform.parent, "Normals camera", 2);
-        camera.targetTexture = renderTexture;
         camera.SetReplacementShader(normalsShader, "RenderType");
         camera.gameObject.AddComponent<CopyCameraPosition>();
 
         thisCamera.nCamera = camera;
+    }
+
+    public void UpdateRenderTexture()
+    {
+        if (renderTexture != null)
+        {
+            renderTexture.Release();
+        }
+
+        renderTexture = new RenderTexture(PixelPerfectCameraRotation.renderWidthExtended, PixelPerfectCameraRotation.renderHeightExtended, 24);
+        renderTexture.filterMode = FilterMode.Point;
+        Shader.SetGlobalTexture("_CameraNormalsTexture", renderTexture);
+        camera.targetTexture = renderTexture;
     }
 
     /// <summary>

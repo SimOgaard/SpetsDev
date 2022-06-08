@@ -33,8 +33,42 @@
 	float3 _WorldOffset;
 	float3 _CloudStrechOffset;
 
-	StructuredBuffer<fnl_state> fnl_warp_state;
-	StructuredBuffer<fnl_state> fnl_noise_state;	
+	CBUFFER_START(UnityPerMaterial)
+	// non specific (the same for both noise)
+	int seed;
+	fnl_noise_type noise_type;
+    float weighted_strength;
+    float ping_pong_strength;
+    fnl_cellular_return_type cellular_distance_func;
+    fnl_cellular_return_type cellular_return_type;
+    float cellular_jitter_mod;
+    fnl_domain_warp_type domain_warp_type;
+    float domain_warp_amp;
+
+    float amplitude;
+    float min_value;
+    float smoothing_min;
+    float max_value;
+    float smoothing_max;
+
+    int invert;
+
+	// warp specific
+	float frequency_warp;
+	fnl_rotation_type_3d rotation_type_3d_warp;
+	fnl_fractal_type fractal_type_warp;
+	int octaves_warp;
+	float lacunarity_warp;
+	float gain_warp;
+
+	// noise specific
+	float frequency;
+	fnl_rotation_type_3d rotation_type_3d;
+	fnl_fractal_type fractal_type;
+	int octaves;
+	float lacunarity;
+	float gain;
+    CBUFFER_END
 
 	struct appdata_t
 	{
@@ -56,6 +90,59 @@
 		return o;
 	}
 
+	fnl_state GetNonSpecificFNLState()
+	{
+		fnl_state state = fnlCreateState(/*seed*/);
+		state.noise_type = 1;//noise_type;
+		state.weighted_strength = 0.0;//weighted_strength;
+		state.ping_pong_strength = 2.0;//ping_pong_strength;
+		state.cellular_distance_func = 1;//cellular_distance_func;
+		state.cellular_return_type = 1;//cellular_return_type;
+		state.cellular_jitter_mod = 1.0;//cellular_jitter_mod;
+		state.domain_warp_type = 0;//domain_warp_type;
+		state.domain_warp_amp = 30.0;//domain_warp_amp;
+
+		state.amplitude = 1.0;//amplitude;
+		state.min_value = -1.0;//min_value;
+		state.smoothing_min = 0.0;//smoothing_min;
+		state.max_value = 1.0;//max_value;
+		state.smoothing_max = 0.0;//smoothing_max;
+
+		state.invert = 0;//invert;
+
+		return state;
+	}
+
+	fnl_state GetWarpState()
+	{
+		fnl_state warp = GetNonSpecificFNLState();
+
+		// warp specific
+        warp.frequency = 0.005;//frequency_warp;
+        warp.rotation_type_3d = 2;//rotation_type_3d_warp;
+        warp.fractal_type = 0;//fractal_type_warp;
+        warp.octaves = 5;//octaves_warp;
+        warp.lacunarity = 2.0;//lacunarity_warp;
+        warp.gain = 2.0;//gain_warp;
+
+		return warp;
+	}
+
+	fnl_state GetNoiseState()
+	{
+		fnl_state noise = GetNonSpecificFNLState();
+
+		// noise specific
+        noise.frequency = 6.0;//frequency;
+        noise.rotation_type_3d = 2;//rotation_type_3d;
+        noise.fractal_type = 1;//fractal_type;
+        noise.octaves = 5;//octaves;
+        noise.lacunarity = 2.0;//lacunarity;
+        noise.gain = 0.5;//gain;
+
+		return noise;
+	}
+
 	float GetNoiseValue(VertexOut i)
 	{
 		// translate tex pixel coordinates to world local
@@ -68,14 +155,18 @@
 		float y = _WindScroll.y;
 		float z = worldTexCoord.y + _WindScroll.z + ((_LightPosition.y * 0.5) - _WorldOffset.z) / _CloudStrechOffset.z;
 
+		// create warp and noise state
+		fnl_state fnl_warp_state = GetWarpState();
+		fnl_state fnl_noise_state = GetNoiseState();
+
 		// warp xyz values
-		fnlDomainWarp3D(fnl_warp_state[0], x, y, z);
+		fnlDomainWarp3D(fnl_warp_state, x, y, z);
 
 		// get noise
-		float noise_value = SampleNoise3D(fnl_noise_state[0], x, y, z);
+		float noise_value = SampleNoise3D(fnl_noise_state, x, y, z);
 
 		// remap to 0-amplitude and return it
-		return remap01(noise_value, fnl_noise_state[0]);
+		return remap01(noise_value, fnl_noise_state);
 	}
 
 	float4 Frag (VertexOut i) : SV_Target

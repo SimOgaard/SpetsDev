@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines how all plain chunks are constructed
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Chunk", order = 1)]
 [System.Serializable]
 public class ChunkSettings : ScriptableObject
 {

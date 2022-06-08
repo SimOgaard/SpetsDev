@@ -10,6 +10,15 @@ public class CameraMovement : MonoBehaviour
     private Rigidbody playerRigidbody;
     private Vector3 smoothedPosition;
 
+    /// <summary>
+    /// Isometric rotation
+    /// </summary>
+    [SerializeField] private Vector3 isometricRotation = new Vector3(30f, 0f, 0f);
+    /// <summary>
+    /// The distance from camera to cameraFocusPoint
+    /// </summary>
+    [SerializeField] private float cameraDistance = 100f;
+
     [Header("Focus Point Position")]
     [SerializeField] private float maxDistance;
     [SerializeField] private float smoothSpeed;
@@ -28,7 +37,7 @@ public class CameraMovement : MonoBehaviour
     [SerializeField] private float snapIncrement;
     //[SerializeField] [Range(0.5f, 1f)] private float reccursiveRotationThreshold;
     //[SerializeField] private float lastStoppedRotation;
-    
+
     private void Start()
     {
         playerRigidbody = Global.playerTransform.GetComponent<PlayerMovement>()._rigidbody;
@@ -110,6 +119,18 @@ public class CameraMovement : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        if (GameTime.isPaused)
+        {
+            return;
+        }
+
+        // update position of main camera
+        SmoothPosition();
+        MoveCamera(ref MainCamera.mCamera, Global.cameraFocusPointTransform, isometricRotation, cameraDistance);
+    }
+
     [Header("testing")]
     [SerializeField] private float ovalSizeLarge = 1f;
     [SerializeField] private float ovalSizeSmall = 1f;
@@ -162,6 +183,15 @@ public class CameraMovement : MonoBehaviour
 
         //smoothedPosition = SmoothMovementToPoint(playerTransform.position + GetLookPoint());
         //Vector3 screenPos = cam.WorldToScreenPoint(target.position);
+    }
+
+    /// <summary>
+    /// Moves camera to given point to reduce flickering
+    /// </summary>
+    public static void MoveCamera(ref Camera mCamera, Transform cameraFocusPoint, Vector3 rotation, float dist)
+    {
+        mCamera.transform.rotation = cameraFocusPoint.rotation * Quaternion.Euler(rotation);
+        mCamera.transform.position = cameraFocusPoint.position - mCamera.transform.forward * dist;
     }
 
     [SerializeField] private float reccursiveRotationThreshold = 0.5f;

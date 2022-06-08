@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines global water.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Climate/Water", order = 40)]
 [System.Serializable]
 public class WaterSettings : ScriptableObject
 {

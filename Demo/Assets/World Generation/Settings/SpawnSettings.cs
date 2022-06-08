@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines rules for the player spawn area/position. Difficulity radius, spawn items, guide, etc.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Spawn", order = 2)]
 [System.Serializable]
 public class SpawnSettings : ScriptableObject
 {

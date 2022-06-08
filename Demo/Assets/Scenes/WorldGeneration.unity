@@ -1875,7 +1875,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 532666294}
   m_Mesh: {fileID: 2959467708922500008, guid: 64cf749444fa9ba4cb74c7c9ed4b0742, type: 3}
---- !u!84 &574891184
+--- !u!84 &533640450
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2022,7 +2022,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _light: {fileID: 643597928}
-  shadowRenderTexture: {fileID: 574891184}
+  shadowRenderTexture: {fileID: 533640450}
   cloudShadowMaterial: {fileID: 2100000, guid: f952cc4a84636174eb3059e65f39b68a, type: 2}
   inverseLightPos: {x: 0, y: 0, z: 0}
   angleToHorizon: 45
@@ -2069,7 +2069,7 @@ Light:
       e32: 0
       e33: 1
     m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 574891184}
+  m_Cookie: {fileID: 533640450}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
   m_RenderMode: 0
@@ -2083,7 +2083,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 5.969307e-39, y: 9.1835e-41, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -5997,7 +5997,7 @@ PrefabInstance:
     - target: {fileID: 871648080290654050, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: orthographic size
-      value: 29
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 871648080290654057, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
@@ -6009,21 +6009,16 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 871648080290654061, guid: ce18c5be02e6d16499e8a367679f8f7a,
+    - target: {fileID: 871648080550030938, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
-      propertyPath: dayNightCycle
-      value: 
-      objectReference: {fileID: 2071351076}
-    - target: {fileID: 871648080290654061, guid: ce18c5be02e6d16499e8a367679f8f7a,
+      propertyPath: cameraDistance
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 871648080550030938, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
-      propertyPath: sunCloudShadows
-      value: 
-      objectReference: {fileID: 643597927}
-    - target: {fileID: 871648080290654061, guid: ce18c5be02e6d16499e8a367679f8f7a,
-        type: 3}
-      propertyPath: moonCloudShadows
-      value: 
-      objectReference: {fileID: 80920849}
+      propertyPath: playerHeadingXzAmplitude
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 871648080949393338, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: m_Name
@@ -6083,6 +6078,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2047470611698600618, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
+      propertyPath: shadowDistance
+      value: 350
+      objectReference: {fileID: 0}
+    - target: {fileID: 2047470611698600618, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
+      propertyPath: cameraFarClippingPlane
+      value: 400
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce18c5be02e6d16499e8a367679f8f7a, type: 3}

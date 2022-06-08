@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,93 +12,174 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class PixelPerfectCameraRotation : MonoBehaviour
 {
-    // Aspects
-    public float pixelScale = 1f;
-    //public const int targetPixelCount = (16 * 9) * 32; // https://pacoup.com/2011/06/12/list-of-true-169-resolutions/
+    /// <summary>
+    /// Calculates the best pixelSize values for given resolution.
+    /// </summary>
+    /// <param name="resolution"></param>
+    /// <returns>Dictionary<pixelSize, divider>();</returns>
+    private static Dictionary<int, int> Aspects(int resolution, bool negativeRemainder = false)
+    {
+        Dictionary<int, int> aspects = new Dictionary<int, int>();
 
-    public static int screenResolutionWidth = -1;
-    public static int screenResolutionHeight = -1;
-    public static float dpi;
-    public static float aspect;
+        for (int i = 1; i <= resolution; i++)
+        {
+            float pixelDensity = (float)resolution / (float)i;
+            int pixelSize = (negativeRemainder ? Mathf.RoundToInt(pixelDensity) : Mathf.FloorToInt(pixelDensity));
+            int remainder = Mathf.Abs(resolution - pixelSize * i);
 
-    public static int width = 512;
-    public static int height = 288;
-    public static int widthExtended = width + 16;
-    public static int heightExtended = height + 9;
-    public static float cameraScaleWidth = (float)width / widthExtended;
-    public static float cameraScaleHeight = (float)height / heightExtended;
-    public static float cameraScaleWidthOffset = (1f - cameraScaleWidth) * 0.5f;
-    public static float cameraScaleHeightOffset = (1f - cameraScaleHeight) * 0.5f;
+            if (aspects.ContainsKey(pixelSize))
+            {
+                int oldRemainder = Mathf.Abs(resolution - pixelSize * aspects[pixelSize]);
+                if (remainder < oldRemainder)
+                {
+                    aspects[pixelSize] = i;
+                }
+            }
+            else
+            {
+                aspects[pixelSize] = i;
+            }
+        }
 
-    public static float unitsPerPixelCamera = (height / 5f) / heightExtended;
-    public static float unitsPerPixelWorld = 1f / 5f;
-    public static float pixelsPerUnit = 5f;
+        return aspects;
+    }
 
     /// <summary>
-    /// Initilizes game resolution from given screen
+    /// Returns dictionary of all capable pixelsize in aspects
     /// </summary>
-    public void CalculateResolution()
+    /// <param name="resolution"></param>
+    /// <returns>Dictionary<widthDivider, heightDivider>();</returns>
+    private static Dictionary<int, int> GetCapable(Dictionary<int, int> aspectsWidth, Dictionary<int, int> aspectsHeight)
     {
-        // if the resolution has changed
-        if (screenResolutionWidth == Screen.width && screenResolutionHeight == Screen.height)
+        Dictionary<int, int> finalAspects = new Dictionary<int, int>();
+
+        foreach (KeyValuePair<int, int> aspect in aspectsWidth)
+        {
+            if (aspectsHeight.ContainsKey(aspect.Key))
+            {
+                finalAspects.Add(aspectsWidth[aspect.Key], aspectsHeight[aspect.Key]);
+            }
+        }
+
+        return finalAspects;
+    }
+
+    /// <summary>
+    /// The screen or window resolution width of game
+    /// </summary>
+    public static int screenWidth = 1;
+    /// <summary>
+    /// The screen or window resolution height of game
+    /// </summary>
+    public static int screenHeight = 1;
+
+    /// <summary>
+    /// Game resolution width we are striving for
+    /// </summary>
+    public static int targetWidth = 512;
+    /// <summary>
+    /// Game resolution height we are striving for
+    /// </summary>
+    public static int targetHeight = 288;
+    /// <summary>
+    /// Amount of pixels in targetResolution (targetWidth * targetHeight)
+    /// </summary>
+    public static int targetPixelDensity { get { return targetWidth * targetHeight; } }
+
+    /// <summary>
+    /// The calculated game resolution (width) that the player will see
+    /// </summary>
+    public static int renderWidth = 1;
+    /// <summary>
+    /// The calculated game resolution (height) that the player will see
+    /// </summary>
+    public static int renderHeight = 1;
+    /// <summary>
+    /// The resolution (width) of the render textures that all cameras render to
+    /// </summary>
+    public static int renderWidthExtended = 1;
+    /// <summary>
+    /// The resolution (height) of the render textures that all cameras render to
+    /// </summary>
+    public static int renderHeightExtended = 1;
+
+    public static int remainderWidth;
+    public static int remainderHeight;
+
+    public static float cameraScaleWidth { get { return ((float)renderWidth / (float)renderWidthExtended) /** (1f - remainderWidth / screenWidth)*/; } }
+    public static float cameraScaleHeight { get { return ((float)renderHeight / (float)renderHeightExtended) /** (1f - remainderHeight / screenHeight)*/; } }
+    public static float cameraScaleWidthOffset { get { return (1f - cameraScaleWidth) * 0.5f; } }
+    public static float cameraScaleHeightOffset { get { return (1f - cameraScaleHeight) * 0.5f; } }
+
+    public static float pixelsPerUnit = 5f;
+    public static float unitsPerPixelWorld { get { return 1f / pixelsPerUnit; } }
+    public static float unitsPerPixelCamera { get { return ((float)renderHeight / pixelsPerUnit) / (float)renderHeightExtended; } }
+
+    public void SetResolution()
+    {
+        if (!CalculateResolution())
             return;
-
-        // tryget dpi otherwise use common dpi value
-        if (Screen.dpi != 0)
-        {
-            dpi = Screen.dpi;
-        }
-        else
-        {
-            dpi = 81f;
-            Debug.LogWarning($"We were not able to fetch dpi of screen, using default value: {dpi}");
-        }
-
-        void UpdateCamera(ref Camera camera, float aspect)
-        {
-            if (camera != null)
-                camera.aspect = aspect;
-        }
-
-        // remember current game render resolution
-        screenResolutionWidth = Screen.width;
-        screenResolutionHeight = Screen.height;
-
-        // calculate best target resolution from given dpi and screen resolution
-        
-
-        width = Mathf.RoundToInt(screenResolutionWidth / pixelScale);
-        height = Mathf.RoundToInt(screenResolutionHeight / pixelScale);
-        // extend resolution so we can move camera over subpixels in all 4 directions
-        widthExtended = width + 2;
-        heightExtended = height + 2;
-        // add +1 on the sides that need a fraction of a pixel to be rendered
-
-        // get aspect ratio of extended screen resolution
-        aspect = (float)widthExtended / (float)heightExtended;
-
-
-        // we need the scaling to render width * height and not widthExtended * heightExtended
-
-        // we need the constant offset for the +1 pixel so that the fractional pixel is on the right side of screen
-
-
-        cameraScaleWidth = (float)width / widthExtended;
-        cameraScaleHeight = (float)height / heightExtended;
-        cameraScaleWidthOffset = (1f - cameraScaleWidth) * 0.5f;
-        cameraScaleHeightOffset = (1f - cameraScaleHeight) * 0.5f;
-        unitsPerPixelCamera = (height / 5f) / heightExtended;
 
         if (planarReflectionManager != null)
             planarReflectionManager.UpdateRenderTexture();
         if (dayNightCycle != null)
             dayNightCycle.UpdateRenderTexture();
+        if (cameraNormal != null)
+            cameraNormal.UpdateRenderTexture();
 
-        UpdateCamera(ref mCamera, aspect);
-        UpdateCamera(ref nCamera, aspect);
-        UpdateCamera(ref rCamera, aspect);
+        SetRenderTextureAspect(ref nCamera);
+        SetRenderTextureAspect(ref rCamera);
+    }
 
-        //Debug.Log($"{Screen.width} : {Screen.height} = {pixelDensity}");
+    /// <summary>
+    /// Initilizes game resolution from given screen
+    /// </summary>
+    public static bool CalculateResolution()
+    {
+        // if the resolution has changed
+        if (screenWidth == Screen.width && screenHeight == Screen.height)
+            return false;
+
+        // remember current game render resolution
+        screenWidth = Screen.width;
+        screenHeight = Screen.height;
+
+        bool negativeRemainders = false;
+        bool keepAspect = false; // will require black bars on some monitors
+
+        Dictionary<int, int> aspectsWidth = Aspects(screenWidth, negativeRemainders);
+        Dictionary<int, int> aspectsHeight = Aspects(screenHeight, negativeRemainders);
+
+        // gets a dictionary containing all possible width, heigth divisions
+        Dictionary<int, int> finalAspects = GetCapable(aspectsWidth, aspectsHeight);
+
+        // sort the dictionary to values closest to targetPixelDensity;
+        KeyValuePair<int, int>[] sortedAspects = finalAspects.OrderBy(x => Mathf.Abs(x.Key * x.Value - targetPixelDensity)).ToArray();
+
+        KeyValuePair<int, int> bestAspect = sortedAspects.First();
+
+        renderWidth = bestAspect.Key;
+        renderHeight = bestAspect.Value;
+
+        renderWidthExtended = renderWidth;
+        renderHeightExtended = renderHeight;
+
+        float sizeWidth = (float)screenWidth / (float)renderWidth;
+        float sizeHeight = (float)screenHeight / (float)renderHeight;
+
+        int pixelSizeWidth = Mathf.RoundToInt(sizeWidth);
+        int pixelSizeHeight = Mathf.RoundToInt(sizeHeight);
+
+        remainderWidth = screenWidth - renderWidth * pixelSizeWidth;
+        remainderHeight = screenHeight - renderHeight * pixelSizeHeight;
+
+        Debug.Log(
+            $"Given a screen resolution of {screenWidth}x{screenHeight} with a target resolution of {targetWidth}x{targetHeight}.\n" +
+            $"Found resolution {bestAspect.Key}x{bestAspect.Value} by making each rendered pixel represent {pixelSizeWidth}x{pixelSizeHeight} pixels on screen.\n" +
+            $"With {remainderWidth}x{remainderHeight} screen pixels as remainders"
+        );
+
+        return true;
     }
 
     [SerializeField] private Vector3 cameraRotationInit = new Vector3(30f, 0f, 0f);
@@ -122,6 +204,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
     [SerializeField] private DayNightCycle dayNightCycle;
     [SerializeField] private CloudShadows sunCloudShadows;
     [SerializeField] private CloudShadows moonCloudShadows;
+
+    private NormalsReplacementShader cameraNormal;
 
     private static float _zoom = 0.5f;
     public static float zoom
@@ -160,8 +244,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
 
         // Translate offset.xy to render texture uv cordinates.
         float toPositive = (unitsPerPixelCamera * 0.5f) / zoom;
-        float xDivider = pixelsPerUnit / width * zoom;
-        float yDivider = pixelsPerUnit / height * zoom;
+        float xDivider = pixelsPerUnit / renderWidthExtended * zoom;
+        float yDivider = pixelsPerUnit / renderHeightExtended * zoom;
         Vector2 cameraOffset = new Vector2((-offset.x + toPositive) * xDivider + cameraScaleWidthOffset, (-offset.y + toPositive) * yDivider + cameraScaleHeightOffset);
 
         return cameraOffset;
@@ -196,9 +280,14 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         {
             Debug.Log("Debug mode");
         }
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
 #endif
 
-        Screen.SetResolution(512, 288, true);
+        CalculateResolution();
 
         Shader.SetGlobalFloat("pixelsPerUnit", pixelsPerUnit);
         Shader.SetGlobalFloat("yScale", SpriteInitializer.yScale);
@@ -219,10 +308,11 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         }
 #endif
 
-        planarReflectionManager = GameObjectFunctions.GetComponentFromGameObjectName<PlanarReflectionManager>("ReflectionCamera");
-        //dayNightCycle = GameObjectFunctions.GetComponentFromGameObjectName<DayNightCycle>("DayNightCycle");
+        planarReflectionManager = GameObject.FindObjectOfType<PlanarReflectionManager>();
+        dayNightCycle = GameObject.FindObjectOfType<DayNightCycle>();
+        cameraNormal = GameObject.FindObjectOfType<NormalsReplacementShader>();
 
-        CalculateResolution();
+        SetResolution();
     }
 
     private void UpdateZoomValues(float scrollOffset = 0f)
@@ -246,21 +336,22 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         _cameraFarClippingPlane = cameraFarClippingPlane / zoom;
         QualitySettings.shadowDistance = shadowDistance / zoom;
     }
+
     private void ZoomCamera(ref Camera camera, float farClipPlaneFactor = 1f)
     {
-        camera.orthographicSize = (heightExtended / (5f * 2f)) / zoom;
+        camera.orthographicSize = (renderHeightExtended / (pixelsPerUnit * 2f)) / zoom;
         camera.farClipPlane = _cameraFarClippingPlane * farClipPlaneFactor;
     }
 
     private void Update()
     {
+        SetResolution();
+        UpdateZoomValues(Mathf.NegativeInfinity);
+
         if (GameTime.isPaused)
         {
             return;
         }
-
-        CalculateResolution();
-        UpdateZoomValues(Mathf.NegativeInfinity);
     }
 
     private void LateUpdate()
@@ -291,8 +382,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         SetCameraNearClippingPlane();
 
         // Create rays for bottom corners of the camera
-        Ray botRightRay = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
-        Ray botLeftRay = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+        Ray botRightRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray botLeftRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(0, 0, 0));
         
         // Move camera after main camera
         planarReflectionManager.ConstructMatrix4X4Ortho(botRightRay, botLeftRay, 2f * mCamera.orthographicSize, transform.rotation * Quaternion.Euler(-60f, 0f, 0f));
@@ -304,13 +395,13 @@ public class PixelPerfectCameraRotation : MonoBehaviour
             return;
         }
 #endif
-        dayNightCycle.UpdatePos();
+        //dayNightCycle.UpdatePos();
     }
 
     public static Vector3 CameraRayHitPlane(float x = 0.5f, float y = 0.5f)
     {
         Plane plane = new Plane(Vector3.up, 0f);
-        Ray cameraRay = Camera.main.ViewportPointToRay(new Vector3(x, y, 0));
+        Ray cameraRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(x, y, 0));
 
         float distance;
         plane.Raycast(cameraRay, out distance);
@@ -355,13 +446,47 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         return false;
     }
 
+    private static void SetScreenAspect(ref Camera camera)
+    {
+        if (camera == null)
+            return;
+
+        camera.aspect = (float)screenWidth / (float)screenHeight;
+        camera.orthographicSize = ((float)screenHeight / (pixelsPerUnit * 2f));
+    }
+
+    private static void SetRenderTextureAspect(ref Camera camera)
+    {
+        if (camera == null)
+            return;
+
+        camera.aspect = (float)renderWidthExtended / (float)renderHeightExtended;
+        camera.orthographicSize = ((float)renderHeightExtended / (pixelsPerUnit * 2f));
+    }
+
+    private void OnPreCull()
+    {
+        //SetRenderTextureAspect(ref mCamera);
+    }
+
     /// <summary>
     /// Before render set camera render texture to temporary low res render texture. Bigger than actuall resolution to account for border pixel stretch.
     /// </summary>
     private void OnPreRender()
     {
-        rt = RenderTexture.GetTemporary(widthExtended, heightExtended, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+        rt = RenderTexture.GetTemporary(renderWidthExtended, renderHeightExtended, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
         mCamera.targetTexture = rt;
+    }
+
+    /// <summary>
+    /// After render clear camera render texture.
+    /// </summary>
+    private void OnPostRender()
+    {
+        mCamera.targetTexture = null;
+        RenderTexture.active = null;
+
+        //SetTrueAspect(ref mCamera);
     }
 
     /// <summary>
@@ -372,18 +497,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         src.filterMode = FilterMode.Point;
 
         Graphics.Blit(src, dest, new Vector2(cameraScaleWidth, cameraScaleHeight), cameraOffset);
-        //Graphics.Blit(src, dest, cameraScale, Vector2.zero);
 
         RenderTexture.ReleaseTemporary(rt);
-    }
-
-    /// <summary>
-    /// After render clear camera render texture.
-    /// </summary>
-    private void OnPostRender()
-    {
-        mCamera.targetTexture = null;
-        RenderTexture.active = null;
     }
 
 #if UNITY_EDITOR
@@ -393,8 +508,8 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         Plane plane = new Plane(Vector3.up, -Water.waterLevel);
 
         // Create rays for bottom corners of the camera
-        Ray botRightRay = Camera.main.ViewportPointToRay(new Vector3(1, 0, 0));
-        Ray botLeftRay = Camera.main.ViewportPointToRay(new Vector3(0, 0, 0));
+        Ray botRightRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(1, 0, 0));
+        Ray botLeftRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(0, 0, 0));
 
         // Assign floats of ray distance for bottom corners
         float botRightDistance;

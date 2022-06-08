@@ -6,7 +6,7 @@ using UnityEngine;
 /// Defines a singular layer of noise.
 /// Mainly from FastNoiseLite but also added functionality.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "Noise/Noise", order = 1)]
 [System.Serializable]
 public class NoiseSettings : ScriptableObject
 {

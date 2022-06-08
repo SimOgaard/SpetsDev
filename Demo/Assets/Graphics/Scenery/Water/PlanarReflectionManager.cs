@@ -18,7 +18,7 @@ public class PlanarReflectionManager : MonoBehaviour
     {
         Vector4 clipPlaneWorldSpace = new Vector4(0f, 1f, 0f, -Water.waterLevel);
         Vector4 clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(reflectionCamera.worldToCameraMatrix)) * clipPlaneWorldSpace;
-        reflectionCamera.projectionMatrix = Camera.main.CalculateObliqueMatrix(clipPlaneCameraSpace);
+        reflectionCamera.projectionMatrix = MainCamera.mCamera.CalculateObliqueMatrix(clipPlaneCameraSpace);
     }
   
     public void ConstructMatrix4X4Ortho(Ray botRightRay, Ray botLeftRay, float cameraOrthographicHeight, Quaternion cameraRotation)
@@ -63,7 +63,7 @@ public class PlanarReflectionManager : MonoBehaviour
             reflectionCamera.targetTexture.Release();
         }
 
-        RenderTexture renderTextureTarget = new RenderTexture(PixelPerfectCameraRotation.widthExtended, PixelPerfectCameraRotation.heightExtended, 24, RenderTextureFormat.Default);
+        RenderTexture renderTextureTarget = new RenderTexture(PixelPerfectCameraRotation.renderWidthExtended, PixelPerfectCameraRotation.renderHeightExtended, 24, RenderTextureFormat.Default);
         renderTextureTarget.filterMode = FilterMode.Point;
         Shader.SetGlobalTexture("_WaterReflectionTexture", renderTextureTarget);
         reflectionCamera.targetTexture = renderTextureTarget;

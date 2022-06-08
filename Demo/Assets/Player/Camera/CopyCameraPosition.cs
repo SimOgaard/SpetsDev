@@ -9,7 +9,7 @@ public class CopyCameraPosition : MonoBehaviour
 
     private void Start()
     {
-        cameraToCopy = Camera.main;
+        cameraToCopy = MainCamera.mCamera;
         thisCamera = GetComponent<Camera>();
     }
 

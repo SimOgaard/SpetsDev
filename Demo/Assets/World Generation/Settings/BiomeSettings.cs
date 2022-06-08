@@ -10,7 +10,7 @@ using UnityEngine;
 /// What the ground should look like.
 /// How the water should look.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Biome/Biome", order = 10)]
 [System.Serializable]
 public class BiomeSettings : ScriptableObject
 {

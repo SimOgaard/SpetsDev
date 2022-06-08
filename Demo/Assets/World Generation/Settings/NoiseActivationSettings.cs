@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "Noise/NoiseActivation", order = 2)]
 [System.Serializable]
 public class NoiseActivationSettings : ScriptableObject
 {

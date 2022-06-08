@@ -18,12 +18,12 @@ public class MousePoint : MonoBehaviour
         inputMousePositionRaw.x *= widthScale;
         inputMousePositionRaw.y *= heightScale;
 
-        return new Vector3(inputMousePositionRaw.x * PixelPerfectCameraRotation.cameraScaleWidth, inputMousePositionRaw.y * PixelPerfectCameraRotation.cameraScaleHeight, 0f);
+        return new Vector3(inputMousePositionRaw.x * PixelPerfect.cameraScaleWidth, inputMousePositionRaw.y * PixelPerfect.cameraScaleHeight, 0f);
     }
 
     public static Vector3 WorldToViewportPoint(Vector3 point)
     {
-        return Camera.main.WorldToViewportPoint(point);
+        return MainCamera.mCamera.WorldToViewportPoint(point);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class MousePoint : MonoBehaviour
     {
         float distance;
         Plane plane = new Plane(Vector3.up, planePos);
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         plane.Raycast(ray, out distance);
         return ray.GetPoint(distance);
     }
@@ -68,7 +68,7 @@ public class MousePoint : MonoBehaviour
     {
         float distance;
         Plane plane = new Plane(Vector3.up, Global.playerTransform.position + new Vector3(0f, playerOffsetToGround, 0f));
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition(widthScale, heightScale));
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition(widthScale, heightScale));
         plane.Raycast(ray, out distance);
         return ray.GetPoint(distance) - new Vector3(0f, playerOffsetToGround, 0f);
     }
@@ -80,7 +80,7 @@ public class MousePoint : MonoBehaviour
     {
         float distance;
         Plane plane = new Plane(Vector3.up, -Water.waterLevel);
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         plane.Raycast(ray, out distance);
         return ray.GetPoint(distance);
     }
@@ -90,12 +90,12 @@ public class MousePoint : MonoBehaviour
     /// </summary>
     public static Vector3 MousePosition()
     {
-        return Camera.main.ScreenToWorldPoint(GetInputMousePosition());
+        return MainCamera.mCamera.ScreenToWorldPoint(GetInputMousePosition());
     }
 
     public static Rigidbody MouseHitRigidbody()
     {
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         hits = Physics.RaycastAll(ray, 250f);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
@@ -125,7 +125,7 @@ public class MousePoint : MonoBehaviour
             return exactRigidbody;
         }
 
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         hits = Physics.SphereCastAll(ray, sphereCastRadius, 250f);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
@@ -152,7 +152,7 @@ public class MousePoint : MonoBehaviour
     /// </summary>
     public static Vector3 MousePositionWorld()
     {
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground))
         {
             return hitData.point;
@@ -165,7 +165,7 @@ public class MousePoint : MonoBehaviour
     /// </summary>
     public static Vector3 MousePositionWorldAndEnemy()
     {
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground | (1 << Layer.enemy)))
         {
             return hitData.point;
@@ -178,7 +178,7 @@ public class MousePoint : MonoBehaviour
     /// </summary>
     public static Vector3 MousePositionWorldAndEnemyMid()
     {
-        ray = Camera.main.ScreenPointToRay(GetInputMousePosition());
+        ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
         if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground | (1 << Layer.enemy)))
         {
             if (Layer.IsInLayer(Layer.enemy, hitData.collider.gameObject.layer))

@@ -4,6 +4,33 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
+for some reason pixel perfect camera only works with extended resolution 
+pixel perfect camera make PlanarReflectionManager, RenderReplacementShaderToTexture, NormalsReplacementShader and cloud resolution update with screen resolution
+
+any shader like water reflection that has a displacement of uv coordinates given screen coordinates are not scalable. meaning if we have a different resolution they render differently. each resolution should have the same amount of pixels that are displaced. 
+
+really high aspect ratios needs to have smaller pixels
+since its tafget pixel dencity is higher
+
+move all shader projections pixel perfectly, ie shadows and water noise
+
+before render snap all objects to pixel perfect grid
+
+Imagine if you could lerp between two target resolutions, and in doing so ofcourse change the zoom:
+    private static float _zoom = 0.0f;
+    /// <summary>
+    /// Lerp value that controlls targetWidth and targetHeight 
+    /// </summary>
+    public static float zoom
+    {
+        get { return _zoom; }
+        set { _zoom = Mathf.Clamp01(value); }
+    }
+Maybe this is used in towers when you are far above ground level. Or when channeling at a camp so you could move the camera far away from the player but it allso zoomed out so you could see and scout even more.
+If you wanted to keep the resolution-ish you could create two of each texture, for example smaller grass or interact texture
+
+you sit on the start randomly generated biome with the camera moved to a random location, the camera is static, but you can change the settings and see them beeing applied in real time.
+
 if you do worldgenerationmanager.regenerate in editor update all material properties to the right values
 
 get multiple static meshes to work for a singular biome
@@ -23,7 +50,7 @@ Each triangle for each chunk should be evaluated to be a biome based on noise, w
 
 noise for biome can have the same noise for two biomes but one have larger falloff (cubed) or specified value threshold so that  
 
-instead of color gradient beeing a texture, create a class that is a list of colors and convert it to a texture and pass to material
+instead of color gradient beeing a texture, create a class that is a list of a list of colors and convert it to a texture and pass to material, list of list of colors because we want the option to make it a 2D texture with night day that gets lerped between in shader, make the texture clamped so that if it is only a 1D image you lerp between the two same colors. The class should also hold curve functionality. And in inspector display a texture that is a example.
 
 We need more than one pixel on each side since we distort water reflection image a lot, also if we want to add quarts/crystals/glass that offsets pixels by min(maxOffset, offsetAmplitude * distanceToGround)
 
@@ -41,13 +68,17 @@ dictionary<int, triangle> vs itterating the whole array
 CreatePlaneJob should create a mesh that have no overlapping vertices
 Since this mesh is constant throughout the whole game, we should be able to remove a triangle 
 
+falling quads rotated twords camera that follows a static leaf falling animation depending on that world position wind and vertex offset using wind as well, when hitting a tree or when a tree is falling/chopped down
+
+deligates on specific triangles that give items or buffs when walked over, maybe the watery lands has speed flowers, poisioned swamp has posion resistance
+
 how does constant buffers work, or how do i definy a structuredbuffer of lenth 1 ie just a struct
 
 are draw calls added if there are no triangles in submesh for that material?
 
 distance field slimes with traingle change that paints triangles slime color
 
-to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames
+to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames also make you able to build stuff
 
 * Triangles of type x after deletion and addition of same type x gets turnt upside down. So if i delete 100 grass and 10 flower, then go from nothing to flower 10 flowers will be upside down:
 

@@ -164,7 +164,7 @@ public class WorldGenerationManager : MonoBehaviour
                 float r = radius(k, n, b);
                 float theta = 2 * Mathf.PI * k / Mathf.Pow(phi, 2);
 
-                LoadNearestChunk(PixelPerfectCameraRotation.CameraRayHitPlane() + new Vector3(r * Mathf.Cos(theta), 0f, r * Mathf.Sin(theta)));
+                LoadNearestChunk(MainCamera.CameraRayHitPlane() + new Vector3(r * Mathf.Cos(theta), 0f, r * Mathf.Sin(theta)));
             }
         }
 
@@ -315,7 +315,7 @@ public class WorldGenerationManager : MonoBehaviour
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
             chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - PixelPerfectCameraRotation.CameraRayHitPlane()).magnitude < Ground.chunkEnableDistance / PixelPerfectCameraRotation.zoom)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - MainCamera.CameraRayHitPlane()).magnitude < Ground.chunkEnableDistance)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

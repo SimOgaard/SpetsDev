@@ -42,7 +42,7 @@ public class Chest : Interactable
         void SpawnChestItem()
         {
             float rotation = 90f;
-            Vector3 forward = -Camera.main.transform.forward;
+            Vector3 forward = -MainCamera.mCamera.transform.forward;
             forward.y = 0f;
 
             if (chestEquipment != null)

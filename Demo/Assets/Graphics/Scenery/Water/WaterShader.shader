@@ -96,6 +96,8 @@
 
 			float _WaterColOffset;
 
+			float2 renderResolution;
+
 			float remap01(float v) {
 				return saturate((v + 1) * 0.5);
 			}
@@ -146,8 +148,7 @@
 				float3 worldPosTime = worldPos + _Time[0] * float3(17.5, 12.5, 17.5);
 				float3 worldPosWarped = GetWarpValue(worldPosTime);
 				float3 worldPosWarpedOffsetOnly = worldPosWarped - worldPosTime;
-				float2 px = float2(480, 270);
-				float2 worldPosWarpedOffsetOnlyPixelPerfect = round(px * worldPosWarpedOffsetOnly.xz) / px;
+				float2 worldPosWarpedOffsetOnlyPixelPerfect = round(renderResolution * worldPosWarpedOffsetOnly.xz) / renderResolution;
 				float2 screen_uv = i.screenPosition.xy;
 				float2 screen_uv_distort = screen_uv + worldPosWarpedOffsetOnlyPixelPerfect;
 				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + worldPosWarpedOffsetOnlyPixelPerfect;

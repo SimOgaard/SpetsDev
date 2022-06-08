@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Extension of UnityEngine.Material that adds dynamic texture curves for high customizable cartoon/shading etc
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "Material/Material", order = 1)]
 [System.Serializable]
 public class MaterialSettings : ScriptableObject
 {

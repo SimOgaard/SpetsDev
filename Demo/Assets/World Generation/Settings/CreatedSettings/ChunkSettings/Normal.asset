@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkSize: {x: 100, y: 100}
   quadAmount: {x: 61, y: 61}
-  chunkLoadDist: 300
-  chunkDisableDistance: 250
-  chunkEnableDistance: 200
+  chunkLoadDist: 350
+  chunkDisableDistance: 300
+  chunkEnableDistance: 250
   prefabSpawnSpeed: 1
   maxChunkLoadAtATimeInit: 81
   maxChunkLoadAtATime: 3

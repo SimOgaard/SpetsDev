@@ -30,7 +30,12 @@ public class DayNightCycle : MonoBehaviour
         return new Vector3(numerator.x / denominator.x, numerator.y / denominator.y, numerator.z / denominator.z);
     }
 
-    public void UpdatePos()
+    private void LateUpdate()
+    {
+        UpdatePos();
+    }
+
+    private void UpdatePos()
     {
         currentRotationEuler += dayNightCycleSettings.rotationSpeed * Time.deltaTime;
         if (dayNightCycleSettings.rotationSnap != Vector3.zero)

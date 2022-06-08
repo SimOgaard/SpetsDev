@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines all possible dynamic triangles over ground mesh.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Biome/Foliage", order = 30)]
 [System.Serializable]
 public class FoliageSettings : ScriptableObject
 {

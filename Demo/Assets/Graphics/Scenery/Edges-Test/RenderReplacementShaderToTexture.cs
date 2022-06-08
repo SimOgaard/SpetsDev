@@ -34,7 +34,7 @@ public class RenderReplacementShaderToTexture : MonoBehaviour
         Camera thisCamera = GetComponent<Camera>();
 
         // Create a render texture matching the main camera's current dimensions.
-        renderTexture = new RenderTexture(PixelPerfectCameraRotation.widthExtended, PixelPerfectCameraRotation.heightExtended, renderTextureDepth, renderTextureFormat);
+        renderTexture = new RenderTexture(PixelPerfectCameraRotation.renderWidthExtended, PixelPerfectCameraRotation.renderHeightExtended, renderTextureDepth, renderTextureFormat);
         renderTexture.filterMode = filterMode;
         // Surface the render texture as a global variable, available to all shaders.
         Shader.SetGlobalTexture(targetTexture, renderTexture);

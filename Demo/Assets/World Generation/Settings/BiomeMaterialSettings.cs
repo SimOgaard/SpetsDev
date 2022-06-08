@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines all materials for a given biome.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Biome/BiomeMaterial", order = 20)]
 [System.Serializable]
 public class BiomeMaterialSettings : ScriptableObject
 {

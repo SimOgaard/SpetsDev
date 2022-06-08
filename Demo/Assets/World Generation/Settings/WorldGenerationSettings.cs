@@ -7,7 +7,7 @@ using UnityEngine;
 /// Multiple selective biomes and where they should spawn.
 /// Defines chunks and start spawn area.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/WorldGeneration", order = 0)]
 [System.Serializable]
 public class WorldGenerationSettings : ScriptableObject
 {

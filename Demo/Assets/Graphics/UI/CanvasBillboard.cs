@@ -7,9 +7,9 @@ public class CanvasBillboard : MonoBehaviour
     private Camera mainCamera;
     private void Start()
     {
-        mainCamera = Camera.main;
+        mainCamera = MainCamera.mCamera;
 
-        float oneDiv = 1f / PixelPerfectCameraRotation.pixelsPerUnit;
+        float oneDiv = 1f / PixelPerfect.pixelsPerUnit;
         transform.localScale = new Vector3(oneDiv / transform.lossyScale.x, oneDiv * SpriteInitializer.yScale / transform.lossyScale.y, oneDiv / transform.lossyScale.z);
     }
 

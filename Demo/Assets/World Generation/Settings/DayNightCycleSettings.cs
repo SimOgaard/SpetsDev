@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// How the day night cylcle should be defined
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Climate/DayNightCycle", order = 10)]
 [System.Serializable]
 public class DayNightCycleSettings : ScriptableObject
 {

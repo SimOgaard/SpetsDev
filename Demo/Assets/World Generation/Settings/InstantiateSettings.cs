@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Defines how a singular game object should spawn.
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Instanciate/Instanciate", order = 2)]
 [System.Serializable]
 public class InstantiateSettings : ScriptableObject
 {

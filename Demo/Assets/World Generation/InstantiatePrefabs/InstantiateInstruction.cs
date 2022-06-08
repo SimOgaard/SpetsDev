@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu]
+[CreateAssetMenu(menuName = "WorldGeneration/Instanciate/InstanciateInstructions", order = 1)]
+[System.Serializable]
 public class InstantiateInstruction : ScriptableObject
 {
     public enum SharedXYZ { none, xy, xz, yz, xyz }

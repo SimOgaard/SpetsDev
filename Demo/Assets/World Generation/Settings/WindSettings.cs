@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Controlls the global wind
 /// </summary>
-[CreateAssetMenu()]
+[CreateAssetMenu(menuName = "WorldGeneration/Climate/Wind", order = 30)]
 [System.Serializable]
 public class WindSettings : ScriptableObject
 {
