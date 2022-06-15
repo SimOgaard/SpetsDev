@@ -4,9 +4,6 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
-for some reason pixel perfect camera only works with extended resolution 
-pixel perfect camera make PlanarReflectionManager, RenderReplacementShaderToTexture, NormalsReplacementShader and cloud resolution update with screen resolution
-
 any shader like water reflection that has a displacement of uv coordinates given screen coordinates are not scalable. meaning if we have a different resolution they render differently. each resolution should have the same amount of pixels that are displaced. 
 
 really high aspect ratios needs to have smaller pixels
@@ -30,6 +27,8 @@ Maybe this is used in towers when you are far above ground level. Or when channe
 If you wanted to keep the resolution-ish you could create two of each texture, for example smaller grass or interact texture
 
 you sit on the start randomly generated biome with the camera moved to a random location, the camera is static, but you can change the settings and see them beeing applied in real time.
+
+there should only be one of each biome, which is chosen at the start of the game. (for each biome choose next closest midpoint on cellular noise as the biome position, when all biomes are used, all other cells become end of world biome)
 
 if you do worldgenerationmanager.regenerate in editor update all material properties to the right values
 

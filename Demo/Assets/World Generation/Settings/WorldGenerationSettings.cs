@@ -57,6 +57,9 @@ public class WorldGenerationSettings : ScriptableObject
     /// </summary>
     public void Update()
     {
+        // make shure nothing is left
+        Destroy();
+
         chunkSettings.Update();
 
         dayNightCycleSettings.Update();

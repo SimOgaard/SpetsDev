@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class CurveCreator : MonoBehaviour
 {
     [SerializeField] private NoiseLayerSettings.Curve curve;

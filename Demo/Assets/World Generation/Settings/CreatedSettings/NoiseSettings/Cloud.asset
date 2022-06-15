@@ -24,7 +24,7 @@ MonoBehaviour:
     noiseType: 0
     rotationType3D: 0
     seed: 1337
-    frequency: 0.02
+    frequency: 1
   fractal:
     fractalType: 0
     octaves: 1

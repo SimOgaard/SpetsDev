@@ -47,7 +47,7 @@
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
-// [branch] switch between using floats or doubles for input position
+// switch between using floats or doubles for input position
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
@@ -297,7 +297,7 @@ void SmoothMax(fnl_state noise_state, inout FNLfloat a)
     a = a * h + noise_state.min_value * (1.0f - h) - k * h * (1.0f - h);
 }
 // extended fastnoise lite function that samples noise_state at x,z
-FNLfloat SampleNoise2D(fnl_state noise_state, FNLfloat x, FNLfloat z)
+float SampleNoise2D(fnl_state noise_state, FNLfloat x, FNLfloat z)
 { 
     // sample noise
     FNLfloat noiseValue = noise_state.invert ? -fnlGetNoise2D(noise_state, x, z) : fnlGetNoise2D(noise_state, x, z);
@@ -308,7 +308,7 @@ FNLfloat SampleNoise2D(fnl_state noise_state, FNLfloat x, FNLfloat z)
     return noiseValue * noise_state.amplitude;
 }
 // extended fastnoise lite function that samples noise_state at x,y,z
-FNLfloat SampleNoise3D(fnl_state noise_state, FNLfloat x, FNLfloat y, FNLfloat z)
+float SampleNoise3D(fnl_state noise_state, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     // sample noise
     FNLfloat noiseValue = noise_state.invert ? -fnlGetNoise3D(noise_state, x, y, z) : fnlGetNoise3D(noise_state, x, y, z);
@@ -319,7 +319,7 @@ FNLfloat SampleNoise3D(fnl_state noise_state, FNLfloat x, FNLfloat y, FNLfloat z
     return noiseValue * noise_state.amplitude;
 }
 // extended fastnoise lite function that remaps noisevalue from -1-1 to 0-1
-FNLfloat remap01(FNLfloat v, fnl_state noise_state)
+float remap01(FNLfloat v, fnl_state noise_state)
 {
 	return saturate((v + noise_state.amplitude) * 0.5f);
 }
@@ -626,7 +626,7 @@ static float _fnlSingleValue3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 
 static float _fnlGenNoiseSingle2D(fnl_state state, int seed, FNLfloat x, FNLfloat y)
 {
-    [branch] switch (state.noise_type)
+    switch (state.noise_type)
     {
     case FNL_NOISE_OPENSIMPLEX2:
         return _fnlSingleSimplex2D(seed, x, y);
@@ -647,7 +647,7 @@ static float _fnlGenNoiseSingle2D(fnl_state state, int seed, FNLfloat x, FNLfloa
 
 static float _fnlGenNoiseSingle3D(fnl_state state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
 {
-    [branch] switch (state.noise_type)
+    switch (state.noise_type)
     {
     case FNL_NOISE_OPENSIMPLEX2:
         return _fnlSingleOpenSimplex23D(seed, x, y, z);
@@ -673,7 +673,7 @@ static void _fnlTransformNoiseCoordinate2D(fnl_state state, inout FNLfloat x, in
     x *= state.frequency;
     y *= state.frequency;
 
-    [branch] switch (state.noise_type)
+    switch (state.noise_type)
     {
     case FNL_NOISE_OPENSIMPLEX2:
     case FNL_NOISE_OPENSIMPLEX2S:
@@ -696,7 +696,7 @@ static void _fnlTransformNoiseCoordinate3D(fnl_state state, inout FNLfloat x, in
     y *= state.frequency;
     z *= state.frequency;
 
-    [branch] switch (state.rotation_type_3d)
+    switch (state.rotation_type_3d)
     {
     case FNL_ROTATION_IMPROVE_XY_PLANES:
     {
@@ -719,7 +719,7 @@ static void _fnlTransformNoiseCoordinate3D(fnl_state state, inout FNLfloat x, in
     }
     break;
     default:
-        [branch] switch (state.noise_type)
+        switch (state.noise_type)
         {
         case FNL_NOISE_OPENSIMPLEX2:
         case FNL_NOISE_OPENSIMPLEX2S:
@@ -742,7 +742,7 @@ static void _fnlTransformNoiseCoordinate3D(fnl_state state, inout FNLfloat x, in
 
 static void _fnlTransformDomainWarpCoordinate2D(fnl_state state, inout FNLfloat x, inout FNLfloat y)
 {
-    [branch] switch (state.domain_warp_type)
+    switch (state.domain_warp_type)
     {
     case FNL_DOMAIN_WARP_OPENSIMPLEX2:
     case FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
@@ -761,7 +761,7 @@ static void _fnlTransformDomainWarpCoordinate2D(fnl_state state, inout FNLfloat 
 
 static void _fnlTransformDomainWarpCoordinate3D(fnl_state state, inout FNLfloat x, inout FNLfloat y, inout FNLfloat z)
 {
-    [branch] switch (state.rotation_type_3d)
+    switch (state.rotation_type_3d)
     {
     case FNL_ROTATION_IMPROVE_XY_PLANES:
     {
@@ -784,7 +784,7 @@ static void _fnlTransformDomainWarpCoordinate3D(fnl_state state, inout FNLfloat 
     }
     break;
     default:
-        [branch] switch (state.domain_warp_type)
+        switch (state.domain_warp_type)
         {
         case FNL_DOMAIN_WARP_OPENSIMPLEX2:
         case FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
@@ -1476,7 +1476,7 @@ static float _fnlSingleCellular2D(fnl_state state, int seed, FNLfloat x, FNLfloa
             distance1 = _fnlFastSqrt(distance1);
     }
 
-    [branch] switch (state.cellular_return_type)
+    switch (state.cellular_return_type)
     {
     case FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
         return closestHash * (1 / 2147483648.0f);
@@ -1631,7 +1631,7 @@ static float _fnlSingleCellular3D(fnl_state state, int seed, FNLfloat x, FNLfloa
             distance1 = _fnlFastSqrt(distance1);
     }
 
-    [branch] switch (state.cellular_return_type)
+    switch (state.cellular_return_type)
     {
     case FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
         return closestHash * (1 / 2147483648.0f);

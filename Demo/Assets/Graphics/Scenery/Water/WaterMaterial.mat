@@ -2,14 +2,15 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: WaterMaterial
   m_Shader: {fileID: 4800000, guid: 9fc156b04da50c542bcf510248aed621, type: 3}
-  m_ShaderKeywords: 
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -83,6 +84,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: 1
     - _BumpScale: 1
@@ -92,8 +94,8 @@ Material:
     - _DepthMediumDistance: 0.75
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _FoamMaxDistance: 2
-    - _FoamMinDistance: 0.25
+    - _FoamMaxDistance: 1.75
+    - _FoamMinDistance: 0.225
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -105,11 +107,11 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SurfaceDistortionAmount: 1
-    - _SurfaceNoiseCutoff: 1
+    - _SurfaceNoiseCutoff: 0.775
     - _TEST: 0
     - _UVSec: 0
     - _WaterHeight: 7
-    - _WaterReflectionAmount: 0.5
+    - _WaterReflectionAmount: 0.575
     - _WaterRefractionAmplitude: 3.66
     - _ZWrite: 1
     m_Colors:
@@ -118,7 +120,7 @@ Material:
     - _DepthGradientMedium: {r: 0, g: 0.6666665, b: 1, a: 0.54901963}
     - _DepthGradientShallow: {r: 0, g: 1, b: 1, a: 0.34901962}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FoamColor: {r: 0.8627451, g: 1, b: 1, a: 0.78431374}
     - _SurfaceNoiseScroll: {r: 0.03, g: 0.01, b: 0, a: 0}
     - _UnderWaterDistortAmount: {r: 0.03, g: 0, b: 0, a: 0}
     - _UnderWaterDistortSpeed: {r: 0.03, g: 0.01, b: 0, a: 0}

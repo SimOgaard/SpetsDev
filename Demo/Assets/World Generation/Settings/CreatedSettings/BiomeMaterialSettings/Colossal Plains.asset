@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   biomeMaterial:
     materialSettings: {fileID: 11400000, guid: 82c777531c7b0444184ffe3e805323a5, type: 2}
-    biomeFoliages: []
+    biomeFoliages:
+    - {fileID: 11400000, guid: 1ed5241fcd6f3bf4c84dadeeea006aaf, type: 2}
   biomeMaterialsCondition:
   - biomeMaterial: {fileID: 11400000, guid: ee050922d0401df4a9edb9df0f343ae5, type: 2}
     biomeFoliages:

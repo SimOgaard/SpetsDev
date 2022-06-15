@@ -97,23 +97,29 @@
 			float _WaterColOffset;
 
 			float2 renderResolution;
+			float2 renderResolutionExtended;
 
-			float remap01(float v) {
+			float pixelsPerUnit;
+			float pixelsPerUnit3;
+			float unitsPerPixelWorld;
+
+			float remap01(float v)
+			{
 				return saturate((v + 1) * 0.5);
 			}
 
 			float3 GetWarpValue(float3 worldPos)
 			{
-				fnl_state warp = fnlCreateState();
-				warp.domain_warp_type = 1; //_Warp_DomainWarpType;
+				fnl_state warp = fnlCreateState(1337); //_Noise_Seed;
+				warp.domain_warp_type = 0; //_Warp_DomainWarpType;
 				warp.rotation_type_3d = 2; //_Warp_RotationType3D;
-				warp.domain_warp_amp = 0.01; //_Warp_DomainWarpAmplitude;
-				warp.frequency = 0.4; //_Warp_Frequency;
+				warp.domain_warp_amp = 10; //_Warp_DomainWarpAmplitude;
+				warp.frequency = 0.3; //_Warp_Frequency;
 
-				warp.fractal_type = 0; //_Warp_FractalType;
-				warp.octaves = 0; //_Warp_FractalOctaves;
-				warp.lacunarity = 0.0; //_Warp_FractalLacunarity;
-				warp.gain = 0.0; //_Warp_FractalGain;
+				warp.fractal_type = 4; //_Warp_FractalType;
+				warp.octaves = 3; //_Warp_FractalOctaves;
+				warp.lacunarity = 0.5; //_Warp_FractalLacunarity;
+				warp.gain = 2.0; //_Warp_FractalGain;
 
 				fnlDomainWarp3D(warp, worldPos.x, worldPos.y, worldPos.z);
 				return worldPos;
@@ -121,8 +127,7 @@
 
 			float GetNoiseValue(float3 worldPos)
 			{
-				fnl_state noise = fnlCreateState();
-				noise.seed = 1337; //_Noise_Seed;
+				fnl_state noise = fnlCreateState(1337); //_Noise_Seed;
 				noise.frequency = 0.15; //_Noise_Frequency;
 				noise.noise_type = 1; //_Noise_NoiseType;
 				noise.rotation_type_3d = 2; //_Noise_RotationType3D;
@@ -143,25 +148,50 @@
 
             float4 frag (v2f i) : SV_Target
             {
-				// Get all positions neccesary
-				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.35, 0.75, 0.75);
-				float3 worldPosTime = worldPos + _Time[0] * float3(17.5, 12.5, 17.5);
-				float3 worldPosWarped = GetWarpValue(worldPosTime);
-				float3 worldPosWarpedOffsetOnly = worldPosWarped - worldPosTime;
-				float2 worldPosWarpedOffsetOnlyPixelPerfect = round(renderResolution * worldPosWarpedOffsetOnly.xz) / renderResolution;
-				float2 screen_uv = i.screenPosition.xy;
-				float2 screen_uv_distort = screen_uv + worldPosWarpedOffsetOnlyPixelPerfect;
-				float2 screen_uv_reflection = float2(screen_uv.x, 1-screen_uv.y) + worldPosWarpedOffsetOnlyPixelPerfect;
+				// For pixel perfect reasons to remove jitter as much as possible
+				// we need to snap world position AND time to grid seperately!
+				// OBS! worldPos gets snapped in transform since it is a flat plain
 
-				// Retrieve depth value to shader plane.
-				float orthoPlainLinearDepth = 1 - i.screenPosition.z;
-				// Recast to unity units.
-				float orthoPlainDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoPlainLinearDepth);
+				// grab pixel world position and offset it so that any global position changes doenst break the shader
+				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.35, 0.75, 0.75); // noise stretch
+
+				// grab current noise offset by time
+				float3 time = _Time[1] * float3(1.25, 1.75, 1.25); // noise scroll
+				// snap time to grid
+				time = round(time * pixelsPerUnit3) / pixelsPerUnit3;
+
+				// create a current worldPos that has time and worldPos
+				float3 currentWorldPos = worldPos + time;
+				// now we can use this value without worrying about jitter :)
+
+				// beggining with warping the value
+				float3 currentWorldPosWarped = GetWarpValue(currentWorldPos);
+
+				// get the warped value
+				float3 warpValue = currentWorldPosWarped - currentWorldPos;
+				
+				// now translate that warped value to screen
+				float2 warpUV = warpValue.xz / renderResolutionExtended;
+				// and round it to pixel perfect
+				warpUV = round(warpUV * renderResolutionExtended) / renderResolutionExtended;
+
+				// get all screen uvs neccesary
+				float2 screenUV = i.screenPosition.xy;
+				float2 reflectionUV = float2(screenUV.x, 1.0-screenUV.y);
+
+				// and apply the warpeduv
+				float2 screenUVWarped = saturate(screenUV + warpUV);
+				float2 reflectionUVWarped = saturate(reflectionUV + warpUV);
+
+				//return float4(screenUVWarped, 0, 1);
+
+				// Retrieve depth value to shader plane of current pixel. And recast to unity units.
+				float orthoPlainDepth = lerp(_ProjectionParams.z, _ProjectionParams.y, i.screenPosition.z);
 
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
-				float rawDepth = tex2D(_CameraDepthTexture, screen_uv).r;
+				float rawDepth = tex2D(_CameraDepthTexture, screenUV).r;
 				// Flip orthographic projection.
-				float orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
+				float orthoLinearDepth = _ProjectionParams.x > 0.0 ? rawDepth : 1.0 - rawDepth;
 				// Recast surface 01-linear depth value to unity units.
 				float orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
 				// Water depth for current pixel in unity units.
@@ -169,37 +199,42 @@
 				// Depth scaled to our need
 				float depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
 
-				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
-				rawDepth = tex2D(_CameraDepthTexture, screen_uv_distort).r;
-				// Flip orthographic projection.
-				orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
-				// Recast surface 01-linear depth value to unity units.
-				orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
-				// Water depth for current pixel in unity units.
-				float depthDifferenceDistort = (orthoEyeDepth - orthoPlainDepth);
-				// Depth scaled to our need
-				float depthDifferenceDistort01 = saturate(depthDifferenceDistort / _DepthMaximumDistance);
+				float deltaYUV = screenUVWarped - screenUV;
+				float deltaYWorld = deltaYUV * unity_OrthoParams.y;
+				float addedPlainDepth = deltaYWorld / tan(30.0);
+				float orthoPlainDepthWarped = orthoPlainDepth + addedPlainDepth;
 
-				/*
 				// Retrieve the current linear depth value of the surface behind the pixel we are currently rendering.
-				rawDepth = tex2D(_CameraDepthTexture, screen_uv - worldPosWarpedOffsetOnlyPixelPerfect).r;
+				float rawDepthWarped = tex2D(_CameraDepthTexture, screenUVWarped).r;
 				// Flip orthographic projection.
-				orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
+				float orthoLinearDepthWarped = _ProjectionParams.x > 0.0 ? rawDepthWarped : 1.0 - rawDepthWarped;
 				// Recast surface 01-linear depth value to unity units.
-				orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
+				float orthoEyeDepthWarped = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepthWarped);
+				// Water depth for current pixel in unity units.
+				float depthDifferenceWarped = (orthoEyeDepthWarped - orthoPlainDepthWarped);
+				// Depth scaled to our need
+				float depthDifferenceWarped01 = saturate(depthDifferenceWarped / _DepthMaximumDistance);
 				
-				
-				if ((orthoEyeDepth - orthoPlainDepth) < 0)
+				// now we have all data neccesary to know which uv's depts etc we should use!
+				float2 underWaterUV;
+				float depthDifferenceFixed;
+
+				if (depthDifferenceWarped01 == 0)
 				{
-					depthDifferenceDistort01 = depthDifference01;
+					underWaterUV = screenUV;
+					depthDifferenceFixed = depthDifference01;
 				}
-				*/
+				else
+				{
+					underWaterUV = screenUVWarped;
+					depthDifferenceFixed = depthDifferenceWarped01;
+				}
 
 				// Calculate the color of the water based on the depth using our two gradient colors.
-				float curve_value = tex2D(_ColorShading, depthDifference01 - _WaterColOffset).r;
-				float alpha = tex2D(_AlphaShading, depthDifference01).r;
+				float curve_value = tex2D(_ColorShading, depthDifferenceFixed - _WaterColOffset).r;
+				float alpha = tex2D(_AlphaShading, depthDifferenceFixed).r;
 				float4 waterColor = float4(tex2D(_WaterColors, curve_value).rgb, alpha);
-
+				
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.
 				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition)).rgb;
@@ -208,79 +243,33 @@
 				// between the normals of our water surface and the object behind it.
 				// Larger differences allow for extra foam to attempt to keep the overall
 				// amount consistent.
-				float3 WTF = float3(0.0, 0.866, 0.5); // 0 cos 30 sin 30
+				float3 cosSin30 = float3(0.0, 0.866, 0.5); // 0 cos 30 sin 30
+				float3 normalDot = saturate(dot(existingNormal, cosSin30));
 
-				float3 normalDot = saturate(dot(existingNormal, WTF));
-
-				//float3 forward = mul((float3x3)unity_CameraToWorld, float3(0,0,1)); 
-
-				//return float4(normalDot,1);
 				float foamDistance = lerp(_FoamMaxDistance, _FoamMinDistance, normalDot);
 				float foamDepthDifference01 = saturate(depthDifference / foamDistance);
 
 				float surfaceNoiseCutoff = foamDepthDifference01 * _SurfaceNoiseCutoff;
 
+				// get color under warped pixel if it is under water else non distorted
+				float4 underWaterColor = float4(tex2D(_GrabTexture, underWaterUV).rgb, 1);
+				waterColor = alphaBlend(waterColor, underWaterColor);
 
-
-				/*
-				float2 distortTex = (tex2D(_SurfaceDistortion, i.distortUV).xy * 2 - 1); 
-				float2 distortSample = distortTex * _SurfaceDistortionAmount;
-
-				// Distort the noise UV based off the RG channels (using xy here) of the distortion texture.
-				// Also offset it by time, scaled by the scroll speed.
-				float2 noiseUV = float2((i.noiseUV.x + _Time.y * _SurfaceNoiseScroll.x) + distortSample.x, 
-				(i.noiseUV.y + _Time.y * _SurfaceNoiseScroll.y) + distortSample.y);
-				float surfaceNoiseSample = tex2D(_SurfaceNoise, noiseUV).r;
-				*/
-				// Use smoothstep to ensure we get some anti-aliasing in the transition from foam to surface.
-				// Uncomment the line below to see how it looks without AA.
-
-
-				/*
-				// Get pixel perfect distort value for water.
-				float2 under_water_distort_time = _Time.yy * _UnderWaterDistortSpeed.xy;
-				float2 under_water_distort = (tex2D(_SurfaceDistortion, i.distortUV + under_water_distort_time).xy * 2 - 1) * _UnderWaterDistortAmount.xy;
-				float2 px = float2(384, 216);
-				float2 distort_value = round(px * under_water_distort) / px;
-				*/
-				// Screen uv coords for under water pixel.
-				/*
-				// Get raw depth for new uv.
-				rawDepth = tex2D(_CameraDepthTexture, screen_uv_distort).r;
-				// Flip orthographic projection.
-				orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
-				// Recast surface 01-linear depth value to unity units.
-				orthoEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
-				// Retrieve depth value to shader plane.
-				orthoPlainLinearDepth = 1 - i.screenPosition.z;
-				// Recast to unity units.
-				orthoPlainDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoPlainLinearDepth);
-				// Water depth for current pixel in unity units.
-				float depthDifference_2 = orthoEyeDepth - orthoPlainDepth;				
-				*/
 				// Relfection uv.
-
-				// Sample reflection camera color and depth value.
-				float4 waterReflection = tex2D(_WaterReflectionTexture, screen_uv_reflection);
+				// Sample reflection camera color.
+				float4 waterReflection = tex2D(_WaterReflectionTexture, reflectionUVWarped);
 				waterReflection.a *= _WaterReflectionAmount;
-
-				// If we are under water.
-				if (depthDifferenceDistort01 != 0)
-				{
-					float4 under_color = float4(tex2D(_GrabTexture, screen_uv_distort).rgb, 1);
-					waterColor = alphaBlend(waterColor, under_color);
-				}
 
 				waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
 				waterColor = alphaBlend(waterReflection, waterColor);
 
 				if (surfaceNoiseCutoff != 1)
 				{
-					float noiseValue = GetNoiseValue(worldPosWarped);
+					float noiseValue = GetNoiseValue(currentWorldPos);
 					float surfaceNoise = noiseValue > surfaceNoiseCutoff ? 1 : 0;
 
 					float4 surfaceNoiseColor = _FoamColor;
-					surfaceNoiseColor.a = surfaceNoise;
+					surfaceNoiseColor.a *= surfaceNoise;
 
 					return alphaBlend(surfaceNoiseColor, waterColor);
 				}

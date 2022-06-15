@@ -322,7 +322,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         {
             return;
         }
-
+        /*
         zoom += scroll;
         if (sunCloudShadows != null)
         {
@@ -332,6 +332,7 @@ public class PixelPerfectCameraRotation : MonoBehaviour
         {
             moonCloudShadows.UpdateLightProperties(zoom);
         }
+        */
         _cameraDistance = cameraDistance / zoom;
         _cameraFarClippingPlane = cameraFarClippingPlane / zoom;
         QualitySettings.shadowDistance = shadowDistance / zoom;

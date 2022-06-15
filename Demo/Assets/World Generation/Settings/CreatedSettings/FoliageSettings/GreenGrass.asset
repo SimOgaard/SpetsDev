@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b1e4258b0873e74eb087c832568b732, type: 3}
   m_Name: GreenGrass
   m_EditorClassIdentifier: 
-  foliageMaterial: {fileID: 0}
-  foliageSpawn: {fileID: 0}
+  foliageMaterial: {fileID: 11400000, guid: 8feff9adfa921da40a3a7360305ea4b6, type: 2}
+  foliageSpawn: {fileID: 11400000, guid: 1391ea0eb82d6c54f984b54a5d1070c3, type: 2}

@@ -30,13 +30,15 @@ public class CloudSettings : ScriptableObject
     private ComputeBuffer computeBufferFNL;
     private ComputeBuffer computeBufferFNLWarp;
 
+    [HideInInspector] public RenderTexture cloudRenderTexture;
+    [HideInInspector] public Light light;
+
     /// <summary>
     /// updates material properties
     /// </summary>
     public void Update()
     {
-        material.Update();
-
+        /*
         material.material.SetFloat("_HorizonAngleThreshold", horizonAngleThreshold);
         material.material.SetFloat("_HorizonAngleFade", horizonAngleFade);
 
@@ -72,6 +74,7 @@ public class CloudSettings : ScriptableObject
         material.material.SetInt("octaves_warp", cloudNoise.domainWarpFractal.octaves);
         material.material.SetFloat("lacunarity_warp", cloudNoise.domainWarpFractal.lacunarity);
         material.material.SetFloat("gain_warp", cloudNoise.domainWarpFractal.gain);
+        */
 
         computeBufferFNL = new ComputeBuffer(1, NoiseSettings.fnl_state.size, ComputeBufferType.Constant, ComputeBufferMode.Immutable);
         computeBufferFNLWarp = new ComputeBuffer(1, NoiseSettings.fnl_state.size, ComputeBufferType.Constant, ComputeBufferMode.Immutable);
@@ -81,6 +84,12 @@ public class CloudSettings : ScriptableObject
 
         material.material.SetBuffer("fnl_warp_state", computeBufferFNL);
         material.material.SetBuffer("fnl_noise_state", computeBufferFNLWarp);
+
+        material.material.SetFloat("_CookieSize", cookieSize);
+
+        cloudRenderTexture = new RenderTexture(shadowRenderTexutreResolution, shadowRenderTexutreResolution, 0);
+        cloudRenderTexture.wrapMode = TextureWrapMode.Clamp;
+        cloudRenderTexture.filterMode = FilterMode.Bilinear;
     }
 
     /// <summary>
@@ -92,5 +101,7 @@ public class CloudSettings : ScriptableObject
             computeBufferFNL.Dispose();
         if (computeBufferFNLWarp != null)
             computeBufferFNLWarp.Dispose();
+        if (cloudRenderTexture != null)
+            DestroyImmediate(cloudRenderTexture);
     }
 }

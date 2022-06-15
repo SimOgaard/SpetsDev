@@ -1,3 +1,6 @@
+// Developed by Tom Kail at Inkle
+// Released under the MIT Licence as held at https://opensource.org/licenses/MIT
+/*
 // Must be placed within a folder named "Editor"
 using System;
 using System.Reflection;
@@ -15,6 +18,7 @@ using Object = UnityEngine.Object;
 [CustomPropertyDrawer(typeof(ScriptableObject), true)]
 public class ExtendedScriptableObjectDrawer : PropertyDrawer
 {
+
 	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 	{
 		float totalHeight = EditorGUIUtility.singleLineHeight;
@@ -328,3 +332,4 @@ public class ExtendedScriptableObjectDrawer : PropertyDrawer
 		return false;
 	}
 }
+*/
