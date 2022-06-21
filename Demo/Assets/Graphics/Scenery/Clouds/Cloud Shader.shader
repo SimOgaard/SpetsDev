@@ -67,6 +67,7 @@
 	float3 _WorldOffset;
 	float3 _CloudStrechOffset;
 
+	/*
 	CBUFFER_START(UnityPerMaterial)
 	// non specific (the same for both noise)
 	int seed;
@@ -106,6 +107,7 @@
 
 	StructuredBuffer<fnl_state> fnl_warp_state;
 	StructuredBuffer<fnl_state> fnl_noise_state;
+	*/
 
 	struct appdata_t
 	{
@@ -129,23 +131,23 @@
 
 	fnl_state GetNonSpecificFNLState()
 	{
-		fnl_state state = fnlCreateState(seed);
-		state.noise_type = noise_type;
-		state.weighted_strength = weighted_strength;
-		state.ping_pong_strength = ping_pong_strength;
-		state.cellular_distance_func = cellular_distance_func;
-		state.cellular_return_type = cellular_return_type;
-		state.cellular_jitter_mod = cellular_jitter_mod;
-		state.domain_warp_type = domain_warp_type;
-		state.domain_warp_amp = domain_warp_amp;
+		fnl_state state = fnlCreateState(1337/*seed*/);
+		state.noise_type = 1;//noise_type;
+		state.weighted_strength = 0.0;//weighted_strength;
+		state.ping_pong_strength = 2.0;//ping_pong_strength;
+		state.cellular_distance_func = 1;//cellular_distance_func;
+		state.cellular_return_type = 1;//cellular_return_type;
+		state.cellular_jitter_mod = 1.0;//cellular_jitter_mod;
+		state.domain_warp_type = 0;//domain_warp_type;
+		state.domain_warp_amp = 0;//domain_warp_amp;
 
-		state.amplitude = amplitude;
-		state.min_value = min_value;
-		state.smoothing_min = smoothing_min;
-		state.max_value = max_value;
-		state.smoothing_max = smoothing_max;
+		state.amplitude = 1.0;//amplitude;
+		state.min_value = -1;//min_value;
+		state.smoothing_min = 0;//smoothing_min;
+		state.max_value = 1.0;//max_value;
+		state.smoothing_max = 0.0;//smoothing_max;
 
-		state.invert = invert;
+		state.invert = 0;//invert;
 
 		return state;
 	}
@@ -155,12 +157,12 @@
 		fnl_state warp = GetNonSpecificFNLState();
 
 		// warp specific
-        warp.frequency = frequency_warp;
-        warp.rotation_type_3d = rotation_type_3d_warp;
-        warp.fractal_type = fractal_type_warp;
-        warp.octaves = octaves_warp;
-        warp.lacunarity = lacunarity_warp;
-        warp.gain = gain_warp;
+        warp.frequency = 0.005;//frequency_warp;
+        warp.rotation_type_3d = 0;//rotation_type_3d_warp;
+        warp.fractal_type = 0;//fractal_type_warp;
+        warp.octaves = 5;//octaves_warp;
+        warp.lacunarity = 2.0;//lacunarity_warp;
+        warp.gain = 2.0;//gain_warp;
 
 		return warp;
 	}
@@ -170,12 +172,12 @@
 		fnl_state noise = GetNonSpecificFNLState();
 
 		// noise specific
-        noise.frequency = frequency;
-        noise.rotation_type_3d = rotation_type_3d;
-        noise.fractal_type = fractal_type;
-        noise.octaves = octaves;
-        noise.lacunarity = lacunarity;
-        noise.gain = gain;
+        noise.frequency = 6.0;//frequency;
+        noise.rotation_type_3d = 2;//rotation_type_3d;
+        noise.fractal_type = 1;//fractal_type;
+        noise.octaves = 5;//octaves;
+        noise.lacunarity = 2.0;//lacunarity;
+        noise.gain = 0.5;//gain;
 
 		return noise;
 	}
@@ -184,6 +186,7 @@
 	{
 		// translate tex pixel coordinates to world local
 		float length = 1. / (2./* * _Zoom*/);
+		return length;
 		float2 worldTexCoord = (((i.texcoord / (_CloudStrechOffset.xz)) * length) + ((1. - length) / 2.)) * _CookieSize;
 		//float2 worldTexCoord = ((i.texcoord / (2. * _Zoom)) + (1. / (4. * _Zoom * _Zoom))) * (_CookieSize);
 
@@ -193,31 +196,47 @@
 		float z = worldTexCoord.y + _WindScroll.z + ((_LightPosition.y * 0.5) - _WorldOffset.z) / _CloudStrechOffset.z;
 
 		// create warp and noise state
-		//fnl_state fnl_warp_state = GetWarpState();
-		//fnl_state fnl_noise_state = GetNoiseState();
+		fnl_state fnl_warp_state = GetWarpState();
+		fnl_state fnl_noise_state = GetNoiseState();
 
 		// warp xyz values
-		fnlDomainWarp3D(fnl_warp_state[0], x, y, z);
+		fnlDomainWarp3D(fnl_warp_state, x, y, z);
 
 		// get noise
-		float noise_value = SampleNoise3D(fnl_noise_state[0], x, y, z);
+		float noise_value = SampleNoise3D(fnl_noise_state, x, y, z);
 
 		// remap to 0-amplitude and return it
-		return remap01(noise_value, fnl_noise_state[0]);
+		return remap01(noise_value, fnl_noise_state);
 	}
+
+	int resolution;
 
 	float4 Frag (VertexOut i) : SV_Target
 	{
-		float angle = _AngleToHorizon - _HorizonAngleThreshold;
-		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
+		return 1;
+		return (
+			(
+			round(i.texcoord.x * resolution) % 2 == 0 &&
+			round(i.texcoord.y * resolution) % 2 == 0
+			)
+			||
+			(
+			(round(i.texcoord.x * resolution) + 1) % 2 == 0 &&
+			(round(i.texcoord.y * resolution) + 1) % 2 == 0
+			)
+		);
 
 		float alpha = GetNoiseValue(i);
+		return alpha;
+
+		float angle = _AngleToHorizon - _HorizonAngleThreshold;
+		float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
 		
 		float curve_value = tex2D(_ColorShading, alpha).r  * angle_opacity;
 
 		float4 color = curve_value;
 
-		return color;
+		return alpha;
 	}
 
 	ENDCG

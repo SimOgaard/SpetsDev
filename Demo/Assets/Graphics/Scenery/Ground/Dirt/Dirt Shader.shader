@@ -41,8 +41,8 @@
 			{
 				"RenderType"= "Opaque"
 				"Queue"="Geometry+2"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 
 			CGPROGRAM

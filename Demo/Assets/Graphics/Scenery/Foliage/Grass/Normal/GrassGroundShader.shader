@@ -4,10 +4,6 @@ Shader "Unlit/GrassGroundShaderSplit"
     {
 		_Colors ("Color Texture", 2D) = "white" {}
 		_ColorShading ("Color Shading", 2D) = "white" {}
-		_HighlightShading ("Highlight Shading", 2D) = "white" {}
-
-		_ShadowSoftness("Shadow Softness", Range(0, 1)) = 0.5
-		_LightColorValue("Light Color Value", Range(0, 1)) = 0
     }
 
 	SubShader
@@ -18,29 +14,20 @@ Shader "Unlit/GrassGroundShaderSplit"
 			{
 				"RenderType" = "Opaque"
 				"Queue" = "Geometry"
-				"LightMode" = "ForwardAdd"
+				"LightMode" = "ForwardBase"
 				"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
-			#pragma target 3.0
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-			#include "/Assets/Graphics/CGincFiles/NormalShading.cginc"
+			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
 			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
-
-			sampler2D _Colors;
-			float4 _Colors_ST;
-
-			sampler2D _ColorShading;
-			float4 _ColorShading_ST;
-
-			sampler2D _HighlightShading;
-			float4 _HighlightShading_ST;
 
 			float4 frag(v2f i) : SV_Target
 			{
+				return CalculateLight(i);
+				/*
 				float3 light_col = _LightColor0.rgb;
 				float light_value = CalculateLight(i);
 
@@ -53,6 +40,7 @@ Shader "Unlit/GrassGroundShaderSplit"
 
 				float4 color = float4(alphaBlend(highlight_color, main_color).rgb, 1);
 				return color;
+				*/
 			}
 			ENDCG
 		}

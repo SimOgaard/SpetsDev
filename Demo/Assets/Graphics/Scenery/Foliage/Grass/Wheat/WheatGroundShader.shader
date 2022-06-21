@@ -16,8 +16,8 @@ Shader "Unlit/GrassGroundShaderSplit"
 			{
 				"RenderType" = "Opaque"
 				"Queue" = "Geometry"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
 			#pragma target 3.0

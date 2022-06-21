@@ -159,6 +159,8 @@ public class MainCamera : PixelPerfect
     /// </summary>
     private void UpdateRender()
     {
+        Debug.Log("Update render main");
+
         OnDestroy();
         mainCameraRenderTexture = CreateRenderTexture();
         mCamera.orthographicSize = (renderHeightExtended / (pixelsPerUnit * 2f));

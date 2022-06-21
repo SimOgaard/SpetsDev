@@ -12,109 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cad9a1f1008c7c4fb43ec499b06088d, type: 3}
   m_Name: Still
   m_EditorClassIdentifier: 
-  ambient: 0.194966
-  ambientLight:
+  ambientDay: {r: 0.51882344, g: 0.6099596, b: 0.8396226, a: 0.19607843}
+  ambientNight: {r: 0.13069598, g: 0.18200986, b: 0.31132078, a: 0.19607843}
+  ambientLerp:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -1.0027084
-      value: 0.0013313293
-      inSlope: 0.8398094
-      outSlope: 0.8398094
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.1405434
-    - serializedVersion: 3
-      time: -0.4928894
-      value: 0.19924164
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1.0042535
-      value: -0.4021473
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  darkest: 0.28456882
-  darkestValue:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -1
-      value: 0.4
-      inSlope: -0.22857143
-      outSlope: -0.22857143
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.75
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.10795361
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  waterOffset: -0.16764505
-  waterColOffset:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -1.0027084
-      value: 0.0013313293
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.27902934
-    - serializedVersion: 3
-      time: 0
-      value: -0.4
-      inSlope: 0.10823559
-      outSlope: 0.10823559
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.18639933
-    - serializedVersion: 3
-      time: 1
-      value: -0.3
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.16633597
-      outWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   rotationSpeed: {x: 0, y: 0, z: 0}
   rotationSnap: {x: 0, y: 0, z: 0}
-  sun: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}
-  moon: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}

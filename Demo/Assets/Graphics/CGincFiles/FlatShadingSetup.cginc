@@ -4,66 +4,31 @@
 
 sampler2D _LightTexture0;
 float4x4 unity_WorldToLight;
-
 UNITY_DECLARE_SHADOWMAP(_DirectionalShadowmap);
-float _ShadowSoftness;
-float _Ambient;
-float _Darkest;
 
-float _LightColorValue;
+float _LightColorValue; // what
+float4 _AmbientColor;
 
-float LightCalculation(float4 center, float3 normal)
+float4 LightCalculation(float4 center, float3 normal)
 {
-	float4 world_center = float4(mul (unity_ObjectToWorld, center).xyz, 1);
-
-	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
-	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
+	// get world center and normal of triangle
+	float4 worldCenter = float4(mul(unity_ObjectToWorld, center).xyz, 1);
 	float3 worldNormal = UnityObjectToWorldNormal(normal);
-	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap);
 
-	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
-    float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);
-    float4 shadowCoords2 = mul (unity_WorldToShadow[2], world_center);
-    float4 shadowCoords3 = mul (unity_WorldToShadow[3], world_center);
- 
-    // Find which cascaded shadow coords to use based on our distance to the camera
-    float dist = distance (world_center.xyz, _WorldSpaceCameraPos.xyz);
-    float4 zNear = dist >= _LightSplitsNear;
-    float4 zFar = dist < _LightSplitsFar;
-    float4 weights = zNear * zFar;
-    float4 shadowCoords = shadowCoords0 * weights.x + shadowCoords1 * weights.y + shadowCoords2 * weights.z + shadowCoords3 * weights.w;
- 
+	// no light cookies so only get directional light value
+	float directionalLightValue = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
+
+	// get shadow coord
+	float4 shadowCoord = mul(unity_WorldToShadow[0], worldCenter);
 	// Sample the shadowmap
-	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness);
+	float shadow = UNITY_SAMPLE_SHADOW(_DirectionalShadowmap, shadowCoord);
 
-	return max(saturate(directionalLightValue * shadow + _Ambient), _Darkest);
+	//float4 light = lerp(_AmbientColor, )
+
+	return directionalLightValue;
 }
 
-float LightCalculation(float3 center, float3 normal)
+float4 LightCalculation(float3 center, float3 normal)
 {
-	float4 world_center = float4(center, 1);
-
-	float2 lightUVCookie = mul(unity_WorldToLight, world_center).xy;
-	float lightMap = tex2Dlod(_LightTexture0, float4(lightUVCookie,0,0)).w;
-	float3 worldNormal = UnityObjectToWorldNormal(normal);
-	float directionalLightValue = saturate(max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) * lightMap);
-
-	float4 shadowCoords0 = mul (unity_WorldToShadow[0], world_center);
-    float4 shadowCoords1 = mul (unity_WorldToShadow[1], world_center);
-    float4 shadowCoords2 = mul (unity_WorldToShadow[2], world_center);
-    float4 shadowCoords3 = mul (unity_WorldToShadow[3], world_center);
- 
-    // Find which cascaded shadow coords to use based on our distance to the camera
-    float dist = distance (world_center.xyz, _WorldSpaceCameraPos.xyz);
-    float4 zNear = dist >= _LightSplitsNear;
-    float4 zFar = dist < _LightSplitsFar;
-    float4 weights = zNear * zFar;
-    float4 shadowCoords = shadowCoords0 * weights.x + shadowCoords1 * weights.y + shadowCoords2 * weights.z + shadowCoords3 * weights.w;
- 
-	// Sample the shadowmap
-	float shadow = UNITY_SAMPLE_SHADOW (_DirectionalShadowmap, shadowCoords);
-	shadow = saturate(shadow + _ShadowSoftness);
-
-	return max(saturate(directionalLightValue * shadow + _Ambient), _Darkest);
+	return LightCalculation(float4(center, 1), normal);
 }

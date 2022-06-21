@@ -49,7 +49,7 @@ public class NormalCamera : MonoBehaviour
     private void UpdateProjection()
     {
         // make it similar to the one of MainCamera
-        normalCamera.CopyFrom(MainCamera.mCamera);
+        normalCamera.orthographicSize = MainCamera.mCamera.orthographicSize;
         // but with other render (first render normal, then reflection and lastly main camera)
         normalCamera.depth = -2;
         normalCamera.depthTextureMode = DepthTextureMode.None;
@@ -62,9 +62,12 @@ public class NormalCamera : MonoBehaviour
     private void UpdateRender()
     {
         OnDestroy();
-        normalCameraRenderTexture = PixelPerfect.CreateRenderTexture(0);
-        UpdateProjection();
 
+        normalCamera.enabled = false;
+        UpdateProjection();
+        normalCamera.enabled = true;
+
+        normalCameraRenderTexture = PixelPerfect.CreateRenderTexture(0);
         Shader.SetGlobalTexture("_CameraNormalsTexture", normalCameraRenderTexture);
         normalCamera.targetTexture = normalCameraRenderTexture;
     }
@@ -73,6 +76,6 @@ public class NormalCamera : MonoBehaviour
     {
         transform.localRotation = MainCamera.mCamera.transform.rotation;
         transform.position = MainCamera.mCamera.transform.position;
-        //normalCamera.worldToCameraMatrix = MainCamera.mCamera.worldToCameraMatrix;
+        normalCamera.worldToCameraMatrix = MainCamera.mCamera.worldToCameraMatrix;
     }
 }

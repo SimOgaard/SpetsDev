@@ -113,6 +113,9 @@ public class WorldGenerationManager : MonoBehaviour
         // set global properties
         Global.PreLoad();
 
+        // add update renders
+        worldGenerationSettings.AddUpdateRenders();
+
         // update all assets
         worldGenerationSettings.Update();
 

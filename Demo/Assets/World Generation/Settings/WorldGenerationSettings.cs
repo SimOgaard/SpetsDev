@@ -79,11 +79,19 @@ public class WorldGenerationSettings : ScriptableObject
     }
 
     /// <summary>
+    /// Adds all update renders to pixelperfect update render deligate
+    /// </summary>
+    public void AddUpdateRenders()
+    {
+        PixelPerfect.updateRenders += dayNightCycleSettings.UpdateRender;
+    }
+
+    /// <summary>
     /// clears all data that has no gc collect like computebuffers
     /// </summary>
     public void Destroy()
     {
-        dayNightCycleSettings.Destroy();
+        
     }
 
     /// <summary>

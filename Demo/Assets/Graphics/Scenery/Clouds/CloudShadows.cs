@@ -6,11 +6,9 @@ public class CloudShadows : MonoBehaviour
 {
     private CloudSettings cloudSettings;
 
-    private void Start()
+    private void Awake()
     {
         cloudSettings.light = GetComponent<Light>();
-        cloudSettings.light.cookie = cloudSettings.cloudRenderTexture;
-        cloudSettings.light.cookieSize = cloudSettings.cookieSize;
     }
 
     public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)

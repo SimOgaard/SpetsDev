@@ -30,7 +30,7 @@ Shader "Unlit/GrassShaderSplit"
 		{
 			Tags
 			{
-				"LightMode"="ForwardAdd"
+				//"LightMode"="ForwardAdd"
 				"RenderType"="TransparentCutout"
 				"Queue"="Geometry+1"
 			}

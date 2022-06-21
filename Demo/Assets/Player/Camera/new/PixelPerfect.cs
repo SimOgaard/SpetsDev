@@ -22,15 +22,23 @@ public class PixelPerfect : MonoBehaviour
     /// <summary>
     /// Game resolution width we are striving for
     /// </summary>
-    public static int targetWidth = 512;
+    public static int targetWidth = 640;
     /// <summary>
     /// Game resolution height we are striving for
     /// </summary>
-    public static int targetHeight = 288;
+    public static int targetHeight = 360;
+    /// <summary>
+    /// The aspect of the game resolution wer are striving for
+    /// </summary>
+    public static float targetAspect = 16f / 9f;
     /// <summary>
     /// Amount of pixels in targetResolution (targetWidth * targetHeight)
     /// </summary>
     public static int targetPixelDensity { get { return targetWidth * targetHeight; } }
+    /// <summary>
+    /// Amount of pixels in targetResolution without aspect (targetWidth * targetHeight) / targetAspect
+    /// </summary>
+    public static float targetPixelDensityNoAspect { get { return (float) (targetWidth * targetHeight) / targetAspect; } }
 
     /// <summary>
     /// The calculated game resolution (width) that the player will see
@@ -181,10 +189,12 @@ public class PixelPerfect : MonoBehaviour
         // gets a dictionary containing all possible width, heigth divisions
         Dictionary<int, int> finalAspects = GetCapable(aspectsWidth, aspectsHeight);
 
+        float aspect0 = (float) Screen.width / (float) Screen.height;
+        float aspect1 = (float) Screen.height / (float) Screen.width;
+        float highestAspect = aspect0 > aspect1 ? aspect0 : aspect1;
+
         // sort the dictionary to values closest to targetPixelDensity;
-        KeyValuePair<int, int>[] sortedAspectsByPixelDensity = finalAspects.OrderBy(x => Mathf.Abs(x.Key * x.Value - targetPixelDensity)).ToArray();
-        // sort the dictionary to values closest to width;
-        KeyValuePair<int, int>[] sortedAspectsByWidth = finalAspects.OrderBy(x => Mathf.Abs(((x.Key < x.Value) ? targetWidth - x.Key: targetWidth - x.Value))).ToArray();
+        KeyValuePair<int, int>[] sortedAspectsByPixelDensity = finalAspects.OrderBy(x => Mathf.Abs(((x.Key * x.Value) / highestAspect) - targetPixelDensityNoAspect)).ToArray();
 
         // get the best suited aspect
         KeyValuePair<int, int> bestAspect = sortedAspectsByPixelDensity.First();

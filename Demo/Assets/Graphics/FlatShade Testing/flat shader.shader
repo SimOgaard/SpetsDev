@@ -132,7 +132,10 @@ Shader "Custom/flat shader"
 		// Forward rendering with ambient and main directional light for previews/thumbnails.
 		Pass
 		{
-			Tags { "LightMode" = "ForwardBase" }
+			Tags
+			{ 
+				//"LightMode" = "ForwardBase"
+			}
 
 			CGPROGRAM
 			#pragma vertex ProcessVertex

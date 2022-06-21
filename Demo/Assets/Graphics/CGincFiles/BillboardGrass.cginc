@@ -8,12 +8,12 @@ float _XZDisplacementRandom;
 struct g2f
 {
 	float4 pos : SV_POSITION;
-	float light : TEXCOORD0;
+	float4 light : TEXCOORD0;
 	float2 wind : TEXCOORD1;
 	float2 uv : TEXCOORD2;
 };
 
-g2f VertexOutput(float3 pos, float directionalLightValue, float2 wind)
+g2f VertexOutput(float3 pos, float4 directionalLightValue, float2 wind)
 {
 	g2f o;
 	o.pos = UnityObjectToClipPos(pos);
@@ -34,7 +34,7 @@ void geo(triangle vertexOutput IN[3], inout TriangleStream<g2f> outStream)
 	float4 center = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
 	float3 world_center = mul(unity_ObjectToWorld, center).xyz;
 
-	float lightValue = LightCalculation(world_center, flatNormal);
+	float4 lightValue = LightCalculation(world_center, flatNormal);
 	
 	float x_displacement = rand(world_center.xyz) * _XZDisplacementRandom;
 	float y_displacement = _YDisplacement;

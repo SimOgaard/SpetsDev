@@ -18,7 +18,7 @@ public class ReflectionCamera : MonoBehaviour
     /// <summary>
     /// The far clip plane of reflection camera, can be smaller than the main camera far clip plane
     /// </summary>
-    [SerializeField] private float cameraFarClippingPlane = 150f;
+    [SerializeField] private float cameraFarClippingPlane = 300f;
 
     /// <summary>
     /// Gets the camera component and initilizes it

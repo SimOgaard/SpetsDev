@@ -11,8 +11,8 @@ Shader "Custom/shadow testing shader 2"
 		{
 			Tags {
 				"RenderType" = "Opaque"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
 			#include "UnityCG.cginc"

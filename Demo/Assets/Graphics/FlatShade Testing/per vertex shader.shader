@@ -78,8 +78,8 @@ Shader "Custom/per vertex shader"
         {
             Tags {
 				"RenderType" = "Opaque"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
  
             CGPROGRAM

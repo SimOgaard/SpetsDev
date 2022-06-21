@@ -29,8 +29,8 @@
 			Tags
 			{
 				"RenderType" = "Opaque"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
 			#pragma target 3.0

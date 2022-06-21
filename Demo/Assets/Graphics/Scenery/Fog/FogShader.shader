@@ -20,8 +20,8 @@ Shader "Custom/Fog Shader"
 			{
 				"RenderType" = "Transparent"
 				"Queue"="Transparent+10"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
 			#pragma target 3.0

@@ -21,9 +21,8 @@ public class CloudSettings : ScriptableObject
     [Header("Noise")]
     public NoiseSettings cloudNoise;
 
-    [Header("Shader")]
-    public float cookieSize = 175f;
-    public int shadowRenderTexutreResolution = 512;
+    public static float cookieSize;
+    public static int shadowRenderTexutreResolution;
 
     public MaterialSettings material;
 
@@ -84,12 +83,22 @@ public class CloudSettings : ScriptableObject
 
         material.material.SetBuffer("fnl_warp_state", computeBufferFNL);
         material.material.SetBuffer("fnl_noise_state", computeBufferFNLWarp);
+    }
 
+    /// <summary>
+    /// Using PixelPerfect values, calculate resolution and cookie size
+    /// </summary>
+    public void UpdateRender()
+    {
         material.material.SetFloat("_CookieSize", cookieSize);
+        material.material.SetInt("resolution", shadowRenderTexutreResolution);
 
         cloudRenderTexture = new RenderTexture(shadowRenderTexutreResolution, shadowRenderTexutreResolution, 0);
         cloudRenderTexture.wrapMode = TextureWrapMode.Clamp;
-        cloudRenderTexture.filterMode = FilterMode.Bilinear;
+        cloudRenderTexture.filterMode = FilterMode.Point;
+
+        //light.cookie = cloudRenderTexture;
+        //light.cookieSize = cookieSize;
     }
 
     /// <summary>

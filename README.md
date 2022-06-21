@@ -1,13 +1,26 @@
 ## Update:
 * [When unity 2021/2022 long support comes out, uppgrade](https://unity3d.com/unity/qa/lts-releases)
 
-
 ## High priority checklist: (things bellow gets put here to be queued)
 
-any shader like water reflection that has a displacement of uv coordinates given screen coordinates are not scalable. meaning if we have a different resolution they render differently. each resolution should have the same amount of pixels that are displaced. 
+pre cull snap every object to 45 degree rotations, or 22.5 or 12.25 or 6.125 or ...
+pre cull snap every object to pixel grid
 
-really high aspect ratios needs to have smaller pixels
-since its tafget pixel dencity is higher
+update normalshading and flat shading to get:
+a light value (float 4) of:
+global environment light (colored)
+directional light (colored) with no cascades (since it is ortho) and its shadows (colored)
+add ontop of that all point lights
+
+finally either:
+use the final light alpha value to get color gradient of each material, and then add the colored light to it
+OR
+use the final light alpha value to get color gradient x value of each material, then rgb to get y value of texture
+OR
+use light cookie or other texture (different for each light) to create a color and alpha gradient (like any other material) and add that colored light to it, (would achive band look)
+https://www.youtube.com/watch?v=0xJqzUHJ2fI&t=5s
+
+any shader like water reflection that has a displacement of uv coordinates given screen coordinates are not scalable. meaning if we have a different resolution they render differently. each resolution should have the same amount of pixels that are displaced. 
 
 move all shader projections pixel perfectly, ie shadows and water noise
 
@@ -58,6 +71,8 @@ We want to rework the chunk ground mesh system, it is badly written:
     NoiseSettings   ->  spawnSettings   ->  biomeSettings   ->  worldGenerationSettings
 
     WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending, they should also keep a initilized version at runtime that is hidden in inspector so nothing has to be done when sampeling noise.
+
+shake healthbar when a lot of damage is taken or given
 
 This would be a cool video:
 You are in a wheat field sneeking with the trampled wheat trail going parralell up twords the top of the camera. You are hiding and after a second or so stop sneeking and do the minecraft peace sign. then you start running and after halfway to running take out your sword to cut wheat. Then you stop and do some combos.

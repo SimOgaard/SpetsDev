@@ -12,8 +12,8 @@ Shader "Unlit/per vertex shader 2"
              Tags 
              {
                  "RenderType" = "Opaque"
-                 "LightMode" = "ForwardBase"
-                 "PassFlags" = "OnlyDirectional"
+                 //"LightMode" = "ForwardBase"
+                 //"PassFlags" = "OnlyDirectional"
              }
  
              CGPROGRAM

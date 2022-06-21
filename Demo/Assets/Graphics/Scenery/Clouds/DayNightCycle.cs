@@ -31,27 +31,20 @@ public class DayNightCycle : MonoBehaviour
         }
 
         // Reposition directional light to be over player to keep shadows
-        transform.position = MousePoint.PositionRayPlane(Vector3.zero, -transform.forward, Global.cameraFocusPointTransform.position, transform.forward);
+        //transform.position = MousePoint.PositionRayPlane(Vector3.zero, Vector3.up, MainCamera.mCamera.transform.position, MainCamera.mCamera.transform.forward);
 
-        float x = Vector3.Dot(transform.forward, Vector3.up);
-        dayNightCycleSettings.ambient = dayNightCycleSettings.ambientLight.Evaluate(x);
-        Shader.SetGlobalFloat("_Ambient", dayNightCycleSettings.ambient);
+        float time = Vector3.Dot(transform.forward, Vector3.up);
 
-        dayNightCycleSettings.darkest = dayNightCycleSettings.darkestValue.Evaluate(x);
-        Shader.SetGlobalFloat("_Darkest", dayNightCycleSettings.darkest);
-
-        //Debug.Log($"ambient {ambient}");
-        //Debug.Log($"darkest {darkest}");
-
-        dayNightCycleSettings.waterOffset = dayNightCycleSettings.waterColOffset.Evaluate(x);
-        Global.waterMaterial.SetFloat("_WaterColOffset", dayNightCycleSettings.waterOffset);
+        float ambientLerp = dayNightCycleSettings.ambientLerp.Evaluate(time);
+        Color currentAmbientColor = Color.Lerp(dayNightCycleSettings.ambientDay, dayNightCycleSettings.ambientNight, ambientLerp);
+        Shader.SetGlobalColor("_AmbientColor", currentAmbientColor);
     }
 
     public void UpdateSettings(DayNightCycleSettings dayNightCycleSettings)
     {
         this.dayNightCycleSettings = dayNightCycleSettings;
-        GameObject.Find("Sun").GetComponent<CloudShadows>().UpdateSettings(dayNightCycleSettings.sun);
-        GameObject.Find("Moon").GetComponent<CloudShadows>().UpdateSettings(dayNightCycleSettings.moon);
+        //GameObject.Find("Sun").GetComponent<CloudShadows>().UpdateSettings(dayNightCycleSettings.sun);
+        //GameObject.Find("Moon").GetComponent<CloudShadows>().UpdateSettings(dayNightCycleSettings.moon);
     }
 
     public void UpdateRenderTexture()

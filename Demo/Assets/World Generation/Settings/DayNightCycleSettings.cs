@@ -9,23 +9,12 @@ using UnityEngine;
 [System.Serializable]
 public class DayNightCycleSettings : ScriptableObject
 {
-    [HideInInspector] public float ambient;
-    public AnimationCurve ambientLight;
-
-    [HideInInspector] public float darkest;
-    public AnimationCurve darkestValue;
-
-    [HideInInspector] public float waterOffset;
-    public AnimationCurve waterColOffset;
+    public Color ambientDay;
+    public Color ambientNight;
+    public AnimationCurve ambientLerp;
 
     public Vector3 rotationSpeed;
     public Vector3 rotationSnap;
-
-    [Header("Sun")]
-    public CloudSettings sun;
-
-    [Header("Moon")]
-    public CloudSettings moon;
 
     /// <summary>
     /// Assigns this setting to daynightcycle game object
@@ -33,17 +22,16 @@ public class DayNightCycleSettings : ScriptableObject
     public void Update()
     {
         Global.dayNightCycle.UpdateSettings(this);
-
-        sun.Update();
-        moon.Update();
     }
 
-    /// <summary>
-    /// clears all data that has no gc collect like computebuffers
-    /// </summary>
-    public void Destroy()
+    public void UpdateRender()
     {
-        sun.Destroy();
-        moon.Destroy();
+        // calculate smallest neccesary resolution for cookie when light is perpendicular to ground and extended camera should fit given any rotation.
+        CloudSettings.shadowRenderTexutreResolution = PixelPerfect.NearestBiggerInt(
+            Mathf.CeilToInt(2.0f * Mathf.Sin(45f * Mathf.Deg2Rad) * Mathf.Max(PixelPerfect.renderWidthExtended, PixelPerfect.renderHeightExtended))
+        );
+
+        // calculate a cookie size so that when light is perpendicular to ground, each pixel is its own light ray
+        CloudSettings.cookieSize = PixelPerfect.unitsPerPixelWorld * CloudSettings.shadowRenderTexutreResolution;
     }
 }

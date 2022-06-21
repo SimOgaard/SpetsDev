@@ -11,8 +11,8 @@ Shader "Custom/shadow testing shader 4"
 		{
 			Tags {
 				"RenderType" = "Opaque"
-				"LightMode" = "ForwardAdd"
-				"PassFlags" = "OnlyDirectional"
+				//"LightMode" = "ForwardAdd"
+				//"PassFlags" = "OnlyDirectional"
 			}
 			CGPROGRAM
 			#pragma target 3.0

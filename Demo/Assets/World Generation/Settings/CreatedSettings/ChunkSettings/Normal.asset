@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9273622eb81137646bc16a22ccbb1b44, type: 3}
   m_Name: Normal
   m_EditorClassIdentifier: 
-  chunkSize: {x: 122, y: 122}
+  chunkSize: {x: 100, y: 100}
   quadAmount: {x: 61, y: 61}
   chunkLoadDist: 350
   chunkDisableDistance: 300
