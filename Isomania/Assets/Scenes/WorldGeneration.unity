@@ -5907,6 +5907,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 871648080290654050, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
+      propertyPath: far clip plane
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 871648080290654050, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
       propertyPath: orthographic size
       value: 27
       objectReference: {fileID: 0}
@@ -5990,15 +5995,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1758993013676736424, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
+      propertyPath: far clip plane
+      value: 500
+      objectReference: {fileID: 0}
     - target: {fileID: 2047470611698600618, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: shadowDistance
-      value: 350
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 2047470611698600618, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: cameraFarClippingPlane
       value: 400
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203177074374491718, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
+      propertyPath: far clip plane
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 7205975030967152052, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}

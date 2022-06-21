@@ -13,7 +13,7 @@
 // For all kernels
 //
 // include fastnoise lite
-#include "Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
+#include "Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 
 /// changing values for each dispatch
 float2 meshXZPosition; // xz position of current mesh

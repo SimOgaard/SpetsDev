@@ -6,6 +6,8 @@
 pre cull snap every object to 45 degree rotations, or 22.5 or 12.25 or 6.125 or ...
 pre cull snap every object to pixel grid
 
+stone shader renders its normal to _CameraNormalsTexture on build but not play?!?!
+
 update normalshading and flat shading to get:
 a light value (float 4) of:
 global environment light (colored)

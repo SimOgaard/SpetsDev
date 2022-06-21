@@ -19,8 +19,8 @@
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "/Assets/Graphics/CGincFiles/NoShading.cginc"
-			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
+			#include "/Assets/Graphics/CGincFiles/ToonShading/NoShading.cginc"
+			#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 
 			sampler2D _ColorShading;
 			float4 _ColorShading_ST;

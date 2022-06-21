@@ -1,4 +1,5 @@
 // Compile multiple versions of this shader depending on lighting settings.
+#pragma target 3.0
 #pragma multi_compile_fwdbase
 
 #include "UnityCG.cginc"
@@ -15,7 +16,10 @@ float4 _Colors_ST;
 sampler2D _ColorShading;
 float4 _ColorShading_ST;
 
-float4 CalculateLightPrivate(float3 normal, float shadow)
+sampler2D _MainTex;
+float4 _MainTex_ST;
+
+float2 CalculateToonUV(float3 normal, float shadow)
 {
 	// Calculate illumination from directional light.
 	// _WorldSpaceLightPos0 is a vector pointing the OPPOSITE
@@ -30,10 +34,5 @@ float4 CalculateLightPrivate(float3 normal, float shadow)
 	light += _AmbientColor;
 
 	// Get color shading uv based on light value
-	float2 shadingUV = float2(light.a, 0.0);
-	// And extract shade value from texture
-	float shade = tex2D(_ColorShading, shadingUV); 
-
-	// Now use that shade value to get the right color
-	return tex2D(_Colors, float2(shade, 0.0)); 
+	return float2(light.a, 0.0);
 }

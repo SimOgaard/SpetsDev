@@ -28,10 +28,10 @@
 			#pragma geometry geo
 			#pragma fragment frag
 			#pragma require geometry
-
-			#include "/Assets/Graphics/CGincFiles/CustomGeo.cginc"
-			#include "/Assets/Graphics/CGincFiles/BillboardFire.cginc"
-			#include "/Assets/Graphics/CGincFiles/FastNoiseLite.cginc"
+			
+			#include "/Assets/Graphics/CGincFiles/Geo/CustomGeo.cginc"
+			#include "/Assets/Graphics/CGincFiles/Billboard/BillboardTriangle.cginc"
+			#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 
 			sampler2D _ColorShading;
 			float4 _ColorShading_ST;
