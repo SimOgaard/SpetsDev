@@ -32,7 +32,6 @@
 			#pragma fragment frag
 
 			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			sampler2D _ColorsMoss;
 			float4 _ColorsMoss_ST;

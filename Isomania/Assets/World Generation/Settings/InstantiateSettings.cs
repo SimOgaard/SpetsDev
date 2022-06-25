@@ -19,6 +19,7 @@ public class InstantiateSettings : ScriptableObject
     /// </summary>
     public float objectDensity = 0.01f;
 
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
 

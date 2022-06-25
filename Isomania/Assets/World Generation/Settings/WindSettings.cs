@@ -18,6 +18,7 @@ public class WindSettings : ScriptableObject
     public Vector3 cloudSpeed;
     public NoiseSettings noiseScrollNoise;
 
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         Shader.SetGlobalTexture("_WindDistortionMap", WindDistortionMap);

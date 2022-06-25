@@ -105,6 +105,7 @@ public class BiomeMaterialSettings : ScriptableObject
     /// Creates curvetextures from all curves of all materials and all of those materials foliages
     /// Is done once at runtime
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         biomeMaterial.Update();

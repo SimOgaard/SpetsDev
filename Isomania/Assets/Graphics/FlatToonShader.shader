@@ -22,7 +22,6 @@ Shader "Custom/Flat Toon Shader"
 			#pragma fragment frag
 
 			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			float4 frag(v2f i) : SV_Target
 			{

@@ -15,7 +15,7 @@ MonoBehaviour:
   offsett: {x: 0, y: 0}
   value:
     invert: 0
-    amplitude: 1
+    amplitude: 0.25
     minValue: -1
     smoothingMin: 0
     maxValue: 1

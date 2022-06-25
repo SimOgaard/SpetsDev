@@ -99,6 +99,7 @@ public class NoiseSettings : ScriptableObject
         public float gain = 0.5f;
     }
 
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
 

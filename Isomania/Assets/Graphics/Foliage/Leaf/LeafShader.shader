@@ -47,7 +47,6 @@
 			
 			#include "/Assets/Graphics/CGincFiles/ToonShading/FlatToonShading.cginc"
 			#include "/Assets/Graphics/CGincFiles/Billboard/BillboardQuad.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			float _DiscardValue;
 

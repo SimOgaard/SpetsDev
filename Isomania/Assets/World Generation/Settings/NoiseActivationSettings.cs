@@ -26,6 +26,7 @@ public class NoiseActivationSettings : ScriptableObject
     /// </summary>
     public NoiseSettings noiseSettings;
 
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
 

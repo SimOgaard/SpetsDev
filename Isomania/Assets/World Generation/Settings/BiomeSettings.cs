@@ -44,6 +44,7 @@ public class BiomeSettings : ScriptableObject
     /// <summary>
     /// 
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         for (int i = 0; i < spawnPosition.Length; i++)

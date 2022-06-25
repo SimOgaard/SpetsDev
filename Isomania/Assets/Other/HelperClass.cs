@@ -321,7 +321,7 @@ public static class Global
     public static Transform playerTransform;
     public static Transform equipmentsInInventory;
 
-    public static DayNightCycle dayNightCycle;
+    public static DayNight dayNight;
 
     public static WindController windController;
 
@@ -339,7 +339,7 @@ public static class Global
         playerTransform = GameObject.Find("Player").transform;
         equipmentsInInventory = GameObject.Find("EquipmentsInInventory").transform;
 
-        dayNightCycle = GameObject.FindObjectOfType<DayNightCycle>();
+        dayNight = GameObject.FindObjectOfType<DayNight>();
         windController = GameObject.FindObjectOfType<WindController>();
     }
 

@@ -8,3 +8,12 @@ float4 alphaBlend(float4 top, float4 bottom)
 
 	return float4(color, alpha);
 }
+
+float remap01(float v)
+{
+	return saturate((v + 1) * 0.5);
+}
+
+float pixelsPerUnit;
+float pixelsPerUnit3;
+float unitsPerPixelWorld;

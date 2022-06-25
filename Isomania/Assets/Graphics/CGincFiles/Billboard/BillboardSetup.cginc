@@ -1,5 +1,4 @@
 float yScale;
-float pixelsPerUnit;
 
 float3 GetLookVector()
 {

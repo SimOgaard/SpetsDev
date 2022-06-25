@@ -28,6 +28,21 @@ public class MaterialSettings : ScriptableObject
             material.SetTexture(textureName, curveTexture);
         }
 
+        public void AddGlobalCurveTexture()
+        {
+            Texture2D curveTexture = CurveCreator.CreateTexture(new Vector2Int(textureResolution, 1));
+
+            float oneDiv = 1f / textureResolution;
+            for (int x = 0; x <= textureResolution; x++)
+            {
+                float curveValue = Mathf.Clamp01(curve.Evaluate(x * oneDiv));
+                float curveColor = curveValue + curveOffset;
+                curveTexture.SetPixel(x, 0, new Color(curveColor, curveColor, curveColor));
+            }
+            curveTexture.Apply();
+
+            Shader.SetGlobalTexture(textureName, curveTexture);
+        }
         /// <summary>
         /// The property name of affected texture
         /// </summary>
@@ -59,6 +74,7 @@ public class MaterialSettings : ScriptableObject
     /// Creates curvetextures from all curves of material
     /// Is done once at runtime
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         for (int i = 0; i < materialCurves.Length; i++)

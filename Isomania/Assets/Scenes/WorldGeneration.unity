@@ -1791,6 +1791,7 @@ GameObject:
   m_Component:
   - component: {fileID: 560699159}
   - component: {fileID: 560699160}
+  - component: {fileID: 560699161}
   m_Layer: 16
   m_Name: Main Directional Light
   m_TagString: Untagged
@@ -1875,6 +1876,18 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &560699161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 560699158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0988fe7d74d5c8e48b96fbee5f05f157, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &576814353
 GameObject:
   m_ObjectHideFlags: 0
@@ -5915,6 +5928,11 @@ PrefabInstance:
       propertyPath: orthographic size
       value: 27
       objectReference: {fileID: 0}
+    - target: {fileID: 871648080290654050, guid: ce18c5be02e6d16499e8a367679f8f7a,
+        type: 3}
+      propertyPath: m_AllowDynamicResolution
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 871648080290654057, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -5928,7 +5946,7 @@ PrefabInstance:
     - target: {fileID: 871648080550030938, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}
       propertyPath: cameraDistance
-      value: 200
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 871648080550030938, guid: ce18c5be02e6d16499e8a367679f8f7a,
         type: 3}

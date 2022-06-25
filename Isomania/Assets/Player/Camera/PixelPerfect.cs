@@ -22,11 +22,11 @@ public class PixelPerfect : MonoBehaviour
     /// <summary>
     /// Game resolution width we are striving for
     /// </summary>
-    public static int targetWidth = 640;
+    public static int targetWidth = 592;
     /// <summary>
     /// Game resolution height we are striving for
     /// </summary>
-    public static int targetHeight = 360;
+    public static int targetHeight = 333;
     /// <summary>
     /// The aspect of the game resolution wer are striving for
     /// </summary>

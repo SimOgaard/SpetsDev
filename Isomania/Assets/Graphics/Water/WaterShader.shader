@@ -2,7 +2,7 @@
 {
     Properties
     {
-		_WaterColors ("Color Texture", 2D) = "white" {}
+		_Colors ("Color Texture", 2D) = "white" {}
 		_ColorShading ("Color Shading", 2D) = "white" {}
 		_AlphaShading ("Curve Alpha", 2D) = "white" {}
 
@@ -19,6 +19,9 @@
 		_FoamMaxDistance("Foam Maximum Distance", Float) = 0.4
 		_FoamMinDistance("Foam Minimum Distance", Float) = 0.04
 
+		// How much ligth water should absorbe.
+		_LigthCoefficient("Light Coefficient", Float) = 0.1
+
 		// Alpha value of water reflection.
 		_WaterReflectionAmount("Water Reflection Amount", Range(0, 1)) = 0.35
     }
@@ -28,6 +31,8 @@
 		{
 			"RenderType" = "Transparent"
 			"Queue" = "Transparent"
+			"LightMode" = "ForwardBase"
+			"PassFlags" = "OnlyDirectional"
 		}
 
 		GrabPass { "_GrabTexture" }
@@ -43,39 +48,11 @@
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
-			#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
+			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-				float4 uv : TEXCOORD0;
-				float3 normal : NORMAL;
-            };
-
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-				float4 screenPosition : TEXCOORD0;
-				float3 viewNormal : NORMAL;
-				float3 worldPos : TEXCOORD1;
-            };
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-
-                o.vertex = UnityObjectToClipPos(v.vertex);
-				o.screenPosition = ComputeScreenPos(o.vertex);
-				o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-				o.viewNormal = COMPUTE_VIEW_NORMAL;
-
-                return o;
-            }
-			sampler2D _ColorShading;
 			sampler2D _AlphaShading;
-			sampler2D _WaterColors;
+			float4 _AlphaShading_ST;
+
 			float _DepthMaximumDistance;
 
 			float4 _FoamColor;
@@ -91,22 +68,15 @@
 
 			float _WaterReflectionAmount;
 			float4 _WaterReflectionColor;
-		
+			
+			float _LigthCoefficient;
+
 			float3 _WorldOffset;
 
 			float _WaterColOffset;
 
 			float2 renderResolution;
 			float2 renderResolutionExtended;
-
-			float pixelsPerUnit;
-			float pixelsPerUnit3;
-			float unitsPerPixelWorld;
-
-			float remap01(float v)
-			{
-				return saturate((v + 1) * 0.5);
-			}
 
 			float3 GetWarpValue(float3 worldPos)
 			{
@@ -153,10 +123,10 @@
 				// OBS! worldPos gets snapped in transform since it is a flat plain
 
 				// grab pixel world position and offset it so that any global position changes doenst break the shader
-				float3 worldPos = (i.worldPos - _WorldOffset) * float3(0.35, 0.75, 0.75); // noise stretch
+				float3 worldPos = (i.worldPosition - _WorldOffset) * float3(0.35, 0.75, 0.75); // noise stretch
 
 				// grab current noise offset by time
-				float3 time = _Time[1] * float3(1.25, 1.75, 1.25); // noise scroll
+				float3 time = _Time[0] * float3(25, 35, 25); // noise scroll
 				// snap time to grid
 				time = round(time * pixelsPerUnit3) / pixelsPerUnit3;
 
@@ -183,7 +153,8 @@
 				float2 screenUVWarped = saturate(screenUV + warpUV);
 				float2 reflectionUVWarped = saturate(reflectionUV + warpUV);
 
-				//return float4(screenUVWarped, 0, 1);
+				// Calculate light
+				float2 lightUV = ToonUV(i);
 
 				// Retrieve depth value to shader plane of current pixel. And recast to unity units.
 				float orthoPlainDepth = lerp(_ProjectionParams.z, _ProjectionParams.y, i.screenPosition.z);
@@ -217,7 +188,7 @@
 				
 				// now we have all data neccesary to know which uv's depts etc we should use!
 				float2 underWaterUV;
-				float depthDifferenceFixed;
+				float depthDifferenceFixed;// = lightUV.r * _LigthCoefficient;
 
 				if (depthDifferenceWarped01 == 0)
 				{
@@ -230,10 +201,12 @@
 					depthDifferenceFixed = depthDifferenceWarped01;
 				}
 
+				//return float4(lightUV.r, 0, 0, 1);
+
 				// Calculate the color of the water based on the depth using our two gradient colors.
 				float curve_value = tex2D(_ColorShading, depthDifferenceFixed - _WaterColOffset).r;
 				float alpha = tex2D(_AlphaShading, depthDifferenceFixed).r;
-				float4 waterColor = float4(tex2D(_WaterColors, curve_value).rgb, alpha);
+				float4 waterColor = float4(tex2D(_Colors, curve_value).rgb, alpha);
 				
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.

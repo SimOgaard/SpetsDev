@@ -82,8 +82,5 @@ public class Water : MonoBehaviour
         gameObject.AddComponent<MeshFilter>().mesh = BuildQuad(width, height);
         MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshRenderer.material = waterSettings.waterMaterial.material;
-        meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        meshRenderer.receiveShadows = false;
-        //this.material = material;
     }
 }

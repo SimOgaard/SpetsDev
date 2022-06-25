@@ -24,8 +24,6 @@
 			#pragma fragment frag
 
 			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
-			#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 
             float4 frag (v2f i) : SV_Target
             {

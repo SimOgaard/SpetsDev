@@ -43,7 +43,6 @@ Shader "Custom/FoliageShader"
 
 			#include "/Assets/Graphics/CGincFiles/ToonShading/FlatToonShading.cginc"
 			#include "/Assets/Graphics/CGincFiles/Billboard/BillboardQuad.cginc"
-			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
 			float4 frag(g2f i, float facing : VFACE) : SV_Target
 			{
@@ -55,8 +54,6 @@ Shader "Custom/FoliageShader"
 					discard;
 				}
 				
-				return i.toonUV.x;
-
 				return ToonShade(i.toonUV);
 
 				/*

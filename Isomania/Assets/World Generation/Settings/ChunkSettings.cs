@@ -51,6 +51,7 @@ public class ChunkSettings : ScriptableObject
     /// <summary>
     /// Updates static ground mesh const to adher to new chunk settings
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         // update triangle size margin for mesh manipulation

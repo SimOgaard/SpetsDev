@@ -38,5 +38,32 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  rotationSpeed: {x: 0, y: 0, z: 0}
+  cloudSettingsDay: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}
+  cloudSettingsNight: {fileID: 0}
+  rotationSpeedDay: {x: 0, y: 0, z: 0}
+  rotationSpeedNight: {x: 0, y: 0, z: 0}
+  rotationSpeedLerp:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   rotationSnap: {x: 0, y: 0, z: 0}

@@ -3,8 +3,16 @@
 
 ## High priority checklist: (things bellow gets put here to be queued)
 
+Create multiple vert shader cginc files that you can choose between. All should have the same appdata and v2f There should be one that is for static objects, that does nothing but hold the values. There should be one that snaps to grid and rotate. Another that is geo friendly but does nothing. And the last one should be geo friendly but snap to grid and not rotate. The geo should be capatable with all Billboard cginc.
 pre cull snap every object to 45 degree rotations, or 22.5 or 12.25 or 6.125 or ...
 pre cull snap every object to pixel grid
+
+
+make water use toonshader as to get cloud and shadow support on water, you might have to offset them so a cube shadow isnt a cube shadow, but a jiggly one
+
+make clouds, water, etc easier to custimise by not having to change their values in code, The difficult part is not requiering 10000x different shader compilers. 
+
+weird line side to side when directional ligt, object side and camera direction are parrarell to each others. only at some resolutions. https://cdn.discordapp.com/attachments/884159095500836914/989183712321233008/unknown.png 
 
 stone shader renders its normal to _CameraNormalsTexture on build but not play?!?!
 

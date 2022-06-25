@@ -18,6 +18,7 @@ public class FoliageSettings : ScriptableObject
     /// </summary>
     public NoiseSettings foliageSpawn;
 
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         // add curve textures to foliageMaterial

@@ -29,7 +29,7 @@ public class WorldGenerationSettings : ScriptableObject
     /// <summary>
     /// Defines day night
     /// </summary>
-    public DayNightCycleSettings dayNightCycleSettings;
+    public DayNightSettings dayNightSettings;
 
     /// <summary>
     /// Defines the wind
@@ -55,14 +55,12 @@ public class WorldGenerationSettings : ScriptableObject
     /// Runs all update functions for all children settings under this asset
     /// OBS! since some settings are shared asset.Update() could be ran multiple times
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
-        // make shure nothing is left
-        Destroy();
-
         chunkSettings.Update();
 
-        dayNightCycleSettings.Update();
+        dayNightSettings.Update();
 
         windSettings.Update();
         
@@ -83,7 +81,7 @@ public class WorldGenerationSettings : ScriptableObject
     /// </summary>
     public void AddUpdateRenders()
     {
-        PixelPerfect.updateRenders += dayNightCycleSettings.UpdateRender;
+        //PixelPerfect.updateRenders += dayNightCycleSettings.UpdateRender;
     }
 
     /// <summary>
@@ -91,7 +89,7 @@ public class WorldGenerationSettings : ScriptableObject
     /// </summary>
     public void Destroy()
     {
-        
+        dayNightSettings.Destroy();
     }
 
     /// <summary>

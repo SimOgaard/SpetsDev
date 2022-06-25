@@ -17,6 +17,7 @@ public class WaterSettings : ScriptableObject
     /// <summary>
     /// Updates watermaterial and assigns it to global materials
     /// </summary>
+    [ContextMenu("Update", false, -1000)]
     public void Update()
     {
         waterMaterial.Update();
