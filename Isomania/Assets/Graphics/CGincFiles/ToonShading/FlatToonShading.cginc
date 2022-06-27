@@ -4,22 +4,16 @@ sampler2D _LightTexture0;
 float4x4 unity_WorldToLight;
 UNITY_DECLARE_SHADOWMAP(_DirectionalShadowmap);
 
-float2 CalculateToonUVFlat(float4 objectCenter, float3 objectNormal)
+float2 CalculateToonUVFlat(float4 worldCenter, float3 worldNormal)
 {
-	// Get normal
-	float3 normal = normalize(UnityObjectToWorldNormal(objectNormal));
-
-	// Get world center and normal of triangle.
-	float4 center = float4(mul(unity_ObjectToWorld, objectCenter).xyz, 1);
-
 	// Get all cascaded shadow coords
-	float4 shadowCoords0 = mul (unity_WorldToShadow[0], objectCenter);
-    float4 shadowCoords1 = mul (unity_WorldToShadow[1], objectCenter);
-    float4 shadowCoords2 = mul (unity_WorldToShadow[2], objectCenter);
-    float4 shadowCoords3 = mul (unity_WorldToShadow[3], objectCenter);
+	float4 shadowCoords0 = mul (unity_WorldToShadow[0], worldCenter);
+    float4 shadowCoords1 = mul (unity_WorldToShadow[1], worldCenter);
+    float4 shadowCoords2 = mul (unity_WorldToShadow[2], worldCenter);
+    float4 shadowCoords3 = mul (unity_WorldToShadow[3], worldCenter);
  
     // Find which cascaded shadow coords to use based on our distance to the camera
-    float dist = distance(objectCenter.xyz, _WorldSpaceCameraPos.xyz);
+    float dist = distance(worldCenter.xyz, _WorldSpaceCameraPos.xyz);
     float4 zNear = dist >= _LightSplitsNear;
     float4 zFar = dist < _LightSplitsFar;
     float4 weights = zNear * zFar;
@@ -30,12 +24,12 @@ float2 CalculateToonUVFlat(float4 objectCenter, float3 objectNormal)
 	float shadow = UNITY_SAMPLE_SHADOW(_DirectionalShadowmap, shadowCoords);
 
 	// Do the same light calculation that is for all toon shaders
-	return CalculateToonUV(normal, shadow, CloudValueFromWorldFlat(objectCenter));
+	return CalculateToonUV(worldNormal, shadow, CloudValueFromWorldFlat(worldCenter));
 }
 
-float2 CalculateToonUVFlat(float3 objectCenter, float3 objectNormal)
+float2 CalculateToonUVFlat(float3 worldCenter, float3 worldNormal)
 {
-	return CalculateToonUVFlat(float4(objectCenter, 1), objectNormal);
+	return CalculateToonUVFlat(float4(worldCenter, 1), worldNormal);
 }
 
 float4 ToonShade(float2 toonUV)

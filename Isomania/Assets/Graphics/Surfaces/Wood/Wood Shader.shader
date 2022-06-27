@@ -8,22 +8,27 @@
 		_ColorShading ("Color Shading", 2D) = "white" {}
     }
 
-    SubShader
-    {
-        Pass
-        {
+	SubShader
+	{
+		Pass
+		{
 			Tags
 			{
+				"RenderType" = "Opaque"
 				"Queue" = "Geometry+2"
-				"RenderType"= "Opaque"
 				"LightMode" = "ForwardBase"
 				"PassFlags" = "OnlyDirectional"
 			}
-
 			CGPROGRAM
+
 			#pragma vertex vert
 			#pragma fragment frag
 
+			// Common things like unity lightning and functions import
+			#include "/Assets/Graphics/CGincFiles/Common.cginc"
+			// Geometry part of this shader
+			#include "/Assets/Graphics/CGincFiles/Geometry/Geo.cginc"
+			// Shading part of this shader
 			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
 
 			float4 frag(v2f i) : SV_Target

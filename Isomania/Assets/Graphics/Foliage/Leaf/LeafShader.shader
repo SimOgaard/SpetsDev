@@ -37,30 +37,43 @@
 			#pragma require geometry
 			
 			// For Tessellation
-			#pragma hull hull
-			#pragma domain domain
-			#pragma target 4.6
-			#include "/Assets/Graphics/CGincFiles/Geo/CustomTessellation.cginc"
+			//#pragma hull hull
+			//#pragma domain domain
+			//#pragma target 4.6
+			//#include "/Assets/Graphics/CGincFiles/Geo/CustomTessellation.cginc"
 
 			// For no tesselation
-			//#include "/Assets/Graphics/CGincFiles/Geo/CustomGeo.cginc"
-			
+			// Common things like unity lightning and functions import
+			#include "/Assets/Graphics/CGincFiles/Common.cginc"
+			// Shading part of this shader
 			#include "/Assets/Graphics/CGincFiles/ToonShading/FlatToonShading.cginc"
-			#include "/Assets/Graphics/CGincFiles/Billboard/BillboardQuad.cginc"
+			// Geometry part of this shader, should be billboard quads for each triangle
+			#include "/Assets/Graphics/CGincFiles/Geometry/Billboard/BillboardQuadFlat.cginc"
+			// We want to get wind value for each pixel
+			#include "/Assets/Graphics/CGincFiles/Wind.cginc"
 
 			float _DiscardValue;
 
-			float4 frag(g2f i, float facing : VFACE) : SV_Target
+			float4 frag(v2f i, float facing : VFACE) : SV_Target
 			{
-				float uv_remap = 1 / _TileAmount;
-				float alpha = tex2D(_MainTex, i.uv * uv_remap + i.wind).r;
+				// gets wind values
+				float3 wind = GetWind(i.worldCenter);
+				float2 windUV = WindToUVWindCoords(wind);
+				float2 windTile = UVWindCoordsToTile(windUV);
+				//return float4(windTile / _TileAmount, 0, 1);
+				// remaps uv 0-1 to a single tile of maintexture
+				float uvRemap = 1.0 / _TileAmount;
+
+				float2 uv = (i.uv + windTile) * uvRemap; // i.uv * uvRemap + windTile * uvRemap
+
+				float alpha = tex2D(_MainTex, uv).r;
 
 				if (alpha < _DiscardValue)
 				{
 					discard;
 				}
 
-				return i.toonUV.x;
+				return ToonShade(i.toonUV);
 
 				/*
 				float3 light_col = _LightColor0.rgb;

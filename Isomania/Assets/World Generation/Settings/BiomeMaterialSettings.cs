@@ -113,5 +113,8 @@ public class BiomeMaterialSettings : ScriptableObject
         {
             biomeMaterialsCondition[i].Update();
         }
+
+        if (stoneMaterialSettings != null)
+            stoneMaterialSettings.Update();
     }
 }

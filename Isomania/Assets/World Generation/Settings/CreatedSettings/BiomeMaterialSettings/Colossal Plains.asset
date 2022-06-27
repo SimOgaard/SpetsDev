@@ -25,4 +25,5 @@ MonoBehaviour:
       maxHeight: 0.1
       minNormalDot: -1
       maxNormalDot: 1
-  stoneMaterialSettings: {fileID: 0}
+  stoneMaterialSettings: {fileID: 11400000, guid: 81d40d0bf6e38db459a9db0443a2e297,
+    type: 2}

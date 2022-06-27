@@ -9,11 +9,11 @@ using UnityEngine;
 [System.Serializable]
 public class WindSettings : ScriptableObject
 {
-    public Texture2D WindDistortionMap;
-    public Vector4 WindDistortionMap_ST;
+    //public Texture2D WindDistortionMap;
+    //public Vector4 WindDistortionMap_ST;
 
-    public Vector2 WindFrequency;
-    public float WindStrength;
+    //public Vector2 WindFrequency;
+    //public float WindStrength;
 
     public Vector3 cloudSpeed;
     public NoiseSettings noiseScrollNoise;
@@ -21,11 +21,11 @@ public class WindSettings : ScriptableObject
     [ContextMenu("Update", false, -1000)]
     public void Update()
     {
-        Shader.SetGlobalTexture("_WindDistortionMap", WindDistortionMap);
-        Shader.SetGlobalVector("_WindDistortionMap_ST", WindDistortionMap_ST);
+        //Shader.SetGlobalTexture("_WindDistortionMap", WindDistortionMap);
+        //Shader.SetGlobalVector("_WindDistortionMap_ST", WindDistortionMap_ST);
 
-        Shader.SetGlobalVector("_WindFrequency", WindFrequency);
-        Shader.SetGlobalFloat("_WindStrength", WindStrength);
+        //Shader.SetGlobalVector("_WindFrequency", WindFrequency);
+        //Shader.SetGlobalFloat("_WindStrength", WindStrength);
 
         Global.windController.UpdateSettings(this);
     }

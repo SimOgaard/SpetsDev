@@ -29,20 +29,18 @@
 			#pragma fragment frag
 			#pragma require geometry
 			
-			#include "/Assets/Graphics/CGincFiles/Geo/CustomGeo.cginc"
-			#include "/Assets/Graphics/CGincFiles/Billboard/BillboardTriangle.cginc"
-			#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
-
-			sampler2D _ColorShading;
-			float4 _ColorShading_ST;
-
-			sampler2D _Colors;
-			float4 _Colors_ST;
+			// For no tesselation
+			// Common things like unity lightning and functions import
+			#include "/Assets/Graphics/CGincFiles/Common.cginc"
+			// Shading part of this shader
+			#include "/Assets/Graphics/CGincFiles/ToonShading/FlatToonShading.cginc"
+			// Geometry part of this shader, should be billboard quads for each triangle
+			#include "/Assets/Graphics/CGincFiles/Geometry/Billboard/BillboardQuadFlat.cginc"
 
 			float _Cutoff;
 			float _Speed;
 
-			float4 frag (g2f i, float facing : VFACE) : SV_Target
+			float4 frag (v2f i, float facing : VFACE) : SV_Target
             {
 				fnl_state noise = fnlCreateState();
 				noise.rotation_type_3d = 2;
@@ -57,9 +55,9 @@
 				noise.domain_warp_amp = 0;
 
 				float3 noise_pos;
-				noise_pos.xy = i.uv + i.worldPos.xy;
+				noise_pos.xy = i.uv + i.worldCenter.xy;
 				noise_pos.y -= 2 * _Time[0] * _Speed;
-				noise_pos.z = i.worldPos.z;
+				noise_pos.z = i.worldCenter.z;
 
 				fnlDomainWarp3D(noise, noise_pos.x, noise_pos.y, noise_pos.z);
 				float noise_value = saturate(fnlGetNoise3D(noise, noise_pos.x, noise_pos.y, noise_pos.z) + 1);
