@@ -104,6 +104,10 @@ public class PixelPerfect : MonoBehaviour
     /// </summary>
     public static float unitsPerPixelWorld { get { return 1f / pixelsPerUnit; } }
     /// <summary>
+    /// FOR SOME REASON SOME SHADERS NEED THIS
+    /// </summary>
+    public static float unitsPerPixelWorld3 { get { return 1f / pixelsPerUnit3; } }
+    /// <summary>
     /// The game ppu value translated to camera
     /// </summary>
     public static float unitsPerPixelCamera { get { return ((float)renderHeight / pixelsPerUnit) / (float)renderHeightExtended; } }
@@ -324,6 +328,7 @@ public class PixelPerfect : MonoBehaviour
         Shader.SetGlobalFloat("pixelsPerUnit", pixelsPerUnit);
         Shader.SetGlobalFloat("pixelsPerUnit3", pixelsPerUnit3);
         Shader.SetGlobalFloat("unitsPerPixelWorld", unitsPerPixelWorld);
+        Shader.SetGlobalFloat("unitsPerPixelWorld", unitsPerPixelWorld3);
         Shader.SetGlobalFloat("yScale", SpriteInitializer.yScale);
     }
 

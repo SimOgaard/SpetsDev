@@ -13,6 +13,9 @@
 // Generic functions like remap and alpha blend
 #include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
 
+// Pixel snap etc
+#include "/Assets/Graphics/CGincFiles/PixelPerfectShaderFunctions.cginc"
+
 // Fast noise lite
 #include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 

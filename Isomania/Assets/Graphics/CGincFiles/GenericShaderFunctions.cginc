@@ -19,6 +19,5 @@ float rand(float3 co)
 	return sin(dot(co.xyz, float3(12.9898, 78.233, 53.539)));
 }
 
-float pixelsPerUnit;
-float pixelsPerUnit3;
-float unitsPerPixelWorld;
+float4x4 Camera_ForwardMatrix;
+float4x4 Camera_ForwardMatrixInverse;

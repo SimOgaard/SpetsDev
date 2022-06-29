@@ -80,9 +80,6 @@
 
 			float _WaterColOffset;
 
-			float2 renderResolution;
-			float2 renderResolutionExtended;
-
 			float3 GetWarpValue(float3 worldPos)
 			{
 				fnl_state warp = fnlCreateState(1337); //_Noise_Seed;

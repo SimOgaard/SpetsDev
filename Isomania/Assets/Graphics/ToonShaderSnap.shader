@@ -1,4 +1,4 @@
-Shader "Custom/Toon Shader"
+Shader "Custom/Toon Shader Snap"
 {
     Properties
     {
@@ -25,7 +25,7 @@ Shader "Custom/Toon Shader"
 			// Common things like unity lightning and functions import
 			#include "/Assets/Graphics/CGincFiles/Common.cginc"
 			// Geometry part of this shader
-			#include "/Assets/Graphics/CGincFiles/Geometry/Geo.cginc"
+			#include "/Assets/Graphics/CGincFiles/Geometry/GeoSnap.cginc"
 			// Shading part of this shader
 			#include "/Assets/Graphics/CGincFiles/ToonShading/ToonShading.cginc"
 

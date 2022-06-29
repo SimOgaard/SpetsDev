@@ -1,4 +1,3 @@
-float yScale;
 int _TileAmount;
 float _TilePixelSize;
 float3 _BillboardDisplacement;
