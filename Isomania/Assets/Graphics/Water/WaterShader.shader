@@ -85,8 +85,8 @@
 				fnl_state warp = fnlCreateState(1337); //_Noise_Seed;
 				warp.domain_warp_type = 0; //_Warp_DomainWarpType;
 				warp.rotation_type_3d = 2; //_Warp_RotationType3D;
-				warp.domain_warp_amp = 10; //_Warp_DomainWarpAmplitude;
-				warp.frequency = 0.3; //_Warp_Frequency;
+				warp.domain_warp_amp = 6.5; //_Warp_DomainWarpAmplitude;
+				warp.frequency = 0.5; //_Warp_Frequency;
 
 				warp.fractal_type = 4; //_Warp_FractalType;
 				warp.octaves = 3; //_Warp_FractalOctaves;
@@ -130,7 +130,7 @@
 				// grab current noise offset by time
 				float3 time = _Time[0] * float3(25, 35, 25); // noise scroll
 				// snap time to grid
-				time = round(time * pixelsPerUnit3) / pixelsPerUnit3;
+				//time = round(time * pixelsPerUnit) / pixelsPerUnit;
 
 				// create a current worldPos that has time and worldPos
 				float3 currentWorldPos = worldPos + time;
@@ -171,6 +171,8 @@
 				float depthDifference = (orthoEyeDepth - orthoPlainDepth);
 				// Depth scaled to our need
 				float depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
+
+				//return orthoLinearDepth*2;
 
 				float deltaYUV = screenUVWarped - screenUV;
 				float deltaYWorld = deltaYUV * unity_OrthoParams.y;
@@ -213,6 +215,8 @@
 				// Retrieve the view-space normal of the surface behind the
 				// pixel we are currently rendering.
 				float3 existingNormal = tex2Dproj(_CameraNormalsTexture, UNITY_PROJ_COORD(i.screenPosition)).rgb;
+
+				//return float4(existingNormal, 1);
 
 				// Modulate the amount of foam we display based on the difference
 				// between the normals of our water surface and the object behind it.

@@ -2,16 +2,7 @@
 
 struct v2f
 {
-	float4 pos : SV_POSITION;
-	float3 worldNormal : NORMAL;
-	float2 uv : TEXCOORD0;
-	float3 worldPosition : TEXCOORD1;
-	float4 screenPosition : TEXCOORD3;
-	//float3 viewDir : TEXCOORD1;	
-	// Macro found in Autolight.cginc. Declares a vector4
-	// into the TEXCOORD2 semantic with varying precision 
-	// depending on platform target.
-	SHADOW_COORDS(2)
+	V2F_SHADOW_CASTER;
 };
 
 float4x4 inverse(float4x4 m) {
@@ -59,14 +50,14 @@ v2f vert (appdata v)
 	{
 		v2f o;
 		o.pos = UnityObjectToClipPos(v.vertex);
-		o.worldNormal = UnityObjectToWorldNormal(v.normal);
-		o.worldPosition = mul(unity_ObjectToWorld, v.vertex);
-		o.screenPosition = ComputeScreenPos(o.pos);
+		//o.worldNormal = UnityObjectToWorldNormal(v.normal);
+		//o.worldPosition = mul(unity_ObjectToWorld, v.vertex);
+		//o.screenPosition = ComputeScreenPos(o.pos);
 		//o.viewDir = WorldSpaceViewDir(v.vertex);
-		o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+		//o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 		// Defined in Autolight.cginc. Assigns the above shadow coordinate
 		// by transforming the vertex from world space to shadow-map space.
-		TRANSFER_SHADOW(o)
+		TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 		return o;
 	}
 
@@ -78,12 +69,12 @@ v2f vert (appdata v)
 	float4 vertexWorld = mul(unity_ObjectToWorld, v.vertex);
 
 	// go from world to view
-	float4 objectOriginView = mul(UNITY_MATRIX_V, objectOriginWorld);
-	float4 vertexView = mul(UNITY_MATRIX_V, vertexWorld);
+	float4 objectOriginView = mul(worldToCameraMatrix, objectOriginWorld);
+	float4 vertexView = mul(worldToCameraMatrix, vertexWorld);
 
 	// then view to projection
-	float4 objectOriginProjection = mul(UNITY_MATRIX_P, objectOriginView);
-	float4 vertexProjection = mul(UNITY_MATRIX_P, vertexView);
+	float4 objectOriginProjection = mul(projectionMatrix, objectOriginView);
+	float4 vertexProjection = mul(projectionMatrix, vertexView);
 
 	// then snap object origin
 	float4 objectOriginProjectionSnapped = ClipSnap(objectOriginProjection);
@@ -93,16 +84,16 @@ v2f vert (appdata v)
 
 	// we only care about vertex so all transformations will be applied to it
 	// clip to view
-	float4 vertexViewSnapped = mul(inverse(UNITY_MATRIX_P), vertexProjectionSnapped);
+	float4 vertexViewSnapped = mul(inverse(projectionMatrix), vertexProjectionSnapped);
 	// then to world
-	float4 vertexWorldSnapped = mul(inverse(UNITY_MATRIX_V), vertexViewSnapped);
+	float4 vertexWorldSnapped = mul(inverse(worldToCameraMatrix), vertexViewSnapped);
 	// and lastly back to object
 	float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
 
 	// and output to v.vertex, o.pos and o.worldPosition respectivly
 	v.vertex = vertexObjectSnapped;
-	o.worldPosition = vertexWorldSnapped;
-	o.pos = vertexProjectionSnapped;
+	//o.worldPosition = vertexWorldSnapped;
+	//o.pos = vertexProjectionSnapped;
 
 	// when you know how to snap rotation, worldnormal need to be accounted for! (https://forum.unity.com/threads/cancel-object-inspector-rotation-from-shader-but-keep-movement.758972/)
 
@@ -125,13 +116,13 @@ v2f vert (appdata v)
 	o.pos.xyz += clipSnapDiff.xyz;
 	*/
 
-	o.worldNormal = UnityObjectToWorldNormal(v.normal);
-	o.screenPosition = ComputeScreenPos(o.pos);
-	o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+	//o.worldNormal = UnityObjectToWorldNormal(v.normal);
+	//o.screenPosition = ComputeScreenPos(o.pos);
+	//o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
 	// Defined in Autolight.cginc. Assigns the above shadow coordinate
 	// by transforming the vertex from world space to shadow-map space.
-	TRANSFER_SHADOW(o)
+	TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 
 	//o.worldPosition = viewSnapped.xyz;
 

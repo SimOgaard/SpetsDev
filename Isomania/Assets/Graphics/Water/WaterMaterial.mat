@@ -15,7 +15,8 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3999
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -103,7 +104,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _LigthCoefficient: -20.28
+    - _LigthCoefficient: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -116,7 +117,7 @@ Material:
     - _TEST: 0
     - _UVSec: 0
     - _WaterHeight: 7
-    - _WaterReflectionAmount: 0.575
+    - _WaterReflectionAmount: 0.6
     - _WaterRefractionAmplitude: 3.66
     - _ZWrite: 1
     m_Colors:

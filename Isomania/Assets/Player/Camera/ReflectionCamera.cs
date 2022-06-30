@@ -8,7 +8,7 @@ public class ReflectionCamera : MonoBehaviour
     /// <summary>
     /// The reflection camera
     /// </summary>
-    private Camera reflectionCamera;
+    public static Camera reflectionCamera;
 
     /// <summary>
     /// The render texture this camera renders to

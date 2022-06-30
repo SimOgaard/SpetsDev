@@ -3,15 +3,7 @@
 struct v2f
 {
 	float4 pos : SV_POSITION;
-	float3 worldNormal : NORMAL;
-	float2 uv : TEXCOORD0;
-	float3 worldPosition : TEXCOORD1;
-	float4 screenPosition : TEXCOORD3;
-	//float3 viewDir : TEXCOORD1;	
-	// Macro found in Autolight.cginc. Declares a vector4
-	// into the TEXCOORD2 semantic with varying precision 
-	// depending on platform target.
-	SHADOW_COORDS(2)
+	float3 viewNormal : NORMAL;
 };
 
 float4x4 inverse(float4x4 m) {
@@ -59,14 +51,7 @@ v2f vert (appdata v)
 	{
 		v2f o;
 		o.pos = UnityObjectToClipPos(v.vertex);
-		o.worldNormal = UnityObjectToWorldNormal(v.normal);
-		o.worldPosition = mul(unity_ObjectToWorld, v.vertex);
-		o.screenPosition = ComputeScreenPos(o.pos);
-		//o.viewDir = WorldSpaceViewDir(v.vertex);
-		o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-		// Defined in Autolight.cginc. Assigns the above shadow coordinate
-		// by transforming the vertex from world space to shadow-map space.
-		TRANSFER_SHADOW(o)
+		o.viewNormal = COMPUTE_VIEW_NORMAL;
 		return o;
 	}
 
@@ -100,40 +85,9 @@ v2f vert (appdata v)
 	float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
 
 	// and output to v.vertex, o.pos and o.worldPosition respectivly
-	v.vertex = vertexObjectSnapped;
-	o.worldPosition = vertexWorldSnapped;
+	v.vertex = vertexObjectSnapped;	
 	o.pos = vertexProjectionSnapped;
-
-	// when you know how to snap rotation, worldnormal need to be accounted for! (https://forum.unity.com/threads/cancel-object-inspector-rotation-from-shader-but-keep-movement.758972/)
-
-	/*
-	// get object center in world space
-	float3 objectOriginWorld = unity_ObjectToWorld._m03_m13_m23;
-	// transform world center to clip space
-	float4 objectOriginClip = mul(UNITY_MATRIX_VP, float4(objectOriginWorld, 1.0));
-	// now snap that to grid
-	float4 clipSnap = ClipSnap(objectOriginClip);
-	// get the position difference so that we can offset it later
-	float4 clipSnapDiff = float4(clipSnap.xyz - objectOriginClip.xyz, 1.0);
-	// transfer clip to world
-	float4 worldSnapDiff = mul(unity_CameraInvProjection, float4(clipSnapDiff.xyz, 1.0));
-	// transfer world to object	
-	float4 objectSnapDiff = mul(unity_WorldToObject, float4(worldSnapDiff.xyz, 1.0));
-
-	// offset
-	o.pos = UnityObjectToClipPos(v.vertex);
-	o.pos.xyz += clipSnapDiff.xyz;
-	*/
-
-	o.worldNormal = UnityObjectToWorldNormal(v.normal);
-	o.screenPosition = ComputeScreenPos(o.pos);
-	o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-
-	// Defined in Autolight.cginc. Assigns the above shadow coordinate
-	// by transforming the vertex from world space to shadow-map space.
-	TRANSFER_SHADOW(o)
-
-	//o.worldPosition = viewSnapped.xyz;
+	o.viewNormal = COMPUTE_VIEW_NORMAL;
 
 	return o;
 }

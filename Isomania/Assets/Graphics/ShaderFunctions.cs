@@ -16,17 +16,18 @@ public class ShaderFunctions : MonoBehaviour
 	}
 #endif
 
-    private void Update()
+    private void LateUpdate()
     {
-		Shader.SetGlobalMatrix("UNITY_MATRIX_I_V", MainCamera.mCamera.projectionMatrix.inverse);
+		Matrix4x4 projectionMatrix = GL.GetGPUProjectionMatrix(MainCamera.mCamera.projectionMatrix, true);
+		Matrix4x4 projectionMatrixInverse = projectionMatrix.inverse;
 
-		Shader.SetGlobalMatrix(
-			"Camera_ForwardMatrix",
-			Matrix4x4.Rotate(Quaternion.LookRotation(MainCamera.mCamera.transform.forward, Vector3.up))
-		);
-		Shader.SetGlobalMatrix(
-			"Camera_ForwardMatrixInverse",
-			Matrix4x4.Rotate(Quaternion.LookRotation(MainCamera.mCamera.transform.forward, Vector3.up)).inverse
-		);
+		Shader.SetGlobalMatrix("projectionMatrix", projectionMatrix);
+		Shader.SetGlobalMatrix("projectionMatrixInverse", projectionMatrixInverse);
+
+		Matrix4x4 worldToCameraMatrix = GL.GetGPUProjectionMatrix(MainCamera.mCamera.transform.worldToLocalMatrix, false);
+		Matrix4x4 worldToCameraMatrixInverse = projectionMatrix.inverse;
+
+		Shader.SetGlobalMatrix("worldToCameraMatrix", worldToCameraMatrix);
+		Shader.SetGlobalMatrix("worldToCameraMatrixInverse", worldToCameraMatrixInverse);
 	}
 }

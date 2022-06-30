@@ -4,20 +4,20 @@
 ## High priority checklist: (things bellow gets put here to be queued)
 
 
-remainding problems to fix:
-geo snap only snaps o.pos and nothing else, all properties of v2f needs to be snapped, by snapping vertex or going from snapped clip position to all other
+[geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
+[straigt edges are because ground shadow, since they do not excist here](https://cdn.discordapp.com/attachments/884159095500836914/992151859282325535/unknown.png)
+
+make a geosnap setup cginc file so that we do not need to have the same shit in both geosnapshadow och geosnap och normalsnap. (du kan säkerligen köra SnapThis(inout o) och sedan lägga declareshadowmap(o) utanför)
 
 we do not snap rotation, for example: our character can have non straight edges when running "straight" because "straight" is like 44.9 degrees instead of 45
 
+because middle of object stays the same when scaling, we do not get the desired pixel snap, so snap scaling too!
+
 add snap to grid to sprite billboard shader so that the pixel streatch gets removed (https://cdn.discordapp.com/attachments/884159095500836914/991072980572442664/unknown.png)
 
-när vi offsettar vertice i vert shader är depth (och möjligen normal cameran OM det är camera djupet som det är fel på och inte lineareyedepth) fel
-dessutom är pixel size fel på grund av testing grid stretchen vi ser i bilden
-vertex/object snap ej korrekt grid
-vertex/object snap accountar ej för scale
-varför behöver vi pixelsPerUnit3 och unitsPerPixelWorld3? 
-https://cdn.discordapp.com/attachments/884159095500836914/991072980572442664/unknown.png
+multiple meshes get different world centers so they snap independent of eachothers. this can create flickering/inconsistent models when moving. look to player body capsule and head cube
 
+varför behöver vi pixelsPerUnit3 och unitsPerPixelWorld3? 
 
 Create multiple vert shader cginc files that you can choose between. All should have the same appdata and v2f There should be one that is for static objects, that does nothing but hold the values. There should be one that snaps to grid and rotate. Another that is geo friendly but does nothing. And the last one should be geo friendly but snap to grid and not rotate. The geo should be capatable with all Billboard cginc.
 pre cull snap every object to 45 degree rotations, or 22.5 or 12.25 or 6.125 or ...

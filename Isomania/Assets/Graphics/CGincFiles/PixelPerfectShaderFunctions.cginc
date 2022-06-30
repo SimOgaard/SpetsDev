@@ -1,69 +1,74 @@
 float yScale;
 
 float pixelsPerUnit;
-float pixelsPerUnit3;
 float unitsPerPixelWorld;
-float unitsPerPixelWorld3;
 
 float2 renderResolutionExtended;
 float2 renderResolution;
 
-// Snaps given clip pos to grid
+// snaps given clip pos to grid
+float3 ClipSnap(float3 clipPos)
+{
+    // note that clipPos goes from -1 to 1 so we transfer it to go from 01
+    float2 clipPos01 = (clipPos.xy + 1.0) * 0.5;
+    // get the rounded clipXY (to snap to camera grid) 
+    float2 rounded = round(renderResolutionExtended * clipPos01) / renderResolutionExtended;
+
+    // offset by half a pixel
+    float2 offset = 0.5 / renderResolutionExtended;
+
+    // get the new clippos and remap to -1 to 1
+    float2 newClipPos = (rounded + offset) * 2.0 - 1.0;
+
+    // create float4 clippos and return it
+    return float3(
+        newClipPos.xy,
+        clipPos.z
+    );
+}
 float4 ClipSnap(float4 clipPos)
 {
-    //clipPos goes from -1 to 1 so we need to half renderResolutionExtended
-    float2 renderResolutionExtendedHalf = renderResolutionExtended * 0.5;
-
-    // however for some reason z value goes from 0 to 1?!?!? so dont do that for z
-    // we need to however still snap z to unitsPerPixelWorld (z is between 0 and 1 right now)
-    float clipZToWorld = _ProjectionParams.z - _ProjectionParams.y; // far - near plane
-    float z = clipPos.z * clipZToWorld;
-
     return float4(
-        round(clipPos.x * renderResolutionExtendedHalf.x) / renderResolutionExtendedHalf.x,
-        round(clipPos.y * renderResolutionExtendedHalf.y) / renderResolutionExtendedHalf.y,
-        (round(z * pixelsPerUnit3) / (pixelsPerUnit3)) / clipZToWorld,
+        ClipSnap(clipPos.xyz),
         clipPos.w
     );
 }
 
-// Snaps given normalized device coordinates (ndc) to grid
-float4 NDCSnap(float4 ndcCoords)
+// snaps given normalized device coordinates (ndc) to grid
+float3 NDCSnap(float3 ndcCoords)
 {
     // NDC goes from -1 to 1 so we need to snap to half the resolution
     float2 renderResolutionExtendedHalf = renderResolutionExtended * 0.5;
 
-    // we need to snap z to unitsPerPixelWorld
-    float ndcZToWorld = (_ProjectionParams.z - _ProjectionParams.y) * 0.5; // far - near plane
-    float z = ndcCoords.z * ndcZToWorld;
-
-    return float4(
+    return float3(
         round(ndcCoords.x * renderResolutionExtendedHalf.x) / renderResolutionExtendedHalf.x,
         round(ndcCoords.y * renderResolutionExtendedHalf.y) / renderResolutionExtendedHalf.y,
-        round(z * unitsPerPixelWorld) / unitsPerPixelWorld,
+        ndcCoords.z
+    );
+}
+float4 NDCSnap(float4 ndcCoords)
+{
+    return float4(
+        NDCSnap(ndcCoords.xyz),
         ndcCoords.w
     );
 }
 
-// Rounds given Vector3 position to pixel grid.
-float3 SnapToGrid(float3 position)
+// snaps world coordinate to grid
+float3 WorldSnap(float3 worldPos)
 {
     return float3
     (
-        round(position.x / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0),
-        round(position.y / (unitsPerPixelWorld * 3.0 * yScale)) * (unitsPerPixelWorld * 3.0 * yScale),
-        round(position.z / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0)
+        round(worldPos.x / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0),
+        round(worldPos.y / (unitsPerPixelWorld * 3.0 * yScale)) * (unitsPerPixelWorld * 3.0 * yScale),
+        round(worldPos.z / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0)
     );
 }
-
-// Rounds given Vector3 position to pixel grid.
-float4 SnapToGrid(float4 position)
+float4 WorldSnap(float4 worldPos)
 {
     return float4
     (
-        round(position.x / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0),
-        round(position.y / (unitsPerPixelWorld * 3.0 * yScale)) * (unitsPerPixelWorld * 3.0 * yScale),
-        round(position.z / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0),
-        1.0
+        WorldSnap(worldPos.xyz),
+        worldPos.w
     );
 }

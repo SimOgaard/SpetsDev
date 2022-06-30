@@ -52,7 +52,7 @@ public class NormalCamera : MonoBehaviour
         normalCamera.orthographicSize = MainCamera.mCamera.orthographicSize;
         // but with other render (first render normal, then reflection and lastly main camera)
         normalCamera.depth = -2;
-        normalCamera.depthTextureMode = DepthTextureMode.None;
+        normalCamera.depthTextureMode = DepthTextureMode.Depth;
         normalCamera.SetReplacementShader(normalsShader, "RenderType");
     }
 
@@ -67,7 +67,7 @@ public class NormalCamera : MonoBehaviour
         UpdateProjection();
         normalCamera.enabled = true;
 
-        normalCameraRenderTexture = PixelPerfect.CreateRenderTexture(0);
+        normalCameraRenderTexture = PixelPerfect.CreateRenderTexture(24);
         Shader.SetGlobalTexture("_CameraNormalsTexture", normalCameraRenderTexture);
         normalCamera.targetTexture = normalCameraRenderTexture;
     }
