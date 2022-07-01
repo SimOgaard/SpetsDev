@@ -18,7 +18,11 @@ public class MousePoint : MonoBehaviour
         inputMousePositionRaw.x *= widthScale;
         inputMousePositionRaw.y *= heightScale;
 
-        return new Vector3(inputMousePositionRaw.x * PixelPerfect.cameraScaleWidth, inputMousePositionRaw.y * PixelPerfect.cameraScaleHeight, 0f);
+        // inputMousePositionRaw is pixel coord on screen, so we need to offset it by remainderWidth/Height * 0.5
+
+        Debug.Log($"{inputMousePositionRaw.x}, { inputMousePositionRaw.y}");
+
+        return new Vector3(inputMousePositionRaw.x / PixelPerfect.cameraScaleWidth, inputMousePositionRaw.y / PixelPerfect.cameraScaleHeight, 0.5f);
     }
 
     public static Vector3 WorldToViewportPoint(Vector3 point)

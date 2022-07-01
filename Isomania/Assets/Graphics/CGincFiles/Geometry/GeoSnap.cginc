@@ -73,36 +73,37 @@ v2f vert (appdata v)
 	// create v2f
 	v2f o;
 
-	// get object center and vertex pos in world space
+	// get vertex clip position in one swoop using UnityObjectToClipPos
+	float4 vertexClip = UnityObjectToClipPos(v.vertex);
+
+	// store inverse of UNITY_MATRIX_VP
+	float4x4 UNITY_MATRIX_I_VP = inverse(UNITY_MATRIX_VP);
+
+	// UnityObjectToClipPos and inverse(UNITY_MATRIX_VP) is dependent on UNITY_MATRIX_VP (duh), so change it after the fact!
+	// remove T (translation) from TRS (translation, rotation, scalar) matrix
+	UNITY_MATRIX_VP._m03_m13_m23 = 0.0;
+	// get object center in world
 	float4 objectOriginWorld = float4(unity_ObjectToWorld._m03_m13_m23, 1.0);
-	float4 vertexWorld = mul(unity_ObjectToWorld, v.vertex);
+	// then go from world to clip using UNITY_MATRIX_VP where camera is now at worldpos(0,0,0) :)
+	float4 objectOriginClip = mul(UNITY_MATRIX_VP, objectOriginWorld);
 
-	// go from world to view
-	float4 objectOriginView = mul(UNITY_MATRIX_V, objectOriginWorld);
-	float4 vertexView = mul(UNITY_MATRIX_V, vertexWorld);
-
-	// then view to projection
-	float4 objectOriginProjection = mul(UNITY_MATRIX_P, objectOriginView);
-	float4 vertexProjection = mul(UNITY_MATRIX_P, vertexView);
-
-	// then snap object origin
-	float4 objectOriginProjectionSnapped = ClipSnap(objectOriginProjection);
-	// and use snapped object origin to get snapped vertexProjection
-	float4 vertexProjectionSnappedDiff = float4(objectOriginProjectionSnapped.xyz - objectOriginProjection.xyz, 1.0);
-	float4 vertexProjectionSnapped = float4(vertexProjection.xyz + vertexProjectionSnappedDiff, 1.0);
+	// then snap objectOriginClip
+	float4 objectOriginProjectionSnapped = ClipSnap(objectOriginClip);
+	// and use snapped and non-snapped object origin to get vertexClipSnappedDiff
+	float4 vertexClipSnappedDiff = float4(objectOriginProjectionSnapped.xyz - objectOriginClip.xyz, 1.0);
+	// this difference is in the same space with the same scalar/rotation so we can just add it to vertexClip to get vertexClipSnapped
+	float4 vertexClipSnapped = float4(vertexClip.xyz + vertexClipSnappedDiff, 1.0);
 
 	// we only care about vertex so all transformations will be applied to it
-	// first clip to view
-	float4 vertexViewSnapped = mul(inverse(UNITY_MATRIX_P), vertexProjectionSnapped);
-	// then to world
-	float4 vertexWorldSnapped = mul(inverse(UNITY_MATRIX_V), vertexViewSnapped);
+	// go from clip to world (keep in mind that the translation is here since we stored UNITY_MATRIX_I_VP)
+	float4 vertexWorldSnapped = mul(UNITY_MATRIX_I_VP, vertexClipSnapped);
 	// and lastly back to object
-	//float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
+	float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
 
 	// and output to v.vertex, o.pos and o.worldPosition respectivly
-	//v.vertex = vertexObjectSnapped;
+	v.vertex = vertexObjectSnapped;
 	o.worldPosition = vertexWorldSnapped;
-	o.pos = vertexProjectionSnapped;
+	o.pos = vertexClipSnapped;
 
 	// when you know how to snap rotation, worldnormal need to be accounted for! (https://forum.unity.com/threads/cancel-object-inspector-rotation-from-shader-but-keep-movement.758972/)
 

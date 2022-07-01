@@ -18,6 +18,14 @@ public class PixelPerfect : MonoBehaviour
     /// The screen or window resolution height of game
     /// </summary>
     public static int screenHeight = 1;
+    /// <summary>
+    /// The screen or window resolution width of game
+    /// </summary>
+    public static int screenWidthExtended = 1;
+    /// <summary>
+    /// The screen or window resolution height of game
+    /// </summary>
+    public static int screenHeightExtended = 1;
 
     /// <summary>
     /// Game resolution width we are striving for
@@ -96,17 +104,9 @@ public class PixelPerfect : MonoBehaviour
     /// </summary>
     public static float pixelsPerUnit = 5f;
     /// <summary>
-    /// FOR SOME REASON SOME SHADERS NEED THIS
-    /// </summary>
-    public static float pixelsPerUnit3 { get { return pixelsPerUnit * 3.0f; } }
-    /// <summary>
     /// The game ppu value translated to world
     /// </summary>
     public static float unitsPerPixelWorld { get { return 1f / pixelsPerUnit; } }
-    /// <summary>
-    /// FOR SOME REASON SOME SHADERS NEED THIS
-    /// </summary>
-    public static float unitsPerPixelWorld3 { get { return 1f / pixelsPerUnit3; } }
     /// <summary>
     /// The game ppu value translated to camera
     /// </summary>
@@ -208,8 +208,8 @@ public class PixelPerfect : MonoBehaviour
         renderHeight = bestAspect.Value;
 
         // set extended resolution for later render offsets
-        renderWidthExtended = NearestBiggerInt(renderWidth, diff: 2);
-        renderHeightExtended = NearestBiggerInt(renderHeight, diff: 2);
+        renderWidthExtended = renderWidth; // NearestBiggerInt(renderWidth, diff: 2);
+        renderHeightExtended = renderHeight; // NearestBiggerInt(renderHeight, diff: 2);
 
         // get the size of a game pixel
         float sizeWidth = (float)screenWidth / (float)renderWidth;
@@ -219,18 +219,21 @@ public class PixelPerfect : MonoBehaviour
         int pixelSizeWidth = Mathf.RoundToInt(sizeWidth);
         int pixelSizeHeight = Mathf.RoundToInt(sizeHeight);
 
-        // get the remaining pixels on screen that do not take up a whole game pixel
-        remainderWidth = screenWidth - renderWidth * pixelSizeWidth;
-        remainderHeight = screenHeight - renderHeight * pixelSizeHeight;
+        screenWidthExtended = renderWidth * pixelSizeWidth;
+        screenHeightExtended = renderHeight * pixelSizeHeight;
 
-        cameraScaleWidth = ((float)renderWidth / (float)renderWidthExtended) + (float)remainderWidth / (float)renderWidthExtended;
-        cameraScaleHeight = ((float)renderHeight / (float)renderHeightExtended) + (float)remainderHeight / (float)renderHeightExtended;
+        // get the remaining pixels on screen that do not take up a whole game pixel
+        remainderWidth = screenWidth - screenWidthExtended;
+        remainderHeight = screenHeight - screenHeightExtended;
+
+        cameraScaleWidth = ((float)renderWidth / (float)renderWidthExtended);// + (float)remainderWidth / (float)renderWidthExtended;
+        cameraScaleHeight = ((float)renderHeight / (float)renderHeightExtended);// + (float)remainderHeight / (float)renderHeightExtended;
 
         screenScaleWidth = ((float)renderWidth / (float)renderWidthExtended) + ((float)remainderWidth / ((float)renderWidthExtended * ((float)screenWidth / (float)renderWidth)));
         screenScaleHeight = ((float)renderHeight / (float)renderHeightExtended) + ((float)remainderHeight / ((float)renderHeightExtended * ((float)screenHeight / (float)renderHeight)));
 
         screenScaleWidthOffset = (1f - screenScaleWidth) * 0.5f;
-        screenScaleHeightOffset = (1f - screenScaleWidth) * 0.5f;
+        screenScaleHeightOffset = (1f - screenScaleHeight) * 0.5f;
 
         Debug.Log(
             $"Given a screen resolution of {screenWidth}x{screenHeight} with a target resolution of {targetWidth}x{targetHeight}.\n" +
@@ -270,6 +273,16 @@ public class PixelPerfect : MonoBehaviour
         rt.filterMode = FilterMode.Point;
         return rt;
     }
+
+    /// <summary>
+    /// Creates a render texture that is applicaple to game resolution
+    /// </summary>
+    public static RenderTexture CreateRenderTexture(int width, int height, int depth = 24)
+    {
+        RenderTexture rt = new RenderTexture(width, height, depth, RenderTextureFormat.ARGB32, 1);
+        rt.filterMode = FilterMode.Point;
+        return rt;
+    }
     #endregion
 
     #region pixel perfect
@@ -291,26 +304,40 @@ public class PixelPerfect : MonoBehaviour
     /// </summary>
     public static Vector2 PixelSnap(ref Camera camera)
     {
-        // get position without rotation
+        // camera.transform is now moved for this frame, but it is not snapped to grid, so:
+        // remove rotation from camera world position, so that we can round its position
         Vector3 cameraPosition = Quaternion.Inverse(camera.transform.rotation) * camera.transform.position;
         // snap it to grid
         Vector3 roundedCameraPosition = RoundToPixel(cameraPosition);
 
         // set camera position to snapped position by adding the rotation
         camera.transform.position = camera.transform.rotation * roundedCameraPosition;
-
+        /*
         // get camera position offset from snapped and original position
         Vector3 offset = roundedCameraPosition - cameraPosition;
         // translate offset.xy to render texture uv cordinates.
         float toPositive = (unitsPerPixelCamera * 0.5f);
         float xDivider = pixelsPerUnit / renderWidthExtended;
         float yDivider = pixelsPerUnit / renderHeightExtended;
-        Vector2 cameraOffset = new Vector2(
+        Vector2 pixelOffset = new Vector2(
             (-offset.x + toPositive) * xDivider + screenScaleWidthOffset,
             (-offset.y + toPositive) * yDivider + screenScaleHeightOffset
         );
         // return the new blit offset
-        return cameraOffset;
+        return pixelOffset;
+        */
+        // get positional difference (obs!, is in world space without camera rotation)
+        Vector2 positionDifference = roundedCameraPosition - cameraPosition;
+        // get constant offset of extended size
+        Vector2 constantOffset = new Vector2(renderWidthExtended - renderWidth, renderHeightExtended - renderHeight) * unitsPerPixelWorld;
+        // add constant and difference and convert to pixel
+        Vector2 pixelOffset = new Vector2(constantOffset.x / screenWidthExtended, constantOffset.y / screenHeightExtended);
+        return new Vector2(screenScaleWidthOffset, screenScaleHeightOffset);// Vector2.one * 0.95f;// new Vector2(screenScaleWidthOffset, screenScaleHeightOffset);
+        /*
+        Vector3 screenPointOffset = originalScreenPoint - newScreenPoint;
+        // and return it making shure you go from pixel to uv!
+        return new Vector2((screenPointOffset.x + 0.5f) / (float)screenWidthExtended, (screenPointOffset.y + 0.5f) / ((float)screenHeightExtended));
+        */
     }
     #endregion
 
@@ -326,9 +353,7 @@ public class PixelPerfect : MonoBehaviour
         CalculateResolution();
 
         Shader.SetGlobalFloat("pixelsPerUnit", pixelsPerUnit);
-        Shader.SetGlobalFloat("pixelsPerUnit3", pixelsPerUnit3);
         Shader.SetGlobalFloat("unitsPerPixelWorld", unitsPerPixelWorld);
-        Shader.SetGlobalFloat("unitsPerPixelWorld", unitsPerPixelWorld3);
         Shader.SetGlobalFloat("yScale", SpriteInitializer.yScale);
     }
 

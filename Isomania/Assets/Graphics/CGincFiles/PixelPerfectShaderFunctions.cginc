@@ -9,23 +9,15 @@ float2 renderResolution;
 // snaps given clip pos to grid
 float3 ClipSnap(float3 clipPos)
 {
-    // note that clipPos goes from -1 to 1 so we transfer it to go from 01
-    float2 clipPos01 = (clipPos.xy + 1.0) * 0.5;
-    // then, we have a fault in that when they are smacked down EXACTLY at rounding edge
-    // because of floating point precision, we add a tiny value to make it go away
-    //clipPos01 += 1e-5;
+    // note that clipPos goes from -1 to 1 so we half renderResolutionExtended
+    float2 renderResolutionExtendedHalf = renderResolutionExtended * 0.5;
+
     // get the rounded clipXY (to snap to camera grid) 
-    float2 rounded = round(renderResolutionExtended * clipPos01) / renderResolutionExtended;
-
-    // offset by half a pixel
-    float2 offset = 0.5 / renderResolutionExtended;
-
-    // get the new clippos and remap to -1 to 1
-    float2 newClipPos = (rounded + offset) * 2.0 - 1.0;
+    float2 rounded = round(renderResolutionExtendedHalf * clipPos.xy) / renderResolutionExtendedHalf;
 
     // create float4 clippos and return it
     return float3(
-        newClipPos.xy,
+        rounded.xy,
         clipPos.z
     );
 }
