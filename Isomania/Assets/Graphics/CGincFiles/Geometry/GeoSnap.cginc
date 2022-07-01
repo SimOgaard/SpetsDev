@@ -87,43 +87,24 @@ v2f vert (appdata v)
 
 	// then snap object origin
 	float4 objectOriginProjectionSnapped = ClipSnap(objectOriginProjection);
-	// and use snapped object origin to get snapped vertexView 
+	// and use snapped object origin to get snapped vertexProjection
 	float4 vertexProjectionSnappedDiff = float4(objectOriginProjectionSnapped.xyz - objectOriginProjection.xyz, 1.0);
 	float4 vertexProjectionSnapped = float4(vertexProjection.xyz + vertexProjectionSnappedDiff, 1.0);
 
 	// we only care about vertex so all transformations will be applied to it
-	// clip to view
+	// first clip to view
 	float4 vertexViewSnapped = mul(inverse(UNITY_MATRIX_P), vertexProjectionSnapped);
 	// then to world
 	float4 vertexWorldSnapped = mul(inverse(UNITY_MATRIX_V), vertexViewSnapped);
 	// and lastly back to object
-	float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
+	//float4 vertexObjectSnapped = mul(unity_WorldToObject, vertexWorldSnapped);
 
 	// and output to v.vertex, o.pos and o.worldPosition respectivly
-	v.vertex = vertexObjectSnapped;
+	//v.vertex = vertexObjectSnapped;
 	o.worldPosition = vertexWorldSnapped;
 	o.pos = vertexProjectionSnapped;
 
 	// when you know how to snap rotation, worldnormal need to be accounted for! (https://forum.unity.com/threads/cancel-object-inspector-rotation-from-shader-but-keep-movement.758972/)
-
-	/*
-	// get object center in world space
-	float3 objectOriginWorld = unity_ObjectToWorld._m03_m13_m23;
-	// transform world center to clip space
-	float4 objectOriginClip = mul(UNITY_MATRIX_VP, float4(objectOriginWorld, 1.0));
-	// now snap that to grid
-	float4 clipSnap = ClipSnap(objectOriginClip);
-	// get the position difference so that we can offset it later
-	float4 clipSnapDiff = float4(clipSnap.xyz - objectOriginClip.xyz, 1.0);
-	// transfer clip to world
-	float4 worldSnapDiff = mul(unity_CameraInvProjection, float4(clipSnapDiff.xyz, 1.0));
-	// transfer world to object	
-	float4 objectSnapDiff = mul(unity_WorldToObject, float4(worldSnapDiff.xyz, 1.0));
-
-	// offset
-	o.pos = UnityObjectToClipPos(v.vertex);
-	o.pos.xyz += clipSnapDiff.xyz;
-	*/
 
 	o.worldNormal = UnityObjectToWorldNormal(v.normal);
 	o.screenPosition = ComputeScreenPos(o.pos);
@@ -133,7 +114,7 @@ v2f vert (appdata v)
 	// by transforming the vertex from world space to shadow-map space.
 	TRANSFER_SHADOW(o)
 
-	//o.worldPosition = viewSnapped.xyz;
+	//o.worldPosition = objectOriginWorld.xyz;
 
 	return o;
 }

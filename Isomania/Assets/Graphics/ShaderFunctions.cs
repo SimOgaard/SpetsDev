@@ -18,6 +18,10 @@ public class ShaderFunctions : MonoBehaviour
 
     private void LateUpdate()
     {
+#if UNITY_EDITOR
+		if (!Application.isPlaying)
+			return;
+#endif
 		Matrix4x4 projectionMatrix = GL.GetGPUProjectionMatrix(MainCamera.mCamera.projectionMatrix, true);
 		Matrix4x4 projectionMatrixInverse = projectionMatrix.inverse;
 

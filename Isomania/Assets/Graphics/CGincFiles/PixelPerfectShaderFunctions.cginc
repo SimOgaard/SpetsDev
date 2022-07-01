@@ -11,6 +11,9 @@ float3 ClipSnap(float3 clipPos)
 {
     // note that clipPos goes from -1 to 1 so we transfer it to go from 01
     float2 clipPos01 = (clipPos.xy + 1.0) * 0.5;
+    // then, we have a fault in that when they are smacked down EXACTLY at rounding edge
+    // because of floating point precision, we add a tiny value to make it go away
+    //clipPos01 += 1e-5;
     // get the rounded clipXY (to snap to camera grid) 
     float2 rounded = round(renderResolutionExtended * clipPos01) / renderResolutionExtended;
 

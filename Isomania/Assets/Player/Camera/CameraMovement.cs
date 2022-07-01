@@ -73,8 +73,8 @@ public class CameraMovement : MonoBehaviour
         return smoothedPosition;
     }
 
-    [SerializeField] private float currentRotation;
-    [SerializeField] private float wantedRotation;
+    [SerializeField] private float currentRotation = 3600f;
+    [SerializeField] private float wantedRotation = 3600f;
     private float disjointment;
     private float offset;
     private float f(float x)
@@ -195,8 +195,8 @@ public class CameraMovement : MonoBehaviour
     }
 
     [SerializeField] private float reccursiveRotationThreshold = 0.5f;
-    [SerializeField] private float lastStoppedRotation;
-    private float C = 0f;
+    [SerializeField] private float lastStoppedRotation = 3600f;
+    [SerializeField] private float C = 3600f;
     private float oldDirectionHeading = 0f;
     //private float oldDirection = 0f;
     private IEnumerator RotateCamera(float direction)

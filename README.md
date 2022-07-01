@@ -5,7 +5,9 @@
 
 
 [geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
-[straigt edges are because ground shadow, since they do not excist here](https://cdn.discordapp.com/attachments/884159095500836914/992151859282325535/unknown.png)
+[straigt edges are because ground shadow, since they do not excist here, however geo shadow snap on reflection still shows](https://cdn.discordapp.com/attachments/884159095500836914/992156671189205062/unknown.png)
+
+try snapping the position of water or reflection camera, that might fix shadow?? idk??
 
 make a geosnap setup cginc file so that we do not need to have the same shit in both geosnapshadow och geosnap och normalsnap. (du kan säkerligen köra SnapThis(inout o) och sedan lägga declareshadowmap(o) utanför)
 
@@ -15,7 +17,7 @@ because middle of object stays the same when scaling, we do not get the desired 
 
 add snap to grid to sprite billboard shader so that the pixel streatch gets removed (https://cdn.discordapp.com/attachments/884159095500836914/991072980572442664/unknown.png)
 
-multiple meshes get different world centers so they snap independent of eachothers. this can create flickering/inconsistent models when moving. look to player body capsule and head cube
+multiple meshes get different world centers so they snap independent of eachothers. this can create flickering/inconsistent models when moving. look to player body capsule and head cube. this could be fixed by having a script on each static child, that on initilization, snaps the child in local space.
 
 varför behöver vi pixelsPerUnit3 och unitsPerPixelWorld3? 
 

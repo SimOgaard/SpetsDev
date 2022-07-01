@@ -32,7 +32,7 @@ Shader "Custom/Toon Shader Snap"
 			float4 frag(v2f i) : SV_Target
 			{
 				//return _ProjectionParams.z - _ProjectionParams.y > 0;
-				//return i.worldPosition.z > -100;
+				//return i.worldPosition.x < 5.1000001;
 				//return float4(i.pos.rgb, 1.0);
 				//return float4(i.worldPosition, 1.0);
 				//return tex2D(_Colors, 0);

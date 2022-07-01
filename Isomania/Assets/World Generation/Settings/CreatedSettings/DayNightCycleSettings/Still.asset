@@ -38,7 +38,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  cloudSettingsDay: {fileID: 11400000, guid: 3e351506b85b7c348826e08c0e850c43, type: 2}
+  cloudSettingsDay: {fileID: 11400000, guid: 159329447d35929489b0909b6f0fe84b, type: 2}
   cloudSettingsNight: {fileID: 0}
   rotationSpeedDay: {x: 0, y: 0, z: 0}
   rotationSpeedNight: {x: 0, y: 0, z: 0}
