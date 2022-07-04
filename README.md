@@ -7,6 +7,12 @@
 [geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
 [straigt edges are because ground shadow, since they do not excist here, however geo shadow snap on reflection still shows](https://cdn.discordapp.com/attachments/884159095500836914/992156671189205062/unknown.png)
 
+
+for shadow do everything just like the normal shader, but then when you have the vertice back in object space, do unityobjecttoclippos(). this works if you remove the unityobjecttoclippos() and pass in your own UNITY_MATRIX_VP
+This is however not that optimized, instead:
+
+we want to snap everything according to main camera grid, no other grid. then transfer that to what else we want
+
 make a geosnap setup cginc file so that we do not need to have the same shit in both geosnapshadow och geosnap och normalsnap. (du kan säkerligen köra SnapThis(inout o) och sedan lägga declareshadowmap(o) utanför)
 
 use newly created geosnap setup cginc on billboard shader to snap all textures to pixel perfect camera coordinates too!
@@ -20,6 +26,12 @@ because middle of object stays the same when scaling, we do not get the desired 
 multiple meshes get different world centers so they snap independent of eachothers. this can create flickering/inconsistent models when moving. look to player body capsule and head cube. this could be fixed by having a script on each static child, that on initilization, snaps the child in local space.
 
 try snapping the position of water or reflection camera, that might fix shadow?? idk??
+
+use blue noise instead of rand(float3), fastnoiselite noisetype: value might be just that 
+
+unrecognized identifier 'SHADOW_COORDS' ??? toonshadersnap
+
+make flatshading work with geo and geosnap 
 
 rework mouse point completely basically :-), i love my life :->
 

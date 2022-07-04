@@ -19,7 +19,7 @@ Shader "Custom/Toon Shader Snap"
 			}
 			CGPROGRAM
 
-			#pragma vertex vert
+			#pragma vertex vertSnap
 			#pragma fragment frag
 
 			// Common things like unity lightning and functions import
@@ -40,9 +40,35 @@ Shader "Custom/Toon Shader Snap"
 			}
 			ENDCG
 		}
-		
+		/*
 		// shadow caster rendering pass, implemented manually
-        // using macros from UnityCG.cginc
+        Pass
+        {
+            Tags {"LightMode"="ShadowCaster"}
+
+            CGPROGRAM
+            #pragma vertex vertShadowSnap
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+
+			// Common things like unity lightning and functions import
+			#include "/Assets/Graphics/CGincFiles/Common.cginc"
+			// Geometry part of this shader
+			#include "/Assets/Graphics/CGincFiles/Geometry/GeoSnap.cginc"
+
+            float4 frag(v2f_shadow i) : SV_Target
+            {
+                SHADOW_CASTER_FRAGMENT(i)
+            }
+            ENDCG
+        }
+		*/
+		//UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+		
+		
+		
+		/*
+		// shadow caster rendering pass, implemented manually
         Pass
         {
             Tags {"LightMode"="ShadowCaster"}
@@ -52,10 +78,49 @@ Shader "Custom/Toon Shader Snap"
             #pragma fragment frag
             #pragma multi_compile_shadowcaster
 
-			// Common things like unity lightning and functions import
-			#include "/Assets/Graphics/CGincFiles/Common.cginc"
-			// Geometry part of this shader
-			#include "/Assets/Graphics/CGincFiles/Shadow/ShadowSnap.cginc"
+			#include "UnityCG.cginc"
+
+			#include "/Assets/Graphics/CGincFiles/GenericShaderFunctions.cginc"
+			#include "/Assets/Graphics/CGincFiles/PixelPerfectShaderFunctions.cginc"
+			#include "/Assets/Graphics/CGincFiles/Geometry/SnapSetup.cginc"
+
+			struct appdata
+			{
+				float4 vertex : POSITION;				
+				float4 uv : TEXCOORD0;
+				float3 normal : NORMAL;
+				float3 worldPosition : TEXCOORD1;
+				float4 screenPosition : TEXCOORD3;
+			};
+
+			struct v2f
+			{
+				V2F_SHADOW_CASTER;
+			};
+
+			v2f vert (appdata v)
+			{
+				if (unity_OrthoParams.w == 0.0)
+				{
+					v2f o;
+					o.pos = UnityObjectToClipPos(v.vertex);
+					TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+					return o;
+				}
+
+				v2f o;
+
+				float4 vertexClipSnapped = GetVertexClipSnapped(v.vertex);
+				float4 vertexWorldSnapped = GetVertexWorldSnapped(vertexClipSnapped);
+				float4 vertexObjectSnapped = GetVertexObjectSnapped(vertexWorldSnapped);
+
+				v.vertex = vertexObjectSnapped;
+				o.pos = vertexClipSnapped;
+
+				TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+
+				return o;
+			}
 
             float4 frag(v2f i) : SV_Target
             {
@@ -63,7 +128,6 @@ Shader "Custom/Toon Shader Snap"
             }
             ENDCG
         }
-		
-		//UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+		*/
     }
 }

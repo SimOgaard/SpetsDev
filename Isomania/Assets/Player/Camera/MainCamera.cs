@@ -136,6 +136,10 @@ public class MainCamera : PixelPerfect
         // Set near clip plane to be tangentant to ground
         SetCameraNearClippingPlane();
 
+        // update all main camera matrices on shader side
+        Shader.SetGlobalMatrix("MAIN_CAMERA_UNITY_MATRIX_I_VP", mCamera.MATRIX_I_VP());
+        Shader.SetGlobalMatrix("MAIN_CAMERA_UNITY_MATRIX_VP", mCamera.MATRIX_VP());
+
         // do we after moving see any unloaded chunks?
         GameTime.isPaused = SeesUnloaded();
     }
@@ -166,6 +170,15 @@ public class MainCamera : PixelPerfect
         mainCameraRenderTexture = CreateRenderTexture(/*screenWidth, screenHeight*/);
         mCamera.aspect = (float)renderWidthExtended / (float)renderHeightExtended;
         mCamera.orthographicSize = ((float)renderHeightExtended / (pixelsPerUnit * 2f));
+    }
+
+    /// <summary>
+    /// Before culling the environment:
+    /// Overwrite global UNITY_MATRIX_I_VP shader matrix to represent this camera.
+    /// </summary>
+    private void OnPreCull()
+    {
+        Shader.SetGlobalMatrix("UNITY_MATRIX_I_VP", mCamera.MATRIX_I_VP());
     }
 
     /// <summary>

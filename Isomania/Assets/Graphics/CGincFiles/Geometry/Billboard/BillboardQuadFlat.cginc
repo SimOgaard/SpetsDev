@@ -1,4 +1,3 @@
-#include "/Assets/Graphics/CGincFiles/Geometry/GeoSetup.cginc"
 #include "/Assets/Graphics/CGincFiles/Geometry/GeoFlatSetup.cginc"
 #include "/Assets/Graphics/CGincFiles/Geometry/Billboard/BillboardSetup.cginc"
 

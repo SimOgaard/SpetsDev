@@ -54,9 +54,9 @@ float3 WorldSnap(float3 worldPos)
 {
     return float3
     (
-        round(worldPos.x / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0),
-        round(worldPos.y / (unitsPerPixelWorld * 3.0 * yScale)) * (unitsPerPixelWorld * 3.0 * yScale),
-        round(worldPos.z / (unitsPerPixelWorld * 3.0)) * (unitsPerPixelWorld * 3.0)
+        round(worldPos.x / (unitsPerPixelWorld)) * (unitsPerPixelWorld),
+        round(worldPos.y / (unitsPerPixelWorld * yScale)) * (unitsPerPixelWorld * yScale),
+        round(worldPos.z / (unitsPerPixelWorld)) * (unitsPerPixelWorld)
     );
 }
 float4 WorldSnap(float4 worldPos)

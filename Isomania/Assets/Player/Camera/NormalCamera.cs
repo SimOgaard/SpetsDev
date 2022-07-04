@@ -72,10 +72,17 @@ public class NormalCamera : MonoBehaviour
         normalCamera.targetTexture = normalCameraRenderTexture;
     }
 
+    /// <summary>
+    /// Before culling the environment:
+    /// Set this camera to render the same thing as mCamera.
+    /// Overwrite global UNITY_MATRIX_I_VP shader matrix to represent this camera.
+    /// </summary>
     private void OnPreCull()
     {
         transform.localRotation = MainCamera.mCamera.transform.rotation;
         transform.position = MainCamera.mCamera.transform.position;
         normalCamera.worldToCameraMatrix = MainCamera.mCamera.worldToCameraMatrix;
+
+        Shader.SetGlobalMatrix("UNITY_MATRIX_I_VP", normalCamera.MATRIX_I_VP());
     }
 }

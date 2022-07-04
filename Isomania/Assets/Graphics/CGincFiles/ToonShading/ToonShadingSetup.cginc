@@ -14,7 +14,7 @@ float2 CalculateToonUV(float3 normal, float shadow, float cloudValue)
 	float NdotL = dot(_WorldSpaceLightPos0, normal);
 
 	// Partition the intensity into light and dark.
-	float lightIntensity = NdotL * (shadow >= 1);
+	float lightIntensity = NdotL * (shadow >= 1.0);
 	// Multiply by the main directional light's intensity and color.
 	float4 light = lightIntensity * _LightColor0 * cloudValue;
 	// Add ambient color

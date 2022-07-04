@@ -239,6 +239,8 @@
 				float4 waterReflection = tex2D(_WaterReflectionTexture, reflectionUVWarped);
 				waterReflection.a *= _WaterReflectionAmount;
 
+				return tex2D(_WaterReflectionTexture, reflectionUV);
+
 				waterReflection = alphaBlend(_WaterReflectionColor, waterReflection);
 				waterColor = alphaBlend(waterReflection, waterColor);
 

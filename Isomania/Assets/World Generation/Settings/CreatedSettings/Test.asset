@@ -17,7 +17,7 @@ MonoBehaviour:
   chunkSettings: {fileID: 11400000, guid: 8919f5eda14e30c49b9edd99ea4d333f, type: 2}
   dayNightSettings: {fileID: 11400000, guid: 6ebcadceecc924e4cafb348858588be1, type: 2}
   windSettings: {fileID: 11400000, guid: 5e1d17106a9db1e4590e14116ce0dca3, type: 2}
-  waterSettings: {fileID: 11400000, guid: 28eec9cc6b0bfcb4cb4806b4a6b71383, type: 2}
+  waterSettings: {fileID: 11400000, guid: b161eb0724b6d334c973dc51415265ea, type: 2}
   defaultBiomeMaterials: {fileID: 11400000, guid: 185dd9bdcd300e14eb5b97344123dd75,
     type: 2}
   biomes:

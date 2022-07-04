@@ -16,13 +16,13 @@
             ZTest LEqual
 
             CGPROGRAM
-            #pragma vertex vert
+            #pragma vertex vertNormalSnap
             #pragma fragment frag
 
 			// Common things like unity lightning and functions import
 			#include "/Assets/Graphics/CGincFiles/Common.cginc"
 			// Geometry part of this shader
-			#include "/Assets/Graphics/CGincFiles/Normal/NormalSnap.cginc"
+			#include "/Assets/Graphics/CGincFiles/Geometry/GeoSnap.cginc"
 			// Frag part
 			#include "/Assets/Graphics/CGincFiles/Normal/NormalFrag.cginc"
 
@@ -42,13 +42,13 @@
             ZTest Less
 
             CGPROGRAM
-            #pragma vertex vert
+            #pragma vertex vertNormal
             #pragma fragment frag
 
             // Common things like unity lightning and functions import
 			#include "/Assets/Graphics/CGincFiles/Common.cginc"
 			// Geometry part of this shader
-			#include "/Assets/Graphics/CGincFiles/Normal/Normal.cginc"
+			#include "/Assets/Graphics/CGincFiles/Geometry/Geo.cginc"
 			// Frag part
 			#include "/Assets/Graphics/CGincFiles/Normal/NormalFrag.cginc"
 

@@ -118,11 +118,14 @@ public class ReflectionCamera : MonoBehaviour
     }
 
     /// <summary>
+    /// Before culling the environment:
     /// Move reflection camera after main camera (this late update is run after the maincamera each frame)
+    /// Overwrite global UNITY_MATRIX_I_VP shader matrix to represent this camera.
     /// </summary>
-    private void LateUpdate()
+    private void OnPreCull()
     {
         ConstructMatrix4X4Ortho();
         SetCameraNearClippingPlane();
+        Shader.SetGlobalMatrix("UNITY_MATRIX_I_VP", reflectionCamera.MATRIX_I_VP());
     }
 }

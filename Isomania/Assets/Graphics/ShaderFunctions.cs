@@ -16,7 +16,7 @@ public class ShaderFunctions : MonoBehaviour
 	}
 #endif
 
-    private void LateUpdate()
+	private void LateUpdate()
     {
 #if UNITY_EDITOR
 		if (!Application.isPlaying)
