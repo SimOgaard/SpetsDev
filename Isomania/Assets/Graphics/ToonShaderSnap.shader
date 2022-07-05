@@ -67,7 +67,7 @@ Shader "Custom/Toon Shader Snap"
 		
 		
 		
-		/*
+		
 		// shadow caster rendering pass, implemented manually
         Pass
         {
@@ -100,23 +100,29 @@ Shader "Custom/Toon Shader Snap"
 
 			v2f vert (appdata v)
 			{
+
 				if (unity_OrthoParams.w == 0.0)
 				{
 					v2f o;
-					o.pos = UnityObjectToClipPos(v.vertex);
 					TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 					return o;
 				}
 
+				// create v2f_shadow
 				v2f o;
 
-				float4 vertexClipSnapped = GetVertexClipSnapped(v.vertex);
-				float4 vertexWorldSnapped = GetVertexWorldSnapped(vertexClipSnapped);
-				float4 vertexObjectSnapped = GetVertexObjectSnapped(vertexWorldSnapped);
+				// get vertex object snapped difference
+				float4 m_vertexClipSnappedDiff = MainCameraClipSnappedDifference();
+				float4 vertexWorldSnappedDiff = SnappedDifferenceWorld(m_vertexClipSnappedDiff);
+				float4 vertexObjectSnappedDiff = SnappedDifferenceObject(vertexWorldSnappedDiff);
 
-				v.vertex = vertexObjectSnapped;
-				o.pos = vertexClipSnapped;
+				// snap current vertex
+				v.vertex += vertexObjectSnappedDiff;
 
+				// get vertex clip
+				o.pos = UnityObjectToClipPos(v.vertex);
+
+				// Defined in Autolight.cginc.
 				TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 
 				return o;
@@ -128,6 +134,6 @@ Shader "Custom/Toon Shader Snap"
             }
             ENDCG
         }
-		*/
+		
     }
 }

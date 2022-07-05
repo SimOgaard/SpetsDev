@@ -11,14 +11,21 @@ float3 ClipSnap(float3 clipPos)
 {
     // note that clipPos goes from -1 to 1 so we half renderResolutionExtended
     float2 renderResolutionExtendedHalf = renderResolutionExtended * 0.5;
-
     // get the rounded clipXY (to snap to camera grid) 
     float2 rounded = round(renderResolutionExtendedHalf * clipPos.xy) / renderResolutionExtendedHalf;
+
+    // now snap to camera z, by calculating the z world length
+    float zClipLength = (_ProjectionParams.z - _ProjectionParams.y);
+    float z = zClipLength * clipPos.z;
+    // because camera is already snapped in its local z space in world, we can snap clippos to z world grid
+    float roundedZ = round(z * pixelsPerUnit) / pixelsPerUnit;
+    // then transform back to clip
+    float roundedZClip = roundedZ / zClipLength;
 
     // create float4 clippos and return it
     return float3(
         rounded.xy,
-        clipPos.z
+        roundedZClip
     );
 }
 float4 ClipSnap(float4 clipPos)

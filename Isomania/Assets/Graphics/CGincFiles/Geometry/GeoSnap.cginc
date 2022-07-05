@@ -11,14 +11,18 @@ v2f vertSnap (appdata v)
 	// create v2f
 	v2f o;
 
-	float4 vertexClipSnapped = GetVertexClipSnapped(v.vertex);
-	float4 vertexWorldSnapped = GetVertexWorldSnapped(vertexClipSnapped);
-	float4 vertexObjectSnapped = GetVertexObjectSnapped(vertexWorldSnapped);
+	// get vertex object snapped difference
+	float4 m_vertexClipSnappedDiff = MainCameraClipSnappedDifference();
+	float4 vertexWorldSnappedDiff = SnappedDifferenceWorld(m_vertexClipSnappedDiff);
+	float4 vertexObjectSnappedDiff = SnappedDifferenceObject(vertexWorldSnappedDiff);
 
-	// and output to v.vertex, o.pos and o.worldPosition respectivly
-	v.vertex = vertexObjectSnapped;
-	o.worldPosition = vertexWorldSnapped;
-	o.pos = vertexClipSnapped;
+	// snap current vertex
+	v.vertex += vertexObjectSnappedDiff;
+
+	// get vertex world using now clipped vertex
+	o.worldPosition = mul(unity_ObjectToWorld, v.vertex);
+	// get vertex clip
+	o.pos = UnityObjectToClipPos(v.vertex);
 
 	// when you know how to snap rotation, worldnormal need to be accounted for! (https://forum.unity.com/threads/cancel-object-inspector-rotation-from-shader-but-keep-movement.758972/)
 
@@ -45,13 +49,16 @@ v2f_shadow vertShadowSnap (appdata v)
 	// create v2f_shadow
 	v2f_shadow o;
 
-	float4 vertexClipSnapped = GetVertexClipSnapped(v.vertex);
-	float4 vertexWorldSnapped = GetVertexWorldSnapped(vertexClipSnapped);
-	float4 vertexObjectSnapped = GetVertexObjectSnapped(vertexWorldSnapped);
+	// get vertex object snapped difference
+	float4 m_vertexClipSnappedDiff = MainCameraClipSnappedDifference();
+	float4 vertexWorldSnappedDiff = SnappedDifferenceWorld(m_vertexClipSnappedDiff);
+	float4 vertexObjectSnappedDiff = SnappedDifferenceObject(vertexWorldSnappedDiff);
 
-	// and output to v.vertex
-	v.vertex = vertexObjectSnapped;
-	o.pos = vertexClipSnapped;
+	// snap current vertex
+	v.vertex += vertexObjectSnappedDiff;
+
+	// get vertex clip
+	o.pos = UnityObjectToClipPos(v.vertex);
 
 	// Defined in Autolight.cginc.
 	TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
@@ -68,14 +75,17 @@ v2f_normal vertNormalSnap (appdata v)
 
 	// create v2f_normal
 	v2f_normal o;
+	
+	// get vertex object snapped difference
+	float4 m_vertexClipSnappedDiff = MainCameraClipSnappedDifference();
+	float4 vertexWorldSnappedDiff = SnappedDifferenceWorld(m_vertexClipSnappedDiff);
+	float4 vertexObjectSnappedDiff = SnappedDifferenceObject(vertexWorldSnappedDiff);
 
-	float4 vertexClipSnapped = GetVertexClipSnapped(v.vertex);
-	float4 vertexWorldSnapped = GetVertexWorldSnapped(vertexClipSnapped);
-	float4 vertexObjectSnapped = GetVertexObjectSnapped(vertexWorldSnapped);
+	// snap current vertex
+	v.vertex += vertexObjectSnappedDiff;
 
-	// and output to v.vertex
-	v.vertex = vertexObjectSnapped;
-	o.pos = vertexClipSnapped;
+	// get vertex clip
+	o.pos = UnityObjectToClipPos(v.vertex);
 
 	o.viewNormal = COMPUTE_VIEW_NORMAL;
 

@@ -9,26 +9,47 @@ public class MousePoint : MonoBehaviour
     private static RaycastHit hitData;
     private static RaycastHit[] hits;
 
+    private static Vector3 ToScreen(Vector3 point)
+    {
+        return new Vector3(
+            (point.x + PixelPerfect.screenResolutionWidthRemainder) * PixelPerfect.scaleWidth,
+            (point.y + PixelPerfect.screenResolutionHeightRemainder) * PixelPerfect.scaleHeight,
+            point.z
+        );
+    }
+
     /// <summary>
     /// The current mouse position in screen pixel coordinates. Translates the whole 400x255 px render texture to in game 384x216 px.
     /// </summary>
     private static Vector3 GetInputMousePosition(float widthScale = 1f, float heightScale = 1f)
     {
-        Vector3 inputMousePositionRaw = Input.mousePosition;
-        inputMousePositionRaw.x *= widthScale;
-        inputMousePositionRaw.y *= heightScale;
+        // get raw input in screen pixel coord
+        Vector2 inputMousePositionRaw = Input.mousePosition;
 
-        // inputMousePositionRaw is pixel coord on screen, so we need to offset it by remainderWidth/Height * 0.5
+        // inputMousePositionRaw is pixel coord on screen, so we need to transform it to game camera view by offsetting it and scaling
+        Vector2 inputMousePositionOffset = ToScreen(inputMousePositionRaw);
 
-        //Debug.Log($"{inputMousePositionRaw.x}, { inputMousePositionRaw.y}");
-
-        return new Vector3(inputMousePositionRaw.x / PixelPerfect.cameraScaleWidth, inputMousePositionRaw.y / PixelPerfect.cameraScaleHeight, 0.5f);
+        // scale it and return
+        Vector2 inputMousePositionScaled = new Vector3(inputMousePositionOffset.x * widthScale, inputMousePositionOffset.y * heightScale);
+        return new Vector3(inputMousePositionScaled.x, inputMousePositionScaled.y, 0.5f);
     }
 
     public static Vector3 WorldToViewportPoint(Vector3 point)
     {
-        return MainCamera.mCamera.WorldToViewportPoint(point);
+        Debug.Log("DO NOT KNOW IF THIS FUNCTION WORKS!!!"); // does it account for the blit offset?
+        Vector3 viewportPoint = MainCamera.mCamera.WorldToViewportPoint(point);
+        return viewportPoint;
     }
+    
+    /// <summary>
+    /// Get world position of object mouse is pointing at.
+    /// </summary>
+    public static Vector3 MousePosition()
+    {
+        Debug.Log("DO NOT KNOW IF THIS FUNCTION WORKS!!!"); // does it account for the blit offset?
+        return MainCamera.mCamera.ScreenToWorldPoint(GetInputMousePosition());
+    }
+
 
     /// <summary>
     /// Gets the target position of the mouse calculated to be on the same plane as the player character. Allways returns value and requires less Compute than GetTargetMousePos();
@@ -89,18 +110,10 @@ public class MousePoint : MonoBehaviour
         return ray.GetPoint(distance);
     }
 
-    /// <summary>
-    /// Get world position of object mouse is pointing at.
-    /// </summary>
-    public static Vector3 MousePosition()
-    {
-        return MainCamera.mCamera.ScreenToWorldPoint(GetInputMousePosition());
-    }
-
     public static Rigidbody MouseHitRigidbody()
     {
         ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
-        hits = Physics.RaycastAll(ray, 250f);
+        hits = Physics.RaycastAll(ray, MainCamera.mCamera.farClipPlane);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         for (int i = 0; i < hits.Length; i++)
@@ -130,7 +143,7 @@ public class MousePoint : MonoBehaviour
         }
 
         ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
-        hits = Physics.SphereCastAll(ray, sphereCastRadius, 250f);
+        hits = Physics.SphereCastAll(ray, sphereCastRadius, MainCamera.mCamera.farClipPlane);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         for (int i = 0; i < hits.Length; i++)
@@ -157,7 +170,7 @@ public class MousePoint : MonoBehaviour
     public static Vector3 MousePositionWorld()
     {
         ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground))
+        if (Physics.Raycast(ray, out hitData, MainCamera.mCamera.farClipPlane, Layer.Mask.ground))
         {
             return hitData.point;
         }
@@ -170,7 +183,7 @@ public class MousePoint : MonoBehaviour
     public static Vector3 MousePositionWorldAndEnemy()
     {
         ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground | (1 << Layer.enemy)))
+        if (Physics.Raycast(ray, out hitData, MainCamera.mCamera.farClipPlane, Layer.Mask.ground | (1 << Layer.enemy)))
         {
             return hitData.point;
         }
@@ -183,7 +196,7 @@ public class MousePoint : MonoBehaviour
     public static Vector3 MousePositionWorldAndEnemyMid()
     {
         ray = MainCamera.mCamera.ScreenPointToRay(GetInputMousePosition());
-        if (Physics.Raycast(ray, out hitData, 250f, Layer.Mask.ground | (1 << Layer.enemy)))
+        if (Physics.Raycast(ray, out hitData, MainCamera.mCamera.farClipPlane, Layer.Mask.ground | (1 << Layer.enemy)))
         {
             if (Layer.IsInLayer(Layer.enemy, hitData.collider.gameObject.layer))
             {

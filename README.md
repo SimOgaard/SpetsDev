@@ -7,17 +7,12 @@
 [geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
 [straigt edges are because ground shadow, since they do not excist here, however geo shadow snap on reflection still shows](https://cdn.discordapp.com/attachments/884159095500836914/992156671189205062/unknown.png)
 
-
-for shadow do everything just like the normal shader, but then when you have the vertice back in object space, do unityobjecttoclippos(). this works if you remove the unityobjecttoclippos() and pass in your own UNITY_MATRIX_VP
-This is however not that optimized, instead:
-
-we want to snap everything according to main camera grid, no other grid. then transfer that to what else we want
+why does it go "ayo wtf is TRANSFER_SHADOW"? well because they are in the same cginc file... idk how to fix
 
 make a geosnap setup cginc file so that we do not need to have the same shit in both geosnapshadow och geosnap och normalsnap. (du kan säkerligen köra SnapThis(inout o) och sedan lägga declareshadowmap(o) utanför)
 
 use newly created geosnap setup cginc on billboard shader to snap all textures to pixel perfect camera coordinates too!
 OLD TEXT: add snap to grid to sprite billboard shader so that the pixel streatch gets removed (https://cdn.discordapp.com/attachments/884159095500836914/991072980572442664/unknown.png)
-
 
 we do not snap rotation, for example: our character can have non straight edges when running "straight" because "straight" is like 44.9 degrees instead of 45
 

@@ -13,104 +13,170 @@ public class PixelPerfect : MonoBehaviour
     /// <summary>
     /// The screen or window resolution width of game
     /// </summary>
-    public static int screenWidth = 1;
+    public static int screenResolutionWidth = 1;
     /// <summary>
     /// The screen or window resolution height of game
     /// </summary>
-    public static int screenHeight = 1;
+    public static int screenResolutionHeight = 1;
     /// <summary>
-    /// The screen or window resolution width of game
+    /// The screen or window resolution of game
     /// </summary>
-    public static int screenWidthExtended = 1;
-    /// <summary>
-    /// The screen or window resolution height of game
-    /// </summary>
-    public static int screenHeightExtended = 1;
-
-    /// <summary>
-    /// Game resolution width we are striving for
-    /// </summary>
-    public static int targetWidth = 592;
-    /// <summary>
-    /// Game resolution height we are striving for
-    /// </summary>
-    public static int targetHeight = 333;
-    /// <summary>
-    /// The aspect of the game resolution wer are striving for
-    /// </summary>
-    public static float targetAspect = 16f / 9f;
-    /// <summary>
-    /// Amount of pixels in targetResolution (targetWidth * targetHeight)
-    /// </summary>
-    public static int targetPixelDensity { get { return targetWidth * targetHeight; } }
-    /// <summary>
-    /// Amount of pixels in targetResolution without aspect (targetWidth * targetHeight) / targetAspect
-    /// </summary>
-    public static float targetPixelDensityNoAspect { get { return (float) (targetWidth * targetHeight) / targetAspect; } }
+    public static Vector2Int screenResolution { get { return new Vector2Int(screenResolutionWidth, screenResolutionHeight); } }
 
     /// <summary>
     /// The calculated game resolution (width) that the player will see
     /// </summary>
-    public static int renderWidth = 1;
+    public static int renderResolutionWidth = 1;
     /// <summary>
     /// The calculated game resolution (height) that the player will see
     /// </summary>
-    public static int renderHeight = 1;
+    public static int renderResolutionHeight = 1;
+    /// <summary>
+    /// The calculated game resolution that the player will see
+    /// </summary>
+    public static Vector2Int renderResolution { get { return new Vector2Int(renderResolutionWidth, renderResolutionHeight); } }
+
+    /// <summary>
+    /// How many screen pixels are a singular game pixel
+    /// </summary>
+    public static int gamePixelToScreenPixel { get { return Mathf.RoundToInt(((float)screenResolutionWidth) / ((float)renderResolutionWidth)); } }
+
     /// <summary>
     /// The resolution (width) of the render textures that all cameras render to
     /// </summary>
-    public static int renderWidthExtended = 1;
+    public static int renderResolutionWidthExtended { get { return NearestBiggerInt(renderResolutionWidth, diff: 2); } }
     /// <summary>
     /// The resolution (height) of the render textures that all cameras render to
     /// </summary>
-    public static int renderHeightExtended = 1;
+    public static int renderResolutionHeightExtended { get { return NearestBiggerInt(renderResolutionHeight, diff: 2); } }
+    /// <summary>
+    /// The resolution of the render textures that all cameras render to
+    /// </summary>
+    public static Vector2Int renderResolutionExtended { get { return new Vector2Int(renderResolutionWidthExtended, renderResolutionHeightExtended); } }
 
     /// <summary>
-    /// The amount of screen pixels that are not included in renderWidth
+    /// The resolution (width) of the screen if the whole render texture would be rendered
     /// </summary>
-    public static int remainderWidth = 0;
+    public static int screenResolutionWidthExtended { get { return renderResolutionWidthExtended * gamePixelToScreenPixel; } }
     /// <summary>
-    /// The amount of screen pixels that are not included in renderHeight
+    /// The resolution (height) of the screen if the whole render texture would be rendered
     /// </summary>
-    public static int remainderHeight = 0;
+    public static int screenResolutionHeightExtended { get { return renderResolutionHeightExtended * gamePixelToScreenPixel; } }
+    /// <summary>
+    /// The resolution of the screen if the whole render texture would be rendered
+    /// </summary>
+    public static Vector2Int screenResolutionExtended { get { return new Vector2Int(screenResolutionWidthExtended, screenResolutionHeightExtended); } }
 
     /// <summary>
-    /// The scale.x value required when calculating mouse pixel position
+    /// The aspect of the screen/window
     /// </summary>
-    public static float cameraScaleWidth = 1f;
+    public static float screenAspect { get { return (float)screenResolutionWidth / (float)screenResolutionHeight; } }
     /// <summary>
-    /// The scale.y value required when calculating mouse pixel position
+    /// The aspect of the game camera
     /// </summary>
-    public static float cameraScaleHeight = 1f;
+    public static float renderAspect { get { return (float)renderResolutionWidthExtended / (float)renderResolutionHeightExtended; } }
+
     /// <summary>
-    /// The scale.x value required for blit when rendering the main camera render texture to screen
+    /// The orthographic size of the game camera
     /// </summary>
-    public static float screenScaleWidth = 1f;
+    public static float renderOrthographicSize { get { return ((float)renderResolutionHeightExtended) / (pixelsPerUnit * 2f); ; } }
+
     /// <summary>
-    /// The scale.y value required for blit when rendering the main camera render texture to screen
+    /// The amount of render texture pixels that are not included in renderResolutionWidth
     /// </summary>
-    public static float screenScaleHeight = 1f;
+    public static int renderResolutionWidthRemainder { get { return renderResolutionWidthExtended - renderResolutionWidth; } }
     /// <summary>
-    /// The offset.x blit value required for blit when rendering the main camera render texture to screen
+    /// The amount of render texture pixels that are not included in renderResolutionHeight
     /// </summary>
-    public static float screenScaleWidthOffset = 1f;
+    public static int renderResolutionHeightRemainder { get { return renderResolutionHeightExtended - renderResolutionHeight; } }
     /// <summary>
-    /// The offset.y blit value required for blit when rendering the main camera render texture to screen
+    /// The amount of render texture pixels that are not included in renderResolution
     /// </summary>
-    public static float screenScaleHeightOffset = 1f;
+    public static Vector2Int renderResolutionRemainder { get { return new Vector2Int(renderResolutionWidthRemainder, renderResolutionHeightRemainder); } }
+
+    /// <summary>
+    /// The amount of screen pixels that are not included in screenResolutionWidth
+    /// </summary>
+    public static int screenResolutionWidthRemainder { get { return screenResolutionWidthExtended - screenResolutionWidth; } }
+    /// <summary>
+    /// The amount of screen pixels that are not included in screenResolutionHeight
+    /// </summary>
+    public static int screenResolutionHeightRemainder { get { return screenResolutionHeightExtended - screenResolutionHeight; } }
+    /// <summary>
+    /// The amount of screen pixels that are not included in screenResolution
+    /// </summary>
+    public static Vector2Int screenResolutionRemainder { get { return new Vector2Int(screenResolutionWidthRemainder, screenResolutionHeightRemainder); } }
+
+    /// <summary>
+    /// Game resolution width we are striving for
+    /// </summary>
+    public static int targetResolutionWidth { get { return 592; } }
+    /// <summary>
+    /// Game resolution height we are striving for
+    /// </summary>
+    public static int targetResolutionHeight { get { return 333; } }
+    /// <summary>
+    /// Game resolution we are striving for
+    /// </summary>
+    public static Vector2Int targetResolution { get { return new Vector2Int(targetResolutionWidth, targetResolutionHeight); } }
+
+    /// <summary>
+    /// The aspect of the game resolution wer are striving for
+    /// </summary>
+    public static float targetAspect { get { return 16f / 9f; } }
+    /// <summary>
+    /// Amount of pixels in targetResolution (targetWidth * targetHeight)
+    /// </summary>
+    public static int targetPixelDensity { get { return targetResolutionWidth * targetResolutionHeight; } }
+    /// <summary>
+    /// Amount of pixels in targetResolution without aspect (targetWidth * targetHeight) / targetAspect
+    /// </summary>
+    public static float targetPixelDensityNoAspect { get { return ((float) targetPixelDensity) / targetAspect; } }
+
+    /// <summary>
+    /// The scale width value required for blit when rendering the main camera render texture to screen, is also the scale widht value required for calculating mouse pixel position
+    /// </summary>
+    public static float scaleWidth { get { return ((float)screenResolutionWidth) / ((float)screenResolutionWidthExtended); } }
+    /// <summary>
+    /// The scale height value required for blit when rendering the main camera render texture to screen, is also the scale height value required for calculating mouse pixel position
+    /// </summary>
+    public static float scaleHeight { get { return ((float)screenResolutionHeight) / ((float)screenResolutionHeightExtended); } }
+    /// <summary>
+    /// The scale value required for blit when rendering the main camera render texture to screen, is also the scale value required for calculating mouse pixel position
+    /// </summary>
+    public static Vector2 scale { get { return new Vector2(scaleWidth, scaleHeight); } }
+
+    /// <summary>
+    /// The scale width value required for blit when rendering the main camera render texture to screen, is also the scale widht value required for calculating mouse pixel position
+    /// </summary>
+    protected static float _offsetWidth = 0.0f;
+    public static float offsetWidth
+    {
+        get { return ((1f - scaleWidth) * 0.5f) - _offsetWidth; }
+        set { _offsetWidth = value; }
+    }
+    /// <summary>
+    /// The scale height value required for blit when rendering the main camera render texture to screen, is also the scale height value required for calculating mouse pixel position
+    /// </summary>
+    protected static float _offsetHeight = 0.0f;
+    public static float offsetHeight
+    {
+        get { return ((1f - scaleHeight) * 0.5f) - _offsetHeight; }
+        set { _offsetHeight = value; }
+    }
+    /// <summary>
+    /// The scale value required for blit when rendering the main camera render texture to screen, is also the scale value required for calculating mouse pixel position
+    /// </summary>
+    public static Vector2 offset { get { return new Vector2(offsetWidth, offsetHeight); } }
 
     /// <summary>
     /// The game ppu value
     /// </summary>
-    public static float pixelsPerUnit = 5f;
+    public static float pixelsPerUnit { get { return 5f; } }
     /// <summary>
     /// The game ppu value translated to world
     /// </summary>
     public static float unitsPerPixelWorld { get { return 1f / pixelsPerUnit; } }
-    /// <summary>
-    /// The game ppu value translated to camera
-    /// </summary>
-    public static float unitsPerPixelCamera { get { return ((float)renderHeight / pixelsPerUnit) / (float)renderHeightExtended; } }
 
     /// <summary>
     /// Calculates the best pixelSize values for given resolution.
@@ -177,18 +243,18 @@ public class PixelPerfect : MonoBehaviour
     public static bool CalculateResolution()
     {
         // if the resolution has changed
-        if (screenWidth == Screen.width && screenHeight == Screen.height)
+        if (screenResolutionWidth == Screen.width && screenResolutionHeight == Screen.height)
             return false;
 
         // remember current game render resolution
-        screenWidth = Screen.width;
-        screenHeight = Screen.height;
+        screenResolutionWidth = Screen.width;
+        screenResolutionHeight = Screen.height;
 
         bool negativeRemainders = false;
-        bool keepAspect = false; // will require black bars on some monitors
+        // bool keepAspect = false; // will require black bars on some monitors
 
-        Dictionary<int, int> aspectsWidth = Aspects(screenWidth, negativeRemainders);
-        Dictionary<int, int> aspectsHeight = Aspects(screenHeight, negativeRemainders);
+        Dictionary<int, int> aspectsWidth = Aspects(screenResolutionWidth, negativeRemainders);
+        Dictionary<int, int> aspectsHeight = Aspects(screenResolutionHeight, negativeRemainders);
 
         // gets a dictionary containing all possible width, heigth divisions
         Dictionary<int, int> finalAspects = GetCapable(aspectsWidth, aspectsHeight);
@@ -204,41 +270,17 @@ public class PixelPerfect : MonoBehaviour
         KeyValuePair<int, int> bestAspect = sortedAspectsByPixelDensity.First();
 
         // set our best attempt of a target resolution
-        renderWidth = bestAspect.Key;
-        renderHeight = bestAspect.Value;
-
-        // set extended resolution for later render offsets
-        renderWidthExtended = renderWidth; // NearestBiggerInt(renderWidth, diff: 2);
-        renderHeightExtended = renderHeight; // NearestBiggerInt(renderHeight, diff: 2);
-
-        // get the size of a game pixel
-        float sizeWidth = (float)screenWidth / (float)renderWidth;
-        float sizeHeight = (float)screenHeight / (float)renderHeight;
-
-        // get the real screen pixel size of a game pixel
-        int pixelSizeWidth = Mathf.RoundToInt(sizeWidth);
-        int pixelSizeHeight = Mathf.RoundToInt(sizeHeight);
-
-        screenWidthExtended = renderWidth * pixelSizeWidth;
-        screenHeightExtended = renderHeight * pixelSizeHeight;
-
-        // get the remaining pixels on screen that do not take up a whole game pixel
-        remainderWidth = screenWidth - screenWidthExtended;
-        remainderHeight = screenHeight - screenHeightExtended;
-
-        cameraScaleWidth = ((float)renderWidth / (float)renderWidthExtended);// + (float)remainderWidth / (float)renderWidthExtended;
-        cameraScaleHeight = ((float)renderHeight / (float)renderHeightExtended);// + (float)remainderHeight / (float)renderHeightExtended;
-
-        screenScaleWidth = ((float)renderWidth / (float)renderWidthExtended) + ((float)remainderWidth / ((float)renderWidthExtended * ((float)screenWidth / (float)renderWidth)));
-        screenScaleHeight = ((float)renderHeight / (float)renderHeightExtended) + ((float)remainderHeight / ((float)renderHeightExtended * ((float)screenHeight / (float)renderHeight)));
-
-        screenScaleWidthOffset = (1f - screenScaleWidth) * 0.5f;
-        screenScaleHeightOffset = (1f - screenScaleHeight) * 0.5f;
+        renderResolutionWidth = bestAspect.Key;
+        renderResolutionHeight = bestAspect.Value;
+        
+        // Set render scale as global shader vector
+        Shader.SetGlobalVector("_PixelScale", scale);
 
         Debug.Log(
-            $"Given a screen resolution of {screenWidth}x{screenHeight} with a target resolution of {targetWidth}x{targetHeight}.\n" +
-            $"Found resolution {bestAspect.Key}x{bestAspect.Value} by making each rendered pixel represent {pixelSizeWidth}x{pixelSizeHeight} pixels on screen.\n" +
-            $"With {remainderWidth}x{remainderHeight} screen pixels as remainders"
+            $"Given a screen resolution of {screenResolutionWidth}x{screenResolutionHeight} with a target resolution of {targetResolutionWidth}x{targetResolutionHeight}.\n" +
+            $"Found resolution {renderResolutionWidth}x{renderResolutionHeight} by making each rendered pixel represent {gamePixelToScreenPixel}x{gamePixelToScreenPixel} pixels on screen.\n" +
+            $"With {screenResolutionWidthRemainder}x{screenResolutionHeightRemainder} screen pixels as remainders.\n" +
+            $"This means that we need to scale the full renderTexture by {scaleWidth}x{scaleHeight} and offset by {offsetWidth}x{offsetHeight} before rendering to screen."
         );
 
         return true;
@@ -260,8 +302,8 @@ public class PixelPerfect : MonoBehaviour
 
         updateRenders();
 
-        Shader.SetGlobalVector("renderResolutionExtended", new Vector2(renderWidthExtended, renderHeightExtended));
-        Shader.SetGlobalVector("renderResolution", new Vector2(renderWidth, renderHeight));
+        Shader.SetGlobalVector("renderResolutionExtended", (Vector2)renderResolutionExtended);
+        Shader.SetGlobalVector("renderResolution", (Vector2)renderResolution);
     }
 
     /// <summary>
@@ -269,7 +311,7 @@ public class PixelPerfect : MonoBehaviour
     /// </summary>
     public static RenderTexture CreateRenderTexture(int depth = 24)
     {
-        RenderTexture rt = new RenderTexture(renderWidthExtended, renderHeightExtended, depth, RenderTextureFormat.ARGB32, 1);
+        RenderTexture rt = new RenderTexture(renderResolutionWidthExtended, renderResolutionHeightExtended, depth, RenderTextureFormat.ARGB32, 1);
         rt.filterMode = FilterMode.Point;
         return rt;
     }
@@ -312,32 +354,13 @@ public class PixelPerfect : MonoBehaviour
 
         // set camera position to snapped position by adding the rotation
         camera.transform.position = camera.transform.rotation * roundedCameraPosition;
-        /*
-        // get camera position offset from snapped and original position
+
+        // get offset of rounded and actual camera position
         Vector3 offset = roundedCameraPosition - cameraPosition;
-        // translate offset.xy to render texture uv cordinates.
-        float toPositive = (unitsPerPixelCamera * 0.5f);
-        float xDivider = pixelsPerUnit / renderWidthExtended;
-        float yDivider = pixelsPerUnit / renderHeightExtended;
-        Vector2 pixelOffset = new Vector2(
-            (-offset.x + toPositive) * xDivider + screenScaleWidthOffset,
-            (-offset.y + toPositive) * yDivider + screenScaleHeightOffset
-        );
-        // return the new blit offset
-        return pixelOffset;
-        */
-        // get positional difference (obs!, is in world space without camera rotation)
-        Vector2 positionDifference = roundedCameraPosition - cameraPosition;
-        // get constant offset of extended size
-        Vector2 constantOffset = new Vector2(renderWidthExtended - renderWidth, renderHeightExtended - renderHeight) * unitsPerPixelWorld;
-        // add constant and difference and convert to pixel
-        Vector2 pixelOffset = new Vector2(constantOffset.x / screenWidthExtended, constantOffset.y / screenHeightExtended);
-        return new Vector2(screenScaleWidthOffset, screenScaleHeightOffset);// Vector2.one * 0.95f;// new Vector2(screenScaleWidthOffset, screenScaleHeightOffset);
-        /*
-        Vector3 screenPointOffset = originalScreenPoint - newScreenPoint;
-        // and return it making shure you go from pixel to uv!
-        return new Vector2((screenPointOffset.x + 0.5f) / (float)screenWidthExtended, (screenPointOffset.y + 0.5f) / ((float)screenHeightExtended));
-        */
+        // transform offset world xy coordinates to pixel perfect coord using ppu
+        Vector3 offsetPPU = offset * pixelsPerUnit;
+        // transform from ppu to screen pixel offset
+        return new Vector2(offsetPPU.x / ((float)renderResolutionWidthExtended), offsetPPU.y / ((float)renderResolutionHeightExtended));
     }
     #endregion
 

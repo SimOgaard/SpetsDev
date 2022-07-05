@@ -16,11 +16,6 @@ public class MainCamera : PixelPerfect
     public static Camera mCamera;
 
     /// <summary>
-    /// The offset of render texture uv coordinates when blitting to screen
-    /// </summary>
-    public static Vector2 pixelOffset;
-
-    /// <summary>
     /// The distance that shadows are still rendered at
     /// </summary>
     [SerializeField] private float shadowDistance = 300f;
@@ -123,15 +118,12 @@ public class MainCamera : PixelPerfect
         }
 
         // Snap camera position to grid
-        pixelOffset = PixelSnap(ref mCamera);
+        Vector2 pixelOffset = PixelSnap(ref mCamera);
+        _offsetWidth = pixelOffset.x;
+        _offsetHeight = pixelOffset.y;
+
         // Set offset as global shader vector
-        Shader.SetGlobalVector("_PixelOffset", new Vector4(pixelOffset.x, pixelOffset.y, 0f, 0f));
-        
-        /*
-        GameObject lol = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        lol.transform.position = MousePoint.MousePositionWorld();
-        lol.GetComponent<Collider>().enabled = false;
-        */
+        Shader.SetGlobalVector("_PixelOffset", offset);
 
         // Set near clip plane to be tangentant to ground
         SetCameraNearClippingPlane();
@@ -168,8 +160,8 @@ public class MainCamera : PixelPerfect
 
         OnDestroy();
         mainCameraRenderTexture = CreateRenderTexture(/*screenWidth, screenHeight*/);
-        mCamera.aspect = (float)renderWidthExtended / (float)renderHeightExtended;
-        mCamera.orthographicSize = ((float)renderHeightExtended / (pixelsPerUnit * 2f));
+        mCamera.aspect = renderAspect;
+        mCamera.orthographicSize = renderOrthographicSize;
     }
 
     /// <summary>
@@ -204,9 +196,10 @@ public class MainCamera : PixelPerfect
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         src.filterMode = FilterMode.Point;
-        //Graphics.Blit(src, dest, new Vector2(screenScaleWidth, screenScaleHeight), pixelOffset);
+        Graphics.Blit(src, dest, scale, offset);
+        //Graphics.Blit(src, dest, scale, pixelOffset);
         //Graphics.Blit(src, dest, Vector2.one, Vector3.zero);
-        Graphics.Blit(src, dest);
+        //Graphics.Blit(src, dest);
     }
     #endregion
 
@@ -277,12 +270,12 @@ public class MainCamera : PixelPerfect
         Ray topRightRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(1, 1, 0));
         Ray topLeftRay = MainCamera.mCamera.ViewportPointToRay(new Vector3(0, 1, 0));
 
-        Vector3 botLeftPixelOrigin = Vector3.Lerp(botLeftRay.origin, topLeftRay.origin, 0.5f / renderHeightExtended);
-        Vector3 botRightPixelOrigin = Vector3.Lerp(botRightRay.origin, topRightRay.origin, 0.5f / renderHeightExtended);
+        Vector3 botLeftPixelOrigin = Vector3.Lerp(botLeftRay.origin, topLeftRay.origin, 0.5f / (float)renderResolutionHeightExtended);
+        Vector3 botRightPixelOrigin = Vector3.Lerp(botRightRay.origin, topRightRay.origin, 0.5f / (float)renderResolutionHeightExtended);
 
-        for (int i = 0; i < renderWidthExtended; i++)
+        for (int i = 0; i < renderResolutionWidthExtended; i++)
         {
-            Vector3 pixelRayOrigin = Vector3.Lerp(botLeftPixelOrigin, botRightPixelOrigin, (float)i / renderWidthExtended + 0.5f / renderWidthExtended);
+            Vector3 pixelRayOrigin = Vector3.Lerp(botLeftPixelOrigin, botRightPixelOrigin, (float)i / (float) renderResolutionWidthExtended + 0.5f / (float)renderResolutionWidthExtended);
 
             Gizmos.DrawRay(pixelRayOrigin, transform.forward * 300f);
         }
