@@ -58,9 +58,6 @@ float3 CloudUV(float3 worldPosition)
 	// Now offset that cloud uv based on time and global cloud offset
 	cloudUV += _Time[0] * float3(200.0, 25.0, 75.0);
 
-	// And snap it to grid
-	//cloudUV = round(cloudUV * pixelsPerUnit3) / pixelsPerUnit3;
-
 	// Return cloud uv
 	return cloudUV;
 }

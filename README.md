@@ -6,10 +6,11 @@
 # 
 
 # Shader
+shaders in prefab view https://forum.unity.com/threads/if-unity_prefab_view.1307313/ 
+
 maybe you can snap unity_ObjectToWorld positions
 
-[geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
-[straigt edges are because ground shadow, since they do not excist here, however geo shadow snap on reflection still shows](https://cdn.discordapp.com/attachments/884159095500836914/992156671189205062/unknown.png)
+[shadows are sometimes visible as an black edge, but that is because it is a shadow on ground.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
 
 why does it go "ayo wtf is TRANSFER_SHADOW/SHADOW_COORDS"? well because they are in the same cginc file... idk how to fix
 
@@ -41,6 +42,7 @@ a light value (float 4) of:
 global environment light (colored)
 directional light (colored) with no cascades (since it is ortho) and its shadows (colored)
 add ontop of that all point lights
+lights using unity particle system, like fireflies
 
 finally either:
 use the final light alpha value to get color gradient of each material, and then add the colored light to it
@@ -158,17 +160,11 @@ different static grounds like rocky and grassy and sandy and clay and mud etc, r
 * volumetric fog/clouds https://youtu.be/A7tikkWLBE8?t=660 
 
 ## Bugs that needs to be fixed:
-
-* Linux main_tex_st uv is different on water reflection. its mostly white and 1/6 of the top is correct 
 * Sprite of equipment going through the air is visually interactable, when it shouldnt be
-* Någon del i pixel perfect scropt leder till förg fuckip när du klickar utanför, jag vet det för samma sak hände på Combitech Simulation 
 * Wind map for current grass is not correct? https://discord.com/channels/695162838712582215/804311516282224711/921862951030386808 
 * Pause doesnt stop all rigid bodies (make it so that you save their velocities and set them to zero without gravity)
 * Updating the object pool breakes already instanciated objects
-* Make shaders visible in prefab (probably forward base)
-* DayNightCycle snap rotation gimble lock
-* Throwing palabera is not true when roots are imaginary and you are elevated or they are elevated (in the air), since 45 degrees is not optimal in that scenario
-* Figure out why your created cube does not look the same as createprimitive (probably normals)
+* Throwing palabera is not true when roots are imaginary and you are elevated or they are elevated (in the air), since 45 degrees is not optimal in that scenario https://www.youtube.com/watch?v=aKd32I0uwAQ&ab_channel=b2studios 
 * Cooldown eathbending pillar is broken
 * Fix rigidbody mass, drag, forces, etc on every rigidbody and their interaction.
 * Resource ID out of range in GetResource (happend once idk why just restarted unity)
@@ -181,27 +177,21 @@ different static grounds like rocky and grassy and sandy and clay and mud etc, r
 * Physics ground does not need to be the same high resolution mesh since it is using normal shading
 * Instead of using ienumerator to change burning triangle to ash, append a struct with triangle index, material to change to and at what time to do it. although it probably needs to be keept sorted, once it is done you can once a frame go through the list and change any triangle that should be changed and stop once the specified time is not less than current time
 * Offset whole world position so that player is more or less allways in the middle
-* Do not use fastnoise lite in shaders
-* Do not sample noise value for water foam when the value is 0
 * Precalculate density and volumes do not do it on runtime
 
 
 ## General shader restructuring:
 
-* White color on directional light and actually use the light color
 * Add step 3 and 4 of roystan esc toon shader to your own toon shaders https://roystan.net/articles/toon-shader.html
 * Add normal sprite to billboard shaders https://www.youtube.com/watch?v=vOXrrEvYUVg&ab_channel=Artindi
-* Support multiple lights (point light)
-* Fix so that you can use forward base with light cookie
 * Soft/fuzzy shadow (sebastianlaunge geogrophy game's cloud shadows)
-* Point lightning ?using unity particle system?
 * Pixel outline https://www.youtube.com/watch?v=jFevm02NJ5M&ab_channel=JamesKing
 
 
 ## Camera:
 
 * Camera movement system that can lock onto enemies and is more still (doesnt do small movements only large)
-* Small trail that lerps between enemmies that you decide to lock onto
+* Small trail/point that lerps between enemmies that you decide to lock onto, use https://www.youtube.com/watch?v=KPoeNZZ6H4s
 * Camera that follows you and doenst move as much just large movements no small movements
 * Change camera rotation to what david wrote in discord
 * Holding q or e rotation goes to far add a overshoot threshold 
@@ -220,7 +210,9 @@ different static grounds like rocky and grassy and sandy and clay and mud etc, r
 
 ## Equipments:
 
-sekiro like sword
+sekiro like sword that can block most things that do not stun/stagger (heavy attacks)
+
+visual markers before you attack on where the attacj will be going
 
 earthbending:
 uppgrade 1: only spawn in a straight line
