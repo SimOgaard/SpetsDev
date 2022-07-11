@@ -4,7 +4,6 @@
 	{
 		_MainTex ("Texture Image", 2D) = "white" {}
 		_Color ("Color", Color) = (1, 1, 1, 1)
-		_CutoffX ("CutoffX", Range(0,1)) = 1
 	}
 	SubShader
 	{
@@ -32,6 +31,8 @@
 				float4 tex : TEXCOORD0;
 			};
 
+			float yScale;
+
 			vertexOutput vert(vertexInput input)
 			{
 				vertexOutput output;
@@ -40,10 +41,10 @@
 					length(unity_ObjectToWorld._m00_m10_m20),
 					length(unity_ObjectToWorld._m01_m11_m21),
 					length(unity_ObjectToWorld._m02_m12_m22)
-					);
+				);
  
 				unity_ObjectToWorld._m00_m10_m20 = float3(scale.x, 0, 0);
-				unity_ObjectToWorld._m01_m11_m21 = float3(0, scale.y, 0);
+				unity_ObjectToWorld._m01_m11_m21 = float3(0, scale.y * yScale, 0);
 				unity_ObjectToWorld._m02_m12_m22 = float3(0, 0, scale.z);
 
 				//copy them so we can change them (demonstration purpos only)
@@ -78,15 +79,10 @@
 			}
 
 			float4 _Color;
-			float _CutoffX;
 
 			float4 frag(vertexOutput input) : COLOR
 			{
-				if (input.tex.x <= _CutoffX)
-				{
-					return tex2D(_MainTex, input.tex.xy) * _Color;
-				}
-				return float4(0,0,0,0);
+				return tex2D(_MainTex, input.tex.xy) * _Color;
 			}
 
 			ENDCG

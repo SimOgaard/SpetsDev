@@ -12,7 +12,9 @@ public class ChunkSettings : ScriptableObject
     /// <summary>
     /// The final size of the chunk
     /// </summary>
-    [Min(0.01f)] public Vector2 chunkSize = Vector2.one * 100f;
+    [Min(0.01f)] public Vector2 _chunkSize = Vector2.one * 100f;
+    public static Vector2 chunkSize;
+
     /// <summary>
     /// The resolution of the chunk mesh, how many quads make up the chunk in x, z
     /// </summary>
@@ -21,15 +23,33 @@ public class ChunkSettings : ScriptableObject
     /// <summary>
     /// The distance from camera origin a chunk should start to load in
     /// </summary>
-    public float chunkLoadDist = 300f;
+    public float _chunkLoadDist = 350f;
+    private static float chunkLoadDistPrivate;
+    public static float chunkLoadDist
+    {
+        get { return chunkLoadDistPrivate + PixelPerfect.cameraMaxRadius; }
+        set { chunkLoadDistPrivate = value; }
+    }
     /// <summary>
     /// The distance from camera origin a chunks game objects should be disabled
     /// </summary>
-    public float chunkDisableDistance = 250f;
+    public float _chunkDisableDistance = 300f;
+    private static float chunkDisableDistancePrivate;
+    public static float chunkDisableDistance
+    {
+        get { return chunkDisableDistancePrivate + PixelPerfect.cameraMaxRadius; }
+        set { chunkDisableDistancePrivate = value; }
+    }
     /// <summary>
     /// The distance from camera origin a chunks game objects should be enabled
     /// </summary>
-    public float chunkEnableDistance = 200f;
+    public float _chunkEnableDistance = 250f;
+    private static float chunkEnableDistancePrivate;
+    public static float chunkEnableDistance
+    {
+        get { return chunkEnableDistancePrivate + PixelPerfect.cameraMaxRadius; }
+        set { chunkEnableDistancePrivate = value; }
+    }
 
     /// <summary>
     /// How fast prefabs should be spawned into the chunk when it gets loaded
@@ -54,6 +74,12 @@ public class ChunkSettings : ScriptableObject
     [ContextMenu("Update", false, -1000)]
     public void Update()
     {
+        chunkSize = _chunkSize;
+
+        chunkLoadDist = _chunkLoadDist;
+        chunkDisableDistance = _chunkDisableDistance;
+        chunkEnableDistance = _chunkEnableDistance;
+
         // update triangle size margin for mesh manipulation
         ColliderMeshManipulation.triangleSizeMargin = Mathf.Max(chunkSize.x / quadAmount.x, chunkSize.y / quadAmount.y);
     }

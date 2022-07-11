@@ -38,6 +38,12 @@ public class DayNight : MonoBehaviour
         float ambientLerp = dayNightCycleSettings.ambientLerp.Evaluate(time);
         Color currentAmbientColor = Color.Lerp(dayNightCycleSettings.ambientDay, dayNightCycleSettings.ambientNight, ambientLerp);
         Shader.SetGlobalColor("_AmbientColor", currentAmbientColor);
+
+        // Calculate the angle between the lights direction and the horizon.
+        float angleToHorizon = Vector3.Angle(Vector3.up, transform.forward) - 90;
+
+        // Set remaining material properties.
+        Shader.SetGlobalFloat("_AngleToHorizon", angleToHorizon);
     }
 
     public void UpdateSettings(DayNightSettings dayNightCycleSettings)

@@ -108,7 +108,7 @@ public class Chunk : MonoBehaviour
 
         float boundsCenterOffset = (minY + maxY) * 0.5f;
         float boundsHeight = (maxY - minY);
-        Bounds meshBounds = new Bounds(Vector3.up * boundsCenterOffset, new Vector3(Ground.chunkSize.x, boundsHeight, Ground.chunkSize.y));
+        Bounds meshBounds = new Bounds(Vector3.up * boundsCenterOffset, new Vector3(ChunkSettings.chunkSize.x, boundsHeight, ChunkSettings.chunkSize.y));
 
         // also get the vertice y value
         Ground.GPUData.BufferVerticesExtendedY.GetData(Ground.CPUData.verticeYArrayExtended);
@@ -293,7 +293,7 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if (DistToPlayer() > Ground.chunkDisableDistance && isLoaded)
+        if (DistToPlayer() > ChunkSettings.chunkDisableDistance && isLoaded)
         {
             enemies.MoveParrent();
             gameObject.SetActive(false);

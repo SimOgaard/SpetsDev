@@ -24,6 +24,10 @@ public class DayNightSettings : ScriptableObject
 
     public Vector3 rotationSnap;
 
+    [Header("Horizon")]
+    public float horizonAngleThreshold = 7.5f;
+    public float horizonAngleFade = 7.5f;
+
     /// <summary>
     /// Assigns this setting to daynightcycle game object
     /// </summary>
@@ -31,6 +35,10 @@ public class DayNightSettings : ScriptableObject
     public void Update()
     {
         Destroy();
+
+        // add horizon values as global shader variables
+        Shader.SetGlobalFloat("_HorizonAngleThreshold", horizonAngleThreshold);
+        Shader.SetGlobalFloat("_HorizonAngleFade", horizonAngleFade);
 
         // 123 both should be updated or mby just the one active, ie day or night one
         cloudSettingsDay.Update();

@@ -53,7 +53,7 @@ public class Equipment : Item
     public override void InteractWith()
     {
         base.InteractWith();
-        transform.parent = Global.equipmentsInInventory;
+        transform.parent = Global.equipmentsInInventoryTransform;
         UpdateUI();
     }
     #endregion

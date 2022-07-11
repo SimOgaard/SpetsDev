@@ -13,8 +13,8 @@ public class CloudSettings : ScriptableObject
     public MaterialSettings.Curve cloudValueCurve;
 
     [Header("Horizon")]
-    public float horizonAngleThreshold = 15f;
-    public float horizonAngleFade = 15f;
+    public float horizonAngleThresholdCloud = 15f;
+    public float horizonAngleFadeCloud = 15f;
 
     [Header("Noise")]
     public NoiseSettings cloudNoise;
@@ -32,6 +32,11 @@ public class CloudSettings : ScriptableObject
 
         cloudValueCurve.AddGlobalCurveTexture();
 
+        // add horizon values as global shader variables
+        Shader.SetGlobalFloat("_HorizonAngleThresholdCloud", horizonAngleThresholdCloud);
+        Shader.SetGlobalFloat("_HorizonAngleFadeCloud", horizonAngleFadeCloud);
+
+        // theese needs to be added as global constant buffers, so that anything using ToonShadingSetup can have their cloud type
         computeBufferFNL = new ComputeBuffer(1, NoiseSettings.fnl_state.size, ComputeBufferType.Constant, ComputeBufferMode.Immutable);
         computeBufferFNLWarp = new ComputeBuffer(1, NoiseSettings.fnl_state.size, ComputeBufferType.Constant, ComputeBufferMode.Immutable);
 

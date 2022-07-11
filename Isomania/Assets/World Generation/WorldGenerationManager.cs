@@ -9,6 +9,7 @@ public class WorldGenerationManager : MonoBehaviour
 {
     public static Chunk[,] chunks;
     public static List<Chunk> chunksInLoading;
+    public static Transform worldGenerationManagerTransform;
 
     public WorldGenerationSettings worldGenerationSettings;
     [HideInInspector] public bool foldout;
@@ -72,10 +73,10 @@ public class WorldGenerationManager : MonoBehaviour
         worldGenerationSettings.Destroy();
     }
 
-    public Chunk InstanciateChunkGameObject(Vector2 chunkCoord)
+    public static Chunk InstanciateChunkGameObject(Vector2 chunkCoord)
     {
         GameObject chunkGameObject = new GameObject("chunk " + chunkCoord);
-        chunkGameObject.transform.parent = transform;
+        chunkGameObject.transform.parent = worldGenerationManagerTransform;
         chunkGameObject.transform.localPosition = new Vector3(chunkCoord.x, 0f, chunkCoord.y);
         Chunk chunkObject = chunkGameObject.AddComponent<Chunk>();
         return chunkObject;
@@ -102,6 +103,8 @@ public class WorldGenerationManager : MonoBehaviour
         {
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
+        
+        worldGenerationManagerTransform = transform;
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -152,11 +155,11 @@ public class WorldGenerationManager : MonoBehaviour
             {
                 if (k > n - b)
                 {
-                    return worldGenerationSettings.chunkSettings.chunkLoadDist; // put on the boundary
+                    return ChunkSettings.chunkLoadDist; // put on the boundary
                 }
                 else
                 {
-                    return worldGenerationSettings.chunkSettings.chunkLoadDist * (Mathf.Sqrt(k - 1 / 2) / Mathf.Sqrt(n - (b + 1) / 2)); // apply square root
+                    return ChunkSettings.chunkLoadDist * (Mathf.Sqrt(k - 1 / 2) / Mathf.Sqrt(n - (b + 1) / 2)); // apply square root
                 }
             }
 
@@ -282,8 +285,8 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / Ground.chunkSize.x) + 100,
-            Mathf.RoundToInt(position_2d.y / Ground.chunkSize.y) + 100
+            Mathf.RoundToInt(position_2d.x / ChunkSettings.chunkSize.x) + 100,
+            Mathf.RoundToInt(position_2d.y / ChunkSettings.chunkSize.y) + 100
         );
 
         return nearestChunk;
@@ -293,10 +296,10 @@ public class WorldGenerationManager : MonoBehaviour
     {
         Vector2 position_2d = new Vector2(position.x, position.z);
         Vector2Int nearestChunk = new Vector2Int(
-            Mathf.RoundToInt(position_2d.x / Ground.chunkSize.x),
-            Mathf.RoundToInt(position_2d.y / Ground.chunkSize.y)
+            Mathf.RoundToInt(position_2d.x / ChunkSettings.chunkSize.x),
+            Mathf.RoundToInt(position_2d.y / ChunkSettings.chunkSize.y)
         );
-        Vector2 chunkCoord = nearestChunk * Ground.chunkSize;
+        Vector2 chunkCoord = nearestChunk * ChunkSettings.chunkSize;
         return chunkCoord;
     }
 
@@ -306,7 +309,7 @@ public class WorldGenerationManager : MonoBehaviour
         return chunks[nearestChunkIndex.x, nearestChunkIndex.y];
     }
 
-    public Chunk LoadNearestChunk(Vector3 position)
+    public static Chunk LoadNearestChunk(Vector3 position)
     {
         Vector2Int nearestChunkIndex = ReturnNearestChunkIndex(position);
         
@@ -318,7 +321,7 @@ public class WorldGenerationManager : MonoBehaviour
             chunks[nearestChunkIndex.x, nearestChunkIndex.y] = chunk;
             chunksInLoading.Add(chunk);
         }
-        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - MainCamera.CameraRayHitPlane()).magnitude < Ground.chunkEnableDistance)
+        else if (!chunk.gameObject.activeSelf && (chunk.transform.position - MainCamera.CameraRayHitPlane()).magnitude < ChunkSettings.chunkEnableDistance)
         {
             // enable chunk
             chunk.gameObject.SetActive(true);

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: TestBiomeSpawn
   m_EditorClassIdentifier: 
   activation:
-    activationMin: -1
+    activationMin: 0
     activationMax: 1
   noiseSettings: {fileID: 11400000, guid: 1bcbdce312b06e54aae501ecb3fa7867, type: 2}

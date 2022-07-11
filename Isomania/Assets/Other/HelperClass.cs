@@ -311,7 +311,6 @@ public static class Copy
 
 public static class Global
 {
-    public static Material spriteRendererMaterial;
     public static Material waterMaterial;
 
     public static Sprite interactingWithSprite;
@@ -319,7 +318,7 @@ public static class Global
 
     public static Transform cameraFocusPointTransform;
     public static Transform playerTransform;
-    public static Transform equipmentsInInventory;
+    public static Transform equipmentsInInventoryTransform;
 
     public static DayNight dayNight;
 
@@ -330,14 +329,12 @@ public static class Global
     /// </summary>
     public static void PreLoad()
     {
-        spriteRendererMaterial = Resources.Load<Material>("Sprites/Sprte Billboard Material");
-
         interactingWithSprite = Resources.Load<Sprite>("Interactables/interactingWithSprite");
         notInteractingWithSprite = Resources.Load<Sprite>("Interactables/notInteractingWithSprite");
 
         cameraFocusPointTransform = GameObject.Find("cameraFocusPoint").transform;
         playerTransform = GameObject.Find("Player").transform;
-        equipmentsInInventory = GameObject.Find("EquipmentsInInventory").transform;
+        equipmentsInInventoryTransform = GameObject.Find("EquipmentsInInventory").transform;
 
         dayNight = GameObject.FindObjectOfType<DayNight>();
         windController = GameObject.FindObjectOfType<WindController>();

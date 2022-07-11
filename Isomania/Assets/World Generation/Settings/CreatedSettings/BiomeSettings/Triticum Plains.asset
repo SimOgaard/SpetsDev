@@ -18,4 +18,4 @@ MonoBehaviour:
   verticeOffset:
   - {fileID: 11400000, guid: ebfec007628cc354a8c43ab494c9e0cd, type: 2}
   prefabInstances: []
-  biomeMaterials: {fileID: 11400000, guid: 6988229532136be428468b57f9db91b1, type: 2}
+  materialSettings: {fileID: 11400000, guid: 6988229532136be428468b57f9db91b1, type: 2}

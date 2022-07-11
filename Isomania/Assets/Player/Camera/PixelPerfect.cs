@@ -179,6 +179,21 @@ public class PixelPerfect : MonoBehaviour
     public static float unitsPerPixelWorld { get { return 1f / pixelsPerUnit; } }
 
     /// <summary>
+    /// The size of camera width, OBS! IS HALF
+    /// </summary>
+    public static float cameraMaxRadiusWidth { get { return unitsPerPixelWorld * ((float)renderResolutionWidthExtended) * 0.5f; } }
+
+    /// <summary>
+    /// The size of camera width, OBS! IS HALF
+    /// </summary>
+    public static float cameraMaxRadiusHeight { get { return unitsPerPixelWorld * ((float)renderResolutionHeightExtended) * 0.5f; } }
+
+    /// <summary>
+    /// The max radius of camera
+    /// </summary>
+    public static float cameraMaxRadius { get { return Mathf.Sqrt(Mathf.Pow(cameraMaxRadiusWidth, 2.0f) + Mathf.Pow(cameraMaxRadiusHeight, 2.0f)); } }
+
+    /// <summary>
     /// Calculates the best pixelSize values for given resolution.
     /// </summary>
     /// <param name="resolution"></param>

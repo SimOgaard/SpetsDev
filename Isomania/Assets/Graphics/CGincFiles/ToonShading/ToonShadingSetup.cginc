@@ -6,6 +6,22 @@ float4 _Colors_ST;
 sampler2D _ColorShading;
 float4 _ColorShading_ST;
 
+float _HorizonAngleThreshold;
+float _HorizonAngleFade;
+
+float _HorizonAngleThresholdCloud;
+float _HorizonAngleFadeCloud;
+
+// gets set each frame
+float _AngleToHorizon;
+
+float SunAngleOpacity()
+{
+	float angle = _AngleToHorizon - _HorizonAngleThreshold;
+	float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFade);
+	return angle_opacity;
+}
+
 float2 CalculateToonUV(float3 normal, float shadow, float cloudValue)
 {
 	// Calculate illumination from directional light.
@@ -14,7 +30,7 @@ float2 CalculateToonUV(float3 normal, float shadow, float cloudValue)
 	float NdotL = dot(_WorldSpaceLightPos0, normal);
 
 	// Partition the intensity into light and dark.
-	float lightIntensity = NdotL * (shadow >= 1.0);
+	float lightIntensity = NdotL * (shadow >= 1.0) * SunAngleOpacity();
 	// Multiply by the main directional light's intensity and color.
 	float4 light = lightIntensity * _LightColor0 * cloudValue;
 	// Add ambient color
@@ -89,6 +105,13 @@ fnl_state PrivateCloudNoiseState()
 sampler2D _CloudShading;
 float4 _CloudShading_ST;
 
+float CloudAngleOpacity()
+{
+	float angle = _AngleToHorizon - _HorizonAngleThresholdCloud;
+	float angle_opacity = smoothstep(0, 1, angle / _HorizonAngleFadeCloud);
+	return angle_opacity;
+}
+
 ///
 /// Calculates cloud noise value given cloudUV
 ///
@@ -104,6 +127,8 @@ float CloudNoiseValueFromUV(float3 cloudUV)
 	// use warped cloud uvs to calculate cloud noise value
 	float noiseValue = fnlGetNoise3D(noise, cloudUV.x, cloudUV.y, cloudUV.z);
 
+	noiseValue *= CloudAngleOpacity();
+
 	// remap to 01 and return
 	noiseValue = remap01(noiseValue);
 
@@ -116,14 +141,16 @@ float CloudNoiseValueFromUV(float3 cloudUV)
 ///
 float CloudValueFromNoise(float noiseValue)
 {
-	return tex2D(_CloudShading, float2(noiseValue, 0.0));
+	float cloudValue = tex2D(_CloudShading, float2(noiseValue, 0.0));
+	return cloudValue;
 }
 ///
 /// Calculates cloud value given cloud noise
 ///
 float CloudValueFromNoiseFlat(float noiseValue)
 {
-	return tex2Dlod(_CloudShading, float4(noiseValue, 0.0, 0.0, 0.0));	
+	float cloudValue = tex2Dlod(_CloudShading, float4(noiseValue, 0.0, 0.0, 0.0));
+	return cloudValue;
 }
 
 ///

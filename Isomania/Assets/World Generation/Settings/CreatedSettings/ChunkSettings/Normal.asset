@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9273622eb81137646bc16a22ccbb1b44, type: 3}
   m_Name: Normal
   m_EditorClassIdentifier: 
-  chunkSize: {x: 100, y: 100}
+  _chunkSize: {x: 100, y: 100}
   quadAmount: {x: 61, y: 61}
-  chunkLoadDist: 350
-  chunkDisableDistance: 300
-  chunkEnableDistance: 250
+  _chunkLoadDist: 250
+  _chunkDisableDistance: 175
+  _chunkEnableDistance: 135
   prefabSpawnSpeed: 1
   maxChunkLoadAtATimeInit: 81
   maxChunkLoadAtATime: 3

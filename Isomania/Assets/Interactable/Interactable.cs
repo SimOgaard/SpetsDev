@@ -84,6 +84,6 @@ public class Interactable : MonoBehaviour
     public virtual void Awake()
     {
         interactingSprite = gameObject.AddComponent<SpriteInitializer>();
-        interactingSprite.Initialize(Global.notInteractingWithSprite, Quaternion.identity, 5f);
+        interactingSprite.Initialize(Global.notInteractingWithSprite, yPos:5f);
     }
 }

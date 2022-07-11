@@ -62,6 +62,15 @@ public class MainCamera : PixelPerfect
     }
 
     /// <summary>
+    /// Returns the chunk the camera ray hit
+    /// </summary>
+    public static Chunk CameraRayLoadChunk(float x, float y)
+    {
+        Vector3 planePoint = CameraRayHitPlane(x, y);
+        return WorldGenerationManager.LoadNearestChunk(planePoint);
+    }
+
+    /// <summary>
     /// Returns true if a unloaded chunk is visible in camera plane
     /// </summary>
     private bool SeesUnloaded()
@@ -73,24 +82,24 @@ public class MainCamera : PixelPerfect
         }
 #endif
 
+        bool seesUnloaded = false;
+
         // raycast uniformaly in a grid around camera
         for (float x = -0.25f; x <= 1.25f; x += 0.75f)
         {
             for (float y = -0.25f; y <= 1.25f; y += 0.75f)
             {
-                Chunk rayChunk = CameraRayHitChunk(x, y);
+                // if the ray hit a chunk that is not there, load it in
+                Chunk rayChunk = CameraRayLoadChunk(x, y);
 
-                if (rayChunk == null || !rayChunk.isLoaded || !rayChunk.gameObject.activeInHierarchy)
+                // if the ray hit a chunk which is not yet loaded in, just wait
+                if (rayChunk.isLoading)
                 {
-                    if (!rayChunk.isLoading)
-                    {
-                        StartCoroutine(rayChunk.LoadChunk(GameObject.FindObjectOfType<WorldGenerationManager>().worldGenerationSettings));
-                    }
-                    return true;
+                    seesUnloaded = true;
                 }
             }
         }
-        return false;
+        return seesUnloaded;
     }
 
     protected override void Awake()
@@ -110,13 +119,6 @@ public class MainCamera : PixelPerfect
 
     private void LateUpdate()
     {
-        // Check if camera sees an unloaded chunk
-        if (GameTime.isPaused)
-        {
-            GameTime.isPaused = SeesUnloaded();
-            return;
-        }
-
         // Snap camera position to grid
         Vector2 pixelOffset = PixelSnap(ref mCamera);
         _offsetWidth = pixelOffset.x;

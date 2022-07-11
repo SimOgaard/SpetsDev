@@ -28,12 +28,6 @@ public static class Ground
     /// </summary>
     public static void Update(WorldGenerationSettings worldGenerationSettings)
     {
-        chunkSize = worldGenerationSettings.chunkSettings.chunkSize;
-
-        chunkLoadDist = worldGenerationSettings.chunkSettings.chunkLoadDist;
-        chunkDisableDistance = worldGenerationSettings.chunkSettings.chunkDisableDistance;
-        chunkEnableDistance = worldGenerationSettings.chunkSettings.chunkEnableDistance;
-
         CPUData.Update(worldGenerationSettings);
         GPUData.Update(worldGenerationSettings);
     }
@@ -166,8 +160,8 @@ public static class Ground
 
             // set midpoints for each triangle
             Vector2[] triangleMidPoint = new Vector2[CPUData.triangleCount];
-            float baseLength = worldGenerationSettings.chunkSettings.chunkSize.x / CPUData.quadCountWidth;
-            float heightLength = worldGenerationSettings.chunkSettings.chunkSize.y / CPUData.quadCountHeight;
+            float baseLength = ChunkSettings.chunkSize.x / CPUData.quadCountWidth;
+            float heightLength = ChunkSettings.chunkSize.y / CPUData.quadCountHeight;
             for (int h = 0; h < CPUData.quadCountHeight; h++)
             {
                 float h1 = (1f * heightLength) / 3f + h * heightLength;
@@ -207,11 +201,11 @@ public static class Ground
             // populate vertices starting from bottom left with an offset of (chunkSize * (verticeCountExtended)/(verticeCount)) * 0.5f
             Vector2[] verticesExtendedXZ = new Vector2[CPUData.verticeCountExtended];
 
-            float constOffsetX = -chunkSize.x * 0.5f;
-            float constOffsetZ = -chunkSize.y * 0.5f;
+            float constOffsetX = -ChunkSettings.chunkSize.x * 0.5f;
+            float constOffsetZ = -ChunkSettings.chunkSize.y * 0.5f;
 
-            float iterativeOffsetX = chunkSize.x / CPUData.quadCountWidth;
-            float iterativeOffsetZ = chunkSize.y / CPUData.quadCountHeight;
+            float iterativeOffsetX = ChunkSettings.chunkSize.x / CPUData.quadCountWidth;
+            float iterativeOffsetZ = ChunkSettings.chunkSize.y / CPUData.quadCountHeight;
 
             for (int z = 0; z < CPUData.verticeCountHeightExtended; z++)
             {
@@ -444,11 +438,11 @@ public static class Ground
 
             // fill the arrays that needs to be filled with constants once
             // vertice xz values
-            float constOffsetX = -chunkSize.x * 0.5f;
-            float constOffsetZ = -chunkSize.y * 0.5f;
+            float constOffsetX = -ChunkSettings.chunkSize.x * 0.5f;
+            float constOffsetZ = -ChunkSettings.chunkSize.y * 0.5f;
 
-            float iterativeOffsetX = chunkSize.x / quadCountWidth;
-            float iterativeOffsetZ = chunkSize.y / quadCountHeight;
+            float iterativeOffsetX = ChunkSettings.chunkSize.x / quadCountWidth;
+            float iterativeOffsetZ = ChunkSettings.chunkSize.y / quadCountHeight;
 
             for (int z = 0; z < verticeCountHeight; z++)
             {
@@ -494,12 +488,6 @@ public static class Ground
             }
         }
     }
-
-    public static Vector2 chunkSize;
-
-    public static float chunkLoadDist;
-    public static float chunkDisableDistance;
-    public static float chunkEnableDistance;
 
     /*
     public int[] trianglesMesh;

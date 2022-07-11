@@ -1,13 +1,17 @@
-## Update:
+# Update:
 * [When unity 2021/2022 long support comes out, uppgrade](https://unity3d.com/unity/qa/lts-releases)
 
-## High priority checklist: (things bellow gets put here to be queued)
+# High priority checklist: (things bellow gets put here to be queued)
 
+# 
+
+# Shader
+maybe you can snap unity_ObjectToWorld positions
 
 [geo shadow snap on reflection is sometimes visible as an black edge, also straight edges.](https://media.discordapp.net/attachments/884159095500836914/992152051553411112/unknown.png).
 [straigt edges are because ground shadow, since they do not excist here, however geo shadow snap on reflection still shows](https://cdn.discordapp.com/attachments/884159095500836914/992156671189205062/unknown.png)
 
-why does it go "ayo wtf is TRANSFER_SHADOW"? well because they are in the same cginc file... idk how to fix
+why does it go "ayo wtf is TRANSFER_SHADOW/SHADOW_COORDS"? well because they are in the same cginc file... idk how to fix
 
 make a geosnap setup cginc file so that we do not need to have the same shit in both geosnapshadow och geosnap och normalsnap. (du kan säkerligen köra SnapThis(inout o) och sedan lägga declareshadowmap(o) utanför)
 
@@ -20,28 +24,17 @@ because middle of object stays the same when scaling, we do not get the desired 
 
 multiple meshes get different world centers so they snap independent of eachothers. this can create flickering/inconsistent models when moving. look to player body capsule and head cube. this could be fixed by having a script on each static child, that on initilization, snaps the child in local space.
 
-try snapping the position of water or reflection camera, that might fix shadow?? idk??
+pixel perfect ui for all resolutions, even pixel fractions, will be difficult if canvas is ontop of camera and not screen
 
 use blue noise instead of rand(float3), fastnoiselite noisetype: value might be just that 
 
-unrecognized identifier 'SHADOW_COORDS' ??? toonshadersnap
-
 make flatshading work with geo and geosnap 
 
-rework mouse point completely basically :-), i love my life :->
-
-Create multiple vert shader cginc files that you can choose between. All should have the same appdata and v2f There should be one that is for static objects, that does nothing but hold the values. There should be one that snaps to grid and rotate. Another that is geo friendly but does nothing. And the last one should be geo friendly but snap to grid and not rotate. The geo should be capatable with all Billboard cginc.
-pre cull snap every object to 45 degree rotations, or 22.5 or 12.25 or 6.125 or ...
-pre cull snap every object to pixel grid
-
-
-make water use toonshader as to get cloud and shadow support on water, you might have to offset them so a cube shadow isnt a cube shadow, but a jiggly one
+make water use toonshader as to get cloud and shadow support on water, you might have to warp them so a cube shadow isnt a cube shadow, but a jiggly one
 
 make clouds, water, etc easier to custimise by not having to change their values in code, The difficult part is not requiering 10000x different shader compilers. 
 
 weird line side to side when directional ligt, object side and camera direction are parrarell to each others. only at some resolutions. https://cdn.discordapp.com/attachments/884159095500836914/989183712321233008/unknown.png 
-
-stone shader renders its normal to _CameraNormalsTexture on build but not play?!?!
 
 update normalshading and flat shading to get:
 a light value (float 4) of:
@@ -57,12 +50,77 @@ OR
 use light cookie or other texture (different for each light) to create a color and alpha gradient (like any other material) and add that colored light to it, (would achive band look)
 https://www.youtube.com/watch?v=0xJqzUHJ2fI&t=5s
 
-any shader like water reflection that has a displacement of uv coordinates given screen coordinates are not scalable. meaning if we have a different resolution they render differently. each resolution should have the same amount of pixels that are displaced. 
+instead of color gradient beeing a texture, create a class that is a list of a list of colors and convert it to a texture and pass to material, list of list of colors because we want the option to make it a 2D texture with night day that gets lerped between in shader, make the texture clamped so that if it is only a 1D image you lerp between the two same colors. The class should also hold curve functionality. And in inspector display a texture that is a example.
 
-move all shader projections pixel perfectly, ie shadows and water noise
+switch between moon and sun cloud and light properties.
 
-before render snap all objects to pixel perfect grid
+# Compute buffers
+how does constant buffers work, or how do i definy a structuredbuffer of lenth 1 ie just a struct
 
+# World generation
+get multiple static meshes to work for a singular biome
+
+we need to be able to change underlying triangle submesh depending on triangle height and normal
+
+remove duplicates of BiomeMaterials and FoliageSettings etc while keeping the order
+
+create a uniformed distributed raycast for each chunk, get biome ray hit, select random prefab from that biome, check spawn condition, spawn it
+
+add masked noise to noise mesh displacement
+
+Each triangle for each chunk should be evaluated to be a biome based on noise, we can use RaycastHit.triangleIndex to instanciate prefabs.
+
+noise for biome can have the same noise for two biomes but one have larger falloff (cubed) or specified value threshold so that  
+
+WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, add a option to make all seeds random, OBS! make shure all seeds including .net, unity and fastnoiselite are changed and used, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending, they should also keep a initilized version at runtime that is hidden in inspector so nothing has to be done when sampeling noise.
+
+deligates on specific triangles that give items or buffs when walked over, maybe the watery lands has speed flowers, poisioned swamp has posion resistance
+
+distance field slimes with traingle change that paints triangles slime color
+
+to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames also make you able to build stuff
+
+directory to array doesnt keep the sort
+
+Be able to choose if nothing (no triangle) AND everything (any triangle) should be changed in triangle mesh manipulation
+
+lägg till mer specifika funktioner som ändrar trianglarna beroende på tex radius, matematiska funktioner som representerar flera olika former som koner när du ittererar över 2d array (func(x, y) => true/false), något system för att representera komplexa former, kanske två colliders i en xor funktion, collider inside collider with xor, etc
+
+# Abilities
+earthbending rock needs to grab the material for the biome it hits
+
+# Player
+player should have a health bar not hearts
+shake healthbar when a lot of damage is taken or given to enemy
+
+* To make player character fluid and finnished, we want the player to be able to:
+    * Sneak stealthfully with no sound, little visibility, but when touching enemy be seen. You preform a sneak by holding right ctrl or on controller L3. You can slide into a sneak from running stance without making sound. Sneaking should be zelda breath of the wild animation. You should be able to sneek with and without weapons drawn. You should be able to break sneek with a dash to any direction instantly into either walking or running depending on if you hold run button or not, going into a sprint will lengthen and quicken the dash. You should also be able to start walking by preforming a tiny hopp with a small button press or a high jump by holding it in. Or to running speed by preforming a longer jump by starting to sprint and jump at the same time, the height is just a bit higher but still dependent on how long you are holding the jump button, however the jump will be further in the direction of your movement when running. Attacking while sneaking will result in a high damage low speed attack, if enemy is not aware deal even more damage.
+    * Walk with little sound and normal visibility with or without weapons drawn. On controller you can choose the speed you walk. You should be able to dash to any direction instantly into either walking or running depending on if you hold run button or not, going into a sprint will lengthen and quicken the dash. You should also be able to preform a tiny hopp with a small button press or a high jump by holding it in. Or get into running speed by preforming a longer jump by starting to sprint and jump at the same time, the height is just a bit higher than if you would be jumping into a walk but still dependent on how long you are holding the jump button, however the jump will be further in the direction of your movement than if you were going into walking. Weapon attacks are default in this state. 
+    * Run with a lot of sound and visibility with or without weapons drawn. You preform a run by holding right shift or on controller X. So you will always be required to dash before running. Attacking after running will preform a slower, heavier and longer reaching attack that deal more damage if weapons are not drawn instantly draw them and attack at the same button press.
+    * Dash with some sound initially depending on dash type (running/walking). You preform a run by pressing right shift or on controller X press. Attacking during a dash will preform a quicker, light and longer reaching attack if weapons are not drawn instantly draw them and attack at the same button press. dash like sekiro (no iframes, just a quick way to get to running speed)
+    * Jump with some sound initially and a lot of sound at landing all depending on jump type (running/walking), during jump have high visibility. Preform a jump with or without weapons drawn. Attacking during a jump will preform a slower, heavier and longer reaching attack that deal more damage if weapons are not drawn instantly draw them and attack at the same button press. also like sekriro (no iframes)
+    * Not attacking for a while will holster your weapons, this delay gets shortened if you just defeated/ran away from danger, but it is never instant. Having a weapon holstered will increase your speed ever so slightly to match the more accurate runnig/walking/crouching animations.
+    * Drawing a weapon will require you to attack once. This is done instantly without requireing another button press to preform the attack if we are running/dashing/jumping.
+    * Picking stuff upp can be preformed at any time no matter the situation, there is no animation just a small icon in the bottom right corner telling you what you picked upp. Or if its a more essential item a small meny in bottom middle of your screen.
+    * Darksouls like targeting where at the press of middle mouse or on console R3 a single enemy closest to you in the direction you are facing gets targeted. Pressing the button again will make the taget dissapear. Flicking R the target visually travel to the next closest so its easy to follow what you are locked on to, the enemy it travels to is the closest enemy to that enemy in the direction you flicked. If the enemy dies the next closest enemy to that enemy gets targeted without taking into considiration the direction you are flicking. Targeting should be completely voluntary and if you choose not to use darksouls like targeting automatic targeting should be preformed like https://www.youtube.com/watch?v=yGci-Lb87zs&ab_channel=t3ssel8r.
+
+# Enemies
+add damage taken as a number under enemy health bar bottom left like elden ring
+
+# Youtube
+This would be a cool video:
+You are in a wheat field sneeking with the trampled wheat trail going parralell up twords the top of the camera. You are hiding and after a second or so stop sneeking and do the minecraft peace sign. then you start running and after halfway to running take out your sword to cut wheat. Then you stop and do some combos.
+For this to be done you need to rework world creation system, triangle swap, fix wheat visual, fix static collider ground mesh visual with dirty/gravely/clay visual, finnish character, build on sword weapon, add cut grass, cut wheat, burnt grass, burnt wheat.
+
+# Optimization
+are draw calls added if there are no triangles in submesh for that material?
+
+# Pixelart
+https://64.media.tumblr.com/a9ead6db48fb68bdf6ac996322955666/e79456eee010c491-30/s540x810/fd7599da16640d7f2c9927ab9343dd158b130e34.gifv
+https://insigniagame.tumblr.com/post/177615337006/hweat
+https://uploads.dailydot.com/c76/29/tumblr_mrcdipCOP41scncwdo1_500.gif?auto=compress&fm=gif&ixlib=php-3.3.0
+
+# Ideas
 Imagine if you could lerp between two target resolutions, and in doing so ofcourse change the zoom:
     private static float _zoom = 0.0f;
     /// <summary>
@@ -76,205 +134,28 @@ Imagine if you could lerp between two target resolutions, and in doing so ofcour
 Maybe this is used in towers when you are far above ground level. Or when channeling at a camp so you could move the camera far away from the player but it allso zoomed out so you could see and scout even more.
 If you wanted to keep the resolution-ish you could create two of each texture, for example smaller grass or interact texture
 
-you sit on the start randomly generated biome with the camera moved to a random location, the camera is static, but you can change the settings and see them beeing applied in real time.
+you sit on the start randomly generated biome with the camera moved to a random location, the camera is static, but you can change the settings and see them beeing applied in real time, ie sound resolution etc. and on play the menu goes away and your character stands up
 
 there should only be one of each biome, which is chosen at the start of the game. (for each biome choose next closest midpoint on cellular noise as the biome position, when all biomes are used, all other cells become end of world biome)
 
-if you do worldgenerationmanager.regenerate in editor update all material properties to the right values
+falling quads rotated twords camera. make the quad gravity dependent -9.82 * Time[0] each frame. but also wind determined (add 3d wind to shader). the quad should follow a animation tile set that given a wind vector, select a leaf sprite. could be used when hitting a tree or when a tree is falling/chopped down. maybe even grass cutting.
 
-get multiple static meshes to work for a singular biome
+different static grounds like rocky and grassy and sandy and clay and mud etc, right now you only have grassy
 
-we need to be able to change underlying triangle submesh depending on triangle height and normal
-
-remove duplicates of BiomeMaterials and FoliageSettings etc while keeping the order
-
-create a uniformed distributed raycast for each chunk, get biome ray hit, select random prefab from that biome, check spawn condition, spawn it
-
-add masked noise to noise mesh displacement
-
-earthbending rock needs to grab the material for the biome it hits
-
-Each triangle for each chunk should be evaluated to be a biome based on noise, we can use RaycastHit.triangleIndex to instanciate prefabs.
-
-
-noise for biome can have the same noise for two biomes but one have larger falloff (cubed) or specified value threshold so that  
-
-instead of color gradient beeing a texture, create a class that is a list of a list of colors and convert it to a texture and pass to material, list of list of colors because we want the option to make it a 2D texture with night day that gets lerped between in shader, make the texture clamped so that if it is only a 1D image you lerp between the two same colors. The class should also hold curve functionality. And in inspector display a texture that is a example.
-
-We need more than one pixel on each side since we distort water reflection image a lot, also if we want to add quarts/crystals/glass that offsets pixels by min(maxOffset, offsetAmplitude * distanceToGround)
-
-We want to rework the chunk ground mesh system, it is badly written:
-1. Rework Settings. We want:
-    NoiseSettings   ->  spawnSettings   ->  biomeSettings   ->  worldGenerationSettings
-
-    WorldGenerationManager should take in a WorldGenerationSettings object that defines how singular plain chunks are constructed, a global seed that offsets all seeds with this value, how large and what should be in the spawn area, the general difficulity and difficulity curve of the game as time and distance from origo increase, noise that defines where and what biomes should spawn and to what blend they should have (see it as a output from a neural network for every chunk triangle with weighted biome values like [0.2, 0.01, 0.9, 0.5] where each index is a specific biome), and multiple BiomeSettings. These BiomeSettings need to have biome specific materials, how each ground triangle should be generated and what should spawn on that biome. This requires BiomeSettings to have multiple SpawnSettings each for each object, this setting defines how frequent, what and where the object should spawn. All of these require a underlying NoiseSettings that represents a singular layer of noise like FastNoiseLite with added functionality like smoothing and blending, they should also keep a initilized version at runtime that is hidden in inspector so nothing has to be done when sampeling noise.
-
-shake healthbar when a lot of damage is taken or given
-
-This would be a cool video:
-You are in a wheat field sneeking with the trampled wheat trail going parralell up twords the top of the camera. You are hiding and after a second or so stop sneeking and do the minecraft peace sign. then you start running and after halfway to running take out your sword to cut wheat. Then you stop and do some combos.
-For this to be done you need to rework world creation system, triangle swap, fix wheat visual, fix static collider ground mesh visual with dirty/gravely/clay visual, finnish character, build on sword weapon, add cut grass, cut wheat, burnt grass, burnt wheat.
-
-dictionary<int, triangle> vs itterating the whole array
-CreatePlaneJob should create a mesh that have no overlapping vertices
-Since this mesh is constant throughout the whole game, we should be able to remove a triangle 
-
-falling quads rotated twords camera that follows a static leaf falling animation depending on that world position wind and vertex offset using wind as well, when hitting a tree or when a tree is falling/chopped down
-
-deligates on specific triangles that give items or buffs when walked over, maybe the watery lands has speed flowers, poisioned swamp has posion resistance
-
-how does constant buffers work, or how do i definy a structuredbuffer of lenth 1 ie just a struct
-
-are draw calls added if there are no triangles in submesh for that material?
-
-distance field slimes with traingle change that paints triangles slime color
-
-to create larger structures/buildings https://www.youtube.com/watch?v=0bcZb-SsnrA&ab_channel=BUasGames also make you able to build stuff
-
-* Triangles of type x after deletion and addition of same type x gets turnt upside down. So if i delete 100 grass and 10 flower, then go from nothing to flower 10 flowers will be upside down:
-
-directory to array doesnt keep the sort
-
-there is therefor a difference between:
-```
-// removes selected triangle from its submesh
-void RemoveTriangle()
-{
-    // show that this mesh was updated
-    groundSubtypesChanged[trianglesTypesIndex[triangleIndex]] = true;
-
-    // remove triangle from last dict/submesh
-    groundSubtypes[trianglesTypesIndex[triangleIndex]].Remove(triangleCornerIndex);
-    groundSubtypes[trianglesTypesIndex[triangleIndex]].Remove(triangleCornerIndex + 1);
-    groundSubtypes[trianglesTypesIndex[triangleIndex]].Remove(triangleCornerIndex + 2);
-}
-
-// adds a triangle to specified submesh at triangle point
-void AddTriangle()
-{
-    // show that this mesh was updated
-    groundSubtypesChanged[meshManipulation.changeToIndex] = true;
-
-    // place new triangle in new submesh
-    groundSubtypes[meshManipulation.changeToIndex][triangleCornerIndex] = triangles[triangleCornerIndex];
-    groundSubtypes[meshManipulation.changeToIndex][triangleCornerIndex + 1] = triangles[triangleCornerIndex + 1];
-    groundSubtypes[meshManipulation.changeToIndex][triangleCornerIndex + 2] = triangles[triangleCornerIndex + 2];
-}
-```
-
-and 
-
-```
-public struct CreatePlaneJob : IJob
-{
-    [ReadOnly] public Vector2Int planeSize;
-    [ReadOnly] public Vector2 quadSize;
-    [ReadOnly] public int quadCount;
-    [ReadOnly] public int vertexCount;
-    [ReadOnly] public int triangleCount;
-
-    [WriteOnly] public MeshData meshData;
-
-    public void Execute()
-    {
-        float halfWidth = (planeSize.x * quadSize.x) * .5f;
-        float halfLength = (planeSize.y * quadSize.y) * .5f;
-
-        for (int i = 0; i < quadCount; i++)
-        {
-            int x = i % planeSize.x;
-            int z = i / planeSize.x;
-
-            float left = (x * quadSize.x) - halfWidth;
-            float right = (left + quadSize.x);
-
-            float bottom = (z * quadSize.y) - halfLength;
-            float top = (bottom + quadSize.y);
-
-            int v = i * 4;
-
-            meshData.vertices[v + 0] = new Vector3(left, 0, bottom);
-            meshData.vertices[v + 1] = new Vector3(left, 0, top);
-            meshData.vertices[v + 2] = new Vector3(right, 0, top);
-            meshData.vertices[v + 3] = new Vector3(right, 0, bottom);
-
-            int t = i * 6;
-
-            meshData.triangles[t + 0] = v + 0;
-            meshData.triangles[t + 1] = v + 1;
-            meshData.triangles[t + 2] = v + 2;
-            meshData.triangles[t + 3] = v + 2;
-            meshData.triangles[t + 4] = v + 3;
-            meshData.triangles[t + 5] = v + 0;
-
-            meshData.normals[v + 0] = Vector3.up;
-            meshData.normals[v + 1] = Vector3.up;
-            meshData.normals[v + 2] = Vector3.up;
-            meshData.normals[v + 3] = Vector3.up;
-
-            meshData.uv[v + 0] = new Vector2(0, 0);
-            meshData.uv[v + 1] = new Vector2(0, 1);
-            meshData.uv[v + 2] = new Vector2(1, 1);
-            meshData.uv[v + 3] = new Vector2(1, 0);
-        }
-    }
-}
-```
-
-* Pixel perfect camera for all resolutions using dpi and aspect ratio
-* Update resolution of clouds dependent on screen resolution
-* add damage taken under enemy health bar bottom left like elden ring
-
-# PLAYER:
-Make player character fluid and finnished.
-* We want the player to be able to:
-    * Sneak stealthfully with no sound, little visibility, but when touching enemy be seen. You preform a sneak by holding right ctrl or on controller L3. You can slide into a sneak from running stance without making sound. Sneaking should be zelda breath of the wild animation. You should be able to sneek with and without weapons drawn. You should be able to break sneek with a dash to any direction instantly into either walking or running depending on if you hold run button or not, going into a sprint will lengthen and quicken the dash. You should also be able to start walking by preforming a tiny hopp with a small button press or a high jump by holding it in. Or to running speed by preforming a longer jump by starting to sprint and jump at the same time, the height is just a bit higher but still dependent on how long you are holding the jump button, however the jump will be further in the direction of your movement when running. Attacking while sneaking will result in a high damage low speed attack, if enemy is not aware deal even more damage.
-    * Walk with little sound and normal visibility with or without weapons drawn. On controller you can choose the speed you walk. You should be able to dash to any direction instantly into either walking or running depending on if you hold run button or not, going into a sprint will lengthen and quicken the dash. You should also be able to preform a tiny hopp with a small button press or a high jump by holding it in. Or get into running speed by preforming a longer jump by starting to sprint and jump at the same time, the height is just a bit higher than if you would be jumping into a walk but still dependent on how long you are holding the jump button, however the jump will be further in the direction of your movement than if you were going into walking. Weapon attacks are default in this state. 
-    * Run with a lot of sound and visibility with or without weapons drawn. You preform a run by holding right shift or on controller X. So you will always be required to dash before running. Attacking after running will preform a slower, heavier and longer reaching attack that deal more damage if weapons are not drawn instantly draw them and attack at the same button press.
-    * Dash with some sound initially depending on dash type (running/walking). You preform a run by pressing right shift or on controller X press. Attacking during a dash will preform a quicker, light and longer reaching attack if weapons are not drawn instantly draw them and attack at the same button press.
-    * Jump with some sound initially and a lot of sound at landing all depending on jump type (running/walking), during jump have high visibility. Preform a jump with or without weapons drawn. Attacking during a jump will preform a slower, heavier and longer reaching attack that deal more damage if weapons are not drawn instantly draw them and attack at the same button press.
-    * Not attacking for a while will holster your weapons, this delay gets shortened if you just defeated/ran away from danger, but it is never instant. Having a weapon holstered will increase your speed ever so slightly to match the more accurate runnig/walking/crouching animations.
-    * Drawing a weapon will require you to attack once. This is done instantly without requireing another button press to preform the attack if we are running/dashing/jumping.
-    * Picking stuff upp can be preformed at any time no matter the situation, there is no animation just a small icon in the bottom right corner telling you what you picked upp. Or if its a more essential item a small meny in bottom middle of your screen.
-    * Darksouls like targeting where at the press of middle mouse or on console R3 a single enemy closest to you in the direction you are facing gets targeted. Pressing the button again will make the taget dissapear. Flicking R the target visually travel to the next closest so its easy to follow what you are locked on to, the enemy it travels to is the closest enemy to that enemy in the direction you flicked. If the enemy dies the next closest enemy to that enemy gets targeted without taking into considiration the direction you are flicking. Targeting should be completely voluntary and if you choose not to use darksouls like targeting automatic targeting should be preformed like https://www.youtube.com/watch?v=yGci-Lb87zs&ab_channel=t3ssel8r.
-
-* player should have a health bar not hearts
-
-* dash like sekiro (no iframes, just a quick way to get to running speed)
-* jump also like sekriro (no iframes) ?!?!?!!?
-
-https://64.media.tumblr.com/a9ead6db48fb68bdf6ac996322955666/e79456eee010c491-30/s540x810/fd7599da16640d7f2c9927ab9343dd158b130e34.gifv
-https://www.google.com/url?sa=i&url=https%3A%2F%2Finsigniagame.tumblr.com%2Fpost%2F177615337006%2Fhweat&psig=AOvVaw2YWdDbosHSP2SQOUcZvM6B&ust=1651422038482000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCNiYuNGYvPcCFQAAAAAdAAAAABAi
-https://uploads.dailydot.com/c76/29/tumblr_mrcdipCOP41scncwdo1_500.gif?auto=compress&fm=gif&ixlib=php-3.3.0
-
-# Other:
-* unity 2021 lts
-* compute shader to create ground mesh
-* random init state seed for system and unity random
-* different static grounds like rocky and grassy and sandy and clay and mud etc, right now you only have grassy
-* Be able to choose if nothing (no triangle) AND everything (any triangle) should be changed in triangle mesh manipulation
-* Remove clouds earlier on sun rise/fall (clouds should grow during morning and shrink during sunset from the middle of the cloud. same for moon)
-* Fix how it should look between sunset and moon rise (darkest value should be lowest when moon is out NOT when sun just went down)
-* Script som hanterar grass cutting (med specifika funktioner som ändrar materialet beroende på tex radius) (matematiska funktioner som representerar flera olika former som koner när du ittererar över 2d array (func(x, y) => true/false)) (något system för att representera komplexa former, kanske två colliders i en xor funktion) (collider inside collider with xor)
-* The actual solid ground should be able to be muddy/stony
-* limit the amount of files in resources, you do not need them on runtime
-
-
-## Things to add:
+# Things to add:
 
 * Rain and lightning
 * Svärd med smear interpolation https://youtu.be/1FrIBkuq0ZI?t=246 
 * Procedural trees/stones/bricks either by mimicking what he does in blender https://www.youtube.com/watch?v=ERA7-I5nPAU&ab_channel=t3ssel8r or simple rotation ofsset on tree stump and leaf
 * Apply a boyancy force to items under water dependent on their precalculated volumes
-* Yxa som dras i marken kan höga gräs
-* Able to cut down trees with hole tecnique to acheave wood cutting effect, when two meshes intersect show inside of tree
+* Yxa som dras i marken som högger gräs när man drar den
+* Able to cut down trees with hole tecnique to acheave wood cutting effect, when two meshes intersect show inside of tree, https://www.youtube.com/watch?v=cHhxs12ZfSQ 
 * Spike ability höger gräset
 * Target locking / hoaming på spikes
-* Sand med waves (sand dunes
+* Sand med waves (sand dunes)
 * Water med ocean waves
 * God rays
-* Fog/clouds https://youtu.be/A7tikkWLBE8?t=660 
-
+* volumetric fog/clouds https://youtu.be/A7tikkWLBE8?t=660 
 
 ## Bugs that needs to be fixed:
 

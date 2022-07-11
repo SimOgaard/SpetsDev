@@ -24,49 +24,39 @@ public class SpriteInitializer : MonoBehaviour
     public static float yScale = 1f / Mathf.Cos(Mathf.Deg2Rad * (-30f));
 
     /// <summary>
-    /// Initializes gameobject with scale to offset cameras isometric view
+    /// Initilizes a sprite in world at given pos
     /// <summary>
-    public void Initialize(Sprite sprite, Quaternion rotation, float yPos = 3.5f, int renderOrder = 1)
+    public void Initialize(Sprite sprite, int renderOrder = 1, float yPos = 0f)
     {
-        if (spriteGameObject != null)
-        {
-            Destroy(spriteGameObject);
-        }
-
-        // Initializes gameobject as child with sprite renderer component and given sprite
-        spriteGameObject = new GameObject();
-        //spriteGameObject.transform.rotation = rotation;
-        spriteGameObject.transform.parent = transform;
-
-        spriteRenderer = spriteGameObject.AddComponent<SpriteRenderer>();
+        InitilizePrivate(renderOrder, yPos);
         spriteRenderer.sprite = sprite;
-        spriteRenderer.sortingOrder = renderOrder;
-        spriteRenderer.material = Global.spriteRendererMaterial;
-        animator = null;
-
-        // Applies scale to gameobject to correct camera rotation
-        spriteGameObject.transform.localScale = new Vector3(1f / transform.lossyScale.x, yScale / transform.lossyScale.y, 1f / transform.lossyScale.z);
-        spriteGameObject.transform.localPosition = new Vector3(0f, yPos / transform.lossyScale.y, 0f);
     }
-    public void Initialize(RuntimeAnimatorController animation, Quaternion rotation, float yPos = 3.5f, int renderOrder = 1)
+
+    /// <summary>
+    /// Initilizes a animation in world at given pos
+    /// <summary>
+    public void Initialize(RuntimeAnimatorController animation, int renderOrder = 1, float yPos = 0f)
     {
-        if (spriteGameObject != null)
-        {
-            Destroy(spriteGameObject);
-        }
-
-        spriteGameObject = new GameObject();
-        //spriteGameObject.transform.rotation = rotation;
-        spriteGameObject.transform.parent = transform;
-
-        spriteRenderer = spriteGameObject.AddComponent<SpriteRenderer>();
-        spriteRenderer.sortingOrder = renderOrder;
-        spriteRenderer.material = Global.spriteRendererMaterial;
+        InitilizePrivate(renderOrder, yPos);
         animator = spriteGameObject.AddComponent<Animator>();
         animator.runtimeAnimatorController = animation;
+    }
 
-        spriteGameObject.transform.localScale = new Vector3(1f / transform.lossyScale.x, yScale / transform.lossyScale.y, 1f / transform.lossyScale.z);
-        spriteGameObject.transform.localPosition = new Vector3(0f, yPos / transform.lossyScale.y, 0f);
+    private void InitilizePrivate(int renderOrder, float yPos)
+    {
+        if (spriteGameObject != null)
+        {
+            Destroy(spriteGameObject);
+        }
+
+        spriteGameObject = new GameObject();
+        spriteGameObject.transform.parent = transform;
+
+        spriteRenderer = spriteGameObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = renderOrder;
+        spriteRenderer.material = new Material(Shader.Find("Custom/SpriteBillboardShader"));
+
+        spriteGameObject.transform.localPosition = Vector3.up * yPos;
     }
 
     /// <summary>
@@ -127,11 +117,11 @@ public class SpriteInitializer : MonoBehaviour
     {
         if (spriteToRender != null)
         {
-            Initialize(spriteToRender, Quaternion.identity, 0f);
+            Initialize(spriteToRender);
         }
         else if (animationToRender != null)
         {
-            Initialize(animationToRender, Quaternion.identity, 0f);
+            Initialize(animationToRender);
         }
     }
 }
