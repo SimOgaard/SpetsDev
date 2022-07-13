@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12bda8efb17cf514ba10cd3021a6efbf, type: 3}
+  m_Name: One Biome Colossal Plains
+  m_EditorClassIdentifier: 
+  globalSeed: 1337
+  playerSpawn: {fileID: 11400000, guid: a1514c30cc4f6a0458e53ac8b5b5cb33, type: 2}
+  chunk: {fileID: 11400000, guid: 8919f5eda14e30c49b9edd99ea4d333f, type: 2}
+  dayNight: {fileID: 11400000, guid: 6ebcadceecc924e4cafb348858588be1, type: 2}
+  wind: {fileID: 11400000, guid: 5e1d17106a9db1e4590e14116ce0dca3, type: 2}
+  water: {fileID: 11400000, guid: b161eb0724b6d334c973dc51415265ea, type: 2}
+  defaultBiomeMaterials: {fileID: 11400000, guid: 185dd9bdcd300e14eb5b97344123dd75,
+    type: 2}
+  biomes:
+  - {fileID: 11400000, guid: 54a6581c8e7e4bc49a1d237bfb16ee02, type: 2}

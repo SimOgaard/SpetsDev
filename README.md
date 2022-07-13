@@ -57,12 +57,26 @@ instead of color gradient beeing a texture, create a class that is a list of a l
 switch between moon and sun cloud and light properties.
 
 # Compute buffers
-how does constant buffers work, or how do i definy a structuredbuffer of lenth 1 ie just a struct
+how does constant buffers work, or how do i define a structuredbuffer of lenth 1 ie just a struct
 
 # World generation
-get multiple static meshes to work for a singular biome
 
-we need to be able to change underlying triangle submesh depending on triangle height and normal
+right klick on scriptable objects and select rename when it is in a field and not in a field
+right klick on scriptable objects and select edit script when it is in a field (can already be done if it is selected/not in a field)
+
+add + and - button on arrays of scriptable objects, and remove the size. alternatively fix https://gist.github.com/tomkail/ba4136e6aa990f4dc94e0d39ec6a058c?permalink_comment_id=4229417#gistcomment-4229417 
+
+
+
+
+curve måste vara intiutiv, allså om jag vill att det ska bli mörkare, måste jag veta hur jag ska ändra curven
+ALLA COLOR TEXTURES MÅSTE VARA SOM MÖRKAST I BÖRJAN
+
+
+
+get multiple static meshes to work for a singular biome (ex: for roads/mountains)
+
+we need to be able to change underlying triangle submesh depending on triangle height and normal (ex: for mountainous terrain)
 
 remove duplicates of BiomeMaterials and FoliageSettings etc while keeping the order
 

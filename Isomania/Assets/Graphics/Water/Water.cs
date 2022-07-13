@@ -17,8 +17,8 @@ public class Water : MonoBehaviour
             return;
         }
 #endif
-        float waterLevelWave = waterSettings.bobingAmplitude * Mathf.Sin(Time.time * waterSettings.bobingFrequency);
-        Water.waterLevel = waterSettings.level + waterLevelWave;
+        float waterLevelWave = waterSettings.waterBobingAmplitude * Mathf.Sin(Time.time * waterSettings.waterBobingFrequency);
+        Water.waterLevel = waterSettings.waterLevel + waterLevelWave;
 
         Vector3 newPos = Global.cameraFocusPointTransform.position;
         newPos.y = waterLevel;
@@ -78,9 +78,9 @@ public class Water : MonoBehaviour
         transform.parent = parrent;
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-        Water.waterLevel = waterSettings.level;
+        Water.waterLevel = waterSettings.waterLevel;
         gameObject.AddComponent<MeshFilter>().mesh = BuildQuad(width, height);
         MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = waterSettings.waterMaterial.material;
+        meshRenderer.material = waterSettings.waterMaterial.shaderMaterial;
     }
 }

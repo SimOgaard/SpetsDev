@@ -21,7 +21,7 @@ public class DayNight : MonoBehaviour
     {
         float time = Vector3.Dot(transform.forward, Vector3.up);
 
-        float rotationLerp = dayNightCycleSettings.ambientLerp.Evaluate(time);
+        float rotationLerp = dayNightCycleSettings.ambientLightLerp.Evaluate(time);
         Vector3 rotationSpeed = Vector3.Lerp(dayNightCycleSettings.rotationSpeedDay, dayNightCycleSettings.rotationSpeedNight, rotationLerp);
 
         currentRotationEuler += rotationSpeed * Time.deltaTime;
@@ -35,8 +35,8 @@ public class DayNight : MonoBehaviour
             transform.rotation = Quaternion.Euler(currentRotationEuler);
         }
 
-        float ambientLerp = dayNightCycleSettings.ambientLerp.Evaluate(time);
-        Color currentAmbientColor = Color.Lerp(dayNightCycleSettings.ambientDay, dayNightCycleSettings.ambientNight, ambientLerp);
+        float ambientLerp = dayNightCycleSettings.ambientLightLerp.Evaluate(time);
+        Color currentAmbientColor = Color.Lerp(dayNightCycleSettings.ambientLightDay, dayNightCycleSettings.ambientLightNight, ambientLerp);
         Shader.SetGlobalColor("_AmbientColor", currentAmbientColor);
 
         // Calculate the angle between the lights direction and the horizon.
@@ -49,5 +49,6 @@ public class DayNight : MonoBehaviour
     public void UpdateSettings(DayNightSettings dayNightCycleSettings)
     {
         this.dayNightCycleSettings = dayNightCycleSettings;
+        currentRotationEuler = dayNightCycleSettings.rotationStart;
     }
 }

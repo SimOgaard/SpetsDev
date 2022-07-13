@@ -324,6 +324,8 @@ public static class Global
 
     public static WindController windController;
 
+    public static WorldGenerationManager worldGenerationManager;
+
     /// <summary>
     /// What assets need to be loaded in before world is created
     /// </summary>
@@ -338,6 +340,8 @@ public static class Global
 
         dayNight = GameObject.FindObjectOfType<DayNight>();
         windController = GameObject.FindObjectOfType<WindController>();
+
+        worldGenerationManager = GameObject.FindObjectOfType<WorldGenerationManager>();
     }
 
     /// <summary>

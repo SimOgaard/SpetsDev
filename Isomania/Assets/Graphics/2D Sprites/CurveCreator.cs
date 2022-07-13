@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CurveCreator : MonoBehaviour
 {
-    [SerializeField] private NoiseLayerSettings.Curve curve;
+    [SerializeField] private MaterialSettings.Curve curve;
     [SerializeField] private Material material;
 
     private void Start()
@@ -31,28 +31,28 @@ public class CurveCreator : MonoBehaviour
         return curveTexture;
     }
 
-    public static Texture2D CreateCurveTexture(NoiseLayerSettings.Curve curve)
+    public static Texture2D CreateCurveTexture(MaterialSettings.Curve curve)
     {
-        Texture2D curveTexture = CreateTexture(new Vector2Int(curve.resolution, 1));
-        for (int x = 0; x < curve.resolution; x++)
+        Texture2D curveTexture = CreateTexture(new Vector2Int(curve.textureResolution, 1));
+        for (int x = 0; x < curve.textureResolution; x++)
         {
-            float curveValue = Mathf.Clamp01(curve.lightCurve.Evaluate((float) x / (float) curve.resolution));
+            float curveValue = Mathf.Clamp01(curve.curve.Evaluate((float) x / (float) curve.textureResolution));
             curveTexture.SetPixel(x, 0, new Color(curveValue, curveValue, curveValue));
         }
         curveTexture.Apply();
         return curveTexture;
     }
 
-    public static void AddCurveTexture(ref Material material, NoiseLayerSettings.Curve curve, string textureName = "_ColorShading")
+    public static void AddCurveTexture(ref Material material, MaterialSettings.Curve curve, string textureName = "_ColorShading")
     {
-        Texture2D curveTexture = CreateTexture(new Vector2Int(curve.resolution, 1));
+        Texture2D curveTexture = CreateTexture(new Vector2Int(curve.textureResolution, 1));
         curveTexture.filterMode = FilterMode.Point;
 
-        float oneDiv = 1f / curve.resolution;
-        for (int x = 0; x <= curve.resolution; x++)
+        float oneDiv = 1f / curve.textureResolution;
+        for (int x = 0; x <= curve.textureResolution; x++)
         {
-            float curveValue = Mathf.Clamp01(curve.lightCurve.Evaluate(x * oneDiv));
-            float curveColor = curveValue + curve.colDiff;
+            float curveValue = Mathf.Clamp01(curve.curve.Evaluate(x * oneDiv));
+            float curveColor = curveValue + curve.curveOffset;
             curveTexture.SetPixel(x, 0, new Color(curveColor, curveColor, curveColor));
         }
         curveTexture.Apply();
@@ -60,11 +60,11 @@ public class CurveCreator : MonoBehaviour
         material.SetTexture(textureName, curveTexture);
     }
 
-    public static void AddCurveTextures(ref NoiseLayerSettings.MaterialWithCurve materialWithCurve)
+    public static void AddCurveTextures(ref MaterialSettings materialWithCurve)
     {
-        for (int i = 0; i < materialWithCurve.curves.Length; i++)
+        for (int i = 0; i < materialWithCurve.materialCurveTextures.Length; i++)
         {
-            AddCurveTexture(ref materialWithCurve.material, materialWithCurve.curves[i], materialWithCurve.curves[i].textureName);
+            AddCurveTexture(ref materialWithCurve.shaderMaterial, materialWithCurve.materialCurveTextures[i], materialWithCurve.materialCurveTextures[i].textureName);
         }
     }
 }

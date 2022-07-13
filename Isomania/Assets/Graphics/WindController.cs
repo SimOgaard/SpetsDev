@@ -21,8 +21,8 @@ public class WindController : MonoBehaviour
     public void UpdateSettings(WindSettings windSettings)
     {
         this.windSettings = windSettings;
-        this.windSpeedNoise = windSettings.noiseScrollNoise.ToFNLStateCS(0, false);
-        this.windSpeedWarpNoise = windSettings.noiseScrollNoise.ToFNLStateCS(0, true);
+        this.windSpeedNoise = windSettings.cloudScrollNoise.ToFNLStateCS(0, false);
+        this.windSpeedWarpNoise = windSettings.cloudScrollNoise.ToFNLStateCS(0, true);
     }
 
     /// <summary>
@@ -38,15 +38,15 @@ public class WindController : MonoBehaviour
         windSpeedWarpNoise.DomainWarp(ref x, ref y);
 
         // scale speed of wind by noise
-        Vector3 cloudSpeed = windSettings.cloudSpeed;
-        cloudSpeed.Scale(new Vector3(
+        Vector3 cloudScroll = windSettings.cloudScroll;
+        cloudScroll.Scale(new Vector3(
             windSpeedNoise.remap01(windSpeedNoise.SampleNoise2D(x, y)),
             windSpeedNoise.remap01(windSpeedNoise.SampleNoise2D(-x, y)),
             windSpeedNoise.remap01(windSpeedNoise.SampleNoise2D(x, -y))
         ));
 
         // get new windscroll value
-        windScroll += cloudSpeed * Time.deltaTime;
+        windScroll += cloudScroll * Time.deltaTime;
         // expose it to all shaders
         Shader.SetGlobalVector("_WindScroll", windScroll);
     }
