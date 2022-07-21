@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a02a418384d21f47a32650bc306df32, type: 3}
+  m_Name: 36
+  m_EditorClassIdentifier: 
+  spawn: {fileID: 11400000, guid: a83c284f3e485c34fa897ee103cbf9dd, type: 2}
+  biomeIndex: 7
+  biomeMapColor: {r: 0.53017086, g: 0.6946459, b: 0.6981132, a: 1}
+  elevation: []
+  prefabInstances: []
+  materials: {fileID: 0}

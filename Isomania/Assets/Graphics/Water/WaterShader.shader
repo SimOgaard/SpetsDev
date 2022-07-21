@@ -170,7 +170,7 @@
 				// Water depth for current pixel in unity units.
 				float depthDifference = (orthoEyeDepth - orthoPlainDepth);
 				// Depth scaled to our need
-				float depthDifference01 = saturate(depthDifference / _DepthMaximumDistance);
+				float depthDifference01 = 1.0 - saturate(depthDifference / _DepthMaximumDistance);
 
 				//return orthoLinearDepth*2;
 
@@ -188,13 +188,13 @@
 				// Water depth for current pixel in unity units.
 				float depthDifferenceWarped = (orthoEyeDepthWarped - orthoPlainDepthWarped);
 				// Depth scaled to our need
-				float depthDifferenceWarped01 = saturate(depthDifferenceWarped / _DepthMaximumDistance);
+				float depthDifferenceWarped01 = 1.0 - saturate(depthDifferenceWarped / _DepthMaximumDistance);
 				
 				// now we have all data neccesary to know which uv's depts etc we should use!
 				float2 underWaterUV;
 				float depthDifferenceFixed;// = lightUV.r * _LigthCoefficient;
 
-				if (depthDifferenceWarped01 == 0)
+				if (depthDifferenceWarped01 == 1.0)
 				{
 					underWaterUV = screenUV;
 					depthDifferenceFixed = depthDifference01;
@@ -209,7 +209,7 @@
 
 				// Calculate the color of the water based on the depth using our two gradient colors.
 				float curve_value = tex2D(_ColorShading, depthDifferenceFixed - _WaterColOffset).r;
-				float alpha = tex2D(_AlphaShading, depthDifferenceFixed).r;
+				float alpha = tex2D(_AlphaShading, 1.0 - depthDifferenceFixed).r;
 				float4 waterColor = float4(tex2D(_Colors, curve_value).rgb, alpha);
 				
 				// Retrieve the view-space normal of the surface behind the

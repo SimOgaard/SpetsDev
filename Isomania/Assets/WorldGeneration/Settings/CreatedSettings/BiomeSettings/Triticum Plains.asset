@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a02a418384d21f47a32650bc306df32, type: 3}
   m_Name: Triticum Plains
   m_EditorClassIdentifier: 
-  spawnPosition:
-  - {fileID: 11400000, guid: 5b341d3d48553cc4e9839485e31428ef, type: 2}
-  spawnPositionAddative: []
-  verticeOffset:
-  - {fileID: 11400000, guid: ebfec007628cc354a8c43ab494c9e0cd, type: 2}
+  spawnConditions: []
+  elevation:
+  - {fileID: 11400000, guid: d3deb11792ac2f343ada08eb19186c24, type: 2}
   prefabInstances: []
-  materialSettings: {fileID: 11400000, guid: 6988229532136be428468b57f9db91b1, type: 2}
+  materials: {fileID: 11400000, guid: 6988229532136be428468b57f9db91b1, type: 2}

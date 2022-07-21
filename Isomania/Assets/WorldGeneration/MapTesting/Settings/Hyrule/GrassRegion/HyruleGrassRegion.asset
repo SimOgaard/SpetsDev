@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e53c1e587af3f7438de2ba6888df98b, type: 3}
+  m_Name: HyruleGrassRegion
+  m_EditorClassIdentifier: 
+  layers:
+  - {fileID: 11400000, guid: 98f6f7e5567026144893a46c7d4457fe, type: 2}
+  - {fileID: 11400000, guid: d4086d39d818fb046bac56cbd11b2c87, type: 2}

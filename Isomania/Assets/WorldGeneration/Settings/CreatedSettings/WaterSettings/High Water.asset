@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3023020626a4fdb478657ab8ea386e4e, type: 3}
   m_Name: High Water
   m_EditorClassIdentifier: 
-  waterLevel: 20
+  waterLevel: 7
   waterBobingFrequency: 0.5
   waterBobingAmplitude: 0.5
   waterMaterial: {fileID: 11400000, guid: 3dc9939726485aa4bb2ac64b349de454, type: 2}

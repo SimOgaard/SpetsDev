@@ -3,7 +3,7 @@ float3 GetWind(float3 worldPos)
 	fnl_state warp = fnlCreateState(1337); //_Noise_Seed;
 	warp.domain_warp_type = 0; //_Warp_DomainWarpType;
 	warp.rotation_type_3d = 2; //_Warp_RotationType3D;
-	warp.domain_warp_amp = 3; //_Warp_DomainWarpAmplitude;
+	warp.domain_warp_amp = 2; //_Warp_DomainWarpAmplitude;
 	warp.frequency = 0.015; //_Warp_Frequency;
 
 	warp.fractal_type = 4; //_Warp_FractalType;

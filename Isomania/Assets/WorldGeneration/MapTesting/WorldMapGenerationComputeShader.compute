@@ -1,0 +1,265 @@
+// kernel 0 that overwrites all values on texture to negative
+#pragma kernel Reset
+// kernel 1 that divides image into binary and blend from center
+#pragma kernel CircleBiome
+// kernel 2 that draws rounded rectangles with negative values to divide edge biome with center
+#pragma kernel RingBiome
+// kernel 3 makes all textures renderable
+#pragma kernel MakeRenderable
+
+// define constants
+#define PI 3.1415926538
+#define PI2 3.1415926538 * 2
+
+/// Integer value of biome is the biome index, the rest of the floating point is its blending factor
+/// 3.499: "on this pixel, biome index 3 should be blended to 0.499"
+
+// texture we want to write to, holds what biome each pixel is
+RWTexture2D<float> biomeBinary;
+// size of texture
+int2 biomeBinarySize;
+
+// texture we want to write to, holds blend information about biome
+RWTexture2D<float> biomeBlend;
+// size of texture
+int2 biomeBlendSize;
+
+// texture we want to write to, is colored for our convenience
+RWTexture2D<float4> map;
+// size of texture
+int2 mapSize;
+
+// init angle
+float angleInit;
+
+// size of comming buffers
+int bufferLengths;
+
+// struct holding all values for where biome should spawn
+struct BiomeSpawnValues
+{
+    float arcValue;
+    float widthValue;
+    float heightValue;
+    float roundingValue;
+    float blendingValue;
+
+    int biomeIndex;
+    float4 biomeColor;
+};
+StructuredBuffer<BiomeSpawnValues> biomeSpawnValuesBuffer;
+
+// buffer start, used to get buffer index from biome index
+int bufferStart;
+// dynamic angles for each circular sector
+Buffer<float> angleBuffer;
+// dynamic biome index for each circular sector
+Buffer<int> biomeIndexBuffer;
+// dynamic blend pixel amount for each circular sector
+Buffer<float> blendFactorsBuffer;
+
+// normalizes radian to be between -PI and PI
+float constrainRadian(float x) {
+    x = fmod(x + PI, PI2);
+    if (x < 0)
+        x += PI2;
+    return x - PI;
+}
+
+// given index and blend value return buffer index when blending
+// using this you do not have to worry about negative or too large of index integers
+int blendedToBiomeBufferIndex(int referenceBufferIndex, float blendValue)
+{
+    int index = referenceBufferIndex;
+
+    // if we want to check for a larger index
+    if (blendValue >= 0)
+    {
+        index = referenceBufferIndex + 1;
+        // if index is outside of buffers lengths
+        if (index >= bufferLengths)
+        {
+            // set to zero
+            index = 0;
+        }
+    }
+    else
+    {
+        index = referenceBufferIndex - 1;
+        // if index is negative
+        if (index < 0)
+        {
+            // wrap around to end of index
+            index = bufferLengths - 1;
+        }
+    }
+    return index;
+}
+
+// draw endless line trough origo and A
+float distanceToLine(float2 D, float2 P)
+{
+    float X = D * dot(P, D);
+    float L = distance(P, X);
+    return L;
+}
+
+// unsigned round box
+float roundedRectangle(float2 p, float width, float height, float r)
+{
+    return length(max(abs(p) - float2(width, height) + r, 0.0)) - r;
+}
+
+/// overwrites all values on texture to negative
+[numthreads(10, 10, 1)]
+void Reset(uint3 id : SV_DispatchThreadID)
+{
+    biomeBinary[id.xy] = -1.0;
+    biomeBlend[id.xy] = 0;
+    map[id.xy] = 0;
+}
+
+/// https://media.discordapp.net/attachments/709666288959619103/998188121525059664/unknown.png
+// overwrites all negative values on texture to specified biome indices as seperate circular sectors
+[numthreads(10,10,1)]
+void CircleBiome (uint3 id : SV_DispatchThreadID)
+{
+    // if the pixel value is positive, we should not do anything
+    if (biomeBinary[id.xy] >= 0.0)
+    {
+        return;
+    }
+
+    // remap pixel coordinates to have 0,0 in middle of screen
+    float2 pixelPosition = id.xy - biomeBinarySize * 0.5;
+    // get length of pixel
+    float pixelPositionLength = length(pixelPosition);
+
+    // calculate the angle of our current pixel
+    float pixelTheta = atan2(pixelPosition.y, pixelPosition.x);
+    // add angleInit and restrain angle to -PI and PI
+    float pixelThetaRandomOffset = constrainRadian(pixelTheta + angleInit);
+
+    // start angle is -PI and they will grow to be in a range of -PI to PI
+    float circularSectorTheta1; // larger than this value and you are in the circlesector
+    float circularSectorTheta2 = -PI; // smaller than this value and you are in the circlesector
+
+    // for every circular sector
+    for (int i = 0; i < bufferLengths; i++)
+    {
+        // update circularSectorThetas
+        circularSectorTheta1 = circularSectorTheta2;
+        circularSectorTheta2 += biomeSpawnValuesBuffer[i].arcValue;
+
+        // if we are in sector (do not have to check for (pixelTheta>circularSectorTheta1) because of how we itterate)
+        if (pixelThetaRandomOffset < circularSectorTheta2)
+        {
+            // set binary color to specify this biome
+            biomeBinary[id.xy] = biomeSpawnValuesBuffer[i].biomeIndex;
+            map[id.xy] = biomeSpawnValuesBuffer[i].biomeColor;
+
+            // now do some blending
+            // get angle from both sides of this circular sectors legs to pixel
+            float angleSide1 = pixelThetaRandomOffset - circularSectorTheta1; // sin(this) is positive but should be negative later on
+            float angleSide2 = circularSectorTheta2 - pixelThetaRandomOffset; // sin(this) is positive
+            
+            // the distance can be thought of as the height of opposite leg, we know the hypotenus (distance) and angle alpha (angleSide1 or angleSide2)
+            float distanceToCircularSector1 = sin(angleSide1) * pixelPositionLength;
+            float distanceToCircularSector2 = sin(angleSide2) * pixelPositionLength;
+
+            // we want -0.5 closest to circularSectorTheta1 and 0.5 closest to circularSectorTheta2, with 0 inbetween
+            // right now the distances are in pixels and never in negative, only distance
+            // so first divide with blendFactorsBuffer to remap them
+            distanceToCircularSector1 /= biomeSpawnValuesBuffer[i].blendingValue;
+            distanceToCircularSector2 /= biomeSpawnValuesBuffer[i].blendingValue;
+            // then saturate between 01
+            float distanceOne01 = saturate(distanceToCircularSector1);
+            float distanceTwo01 = saturate(distanceToCircularSector2);
+            // and invert and transform value between 0 and 0.5
+            float blendValue1 = (1.0 - distanceOne01) * 0.5;
+            float blendValue2 = (1.0 - distanceTwo01) * 0.5;
+
+            // lastly we want to add this to i, and get the biome index, save it to biome blend with the blend value as float and index as int
+            float blend1 = biomeSpawnValuesBuffer[blendedToBiomeBufferIndex(i, -blendValue1)].biomeIndex + blendValue1;
+            float blend2 = biomeSpawnValuesBuffer[blendedToBiomeBufferIndex(i, blendValue2)].biomeIndex + blendValue2;
+
+            // the largest blend value is the value we want to save
+            biomeBlend[id.xy] = blendValue1 > blendValue2 ? blend1 : blend2;
+            //biomeBlend[id.xy] /= 6.0;
+            // and break to not check for more angles
+            break;
+        }
+    }
+}
+
+// dynamic widths for each circular sector/edge biome, is like radius.x
+Buffer<float> widthBuffer;
+// dynamic heights for each circular sector/edge biome, is like radius.y
+Buffer<float> heightBuffer;
+// dynamic rounding for each circular sector/edge biome, is rectangle rounding value
+Buffer<float> roundingBuffer;
+
+/// draws negative values where width height is to large
+[numthreads(10, 10, 1)]
+void RingBiome(uint3 id : SV_DispatchThreadID)
+{
+    // here we have the binary and blended images that divides from center from last kernel
+    
+    // remap pixel coordinates to have 0,0 in middle of screen
+    float2 pixelPosition = id.xy - biomeBinarySize * 0.5;
+
+    // for each pixel, take the biome index (already in binary)
+    int biomeIndex = biomeBinary[id.xy];
+    // and the blended index, with its blend value
+    int biomeBlendIndex = floor(biomeBlend[id.xy]);
+    float biomeBlendValue = biomeBlend[id.xy] - biomeBlendIndex;
+
+    // then convert biome index to biome buffer index
+    int biomeBufferIndex = biomeIndex - bufferStart;
+    int biomeBlendBufferIndex = biomeBlendIndex - bufferStart;
+
+    // now lerp between the two biomes widhts and heights to get a resulting blended width and height
+    float lerpValue = smoothstep(0.0, 1.0, biomeBlendValue);
+    float width = lerp(widthBuffer[biomeBufferIndex], widthBuffer[biomeBlendBufferIndex], lerpValue);
+    float height = lerp(heightBuffer[biomeBufferIndex], heightBuffer[biomeBlendBufferIndex], lerpValue);
+    float rounding = lerp(roundingBuffer[biomeBufferIndex], roundingBuffer[biomeBlendBufferIndex], lerpValue);
+
+    // use that width and height and rounding to get rounded rectangle at pixel
+    float dist = roundedRectangle(pixelPosition, width, height, rounding);
+
+    // only draw it where we want new circle sector biomes to be drawn
+    if (dist < 0.5)
+    {
+        biomeBinary[id.xy] = -1.0;
+    }
+
+    // this dist is 
+
+    //dist = 1.0 - saturate(dist/20.0);
+
+    //edgeBiomeBinary[id.xy] = dist;
+    /*
+    // if dist do binaryBiome1 otherwise draw 1
+    edgeBiomeBinary[id.xy] = (dist <= 0.5 ? biomeBinary[id.xy] : 1.0);
+
+    if (dist > 0.5 || abs(biomeBlend[id.xy]) > 0.5)
+    {
+        edgeBiomeBlend[id.xy] = 0.0;
+    }
+    else
+    {
+        edgeBiomeBlend[id.xy] = dist + abs(biomeBlend[id.xy]);
+    }
+    */
+}
+
+float biomeCount;
+
+/// makes the textures renderable by dividing them with a constant (usually with the amount of biomes)
+[numthreads(10, 10, 1)]
+void MakeRenderable(uint3 id : SV_DispatchThreadID)
+{
+    biomeBinary[id.xy] /= biomeCount;
+    biomeBlend[id.xy] /= biomeCount;
+}
+    

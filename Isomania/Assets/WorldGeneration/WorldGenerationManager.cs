@@ -124,7 +124,7 @@ public class WorldGenerationManager : MonoBehaviour
 
         // create chunk lists
         chunksInLoading = new List<Chunk>();
-        chunks = new Chunk[200, 200];
+        chunks = new Chunk[worldGenerationSettings.chunk._worldSize.x, worldGenerationSettings.chunk._worldSize.y];
 
         /*
 #if UNITY_EDITOR

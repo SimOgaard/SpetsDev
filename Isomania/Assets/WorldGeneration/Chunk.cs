@@ -250,7 +250,7 @@ public class Chunk : MonoBehaviour
         MeshFilter staticMeshFilter = groundGameObject.AddComponent<MeshFilter>();
         MeshCollider staticMeshCollider = groundGameObject.AddComponent<MeshCollider>();
 
-        staticMeshRenderer.material = worldGenerationSetting.defaultBiomeMaterials.biomeMaterial.material.shaderMaterial;
+        //staticMeshRenderer.material = worldGenerationSetting.defaultBiomeMaterials.biomeMaterial.material.shaderMaterial;
         staticMeshFilter.mesh = groundMesh;
         staticMeshCollider.sharedMesh = groundMesh;
 

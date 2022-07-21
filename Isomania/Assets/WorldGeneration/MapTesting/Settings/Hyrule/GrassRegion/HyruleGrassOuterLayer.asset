@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be94318ec23ff5f49b34d6c65c9a1f15, type: 3}
+  m_Name: HyruleGrassOuterLayer
+  m_EditorClassIdentifier: 
+  biomes:
+  - {fileID: 11400000, guid: 8deaad622fed8e94db9ee1d5ea8f89f1, type: 2}
+  - {fileID: 11400000, guid: 4f5021a62d9191640a8dc9fa4a8995c3, type: 2}
+  - {fileID: 11400000, guid: 3de04ee4abd26bd4797bc7d49f2482b4, type: 2}
+  - {fileID: 11400000, guid: 3894f87edc377064bbee95bd6934a32d, type: 2}
+  - {fileID: 11400000, guid: 386b4fa67ed364d4e98e6c9f8e73fc60, type: 2}
+  - {fileID: 11400000, guid: ab742bb68279d9d448fce01701d76177, type: 2}
+  - {fileID: 11400000, guid: 160be9040ff34504eabe913b92f4142a, type: 2}
+  - {fileID: 11400000, guid: b7f93c5fb587bce49bdb69bd6af7eac9, type: 2}

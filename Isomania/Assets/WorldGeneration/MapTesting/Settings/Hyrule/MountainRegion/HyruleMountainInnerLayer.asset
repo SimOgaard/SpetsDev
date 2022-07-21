@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be94318ec23ff5f49b34d6c65c9a1f15, type: 3}
+  m_Name: HyruleMountainInnerLayer
+  m_EditorClassIdentifier: 
+  biomes:
+  - {fileID: 11400000, guid: dabdfa5cc38051b478ec63a17d13cab8, type: 2}
+  - {fileID: 11400000, guid: 28d96efce7bac964a86030bcf712b4fa, type: 2}
+  - {fileID: 11400000, guid: 0bac4bdf112c6ac40a2aa910f159feae, type: 2}
+  - {fileID: 11400000, guid: 1894a32269559e040bc87c8298432156, type: 2}
+  - {fileID: 11400000, guid: 31c015311ff9add44a46c33bcfed2f02, type: 2}

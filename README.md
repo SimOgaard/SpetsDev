@@ -56,21 +56,107 @@ instead of color gradient beeing a texture, create a class that is a list of a l
 
 switch between moon and sun cloud and light properties.
 
+current ambient + directional light should not be larger than 1
+
 # Compute buffers
 how does constant buffers work, or how do i define a structuredbuffer of lenth 1 ie just a struct
 
 # World generation
 
+
+UPGRADE TO THE NEWEST LST 2021.3.5 AND ABOVE TO FIX https://gist.github.com/tomkail/ba4136e6aa990f4dc94e0d39ec6a058c ALSO COPY THE CODE OVER AGAIN? HE MIGHT HAVE CHANGED SOMTHING IDK, REMEMBER HOWEVER THAT YOU REMOVED ADN ADDED A BUTTON SO IDK IF NECCESARRY
+
+
+## Only care about where the biomes should be placed:
+create a image that represents the biomes like this guy does https://www.youtube.com/watch?v=3l0mtWhllM8
+but you should strive for somthing like botw https://mrcheeze.github.io/botw-waypoint-map/BotW-Map.png
+
+### Creating the texture
+specify how many chunks the game world should be composed of (for example: 100x100)
+calculate the amount of verticees that represents as xy and create a texture of it
+
+try to fill the entire texture by constant color by passing it to a computeshader, ofcourse using every thread like they do in cinemabench
+
+### Edge
+
+whole map 640 x 540
+map where you do not die: 540x440
+the part where you die is divided into 3 parts of 70,145,145 degrees, with not that much randomness. they are all 100x100 px with a bit of rounding and not much randomness.
+after each divided part of 3 where you die there is 1,5,5 biomes stacked 1 high
+then in the middle there is 5 biomes randomly situated where 1 of them is the middle most important biome
+
+to do this create:
+    A biome ring settings:
+        That holds 3 biome sequences:
+            Each of whom has a singular biome in its [0][0] index (this is the edge biome)
+            And 5,5,1 biomes in its [1][x] index (these are its actual biomes)
+
+IMPORTANT: for the "in the middle there is 5 biomes randomly situated" you can have another ring biome, but where some of the specified biomes are null biomes ie: of different archs but spawnarea is negative
+
+create this (above) setting and make it so that map testing can enact it all
+
+
+then when all of maptesting works make it so that worldgenerationsettings can do what it does
+
+
+16 st regions where 11 is on edge and the rest 5 in middle
+
+// is a abstrat angle that doesnt mean anything on its own, it gets influenced by all other biomes in current biome perimeter
+public Vector2 biomeWidth;
+
+// is a abstract radius that doesnt mean anything on its own, it gets influenced by all other biomes in current biome perimeter
+public Vector2 biomeHeight;
+
+
+
+How much each biome should get blended should be able to be specified in settings, ie just the smoothstep value
+
+
+
+we want to make it impossible for the player to walk outside of map, so around the map there should be ocean and ocean with islands and mountains and cliffs and dust storm where you should not be able to traverse. we however do not want the sudden change so with each deadly biome there is one safe biome that matches that biome, like sanddunes and bottom of ravine and beach. we however ofcourse want to be able to change this in the future to maybe have dense forrest or halo infinite hexagon droppof etc.
+to do this we want to specify a list of biomes that are for the edge of the map, that list should be different from normal biomes in that it should have two biomes, where one is for the deadly zone and the other for the non deadly zone. and properties that specify the size/width of both the biomes. for example maybe the ocean (deadly zone) should be huge, but the beach (friendly zone) should be narrow. or the other way around for dust storm, the dust storm (deadly zone) should be narrow, but the sanddunes (friendly zone) should be huge.
+
+to get a square look twords https://thebookofshaders.com/07/
+
+array of "biome edge sequence" scriptable objects
+"biome edge sequence" contains an array of "biome edge" scriptable objects
+
+on init: the array of "biome edge sequence" gets shuffeled but not the array of "biome edge" so that you can have edge biomes next to each others (like ocean+island+ocean)
+
+on init: take a random angle between 0-360 degrees, then for each edge biome create a random normal distrubution (like you do a neural net where the sum adds to one) that is proportional to the edge biome setting. that might look like this: "for each biome: save random.float(min_rad, max_rad) and add to sum. for each biome: divide saved random.float(min_rad, max_rad) by sum and multiply by 360 degrees". depending on the amount of biomes you now have somthing like this: https://cdn.discordapp.com/attachments/884159095500836914/997561204908228668/Namnlost-1.jpg. and for each biome do random.float(min_size, max_size) of both width and height to create https://media.discordapp.net/attachments/884159095500836914/997585904854106162/Namnlost-2.jpg
+
+now you need to make a binary and smooth filled version of that image so that it looks somthing like this: and this:
+
+now you know for each pixel what exact biome it is (from binary) and how to blend them (from smooth)
+
+maybe you can continue this trend, building twords the middle where the player spawns. and where the player spawn should be specified as a biome in player spawn settings
+
+SEE IF YOU CAN HAVE ONE WINDSETTING FOR EACH BIOME, YOU NEED TO BE ABLE TO GET CURRENT PIXEL OR VERTEX BIOME (TRANSLATE WORLD TO BIOME TEXTURE)
+YOU SHOULD HAVE A WATER FOR EACH BIOME
+MAYBE EVEN CLOUDS FOR EACH BIOME
+
+manmade ground could be images that you add ontop of whole map. like a spiral at edge of water.
+
+multiple warp noise for each biome, blend between them using smooth image, you will probably have low frequence and high frequency noise for warp
+
+each biome has a y level accosiated with it
+
+
+on cpu, calculate areas ie midpoint+width+height or corner+corner for each of the biomes. by: starting with a random point 
+then pass thoose values over to gpu for it to fill in the areas on one kernel/pass.
+after gpu has fillen in all pixels we need to take the 
+
+now start on a random edge/corner and walk twords middle a random amount of chunks then walk around the edge of the map with a random probability of going twords the edge, when at the edge stop, and fill it all with ocean 
+
+with no rules the whole image should be ocean
+
+
+
+
 right klick on scriptable objects and select rename when it is in a field and not in a field
 right klick on scriptable objects and select edit script when it is in a field (can already be done if it is selected/not in a field)
 
 add + and - button on arrays of scriptable objects, and remove the size. alternatively fix https://gist.github.com/tomkail/ba4136e6aa990f4dc94e0d39ec6a058c?permalink_comment_id=4229417#gistcomment-4229417 
-
-
-
-
-curve måste vara intiutiv, allså om jag vill att det ska bli mörkare, måste jag veta hur jag ska ändra curven
-ALLA COLOR TEXTURES MÅSTE VARA SOM MÖRKAST I BÖRJAN
 
 
 
@@ -104,6 +190,9 @@ lägg till mer specifika funktioner som ändrar trianglarna beroende på tex rad
 
 # Abilities
 earthbending rock needs to grab the material for the biome it hits
+instead of ability icons, just place the ability in front of camera
+ie a fireball or hammer
+with shadow casting off and no collider ofcourse
 
 # Player
 player should have a health bar not hearts

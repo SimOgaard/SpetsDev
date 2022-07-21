@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9273622eb81137646bc16a22ccbb1b44, type: 3}
   m_Name: Normal
   m_EditorClassIdentifier: 
+  _worldSize: {x: 5, y: 5}
   _meshSize: {x: 100, y: 100}
   quadAmount: {x: 61, y: 61}
   _chunkDisableDistance: 175

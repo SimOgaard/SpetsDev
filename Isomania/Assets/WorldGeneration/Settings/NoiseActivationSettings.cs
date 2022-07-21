@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Defines a singular layer of noise, that returns a binary yes or no.
+/// Mainly from FastNoiseLite but also added functionality.
+/// </summary>
 [CreateAssetMenu(menuName = "Noise/NoiseActivation", order = 2)]
 [System.Serializable]
 public class NoiseActivationSettings : Settings

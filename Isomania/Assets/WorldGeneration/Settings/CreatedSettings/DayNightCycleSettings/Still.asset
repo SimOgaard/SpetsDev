@@ -12,26 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cad9a1f1008c7c4fb43ec499b06088d, type: 3}
   m_Name: Still
   m_EditorClassIdentifier: 
-  ambientLightDay: {r: 0.5896226, g: 0.7746948, b: 1, a: 1}
+  ambientLightDay: {r: 0.5896226, g: 0.7746948, b: 1, a: 0.29803923}
   ambientLightNight: {r: 0, g: 0, b: 0, a: 0}
   ambientLightLerp:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 1
-      value: 1
+      time: 0
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   horizonAngleThresholdLight: 7.5
   horizonAngleFadeLight: 7.5
-  rotationStart: {x: 35, y: 0, z: 0}
+  rotationStart: {x: 60, y: 0, z: 0}
   rotationSpeedDay: {x: 0, y: 0, z: 0}
   rotationSpeedNight: {x: 0, y: 0, z: 0}
   rotationSpeedLerp:

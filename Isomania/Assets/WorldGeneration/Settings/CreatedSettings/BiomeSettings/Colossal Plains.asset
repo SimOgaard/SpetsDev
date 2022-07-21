@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Colossal Plains
   m_EditorClassIdentifier: 
   spawnConditions:
-  - {fileID: 11400000, guid: f9505a3903821d049bb2da42bffba12e, type: 2}
-  spawnConditionsAddative: []
+  - {fileID: 11400000, guid: d92f0d42f94b6b243b4aba2a2c365f0e, type: 2}
   elevation:
   - {fileID: 11400000, guid: d3deb11792ac2f343ada08eb19186c24, type: 2}
   prefabInstances: []

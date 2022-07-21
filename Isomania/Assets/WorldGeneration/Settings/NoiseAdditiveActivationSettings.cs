@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Defines multiple layers of noise, that when added together returns a binary yes or no.
+/// Mainly from FastNoiseLite but also added functionality.
+/// </summary>
 [CreateAssetMenu(menuName = "Noise/NoiseAdditiveActivation", order = 3)]
 [System.Serializable]
 public class NoiseAdditiveActivationSettings : Settings

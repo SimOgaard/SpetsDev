@@ -39,7 +39,7 @@ MonoBehaviour:
   domainWarp:
     domainWarpType: -1
     rotationType3D: 0
-    amplitude: 30
+    amplitude: 1
     frequency: 0.005
   domainWarpFractal:
     warpFractalType: 0

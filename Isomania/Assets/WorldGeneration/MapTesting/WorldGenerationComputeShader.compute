@@ -1,0 +1,140 @@
+// kernel 0 that draws circle biomes on image
+#pragma kernel CircleBiome
+
+// define constants
+#define PI 3.1415926538
+#define PI2 3.1415926538 * 2
+
+int2 imageResolutions;
+
+// holds what biome each pixel is
+RWTexture2D<float> biomeBinary;
+// holds what pixels should be blended and with what biome
+RWTexture2D<float> biomeBinaryBlend;
+// biomeBinary but colored for our convenience
+RWTexture2D<float4> map;
+// biomeBinaryBlend but colored for our convenience
+RWTexture2D<float4> mapBlend;
+
+// size of comming buffers
+int bufferLengths;
+
+// struct holding all values for where biome should spawn
+struct BiomeSpawnValues
+{
+    float inscribedAngle;
+    
+    float inscribedAngleMin;
+    float inscribedAngleMax;
+
+    float inscribedAngleRandom;
+
+    float areaWidth;
+    float areaHeight;
+
+    float rounding;
+
+    float blendingRegion;
+    float blendingLayer;
+
+    int index;
+    float4 color;
+
+    int spawnValuesIndexLeft;
+    int spawnValuesIndexRight;
+};
+StructuredBuffer<BiomeSpawnValues> biomeSpawnValuesBuffer;
+
+// normalizes radian to be between 0 and 2*PI
+float constrainRadian(float x) {
+    x = fmod(x, PI2);
+    if (x < 0)
+        x += PI2;
+    return x;
+}
+
+// unsigned round box
+float roundedRectangle(float2 p, float width, float height, float r)
+{
+    return length(max(abs(p) - imageResolutions * 0.5 + float2(width, height) + r, 0.0)) - r;
+    //return length(max(abs(p) - float2(width, height) + r, 0.0)) - r;
+}
+
+// draws circle biomes on image 
+[numthreads(10,10,1)]
+void CircleBiome (uint3 id : SV_DispatchThreadID)
+{
+    // first calculate values that are for specific pixel:
+    // remap pixel coordinates to have 0,0 in middle of screen
+    float2 pixelPosition = id.xy - imageResolutions * 0.5;
+    // get length of pixel
+    float pixelPositionLength = length(pixelPosition);
+
+    // calculate the angle of our current pixel
+    float pixelTheta = atan2(pixelPosition.y, pixelPosition.x);
+
+    // for every biome spawn setting
+    for (int i = 0; i < bufferLengths; i++)
+    {
+        // calculate random pixel theta
+        float pixelThetaRandom = constrainRadian(pixelTheta + biomeSpawnValuesBuffer[i].inscribedAngleRandom);
+
+        // check if we are in sector
+        if (pixelThetaRandom >= biomeSpawnValuesBuffer[i].inscribedAngleMin && pixelThetaRandom <= biomeSpawnValuesBuffer[i].inscribedAngleMax)
+        {
+            // calculate pixel distance from both sides of biome
+            // by taking the sin of the angle from both sides of this circular sectors legs to pixel
+            float angleSide1 = sin(pixelThetaRandom - biomeSpawnValuesBuffer[i].inscribedAngleMin); // sin(this) is positive but should be negative later on
+            float angleSide2 = sin(biomeSpawnValuesBuffer[i].inscribedAngleMax - pixelThetaRandom); // sin(this) is positive
+
+            // we only care about the closest biome so check for it
+            float distanceToNearestBiome;
+            int nearestBiomeBufferIndex;
+            if (angleSide1 < angleSide2)
+            {
+                // biome left to us is smaller
+                distanceToNearestBiome = angleSide1 * pixelPositionLength;
+                nearestBiomeBufferIndex = biomeSpawnValuesBuffer[i].spawnValuesIndexLeft;
+            }
+            else
+            {
+                // biome right to us is smaller
+                distanceToNearestBiome = angleSide2 * pixelPositionLength;
+                nearestBiomeBufferIndex = biomeSpawnValuesBuffer[i].spawnValuesIndexRight;
+            }
+
+            // here distanceToNearestBiome is the amount of pixels this pixel is from nearestBiomeBufferIndex representitive biome
+            // when distanceToNearestBiome is zero we want a blend value of .5, when it is biomeSpawnValuesBuffer[i].blendingRegion we want 0
+            float regionBlend = (1.0 - saturate(distanceToNearestBiome / biomeSpawnValuesBuffer[i].blendingRegion)) * 0.5;
+
+            // now get blended width and height between this biome and nearest
+            float lerpValue = smoothstep(0.0, 1.0, regionBlend);
+            float width = lerp(biomeSpawnValuesBuffer[i].areaWidth, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].areaWidth, lerpValue);
+            float height = lerp(biomeSpawnValuesBuffer[i].areaHeight, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].areaHeight, lerpValue);
+            float rounding = lerp(biomeSpawnValuesBuffer[i].rounding, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].rounding, lerpValue);
+            // now check if we are close enough to center
+            float dist = roundedRectangle(pixelPosition, width, height, rounding);
+
+            if (dist > 0.5)
+            {
+                // this pixel is this biome, so set binary color and map to specify this biome, also draw blending
+                // draw our calculated blending
+                if (regionBlend > 0)
+                {
+                    // should be blended to nearestBiomeBufferIndex
+                    biomeBinaryBlend[id.xy] = (float)nearestBiomeBufferIndex / (float)bufferLengths;
+                    mapBlend[id.xy] = biomeSpawnValuesBuffer[nearestBiomeBufferIndex].color;
+                }
+                else
+                {
+                    // shouldnt be blended
+                    biomeBinaryBlend[id.xy] = 0;
+                    mapBlend[id.xy] = 0;
+                }
+                
+                biomeBinary[id.xy] = (float)biomeSpawnValuesBuffer[i].index / (float)bufferLengths;
+                map[id.xy] = biomeSpawnValuesBuffer[i].color;
+            }
+        }
+    }
+}

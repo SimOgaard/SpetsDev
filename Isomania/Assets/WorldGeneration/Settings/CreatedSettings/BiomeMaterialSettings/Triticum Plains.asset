@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4b9439478958364a94db8c7b8ac1410, type: 3}
   m_Name: Triticum Plains
   m_EditorClassIdentifier: 
+  stoneMaterial: {fileID: 11400000, guid: 81d40d0bf6e38db459a9db0443a2e297, type: 2}
   biomeMaterial:
-    materialSettings: {fileID: 11400000, guid: ee050922d0401df4a9edb9df0f343ae5, type: 2}
-    biomeFoliages:
-    - {fileID: 11400000, guid: d18fe69a6d69a724ca102bf9d30ee502, type: 2}
+    material: {fileID: 11400000, guid: 81d40d0bf6e38db459a9db0443a2e297, type: 2}
+    foliages: []
   biomeMaterialsCondition: []
-  stoneMaterialSettings: {fileID: 11400000, guid: 81d40d0bf6e38db459a9db0443a2e297,
-    type: 2}
