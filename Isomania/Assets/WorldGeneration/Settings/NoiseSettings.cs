@@ -2,25 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Defines a singular layer of noise.
-/// Mainly from FastNoiseLite but also added functionality.
-/// </summary>
-[CreateAssetMenu(menuName = "Noise/Noise", order = 1)]
-[System.Serializable]
-public class NoiseSettings : Settings
+public static class NoiseExtension
 {
-    /// <summary>
-    /// function that returns a boolean using given settings keep ranges and generated noise
-    /// </summary>
-    public Vector2 offsett;
+    public static List<NoiseSettings.fnl_state> ToFnlStates(this NoiseSettings[] fnl_states, bool warp)
+    {
+        List<NoiseSettings.fnl_state> states = new List<NoiseSettings.fnl_state>();
+        for (int i = 0; i < fnl_states.Length; i++)
+        {
+            states.Add(fnl_states[i].ToFNLState(warp));
+        }
+        return states;
+    }
 
+    /*
+    public static NoiseSettings.fnl_state ToFnlState(this NoiseSettings fnl_state, bool warp)
+    {
+        return fnl_state.ToFNLState(warp);
+    }
+    */
+}
+
+/// <summary>
+/// Given XY, XYZ, return float
+/// </summary>
+[System.Serializable]
+public class Noise
+{
     public Value value;
     public General general;
     public Fractal fractal;
     public Cellular cellular;
-    public DomainWarp domainWarp;
-    public DomainWarpFractal domainWarpFractal;
+
+    // instanciated noise states
+    [HideInInspector]
+    public GPU_Noise gpu_noise;
+    [HideInInspector]
+    public FastNoiseLite cpu_noise;
 
     /// <summary>
     /// Affects the noisevalue output
@@ -77,6 +94,52 @@ public class NoiseSettings : Settings
     }
 
     /// <summary>
+    /// Struct similar to the one on the gpu
+    /// </summary>
+    public struct GPU_Noise
+    {
+
+
+        public GPU_Noise(Noise noise)
+        {
+
+        }
+    }
+
+    public FastNoiseLite CPU_Noise(Noise noise)
+    {
+        // create it
+        FastNoiseLite fastNoiseLite = new FastNoiseLite();
+
+        // set all values of noise state
+        //fastNoiseLite.set
+
+        // and return it
+        return fastNoiseLite;
+    }
+
+    /// <summary>
+    /// Updates this noise state to have correct values in cpu and gpu version
+    /// </summary>
+    public void Update()
+    {
+        gpu_noise = new GPU_Noise(this);
+        cpu_noise = CPU_Noise(this);
+    }
+}
+
+/// <summary>
+///  Given XY, XYZ, return warped XY, XYZ
+/// </summary>
+[System.Serializable]
+public class Warp
+{
+    public Vector2 offsett;
+
+    public DomainWarp domainWarp;
+    public DomainWarpFractal domainWarpFractal;
+
+    /// <summary>
     /// Warps noise
     /// </summary>
     [System.Serializable]
@@ -99,6 +162,42 @@ public class NoiseSettings : Settings
         public float lacunarity = 2.0f;
         public float gain = 0.5f;
     }
+}
+
+/// <summary>
+/// Defines a singular layer of noise.
+/// Mainly from FastNoiseLite but also added functionality.
+/// </summary>
+[CreateAssetMenu(menuName = "Noise/Noise", order = 1)]
+[System.Serializable]
+public class NoiseSettings : Settings
+{
+    public Noise noise;
+
+    public Warp warp;
+
+    /// <summary>
+    /// Uses both noise and warp states to sample 2D noise
+    /// </summary>
+    public float SampleNoise2D(Vector2 pos)
+    {
+        return SampleNoise2D(pos.x, pos.y);
+    }
+    public float SampleNoise2D(float x, float y)
+    {
+        // warp x and y
+        warp.cpu_warp.warp2d();
+        // sample noise using warped
+        noise.cpu_noise.sample2d();
+    }
+
+    /// <summary>
+    /// Uses both noise and warp states to sample 3D noise
+    /// </summary>
+    public float SampleNoise3D()
+    {
+
+    }
 
     [ContextMenu("Rename", false, 500)]
     public override void Rename()
@@ -111,22 +210,6 @@ public class NoiseSettings : Settings
     {
 
     }
-
-    #region noise functions
-    public float SmoothMin(float a)
-    {
-        float k = Mathf.Max(0, value.smoothingMax);
-        float h = Mathf.Max(0f, Mathf.Min(1f, (value.maxValue - a + k) / (2f * k)));
-        return a * h + value.maxValue * (1f - h) - k * h * (1f - h);
-    }
-
-    public float SmoothMax(float a)
-    {
-        float k = Mathf.Max(0, -value.smoothingMin);
-        float h = Mathf.Max(0f, Mathf.Min(1f, (value.minValue - a + k) / (2f * k)));
-        return a * h + value.minValue * (1f - h) - k * h * (1f - h);
-    }
-    #endregion noise functions
 
     #region fnl cs
     public FastNoiseLite ToFNLStateCS(int index, bool warp)
@@ -176,9 +259,19 @@ public class NoiseSettings : Settings
     #endregion
 
     #region cginc
-    public fnl_state ToFNLState(int index, bool warp)
+    public static List<fnl_state> ToFNLStates(NoiseSettings[] fnl_states, bool warp)
     {
-        return new fnl_state(this, index, warp, new NoiseActivationSettings.Activation());
+        List<fnl_state> states = new List<fnl_state>();
+        for (int i = 0; i < fnl_states.Length; i++)
+        {
+            states.Add(fnl_states[i].ToFNLState(warp));
+        }
+        return states;
+    }
+
+    public fnl_state ToFNLState(bool warp)
+    {
+        return new fnl_state(this, warp, new NoiseActivationSettings.Activation());
     }
 
     public struct fnl_state
@@ -204,11 +297,8 @@ public class NoiseSettings : Settings
         public float max_value;
         public float smoothing_max;
         public int invert;
-        public float threshold_min;
-        public float threshold_max;
-        public int index;
 
-        public fnl_state(NoiseSettings noiseSettings, int index, bool warp, NoiseActivationSettings.Activation activation)
+        public fnl_state(NoiseSettings noiseSettings, bool warp, NoiseActivationSettings.Activation activation)
         {
             if (!warp)
             {
@@ -245,16 +335,11 @@ public class NoiseSettings : Settings
             this.smoothing_max = noiseSettings.value.smoothingMax;
 
             this.invert = noiseSettings.value.invert ? 1 : 0;
-
-            // biome specific
-            this.threshold_min = activation.activationMin;
-            this.threshold_max = activation.activationMax;
-            this.index = index;
         }
 
         public static int size
         {
-            get { return sizeof(int) * 10 + sizeof(float) * 14; }
+            get { return sizeof(int) * 9 + sizeof(float) * 12; }
         }
     }
     #endregion

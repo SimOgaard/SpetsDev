@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650f071abe1eca142a6ddf5b953bdc22, type: 3}
   m_Name: 45Spawn
   m_EditorClassIdentifier: 
-  warp: []
+  warp:
+  - {fileID: 11400000, guid: d8f10456f4c93824e889fe9cdc9b7e78, type: 2}
   inscribedAngle: {x: 30, y: 32.5}
   area: {x: 0.6, y: 0.6333333}
   rounding: {x: 0.1, y: 0.125}

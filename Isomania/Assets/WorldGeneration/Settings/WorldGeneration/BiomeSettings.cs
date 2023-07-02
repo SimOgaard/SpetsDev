@@ -21,8 +21,6 @@ public class BiomeSettings : Settings
     [NonReorderable]
     public BiomeSpawnSettings spawn;
 
-    public int biomeIndex;
-
     public Color biomeMapColor;
 
     [Header("How")]
@@ -43,6 +41,36 @@ public class BiomeSettings : Settings
     /// Any null material on instance is refered to WorldGenerationSettings default BiomeMaterialSettings 
     /// </summary>
     public BiomeMaterialSettings materials;
+
+    /// <summary>
+    /// A struct that holds all values for this biome that will be sent to the compute shader
+    /// </summary>
+    public struct BiomeValues
+    {
+        /// <summary>
+        /// Where it spawns
+        /// </summary>
+        public BiomeSpawnSettings.SpawnValues spawnValues;
+
+        // how it is/looks
+        public Color color;
+
+        // indices that are warp/noise states for elevation
+        public int elevationFrom;
+        public int elevationTo;
+
+        public static int size
+        {
+            get
+            {
+                return
+                    BiomeSpawnSettings.SpawnValues.size +
+                    sizeof(float) * 4 + // color
+                    sizeof(int) * 2;    // integers
+            }
+        }
+    }
+    [HideInInspector] public BiomeValues biomeValues = new BiomeValues();
 
     /// <summary>
     /// The sum of all biomes inscribed angle always sums to specified degrees from layer.
@@ -68,10 +96,11 @@ public class BiomeSettings : Settings
     public override void Update()
     {
         // first update spawn values
-        spawn.spawnValues.index = biomeIndex;
-        spawn.spawnValues.color = biomeMapColor;
-        // then spawn itself
         spawn.Update();
+
+        // then the biome values
+        biomeValues.spawnValues = spawn.spawnValues;
+        biomeValues.color = biomeMapColor;
 
         for (int i = 0; i < elevation.Length; i++)
         {

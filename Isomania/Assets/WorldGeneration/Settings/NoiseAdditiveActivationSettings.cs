@@ -32,7 +32,7 @@ public class NoiseAdditiveActivationSettings : Settings
     {
 
     }
-
+    /*
     public List<FastNoiseLite> ToFNLStateCS(int index, bool warp)
     {
         List<FastNoiseLite> noiseSettingsFNLStates = new List<FastNoiseLite>();
@@ -54,4 +54,5 @@ public class NoiseAdditiveActivationSettings : Settings
 
         return noiseSettingsFNLStates;
     }
+    */
 }

@@ -223,8 +223,13 @@ struct fnl_state
      * Should we invert the value?
      */
     int invert;
+};
 
-    /// BIOME SPECIFIC ONLY
+struct fnl_activation_state
+{
+    fnl_state noise;
+
+    /// activation values
     /**
      * the min noisevalue that this biome triggers on
      */
@@ -234,12 +239,6 @@ struct fnl_state
      * the max noisevalue that this biome triggers on
      */
     float threshold_max;
-
-    /**
-     * The biome index this noise correspond to
-     */
-    int index;
-    /// BIOME SPECIFIC ONLY
 };
 
 /**

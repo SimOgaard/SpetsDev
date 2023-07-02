@@ -18,3 +18,6 @@ MonoBehaviour:
   dayNight: {fileID: 11400000, guid: 6ebcadceecc924e4cafb348858588be1, type: 2}
   wind: {fileID: 11400000, guid: 5e1d17106a9db1e4590e14116ce0dca3, type: 2}
   water: {fileID: 11400000, guid: b161eb0724b6d334c973dc51415265ea, type: 2}
+  rings:
+  - {fileID: 11400000, guid: a3e3c341195b1a74aa0fdae8771eec98, type: 2}
+  globalWarp: []

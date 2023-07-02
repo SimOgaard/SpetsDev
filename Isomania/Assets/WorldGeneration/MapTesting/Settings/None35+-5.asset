@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawn: {fileID: 11400000, guid: 600bfa4086074fc428287ca0fa9d3f57, type: 2}
   biomeIndex: -1
-  biomeMapColor: {r: 0, g: 0, b: 0, a: 1}
+  biomeMapColor: {r: 1, g: 0, b: 1, a: 1}
   elevation: []
   prefabInstances: []
   materials: {fileID: 0}

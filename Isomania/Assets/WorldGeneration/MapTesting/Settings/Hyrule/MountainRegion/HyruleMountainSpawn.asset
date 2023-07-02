@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650f071abe1eca142a6ddf5b953bdc22, type: 3}
   m_Name: HyruleMountainSpawn
   m_EditorClassIdentifier: 
-  warp: []
+  warp:
+  - {fileID: 11400000, guid: 1befb37772db24c489a68223304f6530, type: 2}
   inscribedAngle: {x: 140, y: 150}
   area: {x: 0.1, y: 0.125}
   rounding: {x: 0.1, y: 0.125}

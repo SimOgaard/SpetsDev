@@ -12,6 +12,10 @@ public class WorldMapGenerationManager : MonoBehaviour
     public ComputeShader computeShader;
 
     public ComputeBuffer biomeSpawnValuesBuffer;
+    public ComputeBuffer globalWarpStatesBuffer;
+
+    public ComputeBuffer warpStatesBuffer;
+    public ComputeBuffer noiseStatesBuffer;
     /*
     public ComputeBuffer angleBuffer;
     public ComputeBuffer biomeIndexBuffer;
@@ -29,12 +33,21 @@ public class WorldMapGenerationManager : MonoBehaviour
     public RenderTexture biomeBinaryBlend;
     public WorldMapRenderer biomeBinaryBlendRenderer;
 
+    public RenderTexture biomeBlend;
+    public WorldMapRenderer biomeBlendRenderer;
+
     public RenderTexture map;
     public WorldMapRenderer mapRenderer;
 
     public RenderTexture mapBlend;
     public WorldMapRenderer mapBlendRenderer;
-    
+
+    public RenderTexture warp;
+    public WorldMapRenderer warpRenderer;
+
+    public RenderTexture noise;
+    public WorldMapRenderer noiseRenderer;
+
     /*
         public RenderTexture edgeBiomeBinary;
         public WorldMapRenderer edgeBiomeBinaryRenderer;
@@ -252,8 +265,33 @@ public class WorldMapGenerationManager : MonoBehaviour
         biomeBinaryRenderer.renderTexture = biomeBinary;
         biomeBinaryBlendRenderer.renderTexture = biomeBinaryBlend;
 
+        biomeBlendRenderer.renderTexture = biomeBlend;
+
         mapRenderer.renderTexture = map;
         mapBlendRenderer.renderTexture = mapBlend;
+
+        warpRenderer.renderTexture = warp;
+        noiseRenderer.renderTexture = noise;
+    }
+
+    private void PopulateComputeBuffer(int size, out ComputeBuffer buffer, System.Array data)
+    {
+        // create the buffer with count that is never zero
+        buffer = new ComputeBuffer(
+            data.Length > 0 ? data.Length : 1,
+            size
+        );
+        // if it is not length zero
+        if (data.Length > 0)
+        {
+            // populate it
+            buffer.SetData(data);
+        }
+    }
+
+    private void PopulateComputeBuffer<T>(int size, out ComputeBuffer buffer, List<T> data)
+    {
+        PopulateComputeBuffer(size, out buffer, data.ToArray());
     }
 
     private void Start()
@@ -273,33 +311,78 @@ public class WorldMapGenerationManager : MonoBehaviour
         Debug.Log($"Map resolution is: {textureResolution}");
 
         // create texture from resolution
-        biomeBinary = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.RFloat, 1);
+        if (biomeBinary != null)
+            biomeBinary.Release();
+        biomeBinary = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.RInt, 1);
         biomeBinary.enableRandomWrite = true;
         biomeBinary.Create();
 
-        biomeBinaryBlend = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.RFloat, 1);
+        if (biomeBinaryBlend != null)
+            biomeBinaryBlend.Release();
+        biomeBinaryBlend = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.RInt, 1);
         biomeBinaryBlend.enableRandomWrite = true;
         biomeBinaryBlend.Create();
 
+        if (biomeBlend != null)
+            biomeBlend.Release();
+        biomeBlend = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.RFloat, 1);
+        biomeBlend.enableRandomWrite = true;
+        biomeBlend.Create();
+
+        if (map != null)
+            map.Release();
         map = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.ARGB32, 1);
         map.enableRandomWrite = true;
         map.Create();
 
+        if (mapBlend != null)
+            mapBlend.Release();
         mapBlend = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.ARGB32, 1);
         mapBlend.enableRandomWrite = true;
         mapBlend.Create();
 
+        if (warp != null)
+            warp.Release();
+        warp = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.ARGB32, 1);
+        warp.enableRandomWrite = true;
+        warp.Create();
+
+        if (noise != null)
+            noise.Release();
+        noise = new RenderTexture(textureResolution.x, textureResolution.y, 0, RenderTextureFormat.ARGB32, 1);
+        noise.enableRandomWrite = true;
+        noise.Create();
+
         // pass the textures to the compute shader
         computeShader.SetTexture(0, "biomeBinary", biomeBinary);
         computeShader.SetTexture(0, "biomeBinaryBlend", biomeBinaryBlend);
+        computeShader.SetTexture(0, "biomeBlend", biomeBlend);
         computeShader.SetTexture(0, "map", map);
         computeShader.SetTexture(0, "mapBlend", mapBlend);
+
+        computeShader.SetTexture(1, "biomeBinary", biomeBinary);
+        computeShader.SetTexture(1, "biomeBinaryBlend", biomeBinaryBlend);
+        computeShader.SetTexture(1, "biomeBlend", biomeBlend);
+        computeShader.SetTexture(1, "map", map);
+        computeShader.SetTexture(1, "mapBlend", mapBlend);
+        computeShader.SetTexture(1, "warpImage", warp);
+
+        computeShader.SetTexture(2, "biomeBinary", biomeBinary);
+        computeShader.SetTexture(2, "biomeBinaryBlend", biomeBinaryBlend);
+        computeShader.SetTexture(2, "biomeBlend", biomeBlend);
+        computeShader.SetTexture(2, "map", map);
+        computeShader.SetTexture(2, "mapBlend", mapBlend);
+        computeShader.SetTexture(2, "warpImage", warp);
+        computeShader.SetTexture(2, "noiseImage", noise);
 
         // create a random object that is used to randomly itterate array
         System.Random random = new System.Random();
 
         // create a list of spawn values, will hold all biomes values in correct order and rotation
         List<BiomeSpawnSettings.SpawnValues> spawnValues = new List<BiomeSpawnSettings.SpawnValues>();
+        // create a list of fnl states, will hold all biomes warp and noise states
+        List<NoiseSettings.fnl_state> warpStates = new List<NoiseSettings.fnl_state>();
+        List<NoiseSettings.fnl_state> noiseStates = new List<NoiseSettings.fnl_state>();
 
         // itterate rings in reverse
         foreach (RingSettings ring in worldGenerationSettings.rings.Reverse())
@@ -326,19 +409,33 @@ public class WorldMapGenerationManager : MonoBehaviour
                     foreach (BiomeSettings biome in layer.biomes.OrderBy(x => random.Next()))
                     {
                         // set min angle to current angle
-                        biome.spawn.spawnValues.inscribedAngleMin = regionRotation + biomeRotation;
+                        biome.biomeValues.spawnValues.inscribedAngleMin = regionRotation + biomeRotation;
                         // add this biomes inscribed angle to layer rotation
-                        biomeRotation += biome.spawn.spawnValues.inscribedAngle;
+                        biomeRotation += biome.biomeValues.spawnValues.inscribedAngle;
                         // and set max angle
-                        biome.spawn.spawnValues.inscribedAngleMax = regionRotation + biomeRotation;
+                        biome.biomeValues.spawnValues.inscribedAngleMax = regionRotation + biomeRotation;
                         // and lastly random angle
-                        biome.spawn.spawnValues.inscribedAngleRandom = randomRotation;
+                        biome.biomeValues.spawnValues.inscribedAngleRandom = randomRotation;
 
                         // convert all ranges of arbritrary number to final resolution
-                        biome.spawn.spawnValues.FromFractionToPixel(textureResolution);
+                        biome.biomeValues.spawnValues.FromFractionToPixel(textureResolution);
+
+                        // set from, to current count of warpStates
+                        biome.biomeValues.spawnValues.warpFrom = warpStates.Count();
+                        // add its warp states to warpStates
+                        warpStates.AddRange(NoiseSettings.ToFNLStates(biome.spawn.warp, true));
+                        noiseStates.AddRange(NoiseSettings.ToFNLStates(biome.spawn.warp, false));
+                        // and set to, to new count of warpStates
+                        biome.biomeValues.spawnValues.warpTo = warpStates.Count();
+
+                        // do the same for elevation
+                        biome.biomeValues.spawnValues.warpFrom = warpStates.Count();
+                        warpStates.AddRange(NoiseSettings.ToFNLStates(biome.elevation, true));
+                        noiseStates.AddRange(NoiseSettings.ToFNLStates(biome.elevation, false));
+                        biome.biomeValues.spawnValues.warpTo = warpStates.Count();
 
                         // then add it to spawnValues
-                        spawnValues.Add(biome.spawn.spawnValues);
+                        spawnValues.Add(biome.biomeValues.spawnValues);
                     }
                 }
 
@@ -346,7 +443,7 @@ public class WorldMapGenerationManager : MonoBehaviour
                 regionRotation += biomeRotation;
             }
         }
-        
+
         // are the angle delta between the two given angles less than diff?
         bool CompareAangles(float a, float b, float diff)
         {
@@ -354,11 +451,16 @@ public class WorldMapGenerationManager : MonoBehaviour
             return Mathf.Abs(difference) <= diff || Mathf.Approximately(a, b);
         }
 
-        // create an array of spawnValues, because we need to change it during loop
+        // create an array of spawnValues, because we need to change values during loop
         BiomeSpawnSettings.SpawnValues[] spawnValuesArray = spawnValues.ToArray();
+        // remove first biome from spawnValues if we have multiple rings
+        if (worldGenerationSettings.rings.Count() > 1)
+            spawnValues.RemoveAt(0);
+        // then check what start index we are at, if we removed a value we have 1, otherwise 0
+        int startIndex = System.Convert.ToInt32(worldGenerationSettings.rings.Count() > 1);
 
-        // now for each spawn value in spawnValuesArray
-        for (int i = 0; i < spawnValuesArray.Length; i++)
+        // now for each spawn value in spawnValuesArray that is not the main biome
+        for (int i = startIndex; i < spawnValuesArray.Length; i++)
         {
             // find all biomes with near same inscribedAngleMin of this spawnValue (can only be inscribedAngleMax)
             var nearMin = spawnValues.Where(value => CompareAangles(spawnValuesArray[i].inscribedAngleMin + spawnValuesArray[i].inscribedAngleRandom, value.inscribedAngleMax + value.inscribedAngleRandom, 0.01f)).ToList();
@@ -375,23 +477,41 @@ public class WorldMapGenerationManager : MonoBehaviour
             BiomeSpawnSettings.SpawnValues nearMinBiome = nearMin.OrderBy(value => Mathf.Abs(areaAverage - ((value.areaHeight + value.areaWidth) * 0.5f))).First();
             BiomeSpawnSettings.SpawnValues nearMaxBiome = nearMax.OrderBy(value => Mathf.Abs(areaAverage - ((value.areaHeight + value.areaWidth) * 0.5f))).First();
 
-            // then set the spawn value's spawnValuesIndexLeft and spawnValuesIndexRight to the index of nearMinMaxBiome in spawnValues
-            spawnValuesArray[i].spawnValuesIndexLeft = spawnValues.IndexOf(nearMinBiome);
-            spawnValuesArray[i].spawnValuesIndexRight = spawnValues.IndexOf(nearMaxBiome);
+            // then set the spawn value's spawnValuesIndexLeft and spawnValuesIndexRight to the index of nearMinMaxBiome in spawnValues, making shure to take the removed biome into account when getting index (+1)
+            spawnValuesArray[i].spawnValuesIndexLeft = spawnValues.IndexOf(nearMinBiome) + startIndex;
+            spawnValuesArray[i].spawnValuesIndexRight = spawnValues.IndexOf(nearMaxBiome) + startIndex;
         }
 
+        // get warp in fnl_state structs
+        List<NoiseSettings.fnl_state> globalWarp = NoiseSettings.ToFNLStates(worldGenerationSettings.globalWarp, true);
+        // and populate the corresponding buffer
+        PopulateComputeBuffer(NoiseSettings.fnl_state.size, out globalWarpStatesBuffer, globalWarp);
+        // then pass it to the first kernel
+        computeShader.SetBuffer(0, "globalWarpStatesBuffer", globalWarpStatesBuffer);
+        computeShader.SetInt("globalWarpStatesBufferLengths", globalWarp.Count());
+
         // pass theese values to compute shader
-        biomeSpawnValuesBuffer = new ComputeBuffer(
-                spawnValuesArray.Length,
-                BiomeSpawnSettings.SpawnValues.SizeOf()
-            );
-        biomeSpawnValuesBuffer.SetData(spawnValuesArray);
+        PopulateComputeBuffer(BiomeSpawnSettings.SpawnValues.size, out biomeSpawnValuesBuffer, spawnValuesArray);
         computeShader.SetBuffer(0, "biomeSpawnValuesBuffer", biomeSpawnValuesBuffer);
-        computeShader.SetInt("bufferLengths", spawnValuesArray.Length);
+        computeShader.SetBuffer(1, "biomeSpawnValuesBuffer", biomeSpawnValuesBuffer);
+        computeShader.SetBuffer(2, "biomeSpawnValuesBuffer", biomeSpawnValuesBuffer);
+        computeShader.SetInt("biomeSpawnValuesBufferLengths", spawnValuesArray.Length);
+
+        // and dont forget our warpstates
+        PopulateComputeBuffer(NoiseSettings.fnl_state.size, out warpStatesBuffer, warpStates);
+        computeShader.SetBuffer(1, "warpStatesBuffer", warpStatesBuffer);
+        computeShader.SetInt("warpStatesBufferLengths", warpStates.Count());
+
+        // nor our noisestates
+        PopulateComputeBuffer(NoiseSettings.fnl_state.size, out noiseStatesBuffer, noiseStates);
+        computeShader.SetBuffer(2, "noiseStatesBuffer", noiseStatesBuffer);
+        computeShader.SetInt("noiseStatesBufferLengths", noiseStates.Count());
 
         // start compute shader
         computeShader.Dispatch(0, 6400 / 10, 5400 / 10, 1);
-        
+        computeShader.Dispatch(1, 6400 / 10, 5400 / 10, 1);
+        //computeShader.Dispatch(2, 6400 / 10, 5400 / 10, 1);
+
         // and render
         Render();
         return;

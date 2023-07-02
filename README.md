@@ -3,9 +3,38 @@
 
 # High priority checklist: (things bellow gets put here to be queued)
 
+
+only render 1 chunk, stationary camera, you in upper middle of the 1/3 of left of screen. bottom middle of screen have 3 evenly spaced buttons, [workers] [play] [settings], when clicking one button, the button expands to take up the whole 1/3 of the screen, with all its settings. all of the settings buttons settings updates in real time. when clicking play, and choosing a difficulity. the buttons contract the camera spans to the player, the player stands up, takes the sword from the stone, and your inventory slides in. you now have controll.
+
+
+move all warp settings from noise settings to its own class and add that class ass an serilized array
+then you can have multiple warps for a single noise, and ofcourse noise with activation would work in conjunction with that. some things have to be changed on compute shader side aswell.
+
+
+game object that is a ray object, which you place a reference to in the instanciate script that casts a ray in the direction of the game object, and places it down the ray so no matter how large the cube each corner is underneath earth
+
+
+tile any noise
+https://youtu.be/Qj_tK_mdRcA?t=447
+
+
 # 
+lower opacity with less light, reflection shader
+
+a biome of just crosses evenly spaced like graves, where if you hit them they get destroyed, and you can then walk over them
+
+
+precalculate noise option; none, few, some, most, all.
+
+
+when spawning objects, make it so that bigger objects spawn first (like houses/farms) they could have multiple buildings inside them so use function collapsing algorythm to spanw them, and when spawning any object, do not do a physics raycast, but sample the noise using c# fastnoiselite. we need to have some buildings spawning no matter the run, so; create a list of n number of unified randomly placed points over the whole map, randomly take a point from that list and evaluate the biome, if correct biome spawn it. also when creating the map, get the middle angle of biome, as well as its distance from origin, and save it so that we could place huge structures in the middle of any biome, with some randomness to the position given the structure.
+
 
 # Shader
+geo without snap, geo with snap and geo with both snap and rot. balls can use snap, complex meshes can use without and snap parrent in code, cubes can use both snap and rot.
+
+taller grass that is lighter in color like here: (https://youtu.be/Y0Ko0kvwfgA?t=638) can be instanciated with my own foliage system, might require different x and y pixels for when dividing grid into sinular texture, with that beeing pixel perfect we render smaller quads which in return makes fragment shader pass through less of them (better preformance)
+
 shaders in prefab view https://forum.unity.com/threads/if-unity_prefab_view.1307313/ 
 
 maybe you can snap unity_ObjectToWorld positions
@@ -211,6 +240,7 @@ shake healthbar when a lot of damage is taken or given to enemy
 
 # Enemies
 add damage taken as a number under enemy health bar bottom left like elden ring
+https://www.youtube.com/watch?v=awF52c57XkI (deligate på gräss som ger player mindre vision score)
 
 # Youtube
 This would be a cool video:

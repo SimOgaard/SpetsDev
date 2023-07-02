@@ -4,6 +4,9 @@ using UnityEngine;
 using Unity.Collections;
 using System.Linq;
 
+/// <summary>
+/// Manages the world generation
+/// </summary>
 [ExecuteInEditMode]
 public class WorldGenerationManager : MonoBehaviour
 {
@@ -69,7 +72,6 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        Ground.GPUData.Destroy();
         worldGenerationSettings.Destroy();
     }
 
@@ -135,7 +137,7 @@ public class WorldGenerationManager : MonoBehaviour
         Water water = new GameObject().AddComponent<Water>();
         water.Init(worldGenerationSettings.water, 350f, 350f, transform);
 
-        //LoadNearest(worldGenerationSettings.chunkSettings.maxChunkLoadAtATimeInit);
+        LoadNearest(worldGenerationSettings.chunk.maxChunkLoadAtATimeInit);
         StartCoroutine(LoadProgressively());
 
         Application.targetFrameRate = -1;
@@ -149,7 +151,7 @@ public class WorldGenerationManager : MonoBehaviour
 
     private void LoadNearest(int maxChunkLoadAtATime)
     {
-        void sunflower(int n, float alpha)
+        void Sunflower(int n, float alpha)
         {
             float radius(int k, int n, int b)
             {
@@ -175,7 +177,7 @@ public class WorldGenerationManager : MonoBehaviour
         }
 
         // start loading in sunflower orientation
-        sunflower(worldGenerationSettings.chunk.chunkLoadPrecision, 0f);
+        Sunflower(worldGenerationSettings.chunk.chunkLoadPrecision, 0f);
 
         // sort the chunks that are supposed to be loading
         chunksInLoading.Sort(delegate (Chunk c1, Chunk c2) { return c1.DistToPlayer().CompareTo(c2.DistToPlayer()); });

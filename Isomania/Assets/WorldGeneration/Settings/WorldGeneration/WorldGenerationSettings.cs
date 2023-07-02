@@ -16,6 +16,7 @@ public class WorldGenerationSettings : Settings
     /// The global seed, all seeds get offset by this value
     /// </summary>
     public int globalSeed = 1337;
+    public System.Random dotNetRandom;
 
     /// <summary>
     /// Rules for the player spawn 
@@ -55,6 +56,7 @@ public class WorldGenerationSettings : Settings
     /// </summary>
     [NonReorderable]
     public RingSettings[] rings;
+    public NoiseSettings[] globalWarp;
 
     /// <summary>
     /// All regions of a rings inscribed angle always sums to 360 degrees
@@ -84,6 +86,10 @@ public class WorldGenerationSettings : Settings
     [ContextMenu("Update", false, -1000)]
     public override void Update()
     {
+        // init all random as global seed
+        dotNetRandom = new System.Random(globalSeed);
+        Random.InitState(globalSeed);
+
         if (chunk != null)
             chunk.Update();
 
@@ -103,10 +109,14 @@ public class WorldGenerationSettings : Settings
             rings[i].Update();
         }
 
+        for (int i = 0; i < globalWarp.Length; i++)
+        {
+            globalWarp[i].Update();
+        }
+
         NormalizeInscribedAngle();
 
-        if (false)
-            Ground.Update(this);
+        WorldGenerator.Update(this);
     }
 
     /// <summary>
@@ -115,6 +125,7 @@ public class WorldGenerationSettings : Settings
     public override void Destroy()
     {
         dayNight.Destroy();
+        WorldGenerator.Destroy();
     }
 
     /// <summary>

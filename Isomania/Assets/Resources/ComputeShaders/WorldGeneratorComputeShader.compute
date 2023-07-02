@@ -1,0 +1,276 @@
+// kernel 0 that draws circle biomes on image
+#pragma kernel CircleBiome
+// kernel 1 that warps image
+#pragma kernel Warp
+// kernel 2 that warps image
+#pragma kernel Noise
+
+// define constants
+#define PI 3.1415926538
+#define PI2 3.1415926538 * 2
+
+// fast noise lite
+#include "/Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
+
+// resolution of image
+int2 imageResolutions;
+
+// holds what biome each pixel is
+RWTexture2D<int> biomeBinary;
+// holds what pixels should be blended and with what biome
+RWTexture2D<int> biomeBinaryBlend;
+// holds how much it should be blended
+RWTexture2D<float> biomeBlend;
+// biomeBinary but colored for our convenience
+RWTexture2D<float4> map;
+// biomeBinaryBlend but colored for our convenience
+RWTexture2D<float4> mapBlend;
+
+// struct holding all values for where biome should spawn
+struct BiomeSpawnValues
+{
+    float inscribedAngle;
+    
+    float inscribedAngleMin;
+    float inscribedAngleMax;
+
+    float inscribedAngleRandom;
+
+    float areaWidth;
+    float areaHeight;
+
+    float rounding;
+
+    float blendingRegion;
+    float blendingLayer;
+
+    int index;
+    float4 color;
+
+    int spawnValuesIndexLeft;
+    int spawnValuesIndexRight;
+
+    // for warp buffer
+    int from;  // start index of myOtherBuffer
+    int to;    // end index of myOtherBuffer
+};
+StructuredBuffer<BiomeSpawnValues> biomeSpawnValuesBuffer;
+int biomeSpawnValuesBufferLengths; // size of biomeSpawnValuesBuffer
+
+StructuredBuffer<fnl_state> globalWarpStatesBuffer;
+int globalWarpStatesBufferLengths; // size of globalWarpStatesBuffer
+
+// warps x and y using globalWarpStatesBuffer
+void globalWarp(inout FNLfloat x, inout FNLfloat y)
+{
+    for (int i = 0; i < globalWarpStatesBufferLengths; i++)
+    {
+        fnlDomainWarp2D(globalWarpStatesBuffer[i], x, y);
+    }
+}
+
+// normalizes radian to be between 0 and 2*PI
+float constrainRadian(float x) {
+    x = fmod(x, PI2);
+    if (x < 0)
+        x += PI2;
+    return x;
+}
+
+// unsigned round box
+float roundedRectangle(float2 p, float width, float height, float r)
+{
+    return length(max(abs(p) - imageResolutions * 0.5 + float2(width, height) + r, 0.0)) - r;
+    //return length(max(abs(p) - float2(width, height) + r, 0.0)) - r;
+}
+
+// draws circle biomes on image 
+[numthreads(10,10,1)]
+void CircleBiome (uint3 id : SV_DispatchThreadID)
+{
+    // first calculate values that are for specific pixel:
+    // get warp value
+    float2 xy = id.xy;
+    globalWarp(xy.x, xy.y);
+    // remap pixel coordinates to have 0,0 in middle of screen
+    float2 pixelPosition = xy - imageResolutions * 0.5;
+    // get length of pixel
+    float pixelPositionLength = length(pixelPosition);
+
+    // calculate the angle of our current pixel
+    float pixelTheta = atan2(pixelPosition.y, pixelPosition.x);
+
+    // for every biome spawn setting
+    for (int i = 0; i < biomeSpawnValuesBufferLengths; i++)
+    {
+        // calculate random pixel theta
+        float pixelThetaRandom = constrainRadian(pixelTheta + biomeSpawnValuesBuffer[i].inscribedAngleRandom);
+
+        // check if we are in sector
+        if (pixelThetaRandom >= biomeSpawnValuesBuffer[i].inscribedAngleMin && pixelThetaRandom <= biomeSpawnValuesBuffer[i].inscribedAngleMax)
+        {
+            // calculate pixel distance from both sides of biome
+            // by taking the sin of the angle from both sides of this circular sectors legs to pixel
+            float angleSide1 = sin(pixelThetaRandom - biomeSpawnValuesBuffer[i].inscribedAngleMin); // sin(this) is positive but should be negative later on
+            float angleSide2 = sin(biomeSpawnValuesBuffer[i].inscribedAngleMax - pixelThetaRandom); // sin(this) is positive
+
+            // we only care about the closest biome so check for it
+            float distanceToNearestBiome;
+            int nearestBiomeBufferIndex;
+            if (angleSide1 < angleSide2)
+            {
+                // biome left to us is smaller
+                distanceToNearestBiome = angleSide1 * pixelPositionLength;
+                nearestBiomeBufferIndex = biomeSpawnValuesBuffer[i].spawnValuesIndexLeft;
+            }
+            else
+            {
+                // biome right to us is smaller
+                distanceToNearestBiome = angleSide2 * pixelPositionLength;
+                nearestBiomeBufferIndex = biomeSpawnValuesBuffer[i].spawnValuesIndexRight;
+            }
+
+            // here distanceToNearestBiome is the amount of pixels this pixel is from nearestBiomeBufferIndex representitive biome
+            // when distanceToNearestBiome is zero we want a blend value of .5, when it is biomeSpawnValuesBuffer[i].blendingRegion we want 0
+            float regionBlend = (1.0 - saturate(distanceToNearestBiome / biomeSpawnValuesBuffer[i].blendingRegion)) * 0.5;
+
+            // now get blended width and height between this biome and nearest
+            float lerpValue = smoothstep(0.0, 1.0, regionBlend);
+            float width = lerp(biomeSpawnValuesBuffer[i].areaWidth, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].areaWidth, lerpValue);
+            float height = lerp(biomeSpawnValuesBuffer[i].areaHeight, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].areaHeight, lerpValue);
+            float rounding = lerp(biomeSpawnValuesBuffer[i].rounding, biomeSpawnValuesBuffer[nearestBiomeBufferIndex].rounding, lerpValue);
+            // now check if we are close enough to center
+            float dist = roundedRectangle(pixelPosition, width, height, rounding);
+
+            if (dist > 0.5)
+            {
+                // this pixel is this biome, so set binary color and map to specify this biome, also draw blending
+                // draw our calculated blending
+                if (regionBlend > 0)
+                {
+                    // should be blended to nearestBiomeBufferIndex
+                    biomeBinaryBlend[id.xy] = nearestBiomeBufferIndex;
+                    mapBlend[id.xy] = biomeSpawnValuesBuffer[nearestBiomeBufferIndex].color;
+                }
+                else
+                {
+                    // should be blended with itself
+                    biomeBinaryBlend[id.xy] = i;
+                    mapBlend[id.xy] = biomeSpawnValuesBuffer[i].color;
+                }
+                
+                biomeBinary[id.xy] = i;
+                biomeBlend[id.xy] = lerpValue;
+                map[id.xy] = biomeSpawnValuesBuffer[i].color;
+            }
+        }
+    }
+}
+
+StructuredBuffer<fnl_state> warpStatesBuffer;
+int warpStatesBufferLengths; // size of warpStatesBuffer
+
+void warp(int from, int to, inout FNLfloat x, inout FNLfloat y)
+{
+    for (int i = from; i < to; i++)
+    {
+        fnlDomainWarp2D(warpStatesBuffer[i], x, y);
+    }
+}
+
+RWTexture2D<float4> warpImage;
+// warps image 
+[numthreads(10, 10, 1)]
+void Warp(uint3 id : SV_DispatchThreadID)
+{
+    // create soon to be warped pixel position from the two possible biomes this pixel has (blended and main)
+    float xWarpedMain = id.x;
+    float xWarpedBlend = id.x;
+
+    float yWarpedMain = id.y;
+    float yWarpedBlend = id.y;
+
+    // find biomeSpawnValuesBuffer index for both biomes this pixel has
+    int mainIndex = biomeBinary[id.xy];
+    int blendIndex = biomeBinaryBlend[id.xy];
+
+    // use their warp struct to warp the two xy floats
+    warp(biomeSpawnValuesBuffer[mainIndex].from, biomeSpawnValuesBuffer[mainIndex].to, xWarpedMain, yWarpedMain);
+    warp(biomeSpawnValuesBuffer[blendIndex].from, biomeSpawnValuesBuffer[blendIndex].to, xWarpedBlend, yWarpedBlend);
+
+    // now lerp between the two resulting warped vectors
+    float xWarped = lerp(xWarpedMain, xWarpedBlend, biomeBlend[id.xy]);
+    float yWarped = lerp(yWarpedMain, yWarpedBlend, biomeBlend[id.xy]);
+
+    // round to integer and clamp between 0 and texture size
+    int2 warpedXY = int2(clamp(round(xWarped), 0, imageResolutions.x - 1), clamp(round(yWarped), 0, imageResolutions.y - 1));
+
+    if (biomeBinary[warpedXY] == mainIndex)
+    {
+        // if warped value is still main index
+        warpImage[id.xy] = biomeSpawnValuesBuffer[mainIndex].color;
+        //warpImage[id.xy] = 1;
+    }
+    else if (biomeBinary[warpedXY] == blendIndex)
+    {
+        // if warped value is blend index
+        warpImage[id.xy] = biomeSpawnValuesBuffer[blendIndex].color;
+        //warpImage[id.xy] = 0;
+    }
+    else
+    {
+        warpImage[id.xy] = map[id.xy];
+        // we are 
+        //warpImage[id.xy] = 0.5;
+    }
+
+    // get pixel value on warped pixel and set TEST texture to new value
+}
+
+// warp using only map
+// take current pixel binary value (index)
+// warp pixel by index warp structs
+// if the resulting pixel at warped position is not the same, warp using that index and blend
+
+StructuredBuffer<fnl_state> noiseStatesBuffer;
+int noiseStatesBufferLengths; // size of noiseStatesBuffer
+
+float noise(int from, int to, FNLfloat x, FNLfloat y)
+{
+    float noise = 0;
+    float amplitude = 0;
+    for (int i = from; i < to; i++)
+    {
+        noise += SampleNoise2D(noiseStatesBuffer[i], x, y);
+        amplitude += noiseStatesBuffer[i].amplitude;
+    }
+    return noise /= amplitude;
+}
+
+RWTexture2D<float4> noiseImage;
+// warps image by noise
+[numthreads(10, 10, 1)]
+void Noise(uint3 id : SV_DispatchThreadID)
+{
+    // find biomeSpawnValuesBuffer index for both biomes this pixel has
+    int mainIndex = biomeBinary[id.xy];
+    int blendIndex = biomeBinaryBlend[id.xy];
+
+    // use their noise struct to get a noise value for both biomes
+    float noiseMain = noise(biomeSpawnValuesBuffer[mainIndex].from, biomeSpawnValuesBuffer[mainIndex].to, id.x, id.y);
+    float noiseBlend = noise(biomeSpawnValuesBuffer[blendIndex].from, biomeSpawnValuesBuffer[blendIndex].to, id.x, id.y);
+
+    // now lerp between the two resulting values, to get a value between 0 and 1;
+    float noise = lerp(noiseMain, noiseBlend, biomeBlend[id.xy]);
+
+    // if noise is positive, it is main index, otherwise blend index
+    if (noise <= 0)
+    {
+        noiseImage[id.xy] = map[id.xy];
+    }
+    else
+    {
+        noiseImage[id.xy] = mapBlend[id.xy];
+    }
+    //noiseImage[id.xy] = 1;
+}

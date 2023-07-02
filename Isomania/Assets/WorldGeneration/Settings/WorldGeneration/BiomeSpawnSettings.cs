@@ -73,21 +73,13 @@ public class BiomeSpawnSettings : Settings
         public float blendingRegion;
         public float blendingLayer;
 
-        public int index;
-        public Color color;
+        public int indexLeft;
+        public int indexRight;
 
-        public int spawnValuesIndexLeft;
-        public int spawnValuesIndexRight;
+        // indices that are warp/noise states for biome warp
+        public int warpFrom;
+        public int warpTo;
 
-        /// <summary>
-        /// Constrains inscribedAngle to be between -PI and PI
-        /// </summary>
-        public void ConstrainInscribedAngles()
-        {
-            inscribedAngle = ConstrainAngle(inscribedAngle);
-            inscribedAngleMin = ConstrainAngle(inscribedAngleMin);
-            inscribedAngleMax = ConstrainAngle(inscribedAngleMax);
-        }
         public static float ConstrainAngle(float angle)
         {
             angle = (angle) % (Mathf.PI * 2f);
@@ -96,43 +88,18 @@ public class BiomeSpawnSettings : Settings
             return angle;
         }
 
-        public static int SizeOf()
+        public static int size
         {
-            return
-                sizeof(float) * 9 + // float values
-                sizeof(float) * 4 + // color
-                sizeof(int) * 3; // integers
+            get 
+            {
+                return
+                    sizeof(float) * 9 + // float values
+                    sizeof(int) * 4;    // integers
+            }
         }
 
         /// <summary>
-        /// Sets all values to the same as specified spawn values
-        /// </summary>
-        public SpawnValues(SpawnValues spawnValues)
-        {
-            this.inscribedAngle = spawnValues.inscribedAngle;
-
-            this.inscribedAngleMin = spawnValues.inscribedAngleMin;
-            this.inscribedAngleMax = spawnValues.inscribedAngleMax;
-
-            this.inscribedAngleRandom = spawnValues.inscribedAngleRandom;
-
-            this.areaWidth = spawnValues.areaWidth;
-            this.areaHeight = spawnValues.areaHeight;
-
-            this.rounding = spawnValues.rounding;
-
-            this.blendingRegion = spawnValues.blendingRegion;
-            this.blendingLayer = spawnValues.blendingLayer;
-
-            this.index = spawnValues.index;
-            this.color = spawnValues.color;
-
-            this.spawnValuesIndexLeft = spawnValues.spawnValuesIndexLeft;
-            this.spawnValuesIndexRight = spawnValues.spawnValuesIndexRight;
-        }
-
-        /// <summary>
-        /// Converts this spawnvalues to no longer be 
+        /// Converts this spawnvalues to no longer be fractional
         /// </summary>
         public void FromFractionToPixel(Vector2Int resolution)
         {

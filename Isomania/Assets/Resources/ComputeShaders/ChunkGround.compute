@@ -1,13 +1,9 @@
-#pragma kernel TriangleBiomeSelector // kernel 0
-#pragma kernel VerticeBiomeSelector // kernel 1
-#pragma kernel MeshDisplacement // kernel 2
-#pragma kernel NormalizeMeshTriangles // kernel 3
-#pragma kernel NormalizeMeshVertices // kernel 4
-#pragma kernel TriangleMidpointY // kernel 5
-/*
-#pragma kernel StaticTriangleType // kernel 6
-#pragma kernel TriangleType // kernel 7
-*/
+#pragma kernel BiomeVertSelector // kernel 0
+#pragma kernel BiomeTriSelector // kernel 1
+#pragma kernel VertElevation // kernel 2
+#pragma kernel TriNormal // kernel 3
+#pragma kernel VertNormal // kernel 4
+#pragma kernel TriHeight // kernel 5
 
 // 
 // For all kernels
@@ -16,26 +12,111 @@
 #include "Assets/Graphics/CGincFiles/Noise/FastNoiseLite.cginc"
 
 /// changing values for each dispatch
-float2 meshXZPosition; // xz position of current mesh
+float2 chunkXZPosition; // xz position of current chunk
+
+// struct holding all values for where biome should spawn
+struct BiomeSpawnValues
+{
+    float inscribedAngle;
+
+    float inscribedAngleMin;
+    float inscribedAngleMax;
+
+    float inscribedAngleRandom;
+
+    float areaWidth;
+    float areaHeight;
+
+    float rounding;
+
+    float blendingRegion;
+    float blendingLayer;
+
+    int index;
+    float4 color;
+
+    int spawnValuesIndexLeft;
+    int spawnValuesIndexRight;
+
+    // for warp buffer
+    int from;  // start index of myOtherBuffer
+    int to;    // end index of myOtherBuffer
+};
 
 //
 // For all biome kernels
 //
-StructuredBuffer<fnl_state> FNLStateBiomeBuffer; // all fnlStates for biomes
-StructuredBuffer<fnl_state> FNLWarpStateBiomeBuffer; // all fnlWarpStates for biomes
-int biomeBufferLength; // the length of fnl state buffers (they have the same length)
+StructuredBuffer<BiomeSpawnValues> biomeSpawnValuesBuffer;
+int biomeSpawnValuesBufferLengths; // size of biomeSpawnValuesBuffer
 
-//
-// For all triangle kernels
-//
-StructuredBuffer<float2> trianglesMidPoint; // xz position for triangle midpoint
-int quadCountWidth;
+StructuredBuffer<fnl_state> globalWarpStatesBuffer;
+int globalWarpStatesBufferLengths; // size of globalWarpStatesBuffer
 
 //
 // For all vertice kernels
 //
 StructuredBuffer<float2> verticesExtendedXZ; // xz position for all vertices
 int verticeCountWidthExtended;
+
+//
+// For BiomeVertSelector
+//
+// RW buffers that is required for BiomeSelector
+RWBuffer<int> verticeBiome; // the vertices biome index
+
+// calculates the biome for each vertice of mesh
+[numthreads(64, 1, 1)] // id.x = verticeCountHeightExtended
+void BiomeVertSelector(uint3 id : SV_DispatchThreadID)
+{
+    // get vertice index
+    int verticeIndexOffset = id.x * verticeCountWidthExtended;
+
+    for (int x = 0; x < verticeCountWidthExtended; x++)
+    {
+        // get vertice index
+        int verticeIndex = verticeIndexOffset + x;
+
+        // get vertice x value (from precalculated vertice array and offset)
+        float x = verticesExtendedXZ[verticeIndex].x + meshXZPosition.x;
+        // get vertice z value (from precalculated vertice array and offset)
+        float z = verticesExtendedXZ[verticeIndex].y + meshXZPosition.y;
+
+        // the warped xz values
+        float xWarped;
+        float zWarped;
+
+        // set vertice biome to default (0)
+        verticeBiome[verticeIndex] = 0;
+
+        // itterate every fnl_state
+        for (int i = 0; i < biomeBufferLength; i++)
+        {
+            // reset xz values
+            xWarped = x;
+            zWarped = z;
+            // and warp them
+            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i].activation_state.noise, xWarped, zWarped);
+
+            // use warped xz values to get noise value
+            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i].activation_state.noise, xWarped, zWarped);
+
+            // if this noise value is enough to trigger this vertice as this biome
+            if (noiseValue > FNLStateBiomeBuffer[i].activation_state.threshold_min && noiseValue < FNLStateBiomeBuffer[i].activation_state.threshold_max)
+            {
+                // mark this vertice that biome
+                verticeBiome[verticeIndex] = FNLStateBiomeBuffer[i].index;
+                // and break for loop
+                break;
+            }
+        }
+    }
+}
+
+//
+// For all triangle kernels
+//
+StructuredBuffer<float2> trianglesMidPoint; // xz position for triangle midpoint
+int quadCountWidth;
 
 //
 // For TriangleBiomeSelector
@@ -74,13 +155,13 @@ void TriangleBiomeSelector(uint3 id : SV_DispatchThreadID)
             xWarped = x;
             zWarped = z;
             // and warp them
-            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i], xWarped, zWarped);
+            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i].activation_state.noise, xWarped, zWarped);
 
             // use warped xz values to get noise value
-            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i], xWarped, zWarped);
+            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i].activation_state.noise, xWarped, zWarped);
 
             // if this noise value is enough to trigger this triangle as this biome
-            if (noiseValue > FNLStateBiomeBuffer[i].threshold_min && noiseValue < FNLStateBiomeBuffer[i].threshold_max)
+            if (noiseValue > FNLStateBiomeBuffer[i].activation_state.threshold_min && noiseValue < FNLStateBiomeBuffer[i].activation_state.threshold_max)
             {
                 // mark this triangle that biome
                 triangleBiome[triangleIndex] = FNLStateBiomeBuffer[i].index;
@@ -92,64 +173,10 @@ void TriangleBiomeSelector(uint3 id : SV_DispatchThreadID)
 }
 
 //
-// For VerticeBiomeSelector
-//
-// RW buffers that is required for BiomeSelector
-RWBuffer<int> verticeBiome; // the vertices biome index
-
-// calculates the biome for each vertice of mesh
-[numthreads(64, 1, 1)] // id.x = verticeCountHeightExtended
-void VerticeBiomeSelector(uint3 id : SV_DispatchThreadID)
-{
-    // get vertice index
-    int verticeIndexOffset = id.x * verticeCountWidthExtended;
-
-    for (int x = 0; x < verticeCountWidthExtended; x++)
-    {
-        // get vertice index
-        int verticeIndex = verticeIndexOffset + x;
-
-        // get vertice x value (from precalculated vertice array and offset)
-        float x = verticesExtendedXZ[verticeIndex].x + meshXZPosition.x;
-        // get vertice z value (from precalculated vertice array and offset)
-        float z = verticesExtendedXZ[verticeIndex].y + meshXZPosition.y;
-
-        // the warped xz values
-        float xWarped;
-        float zWarped;
-
-        // set vertice biome to default (0)
-        verticeBiome[verticeIndex] = 0;
-
-        // itterate every fnl_state
-        for (int i = 0; i < biomeBufferLength; i++)
-        {
-            // reset xz values
-            xWarped = x;
-            zWarped = z;
-            // and warp them
-            fnlDomainWarp2D(FNLWarpStateBiomeBuffer[i], xWarped, zWarped);
-
-            // use warped xz values to get noise value
-            float noiseValue = SampleNoise2D(FNLStateBiomeBuffer[i], xWarped, zWarped);
-
-            // if this noise value is enough to trigger this vertice as this biome
-            if (noiseValue > FNLStateBiomeBuffer[i].threshold_min && noiseValue < FNLStateBiomeBuffer[i].threshold_max)
-            {
-                // mark this vertice that biome
-                verticeBiome[verticeIndex] = FNLStateBiomeBuffer[i].index;
-                // and break for loop
-                break;
-            }
-        }
-    }
-}
-
-//
 // For MeshDisplacement
 //
-StructuredBuffer<fnl_state> FNLStateVerticeOffsetBuffer; // all fnlStates for vertice offset
-StructuredBuffer<fnl_state> FNLWarpStateVerticeOffsetBuffer; // all fnlWarpStates vertice offset
+StructuredBuffer<fnl_activation_biome_state> FNLStateVerticeOffsetBuffer; // all fnlStates for vertice offset
+StructuredBuffer<fnl_activation_biome_state> FNLWarpStateVerticeOffsetBuffer; // all fnlWarpStates vertice offset
 int verticeOffsetBufferLength; // the length of fnl state buffers (they have the same length)
 
 // RW buffers that is required for BiomeSelector
@@ -197,10 +224,10 @@ void MeshDisplacement(uint3 id : SV_DispatchThreadID)
                 xWarped = x;
                 zWarped = z;
                 // and warp them
-                fnlDomainWarp2D(FNLWarpStateVerticeOffsetBuffer[i], xWarped, zWarped);
+                fnlDomainWarp2D(FNLWarpStateVerticeOffsetBuffer[i].activation_state.noise, xWarped, zWarped);
 
                 // use warped xz values to get noise value
-                verticesExtendedY[verticeIndex] += SampleNoise2D(FNLStateVerticeOffsetBuffer[i], xWarped, zWarped);
+                verticesExtendedY[verticeIndex] += SampleNoise2D(FNLStateVerticeOffsetBuffer[i].activation_state.noise, xWarped, zWarped);
             }
         }
 
